@@ -12,6 +12,8 @@ document.documentElement.classList.add("midiable-mobile")
 initializeColors(document.documentElement)
 DisplayPaint.initialize(document.documentElement)
 
+// Android WebView may support isolated contexts via the explicit AndroidX profile allowlist,
+// even when COOP/COEP headers alone are not sufficient. Keep a clear diagnostic if it does not.
 if (window.crossOriginIsolated) {
     const now = Date.now()
     boot({
