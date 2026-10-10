@@ -115,7 +115,11 @@ export namespace Files {
     }
 
     const openPicker = async (options?: OpenFilePickerOptions): Promise<ReadonlyArray<File>> => {
-        if (isDefined(window.showOpenFilePicker)) {
+        const hasNativeOpenDawBridge = isDefined((window as Window & {OpenDAWNative?: unknown}).OpenDAWNative)
+        // Android WebView file imports must use its native chooser so content:// URIs receive
+        // the correct grants. Some WebView releases expose a partial File System Access API;
+        // bypass that implementation when the OpenDAW native bridge is present.
+        if (!hasNativeOpenDawBridge && isDefined(window.showOpenFilePicker)) {
             const {status, value: fileHandles, error} = await Promises.tryCatch(window.showOpenFilePicker(options))
             if (status === "rejected") {return Promise.reject(error)}
             return Promise.all(fileHandles.map(fileHandle => fileHandle.getFile()))
