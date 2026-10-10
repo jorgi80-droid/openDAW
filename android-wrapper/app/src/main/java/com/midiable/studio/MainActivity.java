@@ -69,7 +69,9 @@ public final class MainActivity extends Activity {
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.getSettings().setAllowFileAccess(false);
-        webView.getSettings().setAllowContentAccess(false);
+        // Required for WebView's file-input control to read the user-granted content:// URI.
+        // External top-level navigation is blocked below; all bundled HTML is loaded from appassets.
+        webView.getSettings().setAllowContentAccess(true);
         webView.addJavascriptInterface(new OpenDAWBridge(), "OpenDAWNative");
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
