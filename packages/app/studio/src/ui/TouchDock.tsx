@@ -27,8 +27,14 @@ export const TouchDock = ({service}: Construct) => {
 
     return (
         <nav className="touch-dock" aria-label="OpenDAW touch shortcuts">
-            {button("Timeline", "Buka Timeline / Arrangement", () =>
-                openPanel("default", PanelType.Timeline))}
+            {button("Timeline", "Kembali ke workspace Timeline / Arrangement", () => {
+                document.documentElement.classList.remove("opendaw-editor-maximized")
+                if (service.layout.screen.getValue() !== "default") {
+                    service.switchScreen("default")
+                }
+                requestAnimationFrame(() => requestAnimationFrame(() =>
+                    service.panelLayout.showIfAvailable(PanelType.Timeline)))
+            })}
             {button("Piano Roll", "Perbesar atau kembalikan Editor tanpa meninggalkan Timeline", () => {
                 const root = document.documentElement
                 const maximized = root.classList.contains("opendaw-editor-maximized")
