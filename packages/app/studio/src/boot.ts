@@ -76,9 +76,8 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
     }
     console.debug("isLocalHost", Browser.isLocalHost())
     console.debug("agent", Browser.userAgent)
-    const sampleRate = Browser.isFirefox() ? undefined : 48000
-    console.debug("requesting custom sampleRate", sampleRate ?? "'No (Firefox)'")
-    const context = new AudioContext({sampleRate, latencyHint: 0})
+    const context = new AudioContext({latencyHint: "interactive"})
+    console.debug("AudioContext uses device-default sample rate with interactive latency hint")
     console.debug(`AudioContext state: ${context.state}, sampleRate: ${context.sampleRate}`)
     console.debug(`Error.stackTraceLimit: ${Error.stackTraceLimit ?? "N/A"}`)
     // purge identifiers written by the old client-side counting (§25 TDDDG)
