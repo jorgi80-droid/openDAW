@@ -80,7 +80,7 @@ export const SampleView = ({
              ondragstart={() => playback.eject()}
              draggable>
             <div className={Html.buildClassList("meta", isAndroidFolderSample(sample) && "android-folder")}
-                 onclick={async () => {
+                 onclick={async (event) => {
                      // Single tap is the primary interaction on Android. A folder-backed row is
                      // imported to OPFS on demand, then it becomes a regular playable/editable sample.
                      if (isAndroidFolderSample(sample) && (navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches)) {
