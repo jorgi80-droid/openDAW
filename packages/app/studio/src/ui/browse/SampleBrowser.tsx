@@ -2,7 +2,7 @@ import css from "./SampleBrowser.sass?inline"
 import {Arrays, DefaultObservableValue, Lifecycle} from "@opendaw/lib-std"
 import {createElement} from "@opendaw/lib-jsx"
 import {Html} from "@opendaw/lib-dom"
-import {SampleStorage} from "@opendaw/studio-core"
+import {FactoryCatalog, SampleStorage} from "@opendaw/studio-core"
 import {OpenSampleAPI} from "@/opendaw-api"
 import {StudioService} from "@/service/StudioService.ts"
 import {SampleView} from "@/ui/browse/SampleView"
@@ -64,7 +64,7 @@ export const SampleBrowser = ({lifecycle, service, background, fontSize}: Constr
             }).OpenDAWNative
             // Never request the cloud catalog in the Android build. The local OPFS sample
             // database and public OpenDAW folder are two separate stores.
-            const online = native ? [] : await OpenSampleAPI.get().all().catch(() => [])
+            const catalog = await FactoryCatalog.get().samples().catch(() => [])
             const stored = await SampleStorage.get().list()
             const virtual: Sample[] = []
             if (native) {
@@ -89,11 +89,12 @@ export const SampleBrowser = ({lifecycle, service, background, fontSize}: Constr
                     console.warn("Could not index audio files in the OpenDAW folder", error)
                 }
             }
-            const saved = Arrays.subtract(stored, online, ({uuid: a}, {uuid: b}) => a === b)
-            // Never duplicate a file already imported into OPFS; the user can still re-import
-            // a renamed copy if desired.
-            const storedNames = new Set(saved.map(sample => sample.name.toLowerCase()))
-            return [...saved, ...virtual.filter(sample => !storedNames.has(sample.name.toLowerCase()))]
+            const saved = Arrays.subtract(stored, catalog, ({uuid: a}, {uuid: b}) => a === b)
+            // Bundle samples are part of the local offline library. Avoid network access and
+            // combine them with stored imports and virtual files from the Android folder.
+            const visible = [...catalog, ...saved]
+            const storedNames = new Set(visible.map(sample => sample.name.toLowerCase()))
+            return [...visible, ...virtual.filter(sample => !storedNames.has(sample.name.toLowerCase()))]
         },
         fetchLocalTree: () => LocalTree.load(SampleStorage.get().structure, (sample: Sample) => sample.uuid),
         expandedKeys,
