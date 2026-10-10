@@ -128,7 +128,7 @@ public final class MainActivity extends Activity {
         }
 
         String getBaseUrl() {
-            return "http://127.0.0.1:" + serverSocket.getLocalPort() + "/";
+            return "http://localhost:" + serverSocket.getLocalPort() + "/";
         }
 
         void stop() {
