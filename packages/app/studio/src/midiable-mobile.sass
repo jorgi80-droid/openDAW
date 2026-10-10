@@ -412,16 +412,16 @@ html.midiable-mobile .PanelResizer:active::after
   opacity: 1
 
 html.midiable-mobile .PanelResizer.vertical::after
+  width: 34px !important
+  left: calc(50% - 17px) !important
+  height: 8px !important
+  top: calc(50% - 4px) !important
+
+html.midiable-mobile .PanelResizer.horizontal::after
   width: 8px !important
   left: calc(50% - 4px) !important
   height: 34px !important
-  top: -16px !important
-
-html.midiable-mobile .PanelResizer.horizontal::after
-  width: 34px !important
-  left: -16px !important
-  height: 8px !important
-  top: calc(50% - 4px) !important
+  top: calc(50% - 17px) !important
 
 html.midiable-mobile .PanelPlaceholder
   transition: flex-grow 180ms ease, flex-basis 180ms ease, width 180ms ease, height 180ms ease !important
