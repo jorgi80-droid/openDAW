@@ -44,6 +44,13 @@ jobs:
       - name: Verify studio assets
         run: test -s android-wrapper/app/src/main/assets/studio/index.html
 
+      - name: Verify offline runtime assets
+        run: |
+          echo "Studio assets:"
+          find android-wrapper/app/src/main/assets/studio -type f | wc -l
+          find android-wrapper/app/src/main/assets/studio -type f \\( -name "*.wasm" -o -name "*.js" -o -name "*.html" \\) | head -30
+          grep -q "crossOriginIsolated" packages/app/studio/src/main.ts
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
