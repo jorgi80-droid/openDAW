@@ -6,7 +6,6 @@ import {Html} from "@opendaw/lib-dom"
 import {Resources} from "@/ui/dashboard/Resources"
 import {ActionButtons} from "@/ui/dashboard/ActionButtons"
 import {Backup} from "@/ui/dashboard/Backup"
-import {HelpFeedback} from "@/ui/dashboard/HelpFeedback"
 
 const className = Html.adoptStyleSheet(css, "Dashboard")
 
@@ -29,7 +28,6 @@ export const Dashboard = ({lifecycle, service}: Construct) => (
                 <Resources lifecycle={lifecycle} service={service}/>
             </div>
             <div className="rail">
-                <HelpFeedback/>
                 <Backup service={service}/>
             </div>
         </div>
