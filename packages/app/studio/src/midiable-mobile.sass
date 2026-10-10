@@ -324,3 +324,20 @@ html.midiable-mobile .touch-dock button:active
   html.midiable-mobile .touch-dock button,
   html.midiable-mobile .panel-placeholder
     transition: none
+
+
+// Keep the wide touch hit target invisible at rest; only show it while adjusting a panel.
+html.midiable-mobile .panel-resizer::after
+  background: transparent
+  box-shadow: none
+
+html.midiable-mobile .panel-resizer:active::after
+  background: rgba(74, 220, 245, 0.88)
+  box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.16)
+
+@media (max-width: 700px), (max-height: 500px)
+  html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"].closed
+    display: none !important
+
+  html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"].closed + .panel-resizer
+    display: none !important
