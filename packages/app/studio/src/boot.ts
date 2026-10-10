@@ -191,7 +191,7 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
         }).finally()
         return
     }
-    if (buildInfo.env === "production" && !Browser.isLocalHost()) {
+    if (buildInfo.env === "production" && !Browser.isLocalHost() && !location.hostname.endsWith("androidplatform.net")) {
         if (import.meta.env.BUILD_UUID !== buildInfo.uuid) {
             console.warn("Cache issue:")
             console.warn("expected uuid", buildInfo.uuid)
