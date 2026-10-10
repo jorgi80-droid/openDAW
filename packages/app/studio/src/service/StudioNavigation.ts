@@ -2,7 +2,7 @@ import {DefaultObservableValue, EmptyExec, isDefined, Nullable, Option, UUID} fr
 import {RouteLocation} from "@opendaw/lib-jsx"
 import {Workspace} from "@/ui/workspace/Workspace.ts"
 import {ProjectProfileService} from "@/service/ProjectProfileService"
-import {Project, ProjectMeta, ProjectProfile} from "@opendaw/studio-core"
+import {Project, ProjectEnv, ProjectMeta, ProjectProfile} from "@opendaw/studio-core"
 
 // Deep links that open a project are consumed: the back button must not land on them again and re-open it.
 // Every other page (script editor, graph, ...) stays reachable with the back button.
@@ -15,13 +15,15 @@ const ConsumedRoutes: ReadonlyArray<string> = ["/open-bundle", "/open-project", 
 export class StudioNavigation {
     readonly #screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>
     readonly #profiles: ProjectProfileService
+    readonly #env: ProjectEnv
 
     #confirming: boolean = false
     #startingProject: boolean = false
 
-    constructor(screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>, profiles: ProjectProfileService) {
+    constructor(screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>, profiles: ProjectProfileService, env: ProjectEnv) {
         this.#screen = screen
         this.#profiles = profiles
+        this.#env = env
         RouteLocation.get().catchupAndSubscribe(({path}) => {
             const hasProfile = this.#profiles.getValue().nonEmpty()
             // Fresh launch goes straight to an empty Timeline arrangement, not the promotional Dashboard.
