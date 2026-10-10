@@ -9,6 +9,7 @@ import {createElement, Group} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService"
 import {MenuButton} from "@/ui/components/MenuButton.tsx"
 import {Workspace} from "@/ui/workspace/Workspace.ts"
+import {PanelType} from "@/ui/workspace/PanelType.ts"
 import {Colors, IconSymbol} from "@opendaw/studio-enums"
 import {Html} from "@opendaw/lib-dom"
 import {MidiDevices, StudioPreferences} from "@opendaw/studio-core"
@@ -111,7 +112,20 @@ export const Header = ({lifecycle, service}: Construct) => {
                 <RadioGroup lifecycle={lifecycle}
                             model={new class implements ObservableValue<Nullable<Workspace.ScreenKeys>> {
                                 setValue(value: Nullable<Workspace.ScreenKeys>): void {
-                                    if (service.hasProfile) {service.switchScreen(value)}
+                                    if (!service.hasProfile) {return}
+                                    const current = service.layout.screen.getValue()
+                                    if (current === "default") {
+                                        const panelType = value === "mixer" ? PanelType.Mixer
+                                            : value === "piano" ? PanelType.ContentEditor
+                                                : value === "modulation" ? PanelType.DevicePanel : null
+                                        if (panelType !== null) {
+                                            const panel = service.panelLayout.getByType(panelType)
+                                            if (panel.isVisible) {panel.toggleMinimize()}
+                                            else {service.panelLayout.showIfAvailable(panelType)}
+                                            return
+                                        }
+                                    }
+                                    service.switchScreen(value)
                                 }
                                 getValue(): Nullable<Workspace.ScreenKeys> {
                                     return service.layout.screen.getValue()
@@ -129,7 +143,11 @@ export const Header = ({lifecycle, service}: Construct) => {
                                 .map(([key, {icon: iconSymbol, name}]) => ({
                                     value: key,
                                     element: <Icon symbol={iconSymbol}/>,
-                                    tooltip: ShortcutTooltip.create(name,
+                                    tooltip: ShortcutTooltip.create(
+                                        key === "mixer" ? "Mixer panel / workspace"
+                                            : key === "piano" ? "Piano Roll / Editor"
+                                                : key === "modulation" ? "FX / Devices panel"
+                                                    : name,
                                         GlobalShortcuts[ScreenShortcutKeys[key as Workspace.ScreenKeys]].shortcut)
                                 }))}
                             appearance={{framed: true, landscape: true}}/>
