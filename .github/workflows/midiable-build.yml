@@ -11,6 +11,7 @@ on:
       - "packages/app/studio/src/ui/Footer.tsx"
       - "packages/app/studio/src/ui/header/Header.tsx"
       - "packages/lib/dom/src/files.ts"
+      - "scripts/generate-offline-samples.py"
       - "packages/app/studio/index.html"
       - "packages/app/studio/public/favicon.svg"
       - "android-wrapper/**"
@@ -46,6 +47,9 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - name: Generate bundled original offline samples
+        run: python3 scripts/generate-offline-samples.py packages/app/studio/public/offline-samples
+
       - name: Build WASM engine and devices
         run: npm run build-wasm
 
@@ -59,6 +63,10 @@ jobs:
           set -eu
           test -s packages/app/studio/dist/index.html
           test -s packages/app/studio/dist/build-info.json
+          test -s packages/app/studio/dist/offline-samples/index.json
+          test -s packages/app/studio/dist/offline-samples/kick.wav
+          test -s packages/app/studio/dist/offline-samples/snare.wav
+          test -s packages/app/studio/dist/offline-samples/hihat.wav
           find packages/app/studio/dist -type f -name '*.wasm' | grep -q .
           echo "Offline asset count: $(find packages/app/studio/dist -type f | wc -l)"
           echo "Bundled WASM modules:"
@@ -91,6 +99,8 @@ jobs:
           set -eu
           test -s android-wrapper/app/src/main/assets/studio/index.html
           test -s android-wrapper/app/src/main/assets/studio/build-info.json
+          test -s android-wrapper/app/src/main/assets/studio/offline-samples/index.json
+          test -s android-wrapper/app/src/main/assets/studio/offline-samples/kick.wav
           find android-wrapper/app/src/main/assets/studio -type f -name '*.wasm' | grep -q .
           grep -q 'android:label="OpenDAW"' android-wrapper/app/src/main/AndroidManifest.xml
           grep -q 'android:icon="@mipmap/ic_launcher"' android-wrapper/app/src/main/AndroidManifest.xml
