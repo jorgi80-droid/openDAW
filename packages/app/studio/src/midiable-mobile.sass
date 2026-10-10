@@ -275,3 +275,52 @@ html.midiable-mobile .touch-dock + *
 @media (prefers-reduced-motion: reduce)
   html.midiable-mobile .touch-dock button
     transition: none
+
+
+// Mobile DAW ergonomics: keep Timeline central and stop desktop-style minimums from stealing its space.
+html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"]
+  flex: 0 1 22vw !important
+  min-width: 44px !important
+  max-width: min(260px, 34vw) !important
+
+html.midiable-mobile .panel-placeholder > header
+  cursor: pointer
+  transition: background-color 140ms ease
+  -webkit-tap-highlight-color: transparent
+
+html.midiable-mobile .panel-placeholder > header:active
+  background-color: rgba(66, 217, 232, 0.12)
+
+html.midiable-mobile .panel-resizer::after
+  background: rgba(130, 145, 155, 0.52)
+  transition: background 120ms ease, box-shadow 120ms ease
+
+html.midiable-mobile .panel-resizer:active::after
+  background: rgba(74, 220, 245, 0.95)
+  box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.18)
+
+html.midiable-mobile .touch-dock button
+  transition: background-color 150ms ease, border-color 150ms ease, transform 120ms ease
+
+html.midiable-mobile .touch-dock button:active
+  transform: scale(0.97)
+
+@media (max-width: 700px), (max-height: 500px)
+  html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"]
+    flex: 0 0 46px !important
+    min-width: 46px !important
+    max-width: 46px !important
+
+  html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"].closed
+    flex-basis: 28px !important
+    min-width: 28px !important
+    max-width: 28px !important
+
+  html.midiable-mobile .touch-dock button
+    min-width: 44px
+    font-size: 10px
+
+@media (prefers-reduced-motion: reduce)
+  html.midiable-mobile .touch-dock button,
+  html.midiable-mobile .panel-placeholder
+    transition: none
