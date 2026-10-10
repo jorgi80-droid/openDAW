@@ -12,6 +12,7 @@ import {OpenSampleAPI} from "@/opendaw-api"
 import {HTMLSelection} from "@/ui/HTMLSelection"
 import {StudioService} from "@/service/StudioService"
 import {Dialogs} from "../components/dialogs"
+import {importAndroidFolderSample} from "@/ui/browse/AndroidSampleBridge"
 import {ResourceSelection, truncateList} from "@/ui/browse/ResourceSelection"
 
 export class SampleSelection implements ResourceSelection<Sample> {
@@ -24,6 +25,12 @@ export class SampleSelection implements ResourceSelection<Sample> {
     }
 
     async requestDevice(samples: ReadonlyArray<Sample>): Promise<void> {
+        // Resolve virtual Android-folder rows into real OPFS samples before creating timeline clips.
+        const resolved: Sample[] = []
+        for (const sample of samples) {
+            resolved.push(await importAndroidFolderSample(this.#service, sample))
+        }
+        samples = resolved
         const hasNoProfile = !this.#service.hasProfile
         if (hasNoProfile) {
             await this.#service.newProject()
