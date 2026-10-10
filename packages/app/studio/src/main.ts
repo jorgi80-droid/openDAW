@@ -19,19 +19,19 @@ if (window.crossOriginIsolated) {
         workletsUrl,
         wasmProcessorUrl,
         wasmOfflineWorkerUrl
-    }).then(() => console.debug(`MidiAble studio booted in ${Math.ceil(Date.now() - now)}ms`))
+    }).then(() => console.debug(`OpenDAW studio booted in ${Math.ceil(Date.now() - now)}ms`))
         .catch(error => {
-            console.error("MidiAble studio boot failed", error)
+            console.error("OpenDAW studio boot failed", error)
             document.body.innerHTML = `<main style="padding:24px;font-family:system-ui;color:#f5f5f5;background:#171a1d">
-                <h1>MidiAble belum dapat dimulai</h1>
+                <h1>OpenDAW belum dapat dimulai</h1>
                 <p>Mesin audio gagal dijalankan. Periksa dukungan WebView untuk WebAssembly, worker, AudioWorklet, dan cross-origin isolation.</p>
                 <pre style="white-space:pre-wrap;color:#ffb4ab">${String(error)}</pre>
             </main>`
         })
 } else {
     document.body.innerHTML = `<main style="padding:24px;font-family:system-ui;color:#f5f5f5;background:#171a1d">
-        <h1>MidiAble membutuhkan isolasi lintas-origin</h1>
-        <p>WebView tidak mengaktifkan crossOriginIsolated. MidiAble perlu origin localhost tepercaya dan header COOP/COEP agar mesin audio/WASM dapat berjalan offline.</p><pre style="white-space:pre-wrap;color:#c5cbd1">URL: ${location.href}
+        <h1>OpenDAW membutuhkan isolasi lintas-origin</h1>
+        <p>WebView tidak mengaktifkan crossOriginIsolated. OpenDAW perlu origin localhost tepercaya dan header COOP/COEP agar mesin audio/WASM dapat berjalan offline.</p><pre style="white-space:pre-wrap;color:#c5cbd1">URL: ${location.href}
 Secure context: ${String(window.isSecureContext)}
 crossOriginIsolated: ${String(window.crossOriginIsolated)}
 SharedArrayBuffer: ${String(typeof SharedArrayBuffer !== "undefined")}
