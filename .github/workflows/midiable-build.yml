@@ -1,4 +1,4 @@
-name: MidiAble Remote Build
+name: OpenDAW Offline Android Build
 
 on:
   workflow_dispatch:
@@ -19,7 +19,7 @@ permissions:
 
 jobs:
   build-web-studio:
-    name: Build studio and WASM
+    name: Build offline studio and WASM
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -45,7 +45,7 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
-      - name: Build WASM
+      - name: Build WASM engine and devices
         run: npm run build-wasm
 
       - name: Build studio and internal workspace dependencies
@@ -53,113 +53,49 @@ jobs:
           CI: "false"
         run: npx turbo run build --filter=@opendaw/app-studio... --output-logs=full
 
-      - name: Verify offline studio assets
+      - name: Verify offline studio distribution
         run: |
+          set -eu
           test -s packages/app/studio/dist/index.html
           test -s packages/app/studio/dist/build-info.json
-          find packages/app/studio/dist -type f | grep -E '\\.wasm
+          find packages/app/studio/dist -type f -name '*.wasm' | grep -q .
+          echo "Offline asset count: $(find packages/app/studio/dist -type f | wc -l)"
+          echo "Bundled WASM modules:"
+          find packages/app/studio/dist -type f -name '*.wasm' | sort
 
-      - name: Upload studio distribution
+      - name: Upload bundled studio distribution
         uses: actions/upload-artifact@v4
         with:
-          name: MidiAble-studio-web
+          name: OpenDAW-studio-offline-assets
           path: packages/app/studio/dist/
           if-no-files-found: error
           retention-days: 7
 
   build-android-apk:
-    name: Package Android debug APK
+    name: Package OpenDAW Android APK
     needs: build-web-studio
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download studio distribution
+      - name: Download bundled studio distribution
         uses: actions/download-artifact@v4
         with:
-          name: MidiAble-studio-web
+          name: OpenDAW-studio-offline-assets
           path: android-wrapper/app/src/main/assets/studio
 
-      - name: Verify OpenDAW bundled storage support
+      - name: Verify packaged offline engine and branding
         run: |
+          set -eu
           test -s android-wrapper/app/src/main/assets/studio/index.html
           test -s android-wrapper/app/src/main/assets/studio/build-info.json
           find android-wrapper/app/src/main/assets/studio -type f -name '*.wasm' | grep -q .
-          grep -q 'OpenDAWNative' android-wrapper/app/src/main/java/com/midiable/studio/MainActivity.java
-
-      - name: Set up Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          packages: "platform-tools"
-
-      - name: Accept Android SDK licenses and install platform
-        run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager --sdk_root="$ANDROID_HOME" "platforms;android-35" "build-tools;35.0.0" "platform-tools"
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "8.9"
-
-      - name: Build debug APK
-        working-directory: android-wrapper
-        run: gradle --no-daemon :app:assembleDebug
-
-      - name: Verify APK output
-        run: test -s android-wrapper/app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Verify app branding and Android bridge
-        run: |
-          grep -q 'android:label="OpenDAW"' android-wrapper/app/src/main/AndroidManifest.xml
-          grep -q 'OpenDAWNative' android-wrapper/app/src/main/java/com/midiable/studio/MainActivity.java
-      - name: Verify branding and native offline file bridge
-        run: |
           grep -q 'android:label="OpenDAW"' android-wrapper/app/src/main/AndroidManifest.xml
           grep -q 'android:icon="@mipmap/ic_launcher"' android-wrapper/app/src/main/AndroidManifest.xml
           grep -q 'OpenDAWNative' android-wrapper/app/src/main/java/com/midiable/studio/MainActivity.java
           test -s android-wrapper/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
-          test -s android-wrapper/app/src/main/assets/studio/wasm-engine/wasm/engine.wasm
-      - name: Upload installable debug APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: OpenDAW-offline-APK
-          path: android-wrapper/app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
-          retention-days: 7
- | grep -q .
-          echo "Offline asset count: $(find packages/app/studio/dist -type f | wc -l)"
-          echo "WASM files:"
-          find packages/app/studio/dist -type f -name '*.wasm' | sed 's#^# - #'
-
-      - name: Upload studio distribution
-        uses: actions/upload-artifact@v4
-        with:
-          name: MidiAble-studio-web
-          path: packages/app/studio/dist/
-          if-no-files-found: error
-          retention-days: 7
-
-  build-android-apk:
-    name: Package Android debug APK
-    needs: build-web-studio
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download studio distribution
-        uses: actions/download-artifact@v4
-        with:
-          name: MidiAble-studio-web
-          path: android-wrapper/app/src/main/assets/studio
+          echo "Offline studio assets and OpenDAW branding verified."
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -186,13 +122,13 @@ jobs:
         working-directory: android-wrapper
         run: gradle --no-daemon :app:assembleDebug
 
-      - name: Verify APK output
+      - name: Verify APK
         run: test -s android-wrapper/app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Upload installable debug APK
+      - name: Upload installable OpenDAW APK
         uses: actions/upload-artifact@v4
         with:
-          name: MidiAble-debug-APK
+          name: OpenDAW-offline-APK
           path: android-wrapper/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 7
