@@ -7,11 +7,7 @@ import {Resources} from "@/ui/dashboard/Resources"
 import {IntroTiles} from "@/ui/dashboard/IntroTiles"
 import {ActionButtons} from "@/ui/dashboard/ActionButtons"
 import {Backup} from "@/ui/dashboard/Backup"
-import {Sponsors} from "@/ui/dashboard/Sponsors"
-import {Contributors} from "@/ui/dashboard/Contributors"
-import {SampleProviders} from "@/ui/dashboard/SampleProviders"
 import {HelpFeedback} from "@/ui/dashboard/HelpFeedback"
-import {Links} from "@/ui/dashboard/Links"
 
 const className = Html.adoptStyleSheet(css, "Dashboard")
 
@@ -36,12 +32,8 @@ export const Dashboard = ({lifecycle, service}: Construct) => (
             <div className="rail">
                 <HelpFeedback/>
                 <Backup service={service}/>
-                <Links/>
-                <Sponsors/>
-                <SampleProviders/>
-                <Contributors/>
             </div>
         </div>
-        <IntroTiles/>
+
     </div>
 )
