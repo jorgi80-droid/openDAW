@@ -89,9 +89,11 @@ export class PresetService {
 
     constructor(readonly service: StudioService) {
         PresetStorage.readIndex().catch(reason => console.warn("PresetStorage.readIndex failed", reason))
-        this.#cloudReady = OpenPresetAPI.get().list().then(
-            value => {this.#cloudIndex.setValue(value)},
-            reason => {console.warn("OpenPresetAPI.list failed", reason)})
+        this.#cloudReady = (window as Window & {OpenDAWNative?: unknown}).OpenDAWNative
+            ? Promise.resolve() // Local-only: stock device factories and user presets remain available.
+            : OpenPresetAPI.get().list().then(
+                value => {this.#cloudIndex.setValue(value)},
+                reason => {console.warn("OpenPresetAPI.list failed", reason)})
     }
 
     get project(): Project {return this.service.project}
