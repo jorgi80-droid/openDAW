@@ -11,7 +11,6 @@ import {RoomStatus} from "@/ui/RoomStatus"
 import {ChatOverlay} from "@/ui/ChatOverlay"
 import {ColorsPage} from "@/ui/pages/ColorsPage"
 import {Header} from "@/ui/header/Header"
-import {TouchDock} from "@/ui/TouchDock"
 import {ErrorsPage} from "@/ui/pages/ErrorsPage.tsx"
 import {ImprintPage} from "@/ui/pages/ImprintPage.tsx"
 import {GraphPage} from "@/ui/pages/GraphPage"
@@ -80,7 +79,6 @@ export const App = (service: StudioService) => {
                 ]}
             />
             <ChatOverlay lifecycle={terminator} service={service}/>
-            <TouchDock service={service}/>
             <Footer lifecycle={terminator} service={service}/>
         </Frag>
     )
