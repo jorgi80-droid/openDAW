@@ -33,7 +33,7 @@ public final class MainActivity extends Activity {
 
         assetLoader = new WebViewAssetLoader.Builder()
             .setDomain("appassets.androidplatform.net")
-            .addPathHandler("/studio/", path -> {
+            .addPathHandler("/", path -> {
                 String cleanPath = path == null ? "" : path;
                 if (cleanPath.contains("..") || cleanPath.startsWith("/")) return null;
                 try {
@@ -87,7 +87,7 @@ public final class MainActivity extends Activity {
         }
 
         android.util.Log.i("MidiAble", featureState);
-        webView.loadUrl(ASSET_ORIGIN + "/studio/index.html");
+        webView.loadUrl(ASSET_ORIGIN + "/index.html");
     }
 
     private static Map<String, String> isolationHeaders() {
