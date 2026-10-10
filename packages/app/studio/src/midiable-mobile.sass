@@ -564,3 +564,12 @@ html.midiable-mobile .PanelResizer:active::after
 @media (prefers-reduced-motion: reduce)
   html.midiable-mobile .PanelResizer::after
     transition: none
+
+
+// Animate panel expansion via size constraints, not flex-grow; active drags must follow the finger immediately.
+html.midiable-mobile .PanelPlaceholder
+  transition: flex-basis 180ms ease, width 180ms ease, height 180ms ease, min-width 180ms ease, max-width 180ms ease, min-height 180ms ease, max-height 180ms ease !important
+
+@media (prefers-reduced-motion: reduce)
+  html.midiable-mobile .PanelPlaceholder
+    transition: none !important
