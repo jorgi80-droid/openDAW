@@ -209,3 +209,40 @@ html.midiable-mobile .touch-dock
 
   html.midiable-mobile footer
     flex-basis: 20px
+
+
+// Editor maximize mode is independent from the internal panel resize model, so it is reversible
+// without rebuilding the project or losing the current timeline state.
+html.midiable-mobile.opendaw-editor-maximized section.workspace.horizontal > [data-panel-type="Browser"],
+html.midiable-mobile.opendaw-editor-maximized section.workspace.horizontal > [data-panel-type="Mixer"],
+html.midiable-mobile.opendaw-editor-maximized section.workspace.vertical > [data-panel-type="Timeline"],
+html.midiable-mobile.opendaw-editor-maximized section.workspace.vertical > [data-panel-type="Devices"]
+  display: none !important
+
+html.midiable-mobile.opendaw-editor-maximized section.workspace.horizontal > section.workspace.vertical
+  flex: 1 1 100% !important
+  min-width: 0 !important
+  min-height: 0 !important
+
+html.midiable-mobile.opendaw-editor-maximized section.workspace.vertical > [data-panel-type="Editor"]
+  flex: 1 1 auto !important
+  min-width: 0 !important
+  min-height: 0 !important
+  max-height: none !important
+
+html.midiable-mobile .touch-dock button.piano-roll-action
+  border-color: rgba(81, 224, 244, 0.6)
+  color: #8cecff
+
+html.midiable-mobile .panel-placeholder > header
+  user-select: none
+  -webkit-user-select: none
+  cursor: pointer
+
+@media (prefers-reduced-motion: reduce)
+  html.midiable-mobile *,
+  html.midiable-mobile *::before,
+  html.midiable-mobile *::after
+    animation-duration: 0.01ms !important
+    animation-iteration-count: 1 !important
+    transition-duration: 0.01ms !important
