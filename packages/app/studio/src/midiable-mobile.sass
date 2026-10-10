@@ -76,3 +76,136 @@ html.midiable-mobile textarea
     text-align: center
     font: 12px/1.4 system-ui, sans-serif
     pointer-events: none
+
+
+// Direct manipulation targets for touch-only devices: keep panels usable without mouse precision.
+html.midiable-mobile header
+  column-gap: 0.55em
+
+html.midiable-mobile header .panel-selector
+  min-width: 0
+  max-width: 54vw
+  overflow-x: auto
+  overflow-y: hidden
+  flex: 0 1 auto
+
+html.midiable-mobile header .panel-selector label
+  flex: 0 0 34px
+  width: 34px
+  min-width: 34px
+  height: 34px
+  min-height: 34px
+  padding: 0
+  touch-action: manipulation
+
+html.midiable-mobile .panel-placeholder > header
+  min-height: 26px
+  max-height: 26px
+  height: 26px
+  font-size: 1rem
+  padding: 0 7px
+  gap: 6px
+  touch-action: manipulation
+
+html.midiable-mobile .panel-placeholder > header > svg
+  width: 14px
+  height: 14px
+  flex: 0 0 auto
+
+html.midiable-mobile .panel-resizer
+  position: relative
+  touch-action: none
+
+html.midiable-mobile .panel-resizer::after
+  content: ""
+  position: absolute
+  inset: -5px
+  z-index: 10
+
+html.midiable-mobile .touch-dock
+  display: none
+
+@media (max-width: 1100px), (max-height: 700px)
+  html.midiable-mobile header
+    column-gap: 0.4em
+    padding-left: 5px
+    padding-right: 5px
+
+  html.midiable-mobile header .panel-selector
+    max-width: 44vw
+
+  html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"]
+    flex: 0 1 190px !important
+    min-width: 132px !important
+    max-width: 235px !important
+
+  html.midiable-mobile section.workspace.horizontal > section.workspace.vertical
+    min-width: 0
+    flex: 1 1 0
+
+  html.midiable-mobile .touch-dock
+    display: flex
+    position: fixed
+    z-index: 5000
+    left: 50%
+    bottom: 24px
+    transform: translateX(-50%)
+    width: max-content
+    max-width: calc(100vw - 10px)
+    height: 36px
+    padding: 2px
+    gap: 3px
+    align-items: center
+    overflow-x: auto
+    overflow-y: hidden
+    border: 1px solid rgba(120, 210, 230, 0.28)
+    border-radius: 9px
+    background: rgba(10, 13, 16, 0.96)
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45)
+    backdrop-filter: blur(8px)
+    -webkit-backdrop-filter: blur(8px)
+    scrollbar-width: none
+    touch-action: pan-x
+
+  html.midiable-mobile .touch-dock button
+    flex: 0 0 auto
+    min-width: 60px
+    min-height: 30px
+    height: 30px
+    padding: 0 8px
+    border: 1px solid rgba(120, 210, 230, 0.18)
+    border-radius: 6px
+    background: #22282d
+    color: #d6e4e8
+    font: 500 10px/1 system-ui, sans-serif
+    white-space: nowrap
+    touch-action: manipulation
+
+  html.midiable-mobile .touch-dock button:active
+    background: #224b55
+    border-color: #55dff4
+    color: #ffffff
+
+  html.midiable-mobile footer
+    padding-left: 5px
+    padding-right: 5px
+    column-gap: 0.45rem
+
+@media (max-height: 440px)
+  html.midiable-mobile header
+    height: 34px
+    min-height: 34px
+    max-height: 34px
+
+  html.midiable-mobile .touch-dock
+    bottom: 22px
+    height: 32px
+
+  html.midiable-mobile .touch-dock button
+    min-height: 27px
+    height: 27px
+    min-width: 54px
+    font-size: 9px
+
+  html.midiable-mobile footer
+    flex-basis: 20px
