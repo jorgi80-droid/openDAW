@@ -261,6 +261,25 @@ public final class MainActivity extends Activity {
             return json.append("]").toString();
         }
 
+        // Read audio in bounded chunks; this avoids a large temporary Base64 allocation on low-RAM phones.
+        @android.webkit.JavascriptInterface public String readAudioChunkBase64(String name, long offset, int maxBytes) {
+            if (!validName(name) || offset < 0 || maxBytes <= 0 || maxBytes > 98304) return "";
+            File source = new File(preferredOpenDawFolder(), safeName(name));
+            if (!source.isFile() || !isAudio(source.getName()) || offset >= source.length()) return "";
+            try (java.io.RandomAccessFile input = new java.io.RandomAccessFile(source, "r")) {
+                input.seek(offset);
+                byte[] chunk = new byte[(int) Math.min(maxBytes, source.length() - offset)];
+                int count = input.read(chunk);
+                if (count <= 0) return "";
+                return android.util.Base64.encodeToString(
+                    count == chunk.length ? chunk : java.util.Arrays.copyOf(chunk, count),
+                    android.util.Base64.NO_WRAP);
+            } catch (Exception error) {
+                android.util.Log.e("OpenDAW", "readAudioChunkBase64 failed", error);
+                return "";
+            }
+        }
+
         @android.webkit.JavascriptInterface public void notify(String message) {
             runOnUiThread(() -> Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show());
         }
