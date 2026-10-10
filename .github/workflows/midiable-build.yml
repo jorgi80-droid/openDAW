@@ -5,12 +5,16 @@ on:
   push:
     paths:
       - ".github/workflows/midiable-build.yml"
+      - "packages/app/studio/src/main.ts"
+      - "packages/app/studio/src/midiable-mobile.sass"
+      - "android-wrapper/**"
 
 permissions:
   contents: read
 
 jobs:
   build-web-studio:
+    name: Build studio and WASM
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout
@@ -34,20 +38,69 @@ jobs:
           sudo apt-get install -y build-essential pkg-config libssl-dev
 
       - name: Install npm dependencies
-        run: npm ci --ignore-scripts
-
-      - name: Enable required dependency install scripts
-        run: npm rebuild esbuild @parcel/watcher protobufjs
+        run: npm ci
 
       - name: Build WASM
         run: npm run build-wasm
 
-      - name: Build openDAW studio and workspace dependencies
+      - name: Build studio and internal workspace dependencies
+        env:
+          CI: "false"
         run: npx turbo run build --filter=@opendaw/app-studio... --output-logs=full
 
-      - name: Upload web studio artifact
+      - name: Verify studio output
+        run: test -f packages/app/studio/dist/index.html
+
+      - name: Upload studio distribution
         uses: actions/upload-artifact@v4
         with:
           name: MidiAble-studio-web
           path: packages/app/studio/dist/
           if-no-files-found: error
+          retention-days: 7
+
+  build-android-apk:
+    name: Package Android debug APK
+    needs: build-web-studio
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download studio distribution
+        uses: actions/download-artifact@v4
+        with:
+          name: MidiAble-studio-web
+          path: android-wrapper/app/src/main/assets/studio
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.9"
+
+      - name: Build debug APK
+        working-directory: android-wrapper
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Verify APK output
+        run: test -s android-wrapper/app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload installable debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MidiAble-debug-APK
+          path: android-wrapper/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 7
