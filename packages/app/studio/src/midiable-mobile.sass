@@ -1,0 +1,78 @@
+// MidiAble mobile workspace adjustments, additive to openDAW's original styling.
+html.midiable-mobile,
+html.midiable-mobile body
+  width: 100%
+  height: 100%
+  height: 100dvh
+  min-width: 0
+  min-height: 0
+  overflow: hidden
+  overscroll-behavior: none
+  -webkit-text-size-adjust: 100%
+
+html.midiable-mobile body
+  font-size: 12px
+
+html.midiable-mobile *,
+html.midiable-mobile *::before,
+html.midiable-mobile *::after
+  -webkit-tap-highlight-color: transparent
+
+html.midiable-mobile button,
+html.midiable-mobile [role="button"],
+html.midiable-mobile input,
+html.midiable-mobile select,
+html.midiable-mobile summary
+  touch-action: manipulation
+
+html.midiable-mobile button,
+html.midiable-mobile [role="button"]
+  min-width: 28px
+  min-height: 28px
+
+html.midiable-mobile input[type="range"]
+  min-height: 28px
+
+html.midiable-mobile section.workspace,
+html.midiable-mobile section.workspace > *,
+html.midiable-mobile section.workspace > div,
+html.midiable-mobile section.workspace > section
+  min-width: 0
+  min-height: 0
+
+html.midiable-mobile section.workspace
+  gap: 2px
+
+html.midiable-mobile canvas
+  touch-action: none
+
+html.midiable-mobile dialog,
+html.midiable-mobile [role="dialog"]
+  max-width: calc(100vw - 12px)
+  max-height: calc(100dvh - 12px)
+  overflow: auto
+
+html.midiable-mobile input,
+html.midiable-mobile select,
+html.midiable-mobile textarea
+  max-width: 100%
+
+@media (max-width: 900px), (max-height: 600px)
+  html.midiable-mobile body
+    font-size: 11px
+
+@media (orientation: portrait) and (max-width: 700px)
+  html.midiable-mobile body::before
+    content: "MidiAble lebih nyaman digunakan dalam mode landscape. Putar perangkat untuk ruang kerja yang lebih luas."
+    position: fixed
+    z-index: 99999
+    left: 8px
+    right: 8px
+    bottom: 8px
+    padding: 8px 12px
+    border-radius: 8px
+    background: rgba(20, 24, 28, 0.94)
+    color: #f2f4f6
+    text-align: center
+    font: 12px/1.4 system-ui, sans-serif
+    pointer-events: none
