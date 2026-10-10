@@ -22,8 +22,10 @@ jobs:
           node-version: "24"
           cache: npm
 
-      - name: Set up Rust
+      - name: Set up Rust with WebAssembly target
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
 
       - name: Install system dependencies
         run: |
