@@ -172,7 +172,7 @@ export class StudioService implements ProjectEnv {
             soundfontService: this.#soundfontService, soundfontManager: this.soundfontManager
         })
 
-        this.#navigation = new StudioNavigation(this.layout.screen, this.#projectProfileService)
+        this.#navigation = new StudioNavigation(this.layout.screen, this.#projectProfileService, this)
         this.#listenProject()
         this.#installConsoleCommands()
         this.#populateSpotlightData()
