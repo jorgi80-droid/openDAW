@@ -16,7 +16,7 @@ component
 
   &:active:after
     background: rgba(74, 220, 245, 0.9)
-      box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.18)
+    box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.18)
 
   &.vertical
     cursor: ns-resize
@@ -44,7 +44,11 @@ component
 
 @media (pointer: coarse)
   component
-    // Keep the visible divider slim, but give touch input a wide forgiving hit target.
+    // Keep a forgiving touch hit target without leaving an intrusive grey handle on screen.
+    &:after
+      background: transparent
+      box-shadow: none
+
     &.vertical:after
       height: 38px
       top: -18px
@@ -55,3 +59,4 @@ component
 
     &:active:after
       background: rgba(74, 220, 245, 0.95)
+      box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.18)
