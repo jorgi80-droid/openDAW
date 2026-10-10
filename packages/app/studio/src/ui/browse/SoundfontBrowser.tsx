@@ -2,7 +2,7 @@ import css from "./SoundfontBrowser.sass?inline"
 import {Arrays, DefaultObservableValue, Lifecycle} from "@opendaw/lib-std"
 import {createElement} from "@opendaw/lib-jsx"
 import {Html} from "@opendaw/lib-dom"
-import {SoundfontStorage} from "@opendaw/studio-core"
+import {FactoryCatalog, SoundfontStorage} from "@opendaw/studio-core"
 import {OpenSoundfontAPI} from "@/opendaw-api"
 import {StudioService} from "@/service/StudioService.ts"
 import {SoundfontView} from "@/ui/browse/SoundfontView"
@@ -31,7 +31,8 @@ type Construct = {
     fontSize?: string // em
 }
 
-const location = new DefaultObservableValue(AssetLocation.OpenDAW)
+const location = new DefaultObservableValue((window as Window & {OpenDAWNative?: unknown}).OpenDAWNative
+    ? AssetLocation.Local : AssetLocation.OpenDAW)
 const expandedKeys = new Set<string>()
 
 export const SoundfontBrowser = ({lifecycle, service, background, fontSize}: Construct) => {
@@ -41,16 +42,22 @@ export const SoundfontBrowser = ({lifecycle, service, background, fontSize}: Con
             {label: "Name"},
             {label: "Size", align: "right"}
         ],
-        fetchOnline: async () => ({
-            name: "",
-            folders: (await OpenSoundfontAPI.get().tree()).folders.map(toResourceFolder),
-            items: []
-        }),
+        fetchOnline: async () => {
+            if ((window as Window & {OpenDAWNative?: unknown}).OpenDAWNative) {
+                return {name: "", folders: [], items: []}
+            }
+            return {
+                name: "",
+                folders: (await OpenSoundfontAPI.get().tree()).folders.map(toResourceFolder),
+                items: []
+            }
+        },
         expandedKeys,
         fetchLocal: async () => {
-            const openDAW = await OpenSoundfontAPI.get().all()
+            const native = (window as Window & {OpenDAWNative?: unknown}).OpenDAWNative
+            const catalog = native ? await FactoryCatalog.get().soundfonts() : await OpenSoundfontAPI.get().all()
             const user = await SoundfontStorage.get().list()
-            return Arrays.subtract(user, openDAW, ({uuid: a}, {uuid: b}) => a === b)
+            return Arrays.subtract([...catalog, ...user], catalog, ({uuid: a}, {uuid: b}) => a === b)
         },
         fetchLocalTree: () =>
             LocalTree.load(SoundfontStorage.get().structure, (soundfont: Soundfont) => soundfont.uuid),
