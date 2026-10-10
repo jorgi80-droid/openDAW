@@ -292,7 +292,7 @@ public final class MainActivity extends Activity {
         if (uri == null) return;
 
         String name = safeName(queryName(uri));
-        File destination = new File(preferredOpenDawFolder(), name);
+        File destination = uniqueDestinationFile(preferredOpenDawFolder(), name);
         try (InputStream input = getContentResolver().openInputStream(uri);
              OutputStream output = new FileOutputStream(destination)) {
             if (input == null) throw new IOException("File tidak dapat dibaca");
@@ -347,6 +347,20 @@ public final class MainActivity extends Activity {
 
     private static String safeName(String name) {
         return name.replaceAll("[^a-zA-Z0-9._ -]", "_").replace("..", "_");
+    }
+
+    private static File uniqueDestinationFile(File directory, String requestedName) {
+        String name = safeName(requestedName);
+        File destination = new File(directory, name);
+        if (!destination.exists()) return destination;
+        int dot = name.lastIndexOf('.');
+        String base = dot > 0 ? name.substring(0, dot) : name;
+        String extension = dot > 0 ? name.substring(dot) : "";
+        int counter = 2;
+        do {
+            destination = new File(directory, base + " (" + counter++ + ")" + extension);
+        } while (destination.exists());
+        return destination;
     }
 
     private static String safeNameFromDisposition(String disposition) {
