@@ -60,8 +60,16 @@ export const TouchDock = ({service}: Construct) => {
                 openPanel("default", PanelType.BrowserPanel))}
             {button("Devices", "Buka chain perangkat dan efek", () =>
                 openPanel("default", PanelType.DevicePanel))}
-            {button("Mixer", "Buka workspace Mixer; kembali ke Timeline dengan tombol Timeline", () => service.switchScreen("mixer"))}
-            {button("Keys", "Buka keyboard piano layar sentuh", () => service.switchScreen("piano"))}
+            {button("Mixer", "Tampilkan atau sembunyikan panel Mixer di workspace Timeline", () => {
+                const mixer = service.panelLayout.getByType(PanelType.Mixer)
+                if (mixer.isVisible) {mixer.toggleMinimize()}
+                else {service.panelLayout.showIfAvailable(PanelType.Mixer)}
+            })}
+            {button("FX", "Tampilkan atau sembunyikan panel Devices / efek", () => {
+                const devices = service.panelLayout.getByType(PanelType.DevicePanel)
+                if (devices.isVisible) {devices.toggleMinimize()}
+                else {service.panelLayout.showIfAvailable(PanelType.DevicePanel)}
+            })}
         </nav>
     )
 }
