@@ -357,8 +357,10 @@ public final class MainActivity extends Activity {
 
     private static boolean isAudio(String name) {
         String lower = name.toLowerCase(Locale.ROOT);
-        return lower.endsWith(".wav") || lower.endsWith(".mp3") || lower.endsWith(".flac") ||
-            lower.endsWith(".ogg") || lower.endsWith(".m4a") || lower.endsWith(".aiff") || lower.endsWith(".aif");
+        return lower.endsWith(".wav") || lower.endsWith(".wave") || lower.endsWith(".mp3") || lower.endsWith(".flac") ||
+            lower.endsWith(".ogg") || lower.endsWith(".oga") || lower.endsWith(".opus") || lower.endsWith(".m4a") ||
+            lower.endsWith(".aac") || lower.endsWith(".aiff") || lower.endsWith(".aif") || lower.endsWith(".aifc") ||
+            lower.endsWith(".webm") || lower.endsWith(".weba");
     }
 
     private static String queryName(Uri uri) {
