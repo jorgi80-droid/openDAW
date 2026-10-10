@@ -17,6 +17,7 @@ import {DragAndDrop} from "@/ui/DragAndDrop"
 import {ChopTrigger} from "@/ui/devices/instruments/PlayfieldDeviceEditor/ChopTrigger"
 import {StudioService} from "@/service/StudioService"
 import {WaveformIcon} from "@/ui/browse/WaveformIcon"
+import {importAndroidFolderSample, isAndroidFolderSample} from "@/ui/browse/AndroidSampleBridge"
 
 const className = Html.adoptStyleSheet(css, "Sample")
 
@@ -83,7 +84,22 @@ export const SampleView = ({
                          element.classList.remove("buffering", "playing", "error")
                          element.classList.add(event.type)
                      }),
-                     Events.subscribeDblDwn(element, () => playback.toggle(sample.uuid))
+                     Events.subscribeDblDwn(element, async () => {
+                         if (isAndroidFolderSample(sample)) {
+                             element.classList.add("buffering")
+                             try {
+                                 const imported = await importAndroidFolderSample(service, sample)
+                                 refresh()
+                                 playback.toggle(imported.uuid)
+                             } catch (error) {
+                                 element.classList.remove("buffering")
+                                 console.warn("Could not import Android audio sample", error)
+                                 await Dialogs.info({headline: "Sample import failed", message: String(error)})
+                             }
+                             return
+                         }
+                         playback.toggle(sample.uuid)
+                     })
                  )}>
                 <span className="name"><WaveformIcon/>{name}</span>
                 <span className="right">{bpm > 0 ? bpm.toFixed(1) : "-"}</span>
