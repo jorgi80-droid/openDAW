@@ -3,6 +3,50 @@ import {Promises} from "@opendaw/lib-runtime"
 
 export namespace Files {
     export const save = async (arrayBuffer: ArrayBuffer, options?: SaveFilePickerOptions): Promise<string> => {
+        const nativeBridge = (window as Window & {
+            OpenDAWNative?: {
+                beginFile(name: string): string
+                appendFileBase64(id: string, chunk: string): boolean
+                finishFile(id: string): string
+                cancelFile(id: string): void
+            }
+        }).OpenDAWNative
+        if (isDefined(nativeBridge)) {
+            const name = options?.suggestedName ?? "OpenDAW-export.bin"
+            const id = nativeBridge.beginFile(name)
+            if (id.length === 0) {
+                return RuntimeNotifier.info({
+                    headline: "Could not save file",
+                    message: "OpenDAW could not create a file in /storage/emulated/0/OpenDAW. Check the app's All files access permission."
+                }).then(() => Promise.reject(new Error("Could not create OpenDAW export file")))
+            }
+            try {
+                const bytes = new Uint8Array(arrayBuffer)
+                const chunkSize = 192 * 1024 // divisible by 3, so each chunk is valid independent Base64
+                for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+                    const chunk = bytes.subarray(offset, Math.min(offset + chunkSize, bytes.length))
+                    let binary = ""
+                    for (let index = 0; index < chunk.length; index++) {
+                        binary += String.fromCharCode(chunk[index])
+                    }
+                    if (!nativeBridge.appendFileBase64(id, btoa(binary))) {
+                        throw new Error("Failed while writing export data")
+                    }
+                }
+                const result = nativeBridge.finishFile(id)
+                if (!result.startsWith("OK")) {
+                    throw new Error(result)
+                }
+                return name
+            } catch (error) {
+                nativeBridge.cancelFile(id)
+                return RuntimeNotifier.info({
+                    headline: "Could not save file",
+                    message: String(error)
+                }).then(() => Promise.reject(error))
+            }
+        }
+
         if (isDefined(window.showSaveFilePicker)) {
             const {status, error, value: handle} = await Promises.tryCatch(window.showSaveFilePicker(options))
             if (status === "rejected") {
