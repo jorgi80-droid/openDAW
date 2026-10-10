@@ -10,6 +10,7 @@ on:
       - "packages/app/studio/src/boot.ts"
       - "packages/app/studio/src/ui/Footer.tsx"
       - "packages/app/studio/src/ui/App.tsx"
+      - "packages/app/studio/src/ui/workspace/PanelPlaceholder.tsx"
       - "packages/app/studio/src/ui/TouchDock.tsx"
       - "packages/app/studio/src/ui/browse/AndroidSampleBridge.ts"
       - "packages/app/studio/src/ui/browse/SampleBrowser.tsx"
