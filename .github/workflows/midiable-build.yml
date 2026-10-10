@@ -39,8 +39,8 @@ jobs:
       - name: Build WASM
         run: npm run build-wasm
 
-      - name: Build openDAW studio
-        run: npm run build --workspace=@opendaw/app-studio
+      - name: Build openDAW studio and workspace dependencies
+        run: npx turbo run build --filter=@opendaw/app-studio...
 
       - name: Upload web studio artifact
         uses: actions/upload-artifact@v4
