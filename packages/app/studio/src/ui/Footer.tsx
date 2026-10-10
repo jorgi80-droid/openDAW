@@ -21,12 +21,13 @@ export const Footer = ({lifecycle, service}: Construct) => {
     const {audioContext, buildInfo, engine, projectProfileService} = service
     return (
         <footer className={className}>
-            <FooterItem title="Online" onInit={({value}) => {
-                const updateOnline = () => value.textContent = navigator.onLine ? "Yes" : "No"
+            <FooterItem title="Mode" onInit={({value}) => {
+                const offlineApp = location.hostname.endsWith("androidplatform.net")
+                const updateMode = () => value.textContent = offlineApp ? "Offline" : (navigator.onLine ? "Online" : "Offline")
                 lifecycle.ownAll(
-                    Events.subscribe(window, "online", updateOnline),
-                    Events.subscribe(window, "offline", updateOnline))
-                updateOnline()
+                    Events.subscribe(window, "online", updateMode),
+                    Events.subscribe(window, "offline", updateMode))
+                updateMode()
             }}/>
             <FooterItem className="name" title="Project"
                         onInit={({component, value}) => {
