@@ -133,6 +133,20 @@ export const PanelPlaceholder =
             }
         }))
         appendChildren(element, <Frag>{header}{container}</Frag>)
+        // A double click is awkward on a touchscreen. Use a short double-tap gesture on the
+        // existing panel header; a single tap remains available for text selection/menu behavior.
+        let lastHeaderTap = 0
+        lifecycle.own(Events.subscribe(header, "pointerup", event => {
+            if (event.pointerType === "mouse") {return}
+            const now = performance.now()
+            if (now - lastHeaderTap < 360) {
+                event.preventDefault()
+                handler.toggleMinimize()
+                lastHeaderTap = 0
+            } else {
+                lastHeaderTap = now
+            }
+        }))
         lifecycle.own(Events.subscribeDblDwn(header, () => handler.toggleMinimize()))
         lifecycle.own(ContextMenu.subscribe(header, collector => collector.addItems(
             MenuItem.default({
