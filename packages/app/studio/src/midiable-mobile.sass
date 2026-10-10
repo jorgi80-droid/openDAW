@@ -398,3 +398,79 @@ html.midiable-mobile .panel-resizer.horizontal::after
   left: -16px !important
   height: 8px !important
   top: calc(50% - 4px) !important
+
+
+// IMPORTANT: style classes are generated from the component names (PanelResizer / PanelPlaceholder),
+// not the lower-case filenames. These selectors target the actual native workspace components.
+html.midiable-mobile .PanelResizer::after
+  background: transparent !important
+  box-shadow: none !important
+  opacity: 0
+  pointer-events: auto
+
+html.midiable-mobile .PanelResizer:active::after
+  background: rgba(74, 220, 245, 0.9) !important
+  box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.14) !important
+  opacity: 1
+
+html.midiable-mobile .PanelResizer.vertical::after
+  width: 8px !important
+  left: calc(50% - 4px) !important
+  height: 34px !important
+  top: -16px !important
+
+html.midiable-mobile .PanelResizer.horizontal::after
+  width: 34px !important
+  left: -16px !important
+  height: 8px !important
+  top: calc(50% - 4px) !important
+
+html.midiable-mobile .PanelPlaceholder
+  transition: flex-grow 180ms ease, flex-basis 180ms ease, width 180ms ease, height 180ms ease !important
+
+html.midiable-mobile .PanelPlaceholder.closed
+  background: transparent !important
+  border-radius: 4px
+  overflow: hidden !important
+
+html.midiable-mobile .PanelPlaceholder.horizontal.closed
+  flex-basis: 22px !important
+  width: 22px !important
+  min-width: 22px !important
+  max-width: 22px !important
+
+html.midiable-mobile .PanelPlaceholder.vertical.closed
+  flex-basis: 22px !important
+  height: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
+
+html.midiable-mobile .PanelPlaceholder.closed > header
+  padding: 0 !important
+  margin: 0 !important
+  gap: 0 !important
+  justify-content: center !important
+  overflow: hidden !important
+  min-height: 22px !important
+  max-height: 22px !important
+
+html.midiable-mobile .PanelPlaceholder.horizontal.closed > header
+  min-width: 22px !important
+  max-width: 22px !important
+
+html.midiable-mobile .PanelPlaceholder.vertical.closed > header
+  min-width: 100% !important
+  max-width: 100% !important
+
+html.midiable-mobile .PanelPlaceholder.closed > header > span,
+html.midiable-mobile .PanelPlaceholder.closed > header > .presence-dots,
+html.midiable-mobile .PanelPlaceholder.closed > div
+  display: none !important
+
+@media (max-width: 700px), (max-height: 500px)
+  html.midiable-mobile section.workspace.horizontal > .PanelPlaceholder[data-panel-type="Browser"].closed,
+  html.midiable-mobile section.workspace.horizontal > .PanelPlaceholder[data-panel-type="Mixer"].closed
+    flex-basis: 22px !important
+    width: 22px !important
+    min-width: 22px !important
+    max-width: 22px !important
