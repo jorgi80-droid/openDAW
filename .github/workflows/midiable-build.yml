@@ -34,13 +34,16 @@ jobs:
           sudo apt-get install -y build-essential pkg-config libssl-dev
 
       - name: Install npm dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
+
+      - name: Enable required dependency install scripts
+        run: npm rebuild esbuild @parcel/watcher protobufjs
 
       - name: Build WASM
         run: npm run build-wasm
 
       - name: Build openDAW studio and workspace dependencies
-        run: npx turbo run build --filter=@opendaw/app-studio...
+        run: npx turbo run build --filter=@opendaw/app-studio... --output-logs=full
 
       - name: Upload web studio artifact
         uses: actions/upload-artifact@v4
