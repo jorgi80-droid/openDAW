@@ -29,7 +29,8 @@ public final class MainActivity extends Activity {
         hideSystemUi();
 
         assetLoader = new WebViewAssetLoader.Builder()
-            .addPathHandler("/", path -> serveStudioAsset(path))
+            .setDomain("appassets.androidplatform.net")
+            .addPathHandler("/studio/", path -> serveStudioAsset(path))
             .build();
 
         webView = new WebView(this);
@@ -39,6 +40,7 @@ public final class MainActivity extends Activity {
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.getSettings().setAllowFileAccess(false);
         webView.getSettings().setAllowContentAccess(true);
+        webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public void onPermissionRequest(PermissionRequest request) {
@@ -53,13 +55,30 @@ public final class MainActivity extends Activity {
                 Uri uri = request.getUrl();
                 if ("https".equals(uri.getScheme())
                     && "appassets.androidplatform.net".equals(uri.getHost())) {
-                    return assetLoader.shouldInterceptRequest(uri);
+                    WebResourceResponse response = assetLoader.shouldInterceptRequest(uri);
+                    if (response != null) {
+                        Map<String, String> headers = new HashMap<>();
+                        headers.put("Cross-Origin-Opener-Policy", "same-origin");
+                        headers.put("Cross-Origin-Embedder-Policy", "require-corp");
+                        headers.put("Cross-Origin-Resource-Policy", "same-origin");
+                        headers.put("Cache-Control", "no-cache");
+                        return new WebResourceResponse(
+                            response.getMimeType(),
+                            response.getEncoding(),
+                            response.getStatusCode(),
+                            response.getReasonPhrase(),
+                            headers,
+                            response.getData()
+                        );
+                    }
+                    return response("text/plain", 404, "Not Found",
+                        ("Studio asset not found: " + uri.getPath()).getBytes());
                 }
                 return super.shouldInterceptRequest(view, request);
             }
         });
         setContentView(webView);
-        webView.loadUrl("https://appassets.androidplatform.net/index.html");
+        webView.loadUrl("https://appassets.androidplatform.net/studio/index.html");
     }
 
     private WebResourceResponse serveStudioAsset(String requestedPath) {
