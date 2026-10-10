@@ -8,7 +8,7 @@ if (localStorage.getItem("opendaw-suppress-unload-guard") !== null) {
 import {App} from "@/ui/App.tsx"
 import {isDefined, panic, Progress, RuntimeNotification, RuntimeNotifier, UUID} from "@opendaw/lib-std"
 import {StudioService} from "@/service/StudioService"
-import {SampleMetaData, SoundfontMetaData} from "@opendaw/studio-adapters"
+import {Sample, SampleMetaData, SoundfontMetaData} from "@opendaw/studio-adapters"
 import {Dialogs} from "@/ui/components/dialogs.tsx"
 import {installCursors} from "@/ui/Cursors.ts"
 import {BuildInfo} from "./BuildInfo"
@@ -37,7 +37,7 @@ import {AudioOutputDevice} from "@/audio/AudioOutputDevice"
 import {reportVisitor} from "@/VisitorReporter"
 import {FontLoader} from "@/ui/FontLoader"
 import {ErrorHandler} from "@/errors/ErrorHandler.ts"
-import {AudioData} from "@opendaw/lib-dsp"
+import {AudioData, WavFile} from "@opendaw/lib-dsp"
 import {ChainedSampleProvider, ChainedSoundfontProvider, ChainedWclapProvider} from "@opendaw/studio-p2p"
 import {IconSymbol, initializeColors, setColorScheme} from "@opendaw/studio-enums"
 import {StudioPreferences, WclapStorage} from "@opendaw/studio-core"
@@ -111,8 +111,40 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
     }
     const audioDevices = await AudioOutputDevice.create(context)
     const isOfflineApp = location.hostname.endsWith("androidplatform.net")
+    const offlineSamples: Sample[] = []
+    const offlineSampleFiles = new Map<string, string>()
+    if (isOfflineApp) {
+        try {
+            const response = await fetch("/offline-samples/index.json")
+            if (response.ok) {
+                const catalog = await response.json() as {
+                    samples?: ReadonlyArray<{
+                        uuid: string
+                        name: string
+                        bpm: number
+                        duration: number
+                        sample_rate: number
+                        origin: "openDAW"
+                        file: string
+                    }>
+                }
+                for (const entry of catalog.samples ?? []) {
+                    const sample = Sample.parse(entry)
+                    if (typeof entry.file === "string" && entry.file.length > 0) {
+                        offlineSamples.push(sample)
+                        offlineSampleFiles.set(sample.uuid, entry.file)
+                    }
+                }
+                console.info(`Loaded ${offlineSamples.length} bundled offline samples`)
+            } else {
+                console.warn("Offline sample catalog is missing", response.status)
+            }
+        } catch (error) {
+            console.warn("Offline sample catalog could not be loaded", error)
+        }
+    }
     FactoryCatalog.install(isOfflineApp ? {
-        samples: async () => [],
+        samples: async () => offlineSamples,
         soundfonts: async () => [],
         presets: async () => []
     } : {
@@ -122,7 +154,26 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
     })
     const chainedSampleProvider = new ChainedSampleProvider({
         fetch: async (uuid: UUID.Bytes, progress: Progress.Handler): Promise<[AudioData, SampleMetaData]> => {
-            if (isOfflineApp) {throw new Error("Sample is not bundled in this offline installation. Import a local audio file instead.")}
+            if (isOfflineApp) {
+                const uuidString = UUID.toString(uuid)
+                const sample = offlineSamples.find(entry => entry.uuid === uuidString)
+                const file = offlineSampleFiles.get(uuidString)
+                if (sample === undefined || file === undefined) {
+                    throw new Error("This sample is not included in the offline catalog. Import a local audio file instead.")
+                }
+                const response = await fetch(`/offline-samples/${encodeURIComponent(file)}`)
+                if (!response.ok) {throw new Error(`Could not load bundled sample ${file}: ${response.status}`)}
+                progress(0.25)
+                const audioData = WavFile.decodeFloats(await response.arrayBuffer())
+                progress(1)
+                return [audioData, {
+                    name: sample.name,
+                    bpm: sample.bpm,
+                    duration: audioData.numberOfFrames / audioData.sampleRate,
+                    sample_rate: audioData.sampleRate,
+                    origin: "openDAW"
+                }]
+            }
             return OpenSampleAPI.get().load(uuid, progress)
         }
     })
