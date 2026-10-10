@@ -76,6 +76,13 @@ jobs:
           name: MidiAble-studio-web
           path: android-wrapper/app/src/main/assets/studio
 
+      - name: Verify OpenDAW bundled storage support
+        run: |
+          test -s android-wrapper/app/src/main/assets/studio/index.html
+          test -s android-wrapper/app/src/main/assets/studio/build-info.json
+          find android-wrapper/app/src/main/assets/studio -type f -name '*.wasm' | grep -q .
+          grep -q 'OpenDAWNative' android-wrapper/app/src/main/java/com/midiable/studio/MainActivity.java
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
