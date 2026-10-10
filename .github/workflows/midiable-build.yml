@@ -7,6 +7,11 @@ on:
       - ".github/workflows/midiable-build.yml"
       - "packages/app/studio/src/main.ts"
       - "packages/app/studio/src/midiable-mobile.sass"
+      - "packages/app/studio/src/boot.ts"
+      - "packages/app/studio/src/ui/Footer.tsx"
+      - "packages/app/studio/src/ui/header/Header.tsx"
+      - "packages/app/studio/index.html"
+      - "packages/app/studio/public/favicon.svg"
       - "android-wrapper/**"
 
 permissions:
@@ -115,6 +120,13 @@ jobs:
         run: |
           grep -q 'android:label="OpenDAW"' android-wrapper/app/src/main/AndroidManifest.xml
           grep -q 'OpenDAWNative' android-wrapper/app/src/main/java/com/midiable/studio/MainActivity.java
+      - name: Verify branding and native offline file bridge
+        run: |
+          grep -q 'android:label="OpenDAW"' android-wrapper/app/src/main/AndroidManifest.xml
+          grep -q 'android:icon="@mipmap/ic_launcher"' android-wrapper/app/src/main/AndroidManifest.xml
+          grep -q 'OpenDAWNative' android-wrapper/app/src/main/java/com/midiable/studio/MainActivity.java
+          test -s android-wrapper/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
+          test -s android-wrapper/app/src/main/assets/studio/wasm-engine/wasm/engine.wasm
       - name: Upload installable debug APK
         uses: actions/upload-artifact@v4
         with:
