@@ -98,6 +98,20 @@ export const PanelPlaceholder =
                 updateLayout()
             }
         }))
+        // On phones, double-click is too difficult. Make the existing panel header respond to
+        // double-tap with a forgiving interval, leaving normal mouse behavior untouched.
+        let lastHeaderTap = 0
+        lifecycle.own(Events.subscribe(header, "pointerup", event => {
+            if (event.pointerType === "mouse") {return}
+            const now = performance.now()
+            if (now - lastHeaderTap < 380) {
+                event.preventDefault()
+                handler.toggleMinimize()
+                lastHeaderTap = 0
+            } else {
+                lastHeaderTap = now
+            }
+        }))
         const presenceDots: HTMLElement = <div className="presence-dots"/>
         const header: HTMLElement = (
             <header>
