@@ -179,3 +179,99 @@ html.midiable-mobile [role="dialog"]
     animation-duration: 0.01ms !important
     animation-iteration-count: 1 !important
     transition-duration: 0.01ms !important
+
+
+// Mobile workstation ergonomics: preserve the existing OpenDAW layout and panel system.
+// Do not add a duplicate bottom navigation; TouchDock is the only mobile shortcut row.
+html.midiable-mobile .touch-dock
+  display: flex
+  align-items: stretch
+  justify-content: center
+  gap: 4px
+  flex: 0 0 auto
+  width: 100%
+  max-width: 100%
+  min-width: 0
+  padding: 4px 5px max(4px, env(safe-area-inset-bottom))
+  box-sizing: border-box
+  overflow-x: auto
+  overflow-y: hidden
+  scrollbar-width: none
+  background: var(--color-panel-background, #202629)
+  border-top: 1px solid rgba(180, 200, 210, 0.12)
+  touch-action: pan-x
+
+html.midiable-mobile .touch-dock button
+  flex: 1 0 auto
+  min-width: 54px
+  min-height: 34px
+  padding: 0 8px
+  border: 1px solid rgba(180, 200, 210, 0.18)
+  border-radius: 5px
+  color: var(--color-gray, #c7d0d4)
+  background: rgba(255, 255, 255, 0.035)
+  font: inherit
+  font-size: 11px
+  white-space: nowrap
+  touch-action: manipulation
+
+html.midiable-mobile .touch-dock button:active,
+html.midiable-mobile .touch-dock button:focus-visible
+  outline: 1px solid var(--color-blue, #42d9e8)
+  outline-offset: -1px
+  background: rgba(66, 217, 232, 0.12)
+
+html.midiable-mobile .touch-dock button.piano-roll-action
+  color: var(--color-bright, #f2f5f6)
+  border-color: rgba(66, 217, 232, 0.42)
+
+// The existing Editor remains beside Timeline in the same workspace.
+// This class changes only flex allocation, so restoring it returns the prior layout.
+html.midiable-mobile.opendaw-editor-maximized section.workspace.vertical > [data-panel-type="Timeline"]
+  flex: 0.0001 1 0 !important
+  min-height: 32px !important
+  max-height: none !important
+
+html.midiable-mobile.opendaw-editor-maximized section.workspace.vertical > [data-panel-type="Editor"]
+  flex: 100 1 0 !important
+  min-height: 100px !important
+  max-height: none !important
+
+html.midiable-mobile.opendaw-editor-maximized section.workspace.vertical > .panel-resizer
+  flex-basis: 0 !important
+  min-height: 0 !important
+
+// Make the native resizer easier to grab with a finger while keeping its visual style subtle.
+html.midiable-mobile .panel-resizer.vertical
+  min-height: 0
+  touch-action: none
+
+html.midiable-mobile .panel-resizer.vertical::after
+  top: -14px
+  height: 30px
+  border-radius: 999px
+
+html.midiable-mobile .panel-resizer.horizontal::after
+  left: -14px
+  width: 30px
+  border-radius: 999px
+
+// Fixed-height mobile docks should never cover the musical workspace.
+html.midiable-mobile .touch-dock + *
+  min-height: 0
+
+@media (max-width: 700px), (max-height: 500px)
+  html.midiable-mobile .touch-dock
+    justify-content: flex-start
+    gap: 3px
+    padding: 3px 4px max(3px, env(safe-area-inset-bottom))
+
+  html.midiable-mobile .touch-dock button
+    min-width: 48px
+    min-height: 32px
+    padding: 0 6px
+    font-size: 10px
+
+@media (prefers-reduced-motion: reduce)
+  html.midiable-mobile .touch-dock button
+    transition: none
