@@ -29,7 +29,7 @@ export const PanelPlaceholder =
         const {icon, name, constrains, minimizable, popoutable} = panelState
         const HeaderSize = 18
         const container = <Group/>
-        const element: DomElement = <div className={Html.buildClassList(className, orientation)}
+        const element: DomElement = <div className={Html.buildClassList(className, orientation, "panel-placeholder")}
                                          data-panel-type={name}/>
         const panelContent = panelContents.getByType(panelState.panelType)
 
