@@ -41,6 +41,7 @@ public final class MainActivity extends Activity {
     private WebViewAssetLoader assetLoader;
     private ValueCallback<Uri[]> pendingFileCallback;
     private String pendingSaveName;
+    private final java.util.concurrent.ConcurrentHashMap<String, FileOutputStream> activeSaves = new java.util.concurrent.ConcurrentHashMap<>();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -111,13 +112,17 @@ public final class MainActivity extends Activity {
                 String escapedUrl = jsQuote(url);
                 String escapedName = jsQuote(name);
                 webView.evaluateJavascript(
-                    "(async()=>{try{const r=await fetch(" + escapedUrl + ");const b=await r.blob();" +
-                    "const a=await b.arrayBuffer();const bytes=new Uint8Array(a);let s='';" +
-                    "for(let i=0;i<bytes.length;i+=16384)s+=String.fromCharCode(...bytes.subarray(i,Math.min(i+16384,bytes.length)));" +
-                    "OpenDAWNative.saveBase64(" + escapedName + ",btoa(s));}" +
-                    "catch(e){OpenDAWNative.notify('Export gagal: '+e)}})()", null);
+                    "(async()=>{let id=null;try{const r=await fetch(" + escapedUrl + ");const b=await r.blob();" +
+                    "id=OpenDAWNative.beginFile(" + escapedName + ");if(!id)throw new Error('Tidak dapat membuat file');" +
+                    "const step=256*1024;for(let o=0;o<b.size;o+=step){" +
+                    "const bytes=new Uint8Array(await b.slice(o,o+step).arrayBuffer());let s='';" +
+                    "for(let i=0;i<bytes.length;i+=8192)s+=String.fromCharCode(...bytes.subarray(i,Math.min(i+8192,bytes.length)));" +
+                    "if(!OpenDAWNative.appendFileBase64(id,btoa(s)))throw new Error('Gagal menulis file');}" +
+                    "OpenDAWNative.finishFile(id);OpenDAWNative.notify('Ekspor tersimpan di folder OpenDAW');}" +
+                    "catch(e){if(id)OpenDAWNative.cancelFile(id);OpenDAWNative.notify('Ekspor gagal: '+e)}})()", null);
             } else {
-                Toast.makeText(this, "Unduhan eksternal dinonaktifkan pada mode offline", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Tautan unduhan bukan file lokal; fitur online tidak digunakan di mode offline",
+                    Toast.LENGTH_LONG).show();
             }
         });
         setContentView(webView);
@@ -187,6 +192,51 @@ public final class MainActivity extends Activity {
             } catch (Exception error) {
                 return "ERROR: data ekspor tidak valid: " + error.getMessage();
             }
+        }
+
+        @android.webkit.JavascriptInterface public String beginFile(String name) {
+            if (!validName(name)) return "";
+            try {
+                File dir = preferredOpenDawFolder();
+                if (!dir.exists() && !dir.mkdirs()) return "";
+                String id = java.util.UUID.randomUUID().toString();
+                activeSaves.put(id, new FileOutputStream(new File(dir, safeName(name))));
+                return id;
+            } catch (Exception error) {
+                android.util.Log.e("OpenDAW", "beginFile failed", error);
+                return "";
+            }
+        }
+
+        @android.webkit.JavascriptInterface public boolean appendFileBase64(String id, String chunk) {
+            if (id == null || chunk == null) return false;
+            FileOutputStream stream = activeSaves.get(id);
+            if (stream == null) return false;
+            try {
+                byte[] bytes = android.util.Base64.decode(chunk, android.util.Base64.DEFAULT);
+                synchronized (stream) { stream.write(bytes); }
+                return true;
+            } catch (Exception error) {
+                android.util.Log.e("OpenDAW", "appendFileBase64 failed", error);
+                return false;
+            }
+        }
+
+        @android.webkit.JavascriptInterface public String finishFile(String id) {
+            FileOutputStream stream = activeSaves.remove(id);
+            if (stream == null) return "ERROR: file handle not found";
+            try {
+                stream.flush();
+                stream.close();
+                return "OK";
+            } catch (Exception error) {
+                return "ERROR:" + error.getMessage();
+            }
+        }
+
+        @android.webkit.JavascriptInterface public void cancelFile(String id) {
+            FileOutputStream stream = activeSaves.remove(id);
+            if (stream != null) try { stream.close(); } catch (IOException ignored) {}
         }
 
         @android.webkit.JavascriptInterface public String listAudioFiles() {
@@ -356,6 +406,8 @@ public final class MainActivity extends Activity {
     }
 
     @Override protected void onDestroy() {
+        for (FileOutputStream stream : activeSaves.values()) { try { stream.close(); } catch (IOException ignored) {} }
+        activeSaves.clear();
         if (pendingFileCallback != null) pendingFileCallback.onReceiveValue(null);
         if (webView != null) { webView.loadUrl("about:blank"); webView.destroy(); }
         super.onDestroy();
