@@ -336,11 +336,9 @@ html.midiable-mobile .panel-resizer:active::after
   box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.16)
 
 @media (max-width: 700px), (max-height: 500px)
-  html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"].closed
-    display: none !important
-
-  html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"].closed + .panel-resizer
-    display: none !important
+  // Closed Browser remains a compact icon tab, so it can always be reopened with touch.
+  html.midiable-mobile section.workspace.horizontal > .panel-placeholder[data-panel-type="Browser"].closed
+    display: flex !important
 
 
 // The large translucent strips in mobile view were resize hit areas drawn too visibly.
