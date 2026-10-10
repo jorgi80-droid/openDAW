@@ -43,10 +43,14 @@ component
 
 @media (pointer: coarse)
   component
+    // Keep the visible divider slim, but give touch input a wide forgiving hit target.
     &.vertical:after
-      height: 26px
-      top: -12px
+      height: 30px
+      top: -14px
 
     &.horizontal:after
-      width: 26px
-      left: -12px
+      width: 30px
+      left: -14px
+
+    &:active:after
+      background: rgba(74, 220, 245, 0.95)
