@@ -78,16 +78,24 @@ html.midiable-mobile textarea
     pointer-events: none
 
 
-// Direct manipulation targets for touch-only devices: keep panels usable without mouse precision.
+// Mobile touch refinements preserving OpenDAW's original header and panel workspace.
 html.midiable-mobile header
-  column-gap: 0.55em
+  column-gap: 0.35em
+  overflow-x: auto
+  overflow-y: hidden
+  scrollbar-width: none
+  touch-action: pan-x
+
+html.midiable-mobile header > *
+  flex-shrink: 0
 
 html.midiable-mobile header .panel-selector
   min-width: 0
-  max-width: 54vw
+  max-width: 65vw
   overflow-x: auto
   overflow-y: hidden
   flex: 0 1 auto
+  scrollbar-width: none
 
 html.midiable-mobile header .panel-selector label
   flex: 0 0 34px
@@ -98,19 +106,19 @@ html.midiable-mobile header .panel-selector label
   padding: 0
   touch-action: manipulation
 
+html.midiable-mobile section.workspace
+  gap: 2px
+
 html.midiable-mobile .panel-placeholder > header
-  min-height: 26px
-  max-height: 26px
-  height: 26px
+  min-height: 28px
+  max-height: 28px
+  height: 28px
   font-size: 1rem
   padding: 0 7px
   gap: 6px
   touch-action: manipulation
-
-html.midiable-mobile .panel-placeholder > header > svg
-  width: 14px
-  height: 14px
-  flex: 0 0 auto
+  user-select: none
+  -webkit-user-select: none
 
 html.midiable-mobile .panel-resizer
   position: relative
@@ -119,77 +127,41 @@ html.midiable-mobile .panel-resizer
 html.midiable-mobile .panel-resizer::after
   content: ""
   position: absolute
-  inset: -5px
+  inset: -6px
   z-index: 10
 
-html.midiable-mobile .touch-dock
-  display: none
+// Timeline and editor must remain usable and resizable from a touchscreen.
+html.midiable-mobile [data-panel-type="Timeline"]
+  min-height: 110px
+
+html.midiable-mobile [data-panel-type="Editor"]
+  min-height: 100px
+
+html.midiable-mobile canvas
+  touch-action: none
+
+html.midiable-mobile dialog,
+html.midiable-mobile [role="dialog"]
+  max-width: calc(100vw - 12px)
+  max-height: calc(100dvh - 12px)
+  overflow: auto
 
 @media (max-width: 1100px), (max-height: 700px)
+  html.midiable-mobile body
+    font-size: 11px
+
   html.midiable-mobile header
-    column-gap: 0.4em
     padding-left: 5px
     padding-right: 5px
-
-  html.midiable-mobile header .panel-selector
-    max-width: 44vw
 
   html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"]
     flex: 0 1 190px !important
-    min-width: 132px !important
+    min-width: 112px !important
     max-width: 235px !important
 
   html.midiable-mobile section.workspace.horizontal > section.workspace.vertical
-    min-width: 0
     flex: 1 1 0
-
-  html.midiable-mobile .touch-dock
-    display: flex
-    position: fixed
-    z-index: 5000
-    left: 50%
-    bottom: 24px
-    transform: translateX(-50%)
-    width: max-content
-    max-width: calc(100vw - 10px)
-    height: 36px
-    padding: 2px
-    gap: 3px
-    align-items: center
-    overflow-x: auto
-    overflow-y: hidden
-    border: 1px solid rgba(120, 210, 230, 0.28)
-    border-radius: 9px
-    background: rgba(10, 13, 16, 0.96)
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45)
-    backdrop-filter: blur(8px)
-    -webkit-backdrop-filter: blur(8px)
-    scrollbar-width: none
-    touch-action: pan-x
-
-  html.midiable-mobile .touch-dock button
-    flex: 0 0 auto
-    min-width: 60px
-    min-height: 30px
-    height: 30px
-    padding: 0 8px
-    border: 1px solid rgba(120, 210, 230, 0.18)
-    border-radius: 6px
-    background: #22282d
-    color: #d6e4e8
-    font: 500 10px/1 system-ui, sans-serif
-    white-space: nowrap
-    touch-action: manipulation
-
-  html.midiable-mobile .touch-dock button:active
-    background: #224b55
-    border-color: #55dff4
-    color: #ffffff
-
-  html.midiable-mobile footer
-    padding-left: 5px
-    padding-right: 5px
-    column-gap: 0.45rem
+    min-width: 0
 
 @media (max-height: 440px)
   html.midiable-mobile header
@@ -197,47 +169,8 @@ html.midiable-mobile .touch-dock
     min-height: 34px
     max-height: 34px
 
-  html.midiable-mobile .touch-dock
-    bottom: 22px
-    height: 32px
-
-  html.midiable-mobile .touch-dock button
-    min-height: 27px
-    height: 27px
-    min-width: 54px
-    font-size: 9px
-
   html.midiable-mobile footer
     flex-basis: 20px
-
-
-// Editor maximize mode is independent from the internal panel resize model, so it is reversible
-// without rebuilding the project or losing the current timeline state.
-html.midiable-mobile.opendaw-editor-maximized section.workspace.horizontal > [data-panel-type="Browser"],
-html.midiable-mobile.opendaw-editor-maximized section.workspace.horizontal > [data-panel-type="Mixer"],
-html.midiable-mobile.opendaw-editor-maximized section.workspace.vertical > [data-panel-type="Timeline"],
-html.midiable-mobile.opendaw-editor-maximized section.workspace.vertical > [data-panel-type="Devices"]
-  display: none !important
-
-html.midiable-mobile.opendaw-editor-maximized section.workspace.horizontal > section.workspace.vertical
-  flex: 1 1 100% !important
-  min-width: 0 !important
-  min-height: 0 !important
-
-html.midiable-mobile.opendaw-editor-maximized section.workspace.vertical > [data-panel-type="Editor"]
-  flex: 1 1 auto !important
-  min-width: 0 !important
-  min-height: 0 !important
-  max-height: none !important
-
-html.midiable-mobile .touch-dock button.piano-roll-action
-  border-color: rgba(81, 224, 244, 0.6)
-  color: #8cecff
-
-html.midiable-mobile .panel-placeholder > header
-  user-select: none
-  -webkit-user-select: none
-  cursor: pointer
 
 @media (prefers-reduced-motion: reduce)
   html.midiable-mobile *,
