@@ -72,7 +72,7 @@ export const Header = ({lifecycle, service}: Construct) => {
             <MenuButton root={service.menu}
                         onInit={element => TourAnchors.register(lifecycle, element, "menu")}
                         appearance={{color: Colors.gray, activeColor: Colors.bright, tinyTriangle: true}}>
-                <h5>openDAW</h5>
+                <h5>OpenDAW</h5>
             </MenuButton>
             {manuals}
             <hr/>
