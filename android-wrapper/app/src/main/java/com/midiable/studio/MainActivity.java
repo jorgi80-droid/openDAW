@@ -59,7 +59,7 @@ public final class MainActivity extends Activity {
             }
         });
         setContentView(webView);
-        webView.loadUrl("https://appassets.androidplatform.net/studio/index.html");
+        webView.loadUrl("https://appassets.androidplatform.net/index.html");
     }
 
     private WebResourceResponse serveStudioAsset(String requestedPath) {
