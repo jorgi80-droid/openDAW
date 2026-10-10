@@ -25,7 +25,7 @@ import {BaseFrequencyControl} from "@/ui/header/BaseFrequencyControl"
 import {CaptureMidiButton} from "@/ui/header/CaptureMidiButton"
 import {TourAnchors} from "@/ui/tour/TourAnchors"
 
-const className = Html.adoptStyleSheet(css, "Header")
+const className = Html.buildClassList(Html.adoptStyleSheet(css, "Header"), "mobile-header")
 
 type Construct = {
     lifecycle: Lifecycle
