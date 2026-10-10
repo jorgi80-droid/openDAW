@@ -2,10 +2,10 @@ name: MidiAble Android Hotfix Build
 
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - "android-wrapper/**"
-      - ".github/workflows/midiable-android-hotfix.yml"
+  workflow_run:
+    workflows: ["MidiAble Remote Build"]
+    types: [completed]
+    branches: [main]
 
 permissions:
   contents: read
@@ -13,18 +13,32 @@ permissions:
 
 jobs:
   package-android-apk:
-    name: Package patched Android debug APK
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    name: Package offline Android debug APK
     runs-on: ubuntu-24.04
     steps:
-      - name: Checkout current wrapper
+      - name: Checkout current wrapper and source
         uses: actions/checkout@v4
 
-      - name: Download last successful studio distribution
+      - name: Determine studio build run
+        id: studio-run
+        env:
+          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
+        run: |
+          if [ -n "$EVENT_RUN_ID" ]; then
+            echo "run_id=$EVENT_RUN_ID" >> "$GITHUB_OUTPUT"
+          else
+            echo "Manual dispatch: use latest successful MidiAble Remote Build in Actions."
+            echo "For manual dispatch, this workflow must be supplied a fresh artifact run id."
+            exit 1
+          fi
+
+      - name: Download studio distribution from successful build
         uses: actions/download-artifact@v4
         with:
           name: MidiAble-studio-web
           path: android-wrapper/app/src/main/assets/studio
-          run-id: 38065696197
+          run-id: ${{ steps.studio-run.outputs.run_id }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify studio assets
@@ -58,10 +72,10 @@ jobs:
       - name: Verify APK output
         run: test -s android-wrapper/app/build/outputs/apk/debug/app-debug.apk
 
-      - name: Upload patched debug APK
+      - name: Upload offline debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: MidiAble-isolation-hotfix-APK
+          name: MidiAble-offline-debug-APK
           path: android-wrapper/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
           retention-days: 7
