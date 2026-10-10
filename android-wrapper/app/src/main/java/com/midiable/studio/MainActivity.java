@@ -1,37 +1,34 @@
 package com.midiable.studio;
 
 import android.app.Activity;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import androidx.webkit.WebViewAssetLoader;
-
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class MainActivity extends Activity {
     private WebView webView;
-    private WebViewAssetLoader assetLoader;
+    private LocalStudioServer localServer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         hideSystemUi();
-
-        assetLoader = new WebViewAssetLoader.Builder()
-            .setDomain("appassets.androidplatform.net")
-            .addPathHandler("/", path -> serveStudioAsset(path))
-            .build();
 
         webView = new WebView(this);
         webView.setBackgroundColor(0xFF171A1D);
@@ -39,99 +36,27 @@ public final class MainActivity extends Activity {
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
         webView.getSettings().setAllowFileAccess(false);
-        webView.getSettings().setAllowContentAccess(true);
-        webView.getSettings().setAllowUniversalAccessFromFileURLs(false);
-        webView.setWebChromeClient(new WebChromeClient() {
-            @Override
-            public void onPermissionRequest(PermissionRequest request) {
-                // Do not grant WebView permissions automatically. Recording permissions
-                // require an explicit user action and runtime permission flow.
-                request.deny();
-            }
-        });
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
-                Uri uri = request.getUrl();
-                if ("https".equals(uri.getScheme())
-                    && "appassets.androidplatform.net".equals(uri.getHost())) {
-                    WebResourceResponse response = assetLoader.shouldInterceptRequest(uri);
-                    if (response != null) {
-                        Map<String, String> headers = new HashMap<>();
-                        headers.put("Cross-Origin-Opener-Policy", "same-origin");
-                        headers.put("Cross-Origin-Embedder-Policy", "require-corp");
-                        headers.put("Cross-Origin-Resource-Policy", "same-origin");
-                        headers.put("Cache-Control", "no-cache");
-                        return new WebResourceResponse(
-                            response.getMimeType(),
-                            response.getEncoding(),
-                            response.getStatusCode(),
-                            response.getReasonPhrase(),
-                            headers,
-                            response.getData()
-                        );
-                    }
-                    return response("text/plain", 404, "Not Found",
-                        ("Studio asset not found: " + uri.getPath()).getBytes());
-                }
-                return super.shouldInterceptRequest(view, request);
-            }
-        });
+        webView.getSettings().setAllowContentAccess(false);
+        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebViewClient(new WebViewClient());
         setContentView(webView);
-        webView.loadUrl("https://appassets.androidplatform.net/index.html");
-    }
 
-    private WebResourceResponse serveStudioAsset(String requestedPath) {
-        String path = requestedPath == null ? "" : requestedPath;
-        while (path.startsWith("/")) path = path.substring(1);
-        if (path.isEmpty()) path = "index.html";
-        if (path.contains("..")) {
-            return response("text/plain", 400, "Bad Request", "Blocked path".getBytes());
-        }
-
-        String assetPath = "studio/" + path;
+        localServer = new LocalStudioServer();
         try {
-            InputStream stream = getAssets().open(assetPath);
-            String mime = mimeType(path);
-            Map<String, String> headers = new HashMap<>();
-            headers.put("Cross-Origin-Opener-Policy", "same-origin");
-            headers.put("Cross-Origin-Embedder-Policy", "require-corp");
-            headers.put("Cross-Origin-Resource-Policy", "same-origin");
-            headers.put("Cache-Control", "no-cache");
-            return new WebResourceResponse(mime, "UTF-8", 200, "OK", headers, stream);
+            localServer.start();
+            webView.loadUrl(localServer.getBaseUrl() + "index.html");
         } catch (IOException error) {
-            return response("text/plain", 404, "Not Found",
-                ("MidiAble asset not found: " + path).getBytes());
+            webView.loadDataWithBaseURL(null,
+                "<meta name='viewport' content='width=device-width,initial-scale=1'>" +
+                "<body style='background:#171a1d;color:#fff;font:16px system-ui;padding:24px'>" +
+                "<h2>MidiAble tidak dapat memulai server lokal</h2><pre>" +
+                escapeHtml(error.toString()) + "</pre></body>",
+                "text/html", "UTF-8", null);
         }
     }
 
-    private WebResourceResponse response(String mime, int status, String reason, byte[] body) {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Cross-Origin-Opener-Policy", "same-origin");
-        headers.put("Cross-Origin-Embedder-Policy", "require-corp");
-        headers.put("Cross-Origin-Resource-Policy", "same-origin");
-        return new WebResourceResponse(mime, "UTF-8", status, reason, headers,
-            new java.io.ByteArrayInputStream(body));
-    }
-
-    private String mimeType(String path) {
-        String lower = path.toLowerCase(Locale.ROOT);
-        if (lower.endsWith(".html")) return "text/html";
-        if (lower.endsWith(".js") || lower.endsWith(".mjs")) return "application/javascript";
-        if (lower.endsWith(".css")) return "text/css";
-        if (lower.endsWith(".wasm")) return "application/wasm";
-        if (lower.endsWith(".json") || lower.endsWith(".map")) return "application/json";
-        if (lower.endsWith(".svg")) return "image/svg+xml";
-        if (lower.endsWith(".png")) return "image/png";
-        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
-        if (lower.endsWith(".webp")) return "image/webp";
-        if (lower.endsWith(".woff2")) return "font/woff2";
-        if (lower.endsWith(".woff")) return "font/woff";
-        if (lower.endsWith(".ttf")) return "font/ttf";
-        if (lower.endsWith(".ico")) return "image/x-icon";
-        if (lower.endsWith(".mp3")) return "audio/mpeg";
-        if (lower.endsWith(".wav")) return "audio/wav";
-        return "application/octet-stream";
+    private String escapeHtml(String value) {
+        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 
     private void hideSystemUi() {
@@ -153,8 +78,11 @@ public final class MainActivity extends Activity {
 
     @Override
     public void onBackPressed() {
-        if (webView != null && webView.canGoBack()) webView.goBack();
-        else super.onBackPressed();
+        if (webView != null && webView.canGoBack()) {
+            webView.goBack();
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override
@@ -163,6 +91,165 @@ public final class MainActivity extends Activity {
             webView.loadUrl("about:blank");
             webView.destroy();
         }
+        if (localServer != null) {
+            localServer.stop();
+        }
         super.onDestroy();
+    }
+
+    /**
+     * A small HTTP server bound ONLY to 127.0.0.1. Unlike an intercepted WebView
+     * asset response, raw loopback HTTP responses let Chromium process COOP/COEP
+     * headers for crossOriginIsolated, needed by openDAW's WASM/AudioWorklet engine.
+     */
+    private final class LocalStudioServer {
+        private ServerSocket serverSocket;
+        private ExecutorService workers;
+        private Thread acceptThread;
+        private volatile boolean running;
+
+        void start() throws IOException {
+            serverSocket = new ServerSocket(0, 32, InetAddress.getByName("127.0.0.1"));
+            serverSocket.setReuseAddress(true);
+            workers = Executors.newCachedThreadPool();
+            running = true;
+            acceptThread = new Thread(() -> {
+                while (running) {
+                    try {
+                        Socket client = serverSocket.accept();
+                        workers.execute(() -> serve(client));
+                    } catch (IOException error) {
+                        if (running) android.util.Log.e("MidiAble", "Local server accept failed", error);
+                    }
+                }
+            }, "MidiAble-HTTP-Accept");
+            acceptThread.setDaemon(true);
+            acceptThread.start();
+        }
+
+        String getBaseUrl() {
+            return "http://127.0.0.1:" + serverSocket.getLocalPort() + "/";
+        }
+
+        void stop() {
+            running = false;
+            try {
+                if (serverSocket != null) serverSocket.close();
+            } catch (IOException ignored) {}
+            if (workers != null) workers.shutdownNow();
+            if (acceptThread != null) acceptThread.interrupt();
+        }
+
+        private void serve(Socket client) {
+            try (Socket socket = client;
+                 BufferedInputStream input = new BufferedInputStream(socket.getInputStream());
+                 BufferedOutputStream output = new BufferedOutputStream(socket.getOutputStream())) {
+                socket.setSoTimeout(10000);
+                String requestLine = readLine(input);
+                if (requestLine == null || requestLine.isEmpty()) return;
+                String[] pieces = requestLine.split(" ");
+                if (pieces.length < 2) {
+                    sendText(output, 400, "Bad Request", "Invalid HTTP request");
+                    return;
+                }
+
+                String method = pieces[0];
+                if (!"GET".equals(method) && !"HEAD".equals(method)) {
+                    sendText(output, 405, "Method Not Allowed", "Only GET and HEAD are supported");
+                    return;
+                }
+
+                String rawPath = pieces[1].split("\\?", 2)[0];
+                String path;
+                try {
+                    path = URLDecoder.decode(rawPath, "UTF-8");
+                } catch (Exception error) {
+                    sendText(output, 400, "Bad Request", "Invalid URL path");
+                    return;
+                }
+                while (path.startsWith("/")) path = path.substring(1);
+                if (path.isEmpty()) path = "index.html";
+                if (path.contains("..") || path.contains("\\") || path.indexOf('\0') >= 0) {
+                    sendText(output, 400, "Bad Request", "Blocked path");
+                    return;
+                }
+
+                // Drain request headers before responding.
+                String line;
+                while ((line = readLine(input)) != null && !line.isEmpty()) {}
+
+                String assetPath = "studio/" + path;
+                try (InputStream asset = getAssets().open(assetPath)) {
+                    byte[] bytes = readAll(asset);
+                    sendBytes(output, 200, "OK", mimeType(path), bytes, !"HEAD".equals(method));
+                } catch (IOException error) {
+                    sendText(output, 404, "Not Found", "MidiAble asset not found: " + path);
+                }
+            } catch (IOException error) {
+                android.util.Log.d("MidiAble", "HTTP request closed", error);
+            }
+        }
+
+        private String readLine(InputStream input) throws IOException {
+            ByteArrayOutputStream line = new ByteArrayOutputStream();
+            int value;
+            while ((value = input.read()) != -1) {
+                if (value == '\n') break;
+                if (value != '\r') line.write(value);
+                if (line.size() > 16384) throw new IOException("HTTP header line too long");
+            }
+            if (value == -1 && line.size() == 0) return null;
+            return line.toString("UTF-8");
+        }
+
+        private byte[] readAll(InputStream stream) throws IOException {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            byte[] chunk = new byte[32768];
+            int count;
+            while ((count = stream.read(chunk)) != -1) buffer.write(chunk, 0, count);
+            return buffer.toByteArray();
+        }
+
+        private void sendText(BufferedOutputStream output, int status, String reason, String text) throws IOException {
+            sendBytes(output, status, reason, "text/plain; charset=utf-8",
+                text.getBytes(StandardCharsets.UTF_8), true);
+        }
+
+        private void sendBytes(BufferedOutputStream output, int status, String reason,
+                               String contentType, byte[] body, boolean includeBody) throws IOException {
+            String headers = "HTTP/1.1 " + status + " " + reason + "\r\n"
+                + "Content-Type: " + contentType + "\r\n"
+                + "Content-Length: " + body.length + "\r\n"
+                + "Connection: close\r\n"
+                + "Cache-Control: no-store\r\n"
+                + "Cross-Origin-Opener-Policy: same-origin\r\n"
+                + "Cross-Origin-Embedder-Policy: require-corp\r\n"
+                + "Cross-Origin-Resource-Policy: same-origin\r\n"
+                + "X-Content-Type-Options: nosniff\r\n"
+                + "\r\n";
+            output.write(headers.getBytes(StandardCharsets.US_ASCII));
+            if (includeBody) output.write(body);
+            output.flush();
+        }
+
+        private String mimeType(String path) {
+            String lower = path.toLowerCase(Locale.ROOT);
+            if (lower.endsWith(".html")) return "text/html; charset=utf-8";
+            if (lower.endsWith(".js") || lower.endsWith(".mjs")) return "application/javascript; charset=utf-8";
+            if (lower.endsWith(".css")) return "text/css; charset=utf-8";
+            if (lower.endsWith(".wasm")) return "application/wasm";
+            if (lower.endsWith(".json") || lower.endsWith(".map")) return "application/json; charset=utf-8";
+            if (lower.endsWith(".svg")) return "image/svg+xml";
+            if (lower.endsWith(".png")) return "image/png";
+            if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) return "image/jpeg";
+            if (lower.endsWith(".webp")) return "image/webp";
+            if (lower.endsWith(".woff2")) return "font/woff2";
+            if (lower.endsWith(".woff")) return "font/woff";
+            if (lower.endsWith(".ttf")) return "font/ttf";
+            if (lower.endsWith(".ico")) return "image/x-icon";
+            if (lower.endsWith(".mp3")) return "audio/mpeg";
+            if (lower.endsWith(".wav")) return "audio/wav";
+            return "application/octet-stream";
+        }
     }
 }
