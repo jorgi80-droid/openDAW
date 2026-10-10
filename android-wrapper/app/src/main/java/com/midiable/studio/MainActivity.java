@@ -30,7 +30,7 @@ public final class MainActivity extends Activity {
 
         assetLoader = new WebViewAssetLoader.Builder()
             .setDomain("appassets.androidplatform.net")
-            .addPathHandler("/studio/", path -> serveStudioAsset(path))
+            .addPathHandler("/", path -> serveStudioAsset(path))
             .build();
 
         webView = new WebView(this);
@@ -78,7 +78,7 @@ public final class MainActivity extends Activity {
             }
         });
         setContentView(webView);
-        webView.loadUrl("https://appassets.androidplatform.net/studio/index.html");
+        webView.loadUrl("https://appassets.androidplatform.net/index.html");
     }
 
     private WebResourceResponse serveStudioAsset(String requestedPath) {
