@@ -16,6 +16,7 @@ import {SampleIndex, SampleIndexFolder} from "@/opendaw-api/SampleIndex"
 import {ResourceBrowserConfig} from "@/ui/browse/ResourceBrowserConfig"
 import {ResourceFolder} from "@/ui/browse/ResourceFolder"
 import {LocalTree} from "@/ui/browse/LocalTree"
+import {UUID} from "@opendaw/lib-std"
 
 const className = Html.adoptStyleSheet(css, "Samples")
 
@@ -51,9 +52,43 @@ export const SampleBrowser = ({lifecycle, service, background, fontSize}: Constr
             items: []
         }),
         fetchLocal: async () => {
-            const openDAW = await OpenSampleAPI.get().all()
-            const local = await SampleStorage.get().list()
-            return Arrays.subtract(local, openDAW, ({uuid: a}, {uuid: b}) => a === b)
+            const openDAW = await OpenSampleAPI.get().all().catch(() => [])
+            const stored = await SampleStorage.get().list()
+            // The Android file bridge mirrors public-folder audio into the app's private OpenDAW
+            // directory. Show a visible import entry for each mirror so samples are discoverable
+            // even before the user explicitly imports them into the internal sample database.
+            const native = (window as Window & {
+                OpenDAWNative?: {
+                    listAudioFiles(): string
+                    readFileBase64?(name: string): string
+                    getOpenDawFolder?(): string
+                }
+            }).OpenDAWNative
+            const mirrored: Sample[] = []
+            if (native) {
+                try {
+                    const files = JSON.parse(native.listAudioFiles()) as Array<{name: string, bytes?: number}>
+                    for (const file of files) {
+                        const lower = file.name.toLowerCase()
+                        // Formats accepted by the browser decoder. Keep unsupported files visible
+                        // is not useful because preview/import would fail immediately.
+                        if (!/\.(wav|mp3|ogg|m4a|aac|flac|aiff|aif|webm)$/.test(lower)) {continue}
+                        const uuid = UUID.toString(UUID.generate())
+                        mirrored.push({
+                            uuid,
+                            name: file.name,
+                            bpm: 0,
+                            duration: 0,
+                            sample_rate: 0,
+                            origin: "import",
+                            custom: "android-folder"
+                        })
+                    }
+                } catch (error) {
+                    console.warn("Could not read the OpenDAW Android folder index", error)
+                }
+            }
+            return Arrays.subtract([...stored, ...mirrored], openDAW, ({uuid: a}, {uuid: b}) => a === b)
         },
         fetchLocalTree: () => LocalTree.load(SampleStorage.get().structure, (sample: Sample) => sample.uuid),
         expandedKeys,
