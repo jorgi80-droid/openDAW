@@ -17,6 +17,7 @@ import {ResourceBrowserConfig} from "@/ui/browse/ResourceBrowserConfig"
 import {ResourceFolder} from "@/ui/browse/ResourceFolder"
 import {LocalTree} from "@/ui/browse/LocalTree"
 import {UUID} from "@opendaw/lib-std"
+import {isAndroidFolderSample} from "@/ui/browse/AndroidSampleBridge"
 
 const className = Html.adoptStyleSheet(css, "Samples")
 
@@ -33,7 +34,8 @@ type Construct = {
     fontSize?: string // em
 }
 
-const location = new DefaultObservableValue(AssetLocation.OpenDAW)
+const location = new DefaultObservableValue((window as Window & {OpenDAWNative?: unknown}).OpenDAWNative
+    ? AssetLocation.Local : AssetLocation.OpenDAW)
 const expandedKeys = new Set<string>()
 
 export const SampleBrowser = ({lifecycle, service, background, fontSize}: Construct) => {
@@ -46,49 +48,52 @@ export const SampleBrowser = ({lifecycle, service, background, fontSize}: Constr
             {label: "Sec", align: "right"}
         ],
         // Structure comes from the published index and nowhere else.
-        fetchOnline: async () => ({
-            name: "",
-            folders: (await OpenSampleAPI.get().tree()).folders.map(toResourceFolder),
-            items: []
-        }),
+        fetchOnline: async () => {
+            if ((window as Window & {OpenDAWNative?: unknown}).OpenDAWNative) {
+                return {name: "", folders: [], items: []}
+            }
+            return {
+                name: "",
+                folders: (await OpenSampleAPI.get().tree()).folders.map(toResourceFolder),
+                items: []
+            }
+        },
         fetchLocal: async () => {
-            const openDAW = await OpenSampleAPI.get().all().catch(() => [])
-            const stored = await SampleStorage.get().list()
-            // The Android file bridge mirrors public-folder audio into the app's private OpenDAW
-            // directory. Show a visible import entry for each mirror so samples are discoverable
-            // even before the user explicitly imports them into the internal sample database.
             const native = (window as Window & {
-                OpenDAWNative?: {
-                    listAudioFiles(): string
-                    readFileBase64?(name: string): string
-                    getOpenDawFolder?(): string
-                }
+                OpenDAWNative?: {listAudioFiles(): string}
             }).OpenDAWNative
-            const mirrored: Sample[] = []
+            // Never request the cloud catalog in the Android build. The local OPFS sample
+            // database and public OpenDAW folder are two separate stores.
+            const online = native ? [] : await OpenSampleAPI.get().all().catch(() => [])
+            const stored = await SampleStorage.get().list()
+            const virtual: Sample[] = []
             if (native) {
                 try {
                     const files = JSON.parse(native.listAudioFiles()) as Array<{name: string, bytes?: number}>
                     for (const file of files) {
                         const lower = file.name.toLowerCase()
-                        // Formats accepted by the browser decoder. Keep unsupported files visible
-                        // is not useful because preview/import would fail immediately.
-                        if (!/\.(wav|mp3|ogg|m4a|aac|flac|aiff|aif|webm)$/.test(lower)) {continue}
-                        const uuid = UUID.toString(UUID.generate())
-                        mirrored.push({
-                            uuid,
+                        if (!/\.(wav|wave|mp3|ogg|oga|opus|flac|m4a|aac|aiff|aif|aifc|webm|weba)$/.test(lower)) continue
+                        // UUID is a temporary selection identity. Import replaces it with the
+                        // actual storage UUID before preview or track creation.
+                        virtual.push({
+                            uuid: UUID.toString(UUID.generate()),
                             name: file.name,
                             bpm: 0,
                             duration: 0,
                             sample_rate: 0,
                             origin: "import",
-                            custom: "android-folder"
+                            custom: `android-folder:${encodeURIComponent(file.name)}`
                         })
                     }
                 } catch (error) {
-                    console.warn("Could not read the OpenDAW Android folder index", error)
+                    console.warn("Could not index audio files in the OpenDAW folder", error)
                 }
             }
-            return Arrays.subtract([...stored, ...mirrored], openDAW, ({uuid: a}, {uuid: b}) => a === b)
+            const saved = Arrays.subtract(stored, online, ({uuid: a}, {uuid: b}) => a === b)
+            // Never duplicate a file already imported into OPFS; the user can still re-import
+            // a renamed copy if desired.
+            const storedNames = new Set(saved.map(sample => sample.name.toLowerCase()))
+            return [...saved, ...virtual.filter(sample => !storedNames.has(sample.name.toLowerCase()))]
         },
         fetchLocalTree: () => LocalTree.load(SampleStorage.get().structure, (sample: Sample) => sample.uuid),
         expandedKeys,
