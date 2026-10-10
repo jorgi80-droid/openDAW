@@ -10,6 +10,7 @@ on:
       - "packages/app/studio/src/boot.ts"
       - "packages/app/studio/src/ui/Footer.tsx"
       - "packages/app/studio/src/ui/header/Header.tsx"
+      - "packages/lib/dom/src/files.ts"
       - "packages/app/studio/index.html"
       - "packages/app/studio/public/favicon.svg"
       - "android-wrapper/**"
