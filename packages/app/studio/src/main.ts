@@ -31,6 +31,11 @@ if (window.crossOriginIsolated) {
 } else {
     document.body.innerHTML = `<main style="padding:24px;font-family:system-ui;color:#f5f5f5;background:#171a1d">
         <h1>MidiAble membutuhkan isolasi lintas-origin</h1>
-        <p>WebView tidak mengaktifkan crossOriginIsolated. Buka studio lewat server yang mengirim header COOP: same-origin dan COEP: require-corp.</p>
+        <p>WebView tidak mengaktifkan crossOriginIsolated. MidiAble perlu origin localhost tepercaya dan header COOP/COEP agar mesin audio/WASM dapat berjalan offline.</p><pre style="white-space:pre-wrap;color:#c5cbd1">URL: ${location.href}
+Secure context: ${String(window.isSecureContext)}
+crossOriginIsolated: ${String(window.crossOriginIsolated)}
+SharedArrayBuffer: ${String(typeof SharedArrayBuffer !== "undefined")}
+WebAssembly: ${String(typeof WebAssembly !== "undefined")}
+AudioWorklet: ${String(typeof AudioWorkletNode !== "undefined")}</pre>
     </main>`
 }
