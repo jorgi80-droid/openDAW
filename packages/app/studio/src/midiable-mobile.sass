@@ -341,3 +341,60 @@ html.midiable-mobile .panel-resizer:active::after
 
   html.midiable-mobile section.workspace.horizontal > [data-panel-type="Browser"].closed + .panel-resizer
     display: none !important
+
+
+// The large translucent strips in mobile view were resize hit areas drawn too visibly.
+// Keep the 38px touch hit target but render no handle until the user is dragging.
+html.midiable-mobile .panel-resizer::after
+  background: transparent !important
+  box-shadow: none !important
+  opacity: 0
+  pointer-events: auto
+
+html.midiable-mobile .panel-resizer:active::after
+  background: rgba(74, 220, 245, 0.88) !important
+  box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.16) !important
+  opacity: 1
+
+// Collapsed panels should use a compact side tab instead of a full-height translucent strip.
+html.midiable-mobile .panel-placeholder.closed
+  background: transparent !important
+  flex-basis: 22px !important
+  min-width: 22px !important
+  max-width: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
+  border-radius: 4px
+
+html.midiable-mobile .panel-placeholder.closed > header
+  width: 22px
+  min-width: 22px
+  max-width: 22px
+  height: 22px
+  min-height: 22px
+  max-height: 22px
+  padding: 0
+  margin: 0
+  gap: 0
+  justify-content: center
+  overflow: hidden
+
+html.midiable-mobile .panel-placeholder.closed > header > span,
+html.midiable-mobile .panel-placeholder.closed > header > .presence-dots
+  display: none !important
+
+html.midiable-mobile .panel-placeholder.closed > div
+  display: none !important
+
+// Preserve a short Timeline divider, and never paint a pill across the music grid while idle.
+html.midiable-mobile .panel-resizer.vertical::after
+  height: 34px !important
+  top: -16px !important
+  width: 8px !important
+  left: calc(50% - 4px) !important
+
+html.midiable-mobile .panel-resizer.horizontal::after
+  width: 34px !important
+  left: -16px !important
+  height: 8px !important
+  top: calc(50% - 4px) !important
