@@ -31,7 +31,7 @@ public final class MainActivity extends Activity {
                 if (safe.contains("..") || safe.startsWith("/")) return null;
                 try {
                     InputStream stream = getAssets().open("studio/" + safe);
-                    return new WebResourceResponseWithIsolation(stream, mimeType(safe));
+                    return new WebResourceResponse(mimeType(safe), "UTF-8", 200, "OK", isolationHeaders(), stream);
                 } catch (IOException error) {
                     return null;
                 }
@@ -58,6 +58,15 @@ public final class MainActivity extends Activity {
         });
         setContentView(webView);
         webView.loadUrl("https://appassets.androidplatform.net/studio/index.html");
+    }
+
+    private static java.util.Map<String, String> isolationHeaders() {
+        java.util.Map<String, String> map = new java.util.HashMap<>();
+        map.put("Cross-Origin-Opener-Policy", "same-origin");
+        map.put("Cross-Origin-Embedder-Policy", "require-corp");
+        map.put("Cross-Origin-Resource-Policy", "same-origin");
+        map.put("Cache-Control", "no-store");
+        return map;
     }
 
     private static String mimeType(String path) {
@@ -98,17 +107,4 @@ public final class MainActivity extends Activity {
         super.onDestroy();
     }
 
-    private static final class WebResourceResponseWithIsolation extends android.webkit.WebResourceResponse {
-        WebResourceResponseWithIsolation(InputStream data, String mimeType) {
-            super(mimeType, "UTF-8", 200, "OK", headers(), data);
-        }
-
-        private static java.util.Map<String, String> headers() {
-            java.util.Map<String, String> map = new java.util.HashMap<>();
-            map.put("Cross-Origin-Opener-Policy", "same-origin");
-            map.put("Cross-Origin-Embedder-Policy", "require-corp");
-            map.put("Cross-Origin-Resource-Policy", "same-origin");
-            return map;
-        }
-    }
 }
