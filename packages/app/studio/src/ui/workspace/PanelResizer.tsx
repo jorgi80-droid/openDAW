@@ -18,7 +18,7 @@ type Construct = {
 }
 
 export const PanelResizer = ({lifecycle, orientation, siblings, panelContents, target}: Construct) => {
-    const element: HTMLElement = <div className={Html.buildClassList(className, orientation)}/>
+    const element: HTMLElement = <div className={Html.buildClassList(className, orientation, "panel-resizer")}/>
     const direction = AxisProperty[orientation]
     lifecycle.own(Dragging.attach(element, (beginEvent) => {
         const successor = element.nextElementSibling
