@@ -133,20 +133,15 @@ export const PanelPlaceholder =
             }
         }))
         appendChildren(element, <Frag>{header}{container}</Frag>)
-        // On touch, use an existing panel header with a forgiving double-tap gesture.
-        let lastHeaderTap = 0
+        // Touch users can open/close an existing panel with one tap on its header.
+        // Keep desktop double-click behavior without double-firing the touch gesture.
         lifecycle.own(Events.subscribe(header, "pointerup", event => {
-            if (event.pointerType === "mouse") {return}
-            const now = performance.now()
-            if (now - lastHeaderTap < 380) {
-                event.preventDefault()
-                handler.toggleMinimize()
-                lastHeaderTap = 0
-            } else {
-                lastHeaderTap = now
-            }
+            if (event.pointerType === "mouse" || event.button !== 0) {return}
+            handler.toggleMinimize()
         }))
-        lifecycle.own(Events.subscribeDblDwn(header, () => handler.toggleMinimize()))
+        lifecycle.own(Events.subscribeDblDwn(header, event => {
+            if (event.pointerType === "mouse") {handler.toggleMinimize()}
+        }))
         lifecycle.own(ContextMenu.subscribe(header, collector => collector.addItems(
             MenuItem.default({
                 label: "Popout into new browser window",
