@@ -83,7 +83,7 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
     // purge identifiers written by the old client-side counting (§25 TDDDG)
     localStorage.removeItem("__id__")
     localStorage.removeItem("reported-latencies")
-    if (!window.matchMedia("(display-mode: standalone)").matches && !location.protocol.includes("appassets")) reportVisitor()
+    if (!location.hostname.endsWith("androidplatform.net") && !window.matchMedia("(display-mode: standalone)").matches) reportVisitor()
     const audioWorklets = await Promises.tryCatch(AudioWorklets.createFor(context))
     if (audioWorklets.status === "rejected") {
         return panic(audioWorklets.error)
