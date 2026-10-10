@@ -12,10 +12,11 @@ component
     z-index: 21
     border-radius: 999px
     background: rgba(130, 145, 155, 0.38)
-    transition: background 120ms ease
+    transition: background 120ms ease, box-shadow 120ms ease
 
   &:active:after
     background: rgba(74, 220, 245, 0.9)
+      box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.18)
 
   &.vertical
     cursor: ns-resize
@@ -45,12 +46,12 @@ component
   component
     // Keep the visible divider slim, but give touch input a wide forgiving hit target.
     &.vertical:after
-      height: 30px
-      top: -14px
+      height: 38px
+      top: -18px
 
     &.horizontal:after
-      width: 30px
-      left: -14px
+      width: 38px
+      left: -18px
 
     &:active:after
       background: rgba(74, 220, 245, 0.95)
