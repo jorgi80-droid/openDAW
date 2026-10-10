@@ -111,23 +111,35 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
         window.addEventListener("click", resumeOnClick, {capture: true})
     }
     const audioDevices = await AudioOutputDevice.create(context)
-    FactoryCatalog.install({
+    const isOfflineApp = location.hostname.endsWith("androidplatform.net")
+    FactoryCatalog.install(isOfflineApp ? {
+        samples: async () => [],
+        soundfonts: async () => [],
+        presets: async () => []
+    } : {
         samples: () => OpenSampleAPI.get().all(),
         soundfonts: () => OpenSoundfontAPI.get().all(),
         presets: () => OpenPresetAPI.get().list()
     })
     const chainedSampleProvider = new ChainedSampleProvider({
-        fetch: async (uuid: UUID.Bytes, progress: Progress.Handler): Promise<[AudioData, SampleMetaData]> =>
-            OpenSampleAPI.get().load(uuid, progress)
+        fetch: async (uuid: UUID.Bytes, progress: Progress.Handler): Promise<[AudioData, SampleMetaData]> => {
+            if (isOfflineApp) {throw new Error("Sample is not bundled in this offline installation. Import a local audio file instead.")}
+            return OpenSampleAPI.get().load(uuid, progress)
+        }
     })
     const chainedSoundfontProvider = new ChainedSoundfontProvider({
-        fetch: async (uuid: UUID.Bytes, progress: Progress.Handler): Promise<[ArrayBuffer, SoundfontMetaData]> =>
-            OpenSoundfontAPI.get().load(uuid, progress)
+        fetch: async (uuid: UUID.Bytes, progress: Progress.Handler): Promise<[ArrayBuffer, SoundfontMetaData]> => {
+            if (isOfflineApp) {throw new Error("Soundfont is not bundled. Import a local soundfont file instead.")}
+            return OpenSoundfontAPI.get().load(uuid, progress)
+        }
     })
     const chainedWclapProvider = new ChainedWclapProvider()
-    WclapStorage.installRemote(async id => (await OpenWclapAPI.get().find(id)).nonEmpty()
-        ? OpenWclapAPI.get().load(id)
-        : chainedWclapProvider.fetch(UUID.parse(id), Progress.Empty))
+    WclapStorage.installRemote(async id => {
+        if (isOfflineApp) {throw new Error("Online plugins are unavailable in offline mode.")}
+        return (await OpenWclapAPI.get().find(id)).nonEmpty()
+            ? OpenWclapAPI.get().load(id)
+            : chainedWclapProvider.fetch(UUID.parse(id), Progress.Empty)
+    })
     const sampleManager = new GlobalSampleLoaderManager(chainedSampleProvider)
     const soundfontManager = new GlobalSoundfontLoaderManager(chainedSoundfontProvider)
     const cloudAuthManager = CloudAuthManager.create({
