@@ -29,7 +29,7 @@ export const TouchDock = ({service}: Construct) => {
         <nav className="touch-dock" aria-label="OpenDAW touch shortcuts">
             {button("Timeline", "Buka Timeline / Arrangement", () =>
                 openPanel("default", PanelType.Timeline))}
-            {button("Piano Roll", "Maksimalkan atau minimalkan Piano Roll / Editor", () => {
+            {button("Piano Roll", "Perbesar atau kembalikan Editor tanpa meninggalkan Timeline", () => {
                 const root = document.documentElement
                 const maximized = root.classList.contains("opendaw-editor-maximized")
                 if (service.layout.screen.getValue() !== "default") {
@@ -46,7 +46,6 @@ export const TouchDock = ({service}: Construct) => {
                     root.classList.add("opendaw-editor-maximized")
                 } else if (maximized) {
                     root.classList.remove("opendaw-editor-maximized")
-                    editor.toggleMinimize()
                 } else {
                     root.classList.add("opendaw-editor-maximized")
                 }
@@ -55,7 +54,7 @@ export const TouchDock = ({service}: Construct) => {
                 openPanel("default", PanelType.BrowserPanel))}
             {button("Devices", "Buka chain perangkat dan efek", () =>
                 openPanel("default", PanelType.DevicePanel))}
-            {button("Mixer", "Buka workspace Mixer", () => service.switchScreen("mixer"))}
+            {button("Mixer", "Buka workspace Mixer; kembali ke Timeline dengan tombol Timeline", () => service.switchScreen("mixer"))}
             {button("Keys", "Buka keyboard piano layar sentuh", () => service.switchScreen("piano"))}
         </nav>
     )
