@@ -28,13 +28,33 @@ export const TouchDock = ({service}: Construct) => {
     return (
         <nav className="touch-dock" aria-label="OpenDAW touch shortcuts">
             {button("Timeline", "Buka Timeline / Arrangement", () =>
-                openPanel("default", PanelType.Timeline, true))}
-            {button("Piano Roll", "Buka atau minimalkan Piano Roll / Editor", () =>
-                openPanel("default", PanelType.ContentEditor, true))}
-            {button("Samples", "Buka atau minimalkan Browser sample", () =>
-                openPanel("default", PanelType.BrowserPanel, true))}
-            {button("Devices", "Buka atau minimalkan chain perangkat dan efek", () =>
-                openPanel("default", PanelType.DevicePanel, true))}
+                openPanel("default", PanelType.Timeline))}
+            {button("Piano Roll", "Maksimalkan atau minimalkan Piano Roll / Editor", () => {
+                const root = document.documentElement
+                const maximized = root.classList.contains("opendaw-editor-maximized")
+                if (service.layout.screen.getValue() !== "default") {
+                    service.switchScreen("default")
+                    requestAnimationFrame(() => requestAnimationFrame(() => {
+                        service.panelLayout.showIfAvailable(PanelType.ContentEditor)
+                        root.classList.add("opendaw-editor-maximized")
+                    }))
+                    return
+                }
+                const editor = service.panelLayout.getByType(PanelType.ContentEditor)
+                if (!editor.isVisible) {
+                    service.panelLayout.showIfAvailable(PanelType.ContentEditor)
+                    root.classList.add("opendaw-editor-maximized")
+                } else if (maximized) {
+                    root.classList.remove("opendaw-editor-maximized")
+                    editor.toggleMinimize()
+                } else {
+                    root.classList.add("opendaw-editor-maximized")
+                }
+            }, "piano-roll-action")}
+            {button("Samples", "Buka Browser sample lokal", () =>
+                openPanel("default", PanelType.BrowserPanel))}
+            {button("Devices", "Buka chain perangkat dan efek", () =>
+                openPanel("default", PanelType.DevicePanel))}
             {button("Mixer", "Buka workspace Mixer", () => service.switchScreen("mixer"))}
             {button("Keys", "Buka keyboard piano layar sentuh", () => service.switchScreen("piano"))}
         </nav>
