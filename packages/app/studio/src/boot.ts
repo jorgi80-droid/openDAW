@@ -84,7 +84,7 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
     // purge identifiers written by the old client-side counting (§25 TDDDG)
     localStorage.removeItem("__id__")
     localStorage.removeItem("reported-latencies")
-    reportVisitor()
+    if (!window.matchMedia("(display-mode: standalone)").matches && !location.protocol.includes("appassets")) reportVisitor()
     const audioWorklets = await Promises.tryCatch(AudioWorklets.createFor(context))
     if (audioWorklets.status === "rejected") {
         return panic(audioWorklets.error)
@@ -98,7 +98,7 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
         document.querySelector("#preloader")?.remove()
         Dialogs.info({
             headline: "Engine Unavailable",
-            message: "openDAW could not load its audio engine. This is usually a temporary network issue, please reload the page."
+            message: "OpenDAW could not load its bundled audio engine. Check that the installation contains all WASM files, then reopen the app. Internet access is not required for bundled files."
         }).finally()
         return
     }
