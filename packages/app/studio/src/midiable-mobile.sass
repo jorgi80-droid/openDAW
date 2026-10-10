@@ -526,3 +526,41 @@ html.midiable-mobile .mobile-header > hr
   html.midiable-mobile .mobile-header .panel-selector [data-class="radio-group"] > label > *
     width: 16px
     height: 16px
+
+
+// Large invisible hit areas keep touch resizing forgiving without painting broad strips over the music.
+html.midiable-mobile .PanelResizer::before
+  content: ""
+  position: absolute
+  z-index: 21
+  border-radius: 999px
+  background: transparent !important
+  box-shadow: none !important
+  opacity: 0
+  pointer-events: auto
+
+html.midiable-mobile .PanelResizer.horizontal::before
+  width: 38px
+  height: 100%
+  left: -18px
+  top: 0
+
+html.midiable-mobile .PanelResizer.vertical::before
+  width: 100%
+  height: 38px
+  left: 0
+  top: -18px
+
+html.midiable-mobile .PanelResizer::after
+  pointer-events: none !important
+  opacity: 0 !important
+  transition: opacity 120ms ease, background 120ms ease, box-shadow 120ms ease
+
+html.midiable-mobile .PanelResizer:active::after
+  opacity: 1 !important
+  background: rgba(74, 220, 245, 0.9) !important
+  box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.14) !important
+
+@media (prefers-reduced-motion: reduce)
+  html.midiable-mobile .PanelResizer::after
+    transition: none
