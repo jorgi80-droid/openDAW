@@ -1,0 +1,47 @@
+name: MidiAble Remote Build
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/midiable-build.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  build-web-studio:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential pkg-config libssl-dev
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build WASM
+        run: npm run build-wasm
+
+      - name: Build openDAW studio
+        run: npm run build --workspace=@opendaw/app-studio
+
+      - name: Upload web studio artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MidiAble-studio-web
+          path: packages/app/studio/dist/
+          if-no-files-found: error
