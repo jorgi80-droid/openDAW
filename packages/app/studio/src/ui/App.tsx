@@ -41,12 +41,12 @@ export const App = (service: StudioService) => {
             <Router
                 runtime={terminator}
                 service={service}
-                fallback={() => {
+                fallback={(context) => {
                     // Recover unmatched entry paths into the arrangement workspace instead of a dead 404.
                     history.replaceState(null, "", "/create")
                     service.layout.screen.setValue("default")
                     if (!service.hasProfile) {void service.newProject()}
-                    return <WorkspacePage lifecycle={terminator} service={service}/>
+                    return WorkspacePage({...context, service})
                 }}
                 routes={[
                     {path: "/", factory: WorkspacePage, reuse: true},
