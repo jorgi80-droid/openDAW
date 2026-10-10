@@ -76,9 +76,31 @@ export const SampleView = ({
                  })
              )}
              data-selection={JSON.stringify(sample)}
+             title={isAndroidFolderSample(sample) ? "Tap to import this file from /storage/emulated/0/OpenDAW" : sample.name}
              ondragstart={() => playback.eject()}
              draggable>
-            <div className="meta"
+            <div className={Html.buildClassList("meta", isAndroidFolderSample(sample) && "android-folder")}
+                 onclick={async () => {
+                     // Single tap is the primary interaction on Android. A folder-backed row is
+                     // imported to OPFS on demand, then it becomes a regular playable/editable sample.
+                     if (isAndroidFolderSample(sample) && (navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches)) {
+                         const target = event?.currentTarget as HTMLElement | undefined
+                         if (target) target.classList.add("buffering")
+                         try {
+                             const imported = await importAndroidFolderSample(service, sample)
+                             refresh()
+                             playback.toggle(imported.uuid)
+                         } catch (error) {
+                             if (target) target.classList.remove("buffering")
+                             console.warn("Could not import Android audio sample", error)
+                             await Dialogs.info({headline: "Sample import failed", message: String(error)})
+                         }
+                         return
+                     }
+                     if (navigator.maxTouchPoints > 0 || window.matchMedia("(pointer: coarse)").matches) {
+                         playback.toggle(sample.uuid)
+                     }
+                 }}
                  onInit={element => lifecycle.ownAll(
                      playback.subscribe(sample.uuid, event => {
                          element.classList.remove("buffering", "playing", "error")
