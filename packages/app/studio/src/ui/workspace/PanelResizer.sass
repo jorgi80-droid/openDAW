@@ -1,28 +1,52 @@
 component
   flex: 0 0 0
   position: relative
+  z-index: 20
+  touch-action: none
+  user-select: none
+  -webkit-user-select: none
 
   &:after
     content: ""
     position: absolute
-    z-index: 1
+    z-index: 21
+    border-radius: 999px
+    background: rgba(130, 145, 155, 0.38)
+    transition: background 120ms ease
+
+  &:active:after
+    background: rgba(74, 220, 245, 0.9)
 
   &.vertical
     cursor: ns-resize
     margin-bottom: -1px
+    min-height: 0
 
     &:after
-      top: -3px
-      height: 6px
+      top: -9px
+      left: 0
+      height: 20px
       width: 100%
       position: absolute
 
   &.horizontal
     cursor: ew-resize
     margin-right: -1px
+    min-width: 0
 
     &:after
-      left: -3px
-      width: 6px
+      left: -9px
+      top: 0
+      width: 20px
       height: 100%
       position: absolute
+
+@media (pointer: coarse)
+  component
+    &.vertical:after
+      height: 26px
+      top: -12px
+
+    &.horizontal:after
+      width: 26px
+      left: -12px
