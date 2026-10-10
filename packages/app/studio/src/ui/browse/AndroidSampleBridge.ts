@@ -28,9 +28,21 @@ const bridge = (): NativeAudioBridge => {
     return native
 }
 
-export const importAndroidFolderSample = async (service: StudioService, sample: Sample): Promise<Sample> => {
-    if (!isAndroidFolderSample(sample)) return sample
+const pendingImports = new Map<string, Promise<Sample>>()
+
+export const importAndroidFolderSample = (service: StudioService, sample: Sample): Promise<Sample> => {
+    if (!isAndroidFolderSample(sample)) return Promise.resolve(sample)
     const name = androidFolderName(sample)
+    if (name === undefined) return Promise.reject(new Error("Invalid Android sample file name"))
+    const pending = pendingImports.get(name)
+    if (pending !== undefined) return pending
+    const task = importAndroidFolderSampleOnce(service, sample, name).finally(() => pendingImports.delete(name))
+    pendingImports.set(name, task)
+    return task
+}
+
+const importAndroidFolderSampleOnce = async (service: StudioService, sample: Sample, name: string): Promise<Sample> => {
+    if (!isAndroidFolderSample(sample)) return sample
     if (name === undefined) throw new Error("Invalid Android sample file name")
 
     const native = bridge()
