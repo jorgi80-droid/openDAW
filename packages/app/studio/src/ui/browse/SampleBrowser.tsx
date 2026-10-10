@@ -17,7 +17,6 @@ import {ResourceBrowserConfig} from "@/ui/browse/ResourceBrowserConfig"
 import {ResourceFolder} from "@/ui/browse/ResourceFolder"
 import {LocalTree} from "@/ui/browse/LocalTree"
 import {UUID} from "@opendaw/lib-std"
-import {isAndroidFolderSample} from "@/ui/browse/AndroidSampleBridge"
 
 const className = Html.adoptStyleSheet(css, "Samples")
 
