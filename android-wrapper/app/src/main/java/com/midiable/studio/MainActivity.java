@@ -99,6 +99,13 @@ public final class MainActivity extends Activity {
         });
         webView.setWebViewClient(new WebViewClient() {
             @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().getScheme() + "://" + request.getUrl().getHost();
+                // Keep the JavaScript file bridge confined to the bundled OpenDAW origin.
+                return !ASSET_ORIGIN.equals(url);
+            }
+
+            @Override
             public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
                 if (ASSET_ORIGIN.equals(request.getUrl().getScheme() + "://" + request.getUrl().getHost())) {
                     return assetLoader.shouldInterceptRequest(request.getUrl());
