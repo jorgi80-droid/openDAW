@@ -33,6 +33,8 @@ on:
       - "packages/app/studio/src/ui/Footer.tsx"
       - "packages/app/studio/src/ui/piano-panel/PianoModePanel.sass"
       - "packages/app/studio/src/ui/timeline/Timeline.sass"
+      - "packages/app/studio/src/ui/timeline/WheelScaling.ts"
+      - "packages/app/studio/src/ui/workspace/WorkspaceBuilder.tsx"
       - "packages/app/studio/src/ui/timeline/TimelineRangeSlider.tsx"
       - "packages/app/studio/src/ui/timeline/TimelineRangeSlider.sass"
       - "packages/app/studio/src/ui/timeline/tracks/footer/TracksFooter.sass"
