@@ -13,6 +13,7 @@ import {FooterItem} from "@/ui/FooterItem"
 import {EngineAddresses} from "@opendaw/studio-adapters"
 import {LatencyWarning} from "@/ui/LatencyWarning"
 import {PanelType} from "@/ui/workspace/PanelType"
+import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
 import {Icon} from "@/ui/components/Icon"
 import {IconSymbol} from "@opendaw/studio-enums"
 
@@ -63,21 +64,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Sample Browser")
-                            const toggle = () => {
-                                const panel = service.panelLayout.getByType(PanelType.BrowserPanel)
-                                const touch = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
-                                if (panel.isVisible) {
-                                    panel.toggleMinimize()
-                                } else {
-                                    if (touch) {
-                                        ;[PanelType.ContentEditor, PanelType.DevicePanel].forEach(type => {
-                                            const other = service.panelLayout.getByType(type)
-                                            if (other.isVisible) {other.toggleMinimize()}
-                                        })
-                                    }
-                                    service.panelLayout.showIfAvailable(PanelType.BrowserPanel)
-                                }
-                            }
+                            const toggle = () => toggleTouchPanel(service, PanelType.BrowserPanel)
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -93,21 +80,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Editor / Piano Roll")
-                            const toggle = () => {
-                                const panel = service.panelLayout.getByType(PanelType.ContentEditor)
-                                const touch = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
-                                if (panel.isVisible) {
-                                    panel.toggleMinimize()
-                                } else {
-                                    if (touch) {
-                                        ;[PanelType.BrowserPanel, PanelType.DevicePanel].forEach(type => {
-                                            const other = service.panelLayout.getByType(type)
-                                            if (other.isVisible) {other.toggleMinimize()}
-                                        })
-                                    }
-                                    service.panelLayout.showIfAvailable(PanelType.ContentEditor)
-                                }
-                            }
+                            const toggle = () => toggleTouchPanel(service, PanelType.ContentEditor)
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -123,21 +96,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Devices / Effects")
-                            const toggle = () => {
-                                const panel = service.panelLayout.getByType(PanelType.DevicePanel)
-                                const touch = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
-                                if (panel.isVisible) {
-                                    panel.toggleMinimize()
-                                } else {
-                                    if (touch) {
-                                        ;[PanelType.BrowserPanel, PanelType.ContentEditor].forEach(type => {
-                                            const other = service.panelLayout.getByType(type)
-                                            if (other.isVisible) {other.toggleMinimize()}
-                                        })
-                                    }
-                                    service.panelLayout.showIfAvailable(PanelType.DevicePanel)
-                                }
-                            }
+                            const toggle = () => toggleTouchPanel(service, PanelType.DevicePanel)
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
