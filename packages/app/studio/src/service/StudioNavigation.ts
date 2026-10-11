@@ -12,7 +12,7 @@ export class StudioNavigation {
 
     #confirming: boolean = false
 
-    constructor(screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>, profiles: ProjectProfileService) {
+    constructor(screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>, profiles: ProjectProfileService, _env: unknown) {
         this.#screen = screen
         this.#profiles = profiles
         RouteLocation.get().catchupAndSubscribe(({path}) => {
