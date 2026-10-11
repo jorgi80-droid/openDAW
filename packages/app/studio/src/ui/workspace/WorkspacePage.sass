@@ -120,7 +120,7 @@ html.midiable-mobile section.workspace.vertical > .panel-placeholder
 /* Mobile-first presentation layer. The workspace panels remain genuine OpenDAW
    panels; only shell geometry and navigation are replaced for touch screens. */
 html.midiable-mobile
-  --mobile-toolbar-height: 34px
+  --mobile-toolbar-height: 72px
   --mobile-dock-height: 42px
 
   body
@@ -167,33 +167,23 @@ html.midiable-mobile
     min-height: var(--mobile-toolbar-height)
     max-height: var(--mobile-toolbar-height)
     width: 100%
-    padding: 2px 4px
-    column-gap: 5px
+    padding: 3px 4px
     border-bottom: 1px solid rgba(255, 255, 255, 0.08)
     background: var(--color-header-background)
-    overflow-x: auto
-    overflow-y: hidden
-    scrollbar-width: none
-    touch-action: pan-x
+    overflow: hidden
 
-    > *
-      flex-shrink: 0
+  .mobile-header .desktop-toolbar
+    display: contents
 
-    a.manuals,
-    .manuals,
-    > hr,
-    .panel-selector,
-    [data-class="radio-group"]
-      display: none
-
-  /* Keep the real OpenDAW menu visible; only the development banner is hidden. */
-  .mobile-header > h5
-    display: none !important
-
-  .mobile-header > button h5
-    display: flex !important
-    font-size: 0.7rem
-    white-space: nowrap
+  .mobile-header .mobile-toolbar
+    display: flex
+    flex: 1 1 0
+    flex-direction: column
+    width: 100%
+    min-width: 0
+    min-height: 0
+    gap: 2px
+    overflow: hidden
 
   footer
     z-index: 40
