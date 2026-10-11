@@ -89,6 +89,26 @@ try {
     await page.waitForTimeout(80);
     const widthAfter = await page.locator('#tracks .clip').first().evaluate(el => el.style.width);
     assert(widthAfter !== widthBefore, `clip edge resizes duration at ${viewport.width}x${viewport.height}`);
+
+    // FL Studio Mobile-style clip controls: one tap shows controls; a quick second tap enters the editor.
+    const bassClip = page.locator('#tracks .clip[data-clip="c2"]');
+    await bassClip.click();
+    assert(await page.locator('#clipContextMenu').isVisible(), `single tap opens clip controls at ${viewport.width}x${viewport.height}`);
+    await bassClip.click();
+    assert(await page.locator('#pianoScreen').isVisible(), `double tap opens the MIDI editor at ${viewport.width}x${viewport.height}`);
+    await page.locator('.dock button[data-screen="timeline"]').click();
+
+    // Copy and delete are real project-model operations, not inert buttons.
+    const drumsClip = page.locator('#tracks .clip[data-clip="c1"]');
+    const clipsBeforeCopy = await page.locator('#tracks .clip').count();
+    await drumsClip.click();
+    await page.locator('#clipContextMenu [data-clip-action="copy"]').click();
+    assert(await page.locator('#tracks .clip').count() === clipsBeforeCopy + 1, `clip Copy duplicates a clip at ${viewport.width}x${viewport.height}`);
+    const copiedClip = page.locator('#tracks .clip').filter({hasText:'Drum Loop Copy'}).first();
+    await copiedClip.click();
+    await page.locator('#clipContextMenu [data-clip-action="delete"]').click();
+    assert(await page.locator('#tracks .clip').count() === clipsBeforeCopy, `clip Delete removes the copied clip at ${viewport.width}x${viewport.height}`);
+
     await page.reload({waitUntil:'networkidle'});
 
     await page.locator('.dock button[data-screen="piano"]').click();
