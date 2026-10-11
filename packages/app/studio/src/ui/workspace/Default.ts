@@ -115,6 +115,14 @@ export const DefaultWorkspace = Object.freeze({
             constrains: {type: "flex", minSize: 0, flex: 1}
         })
     },
+    // Hidden desktop route reused by the mobile dock to render Browser as a focused tool.
+    "browser": {
+        name: "Browser",
+        icon: IconSymbol.Panel,
+        hidden: true,
+        content: BrowserPanel,
+        touchContent: BrowserPanel
+    },
     "default": {
         name: "Default",
         icon: IconSymbol.Timeline,
@@ -137,23 +145,9 @@ export const DefaultWorkspace = Object.freeze({
             ],
             constrains: {type: "flex", minSize: 0, flex: 1}
         },
-        // Mobile default is an arrangement-first workspace. Tool panels are
-        // opened by the existing Mixer / FX / Piano Roll controls in their own
-        // two-panel layouts, so closed tool rows cannot leave empty gaps.
-        touchContent: {
-            type: "layout",
-            orientation: "horizontal",
-            contents: [
-                BrowserPanel,
-                {
-                    type: "layout",
-                    orientation: "vertical",
-                    contents: [MobileTimelinePanel],
-                    constrains: {type: "flex", minSize: 0, flex: 1}
-                }
-            ],
-            constrains: {type: "flex", minSize: 0, flex: 1}
-        }
+        // Mobile Timeline occupies the full work area. Browser is its own hidden
+        // screen so it never steals width from the timeline or creates a split panel.
+        touchContent: MobileTimelinePanel
     },
     "mixer": {
         name: "Mixer",
