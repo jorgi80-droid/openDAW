@@ -472,3 +472,55 @@ html.midiable-mobile footer .mobile-panel-shortcut[data-pressed]
   color: var(--color-blue)
   border-color: var(--color-blue)
   background: rgba(66, 217, 232, 0.14)
+
+
+/* Mobile shell geometry must work even if the WebView reports desktop pointer/media. */
+html.midiable-mobile .mobile-toolbar-primary
+  display: flex
+  flex: 0 0 34px
+  align-items: center
+  width: 100%
+  min-width: 0
+  min-height: 34px
+  max-height: 34px
+  column-gap: 4px
+  overflow: hidden
+  touch-action: manipulation
+
+html.midiable-mobile .mobile-toolbar-primary .mobile-menu
+  flex: 0 0 auto
+
+html.midiable-mobile .mobile-toolbar-primary .TransportGroup
+  flex: 0 0 auto
+  display: flex
+  align-items: center
+  column-gap: 2px
+
+html.midiable-mobile .mobile-toolbar-primary .TransportGroup > *
+  flex: 0 0 28px
+  min-width: 28px
+  width: 28px
+  max-width: 28px
+  height: 30px
+  min-height: 30px
+  max-height: 30px
+
+html.midiable-mobile .mobile-toolbar-secondary
+  display: flex
+  flex: 0 0 32px
+  align-items: center
+  width: 100%
+  min-width: 0
+  min-height: 32px
+  max-height: 32px
+  column-gap: 5px
+  overflow-x: auto
+  overflow-y: hidden
+  scrollbar-width: none
+  touch-action: pan-x
+
+html.midiable-mobile .mobile-toolbar-secondary .TimeStateDisplay
+  display: none !important
+
+html.midiable-mobile .mobile-header .mobile-toolbar
+  gap: 2px
