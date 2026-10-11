@@ -85,7 +85,7 @@ component
 
 // On phones, the active secondary editor/device panel gets a usable workspace
 // area under the arrangement. Only one is opened at a time by the compact footer.
-@media (max-width: 900px), (max-height: 520px)
+@media (max-width: 900px), (max-height: 520px), (pointer: coarse)
   html.midiable-mobile .panel-placeholder[data-panel-type="Editor"]:not(.closed),
   html.midiable-mobile .panel-placeholder[data-panel-type="Devices"]:not(.closed)
     flex: 0 1 42% !important
