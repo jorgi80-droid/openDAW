@@ -275,9 +275,29 @@ export class Menu implements Terminable, Lifecycle {
                     if (hasChildren) {
                         itemElement.classList.add("has-children")
                     }
-                    itemElement.onpointerenter = () => this.#onPointerEnter(item, itemElement)
+                    itemElement.onpointerenter = (event: PointerEvent) => {
+                        if (event.pointerType !== "touch") {this.#onPointerEnter(item, itemElement)}
+                    }
                     itemElement.onpointerleave = (event: PointerEvent) => this.#onPointerLeave(item, itemElement, event)
+                    // Menus open at the top of the viewport on touch screens often miss the
+                    // old 250ms guard before the first tap has finished. Track a fresh touch
+                    // start and activate only the item directly touched, while desktop keeps
+                    // the hover-selection behaviour.
+                    let touchStartAt = 0
+                    itemElement.onpointerdown = (event: PointerEvent) => {
+                        if (event.pointerType === "touch" || event.pointerType === "pen") {
+                            touchStartAt = Date.now()
+                        }
+                    }
                     itemElement.onpointerup = (event: PointerEvent) => {
+                        if (event.pointerType === "touch" || event.pointerType === "pen") {
+                            if (touchStartAt === 0 || Date.now() - touchStartAt < 35) {return}
+                            event.preventDefault()
+                            this.root.terminate()
+                            item.trigger()
+                            touchStartAt = 0
+                            return
+                        }
                         if (Date.now() - this.#openTime < Menu.MIN_TIME_MS) {return}
                         this.#onPointerUp(item, itemElement, event)
                     }
