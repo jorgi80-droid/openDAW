@@ -60,7 +60,7 @@ export namespace WorkspaceBuilder {
             }
         }
         const screen: Workspace.Screen = Workspace.Default[screenKey]
-        const content = isTouchLayout ? (screen.touchContent ?? screen.content) : screen.content
+        const content = isTouchLayout() ? (screen.touchContent ?? screen.content) : screen.content
         build(element, [], content, null, "vertical")
     }
 }
