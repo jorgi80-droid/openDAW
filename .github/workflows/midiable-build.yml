@@ -23,6 +23,7 @@ on:
       - "packages/app/studio/src/ui/workspace/PanelResizer.tsx"
       - "packages/app/studio/src/ui/browse/AndroidSampleBridge.ts"
       - "packages/app/studio/src/ui/browse/SampleBrowser.tsx"
+      - "packages/app/studio/src/ui/browse/ResourceBrowser.tsx"
       - "packages/app/studio/src/ui/browse/SampleView.tsx"
       - "packages/app/studio/src/ui/browse/SampleSelection.ts"
       - "packages/app/studio/src/ui/browse/PresetService.ts"
