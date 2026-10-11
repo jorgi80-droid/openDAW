@@ -38,5 +38,15 @@ jobs:
             raise SystemExit("Activity must enforce landscape orientation")
           if "assets/opendaw/fonts/rubik-400.woff2" not in s:
             raise SystemExit("OpenDAW Rubik font asset link missing")
+          if "#timelineScreen[hidden]{display:none!important}" not in s:
+            raise SystemExit("Timeline must respect hidden state or other tabs remain covered")
+          if ".screen[hidden]{display:none!important}" not in s:
+            raise SystemExit("All hidden workspace screens must be removed from layout")
+          activity = Path("android-wrapper-novadaw/app/src/main/java/com/novadaw/mobile/MainActivity.java").read_text()
+          for flag in ["SYSTEM_UI_FLAG_FULLSCREEN", "SYSTEM_UI_FLAG_HIDE_NAVIGATION", "SYSTEM_UI_FLAG_IMMERSIVE_STICKY", "onWindowFocusChanged"]:
+            if flag not in activity:
+              raise SystemExit("Immersive mode missing " + flag)
+          if "flex:1 1 0;height:auto;min-height:0" not in s:
+            raise SystemExit("Timeline must shrink inside the workspace instead of clipping")
           print("NovaDAW UI static checks passed.")
           PY
