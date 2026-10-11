@@ -58,7 +58,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                     }
                                 }))
                         }}/>
-            <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
+
             <FooterItem title="Latency" minWidth="6ch"
                         onInit={({component, value}) => {
                             const threshold = () =>
@@ -97,19 +97,53 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 {terminate: hide}
                             )
                         }}>N/A</FooterItem>
+                        <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
+            <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Sample Browser")
+                            const toggle = () => {
+                                const panel = service.panelLayout.getByType(PanelType.BrowserPanel)
+                                const touch = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
+                                if (panel.isVisible) {
+                                    panel.toggleMinimize()
+                                } else {
+                                    if (touch) {
+                                        ;[PanelType.ContentEditor, PanelType.DevicePanel].forEach(type => {
+                                            const other = service.panelLayout.getByType(type)
+                                            if (other.isVisible) {other.toggleMinimize()}
+                                        })
+                                    }
+                                    service.panelLayout.showIfAvailable(PanelType.BrowserPanel)
+                                }
+                            }
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Panel}/></FooterItem>
             <FooterItem className="mobile-panel-shortcut editor-shortcut" title="Editor"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Editor / Piano Roll")
                             const toggle = () => {
-                                const editor = service.panelLayout.getByType(PanelType.ContentEditor)
-                                const devices = service.panelLayout.getByType(PanelType.DevicePanel)
-                                if (editor.isVisible) {
-                                    editor.toggleMinimize()
+                                const panel = service.panelLayout.getByType(PanelType.ContentEditor)
+                                const touch = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
+                                if (panel.isVisible) {
+                                    panel.toggleMinimize()
                                 } else {
-                                    if (window.matchMedia("(max-width: 900px), (pointer: coarse)").matches && devices.isVisible) {
-                                        devices.toggleMinimize()
+                                    if (touch) {
+                                        ;[PanelType.BrowserPanel, PanelType.DevicePanel].forEach(type => {
+                                            const other = service.panelLayout.getByType(type)
+                                            if (other.isVisible) {other.toggleMinimize()}
+                                        })
                                     }
                                     service.panelLayout.showIfAvailable(PanelType.ContentEditor)
                                 }
@@ -130,13 +164,16 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Devices / Effects")
                             const toggle = () => {
-                                const devices = service.panelLayout.getByType(PanelType.DevicePanel)
-                                const editor = service.panelLayout.getByType(PanelType.ContentEditor)
-                                if (devices.isVisible) {
-                                    devices.toggleMinimize()
+                                const panel = service.panelLayout.getByType(PanelType.DevicePanel)
+                                const touch = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
+                                if (panel.isVisible) {
+                                    panel.toggleMinimize()
                                 } else {
-                                    if (window.matchMedia("(max-width: 900px), (pointer: coarse)").matches && editor.isVisible) {
-                                        editor.toggleMinimize()
+                                    if (touch) {
+                                        ;[PanelType.BrowserPanel, PanelType.ContentEditor].forEach(type => {
+                                            const other = service.panelLayout.getByType(type)
+                                            if (other.isVisible) {other.toggleMinimize()}
+                                        })
                                     }
                                     service.panelLayout.showIfAvailable(PanelType.DevicePanel)
                                 }
@@ -151,8 +188,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 })
                             )
                         }}><Icon symbol={IconSymbol.Flask}/></FooterItem>
-
-            <FooterItem title="CPU Load" minWidth="4ch"
+<FooterItem title="CPU Load" minWidth="4ch"
                         onInit={({component, value}) => {
                             lifecycle.own(engine.preferences.catchupAndSubscribe(enabled => {
                                 component.classList.toggle("hidden", !enabled)
