@@ -24,6 +24,8 @@ try {
     assert(dims.timeline.height > 160 && dims.timeline.width > 300, `timeline has usable dimensions at ${viewport.width}x${viewport.height}`);
     assert(dims.rowCount >= 6, `all six starter tracks rendered at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#timelineTools').isVisible(), `timeline edit rail is visible at ${viewport.width}x${viewport.height}`);
+    const gridVisible = await page.locator('#tracks .clip-canvas').first().evaluate(el => { const bg=getComputedStyle(el).backgroundImage; return bg.includes('linear-gradient') && bg !== 'none'; });
+    assert(gridVisible, `Timeline beat/bar grid is drawn on the scrollable clip canvas at ${viewport.width}x${viewport.height}`);
     await page.locator('#timelineTools [data-timeline-tool="zoom-in"]').click();
     assert(await page.locator('#zoomLabel').innerText() === '125%', `timeline zoom-in changes zoom state at ${viewport.width}x${viewport.height}`);
     const zoomedWidth = await page.locator('#tracks .clip-canvas').first().evaluate(el=>el.getBoundingClientRect().width);
