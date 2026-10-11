@@ -35,6 +35,8 @@ on:
       - "packages/app/studio/src/ui/timeline/Timeline.sass"
       - "packages/app/studio/src/ui/timeline/TimelineNavigation.sass"
       - "packages/app/studio/src/ui/timeline/TimeAxis.sass"
+      - "packages/app/studio/src/ui/timeline/TimeAxis.tsx"
+      - "packages/app/studio/src/ui/workspace/Workspace.ts"
       - "packages/app/studio/src/ui/timeline/tracks/audio-unit/headers/TrackHeader.sass"
       - "packages/app/studio/src/ui/timeline/tracks/audio-unit/AudioUnitChannelControls.sass"
       - "packages/app/studio/src/ui/timeline/WheelScaling.ts"
