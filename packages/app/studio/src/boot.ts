@@ -222,6 +222,12 @@ export const boot = async ({workersUrl, workletsUrl, wasmProcessorUrl, wasmOffli
         setColorScheme({hue, saturation: saturation / 100.0})
         Surface.forEach(surface => initializeColors(surface.owner.document.documentElement))
     }, "appearance")
+    // Persistent global UI scale for devices with different display sizes.
+    // Apply it to the app shell; audio processing and timeline time units are untouched.
+    StudioPreferences.catchupAndSubscribe(({ "ui-scale": scale }) => {
+        document.documentElement.style.setProperty("--opendaw-ui-scale", String(scale))
+        document.documentElement.style.fontSize = `${scale * 16}px`
+    }, "appearance")
     document.querySelector("#preloader")?.remove()
     replaceChildren(surface.ground, App(service))
     Tour.install(service)
