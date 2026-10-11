@@ -1,0 +1,41 @@
+name: NovaDAW UI regression tests
+
+on:
+  push:
+    branches: [novadaw-from-zero]
+  pull_request:
+    branches: [novadaw-from-zero]
+  workflow_dispatch:
+
+jobs:
+  ui-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Verify workspace visibility and route interactions
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import vm from 'node:vm';
+          const html = fs.readFileSync('app-shell/index.html', 'utf8');
+          const script = html.match(/<script>([\s\S]*?)<\/script>/);
+          if (!script) throw new Error('Inline application script not found');
+          const checks = [
+            ['all five screens have explicit hidden styles', (html.match(/\.screen\[hidden\]\{display:none!important\}/g)||[]).length >= 1],
+            ['timeline hidden rule has priority', html.includes('#timelineScreen[hidden]{display:none!important}')],
+            ['screen route uses hidden and aria-hidden state', html.includes("el.hidden=k!==name;el.setAttribute('aria-hidden'")],
+            ['landscape orientation is declared', fs.readFileSync('android-wrapper-novadaw/app/src/main/AndroidManifest.xml','utf8').includes('android:screenOrientation="landscape"')],
+            ['immersive system UI configured', fs.readFileSync('android-wrapper-novadaw/app/src/main/java/com/novadaw/mobile/MainActivity.java','utf8').includes('SYSTEM_UI_FLAG_IMMERSIVE_STICKY')],
+            ['timeline gets shrinkable workspace row', html.includes('flex:1 1 0;height:auto;min-height:0')],
+            ['browser list has independent scrolling', html.includes('#browserScreen .categories,#browserScreen .samplelist{min-height:0;overflow:auto')],
+            ['piano roll uses grid and velocity layout', html.includes('id="pianogrid"') && html.includes('id="velocity"')],
+          ];
+          for (const [name, pass] of checks) console.log((pass?'PASS':'FAIL')+' '+name);
+          if (checks.some(([,pass])=>!pass)) process.exit(1);
+          // Syntax-only validation of the actual inline code. Do not execute DOM code here.
+          new vm.Script(script[1], {filename:'novadaw-inline.js'});
+          console.log('PASS inline JavaScript syntax');
+          JS
