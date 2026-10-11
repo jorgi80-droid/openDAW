@@ -49,19 +49,19 @@ component
     > div:last-child
       display: none !important
 
-  component [title="CPU Load"],
-  component [title="Memory"],
-  component [title="FPS"],
-  component [title="Samples (GC)"]
+  component [data-footer-item="CPU Load"],
+  component [data-footer-item="Memory"],
+  component [data-footer-item="FPS"],
+  component [data-footer-item="Samples (GC)"]
     display: none !important
 
-  component > div[title="Project"]
+  component > div[data-footer-item="Project"]
     max-width: 76px
     min-width: 0
     overflow: hidden
     text-overflow: ellipsis
 
-  component > div[title="Project"] > .value
+  component > div[data-footer-item="Project"] > .value
     min-width: 0
     max-width: 76px
     overflow: hidden
