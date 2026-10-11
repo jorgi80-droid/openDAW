@@ -118,10 +118,6 @@ export const GlobalShortcutsFactory = ShortcutValidator.validate({
         shortcut: Shortcut.of(Key.Digit3, {shift}),
         description: "Go to piano roll"
     },
-    "workspace-screen-project": {
-        shortcut: Shortcut.of(Key.Digit4, {shift}),
-        description: "Go to project settings"
-    },
     "workspace-screen-shadertoy": {
         shortcut: Shortcut.of(Key.Digit5, {shift}),
         description: "Go to shader visualizer"
