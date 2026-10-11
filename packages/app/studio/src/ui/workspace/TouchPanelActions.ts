@@ -43,7 +43,6 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
 
     if (type === PanelType.BrowserPanel) {
         if (current !== "default") {
-            // A browser opened over a tool screen would cover the native panel.
             service.switchScreen("default")
             requestAnimationFrame(() => requestAnimationFrame(() => openBrowserInDefault(service)))
         } else {
@@ -53,28 +52,33 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
     }
 
     const destination = targetScreen(type)
+
+    // Toggle closed if the selected tool is already active. Test the actual screen
+    // first rather than PanelContent.isVisible: the latter can point at a stale
+    // placeholder while a workspace screen is being swapped.
     if (current === destination) {
-        const panel = service.panelLayout.getByType(type)
-        if (panel.isVisible) {
-            // Tapping the active tool shortcut collapses its screen back to the
-            // arrangement without destroying the underlying project or editor state.
-            const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
-            if (browser.isVisible) {browser.toggleMinimize()}
-            service.switchScreen("default")
-        } else {
-            // The user may have minimized the panel using its own header. Restore
-            // it in-place rather than changing screens or creating another panel.
-            service.panelLayout.showIfAvailable(type)
-        }
+        const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
+        if (browser.isVisible) {browser.toggleMinimize()}
+        service.switchScreen("default")
         return
     }
 
-    // Do not leave the Browser overlay above a newly selected tool.
-    const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
-    if (browser.isVisible) {browser.toggleMinimize()}
-    service.switchScreen(destination)
-    requestAnimationFrame(() => requestAnimationFrame(() => {
-        const panel = service.panelLayout.getByType(type)
-        if (!panel.isVisible) {service.panelLayout.showIfAvailable(type)}
-    }))
+    const selectDestination = () => {
+        // Browser and the tool use the same PanelContent instance, so close the
+        // overlay before rebuilding another workspace which binds that panel.
+        const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
+        if (browser.isVisible) {browser.toggleMinimize()}
+        service.switchScreen(destination)
+        requestAnimationFrame(() => requestAnimationFrame(() => {
+            const panel = service.panelLayout.getByType(type)
+            if (!panel.isVisible) {service.panelLayout.showIfAvailable(type)}
+        }))
+    }
+
+    if (current !== "default") {
+        service.switchScreen("default")
+        requestAnimationFrame(() => requestAnimationFrame(selectDestination))
+    } else {
+        selectDestination()
+    }
 }
