@@ -100,16 +100,9 @@ component
       > div.controls
         min-height: 28px
 
-
-
-@media (pointer: coarse)
-  component
-    transition: flex-grow 180ms ease, flex-basis 180ms ease, width 180ms ease, height 180ms ease, min-width 180ms ease, max-width 180ms ease, min-height 180ms ease, max-height 180ms ease
-
     > header
       cursor: pointer
       -webkit-tap-highlight-color: transparent
-      transition: background-color 140ms ease
 
     > header:active
       background-color: rgba(66, 217, 232, 0.12)
@@ -120,3 +113,17 @@ component
       max-width: 22px
       min-height: 22px
       max-height: 22px
+
+// Flex-size animation caused expensive layout recalculation across the
+// nested DAW workspace on low-end phones. Keep panel transitions immediate;
+// only lightweight color feedback remains animated.
+@media (prefers-reduced-motion: no-preference) and (pointer: coarse)
+  component
+    transition: none
+
+@media (prefers-reduced-motion: reduce)
+  component
+    transition: none
+
+  > header
+    transition: none
