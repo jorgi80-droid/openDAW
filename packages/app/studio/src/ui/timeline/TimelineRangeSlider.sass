@@ -21,3 +21,13 @@ component
 
     &:active
       opacity: 1.0
+@media (pointer: coarse)
+  component
+    height: 30px
+    min-height: 30px
+    touch-action: pan-x pinch-zoom
+
+    > svg.slider
+      height: 26px
+      width: calc(100% - 0.5rem)
+      opacity: 0.85
