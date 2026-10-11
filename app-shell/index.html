@@ -518,6 +518,15 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
 .comfortable-ui .top,.comfortable-ui .subbar{gap:8px!important}
 
 #devicesScreen .device-trackbar select{flex:0 1 150px;min-width:92px;max-width:38%;min-height:26px;padding:3px 6px;font-size:10px;color:var(--text);background:#0b1219;border:1px solid var(--line);border-radius:7px}
+
+/* Keep Device rack and editor occupying the entire available work area. */
+#devicesScreen .devicegrid{display:grid!important;grid-template-rows:minmax(0,1fr)!important;align-content:stretch;height:auto;flex:1 1 0;min-height:0;overflow:hidden}
+#devicesScreen .device-picker,#devicesScreen .device-editor{height:100%;max-height:100%;min-height:0}
+#devicesScreen .device-editor{display:flex;flex-direction:column;overflow:auto}
+#devicesScreen .device-editor-main{flex:1 1 auto;min-height:0}
+#devicesScreen .knob-bank{align-content:start}
+#devicesScreen .device-option{flex:0 0 auto}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
