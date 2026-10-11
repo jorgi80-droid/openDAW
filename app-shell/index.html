@@ -369,6 +369,13 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 .clip-context-actions .danger{color:#ff9b9e;border-color:#724048}
 #tracks .clip.is-muted{opacity:.4;filter:grayscale(.65)}
 
+ 
+/* Landscape density adapts to viewport height without cropping the last starter track. */
+#timelineScreen .trackrow{min-height:clamp(42px,8.5vh,64px)}
+#mixerScreen .mixergrid{grid-template-columns:repeat(6,minmax(0,1fr));overflow:visible}
+#mixerScreen .channel{min-width:0}
+@media(max-width:900px){#mixerScreen .channel-head strong{font-size:11px}#mixerScreen .channel-head .muted{font-size:8px}#mixerScreen .channel{padding:7px 5px;gap:5px}#mixerScreen .gain-control label,#mixerScreen .pan-control label{font-size:9px}}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -728,7 +735,7 @@ $('devices').addEventListener('click',e=>{
  const apply=e.target.closest('[data-apply-preset]');if(apply){notify(apply.dataset.applyPreset+' • preset UI belum tersambung ke mesin audio');return}
  const bypass=e.target.closest('[data-device-bypass]');if(bypass){const active=bypass.getAttribute('aria-pressed')!=='true';bypass.setAttribute('aria-pressed',String(active));bypass.classList.toggle('active',active);notify(active?'Bypass demo aktif':'Bypass demo nonaktif')}
 });
-$('devices').addEventListener('input',e=>{const input=e.target.closest('[data-device-param]');if(!input)return;const output=input.parentElement.querySelector('output');if(output)output.textContent=input.value+'%';const dial=input.parentElement.parentElement.querySelector('.knob-dial .knob-pointer');if(dial)dial.style.transform='rotate('+(Number(input.value)*2.7-135)+'deg)'});
+$('devices').addEventListener('input',e=>{const input=e.target.closest('[data-device-param]');if(!input)return;const output=input.parentElement.querySelector('output');if(output)output.textContent=input.value+'%';const dial=input.closest('.knob-control')?.querySelector('.knob-dial .knob-pointer');if(dial)dial.style.transform='rotate('+(Number(input.value)*2.7-135)+'deg)'});
 $('devices').addEventListener('change',e=>{if(e.target.id==='devicePresetSelect'){devicePreset=e.target.value;notify('Preset dipilih: '+devicePreset+' • demo UI')}});
 let browseCat='Samples',browseFilter='All';
 $('browserTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;browseCat=b.dataset.cat;browseFilter='All';document.querySelectorAll('#browserTabs button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('#categories button').forEach(x=>x.classList.toggle('active',x.dataset.filter==='All'));renderSamples(browseCat,browseFilter)});
