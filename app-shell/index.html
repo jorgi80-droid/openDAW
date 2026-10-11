@@ -917,6 +917,7 @@ function beginNoteGesture(e,note){
  const rect=note.getBoundingClientRect(),mode=e.clientX>=rect.right-10?'resize':'move';
  noteGesture={pointerId:e.pointerId,index,target:note,mode,startX:e.clientX,startY:e.clientY,originCol:n.col,originRow:n.row,originLen:n.len,before:JSON.stringify(project),moved:false};
  selectedNote=index;
+ window.__pianoDragDebug={phase:'down',pointerId:e.pointerId,index,mode,startX:e.clientX,startY:e.clientY};
  try{note.setPointerCapture(e.pointerId)}catch(_){}
  e.preventDefault();
 }
@@ -925,6 +926,7 @@ function updateNoteGesture(e){
  const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
  if(Math.max(Math.abs(dx),Math.abs(dy))<4&&!g.moved)return;
  g.moved=true;e.preventDefault();
+ window.__pianoDragDebug={...(window.__pianoDragDebug||{}),phase:'move',pointerId:e.pointerId,dx,dy};
  const layer=$('pianogrid .note-layer');
  const layerRect=layer?.getBoundingClientRect(),gridRect=$('pianogrid').getBoundingClientRect();
  const stepWidth=Math.max(1,layerRect?.width||gridRect.width)/32;
@@ -937,6 +939,7 @@ function updateNoteGesture(e){
 }
 function finishNoteGesture(e){
  const g=noteGesture;if(!g||g.pointerId!==e.pointerId)return;
+ window.__pianoDragDebug={...(window.__pianoDragDebug||{}),phase:'up',pointerId:e.pointerId,moved:g.moved,mode:g.mode};
  if(g.moved){pushUndoSnapshot(g.before);ignoreNextNoteClick=true;setTimeout(()=>{ignoreNextNoteClick=false},350);renderPiano();notify(g.mode==='resize'?'Durasi nada diubah':'Nada dipindahkan')}
  noteGesture=null;
 }
