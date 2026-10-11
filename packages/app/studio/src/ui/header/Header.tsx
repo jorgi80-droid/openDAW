@@ -85,10 +85,12 @@ export const Header = ({lifecycle, service}: Construct) => {
                     </div>
                     <div className="mobile-toolbar-secondary">
                         {timecodes}
-                        <Group onInit={element => StudioPreferences.catchupAndSubscribe(enabled =>
-                            element.classList.toggle("hidden", !enabled), "visibility", "enable-history-buttons")}>
-                            <UndoRedoButtons lifecycle={lifecycle} service={service}/>
-                        </Group>
+                        <div className="mobile-history">
+                            <Group onInit={element => StudioPreferences.catchupAndSubscribe(enabled =>
+                                element.classList.toggle("hidden", !enabled), "visibility", "enable-history-buttons")}>
+                                <UndoRedoButtons lifecycle={lifecycle} service={service}/>
+                            </Group>
+                        </div>
                         <div className="mobile-midi-controls"
                              onInit={element => TourAnchors.register(lifecycle, element, "midi")}>
                             <Checkbox lifecycle={lifecycle}
