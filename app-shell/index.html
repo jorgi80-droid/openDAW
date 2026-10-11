@@ -545,6 +545,14 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
  #browserScreen .categories button{min-height:24px;padding:2px 5px;font-size:9px}
 }
 
+
+/* Piano note hit targets must match the scrollable note canvas, not legacy absolute overlay rules. */
+#pianoScreen .pianowrap{position:relative}
+#pianoScreen .pianogrid{position:relative;isolation:isolate;z-index:1;pointer-events:auto}
+#pianoScreen .note-layer{position:relative!important;inset:auto!important;display:block!important;pointer-events:auto!important;overflow:visible;z-index:1}
+#pianoScreen .note-layer .note{position:absolute!important;display:block;pointer-events:auto!important;touch-action:none;cursor:grab;z-index:5;box-sizing:border-box}
+#pianoScreen .note-layer .note:active{cursor:grabbing}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
