@@ -42,11 +42,57 @@ try {
     assert(await page.locator('#mixer input[type="range"][data-mix="gain"]').count() === 6, `Mixer shows one gain control per track at ${viewport.width}x${viewport.height}`);
     const mixerSmall = await page.locator('#mixer .channel').evaluateAll(channels => channels.some(channel => { const r=channel.getBoundingClientRect(); return r.width < 100 || r.height < 80; }));
     assert(!mixerSmall, `mixer channel cards have usable area at ${viewport.width}x${viewport.height}`);
+    // Track context actions: rename is usable and a second tab/menu interaction does not change screen.
+    await page.locator('.dock button[data-screen="timeline"]').click();
+    await page.locator('#tracks [data-action="menu"]').first().click();
+    assert(await page.locator('#trackMenuOverlay').isVisible(), `track context sheet opens at ${viewport.width}x${viewport.height}`);
+    await page.locator('[data-track-menu-action="rename"]').click();
+    await page.locator('#renameTrackInput').fill('Drums QA');
+    await page.locator('#saveTrackName').click();
+    assert((await page.locator('#tracks .trackname').first().innerText()).includes('Drums QA'), `track rename commits to the model at ${viewport.width}x${viewport.height}`);
+    await page.locator('#tracks [data-action="menu"]').first().click();
+    await page.locator('[data-track-menu-action="rename"]').click();
+    await page.locator('#renameTrackInput').fill('Drums');
+    await page.locator('#saveTrackName').click();
+
+    // Moving and resizing clips changes the project model and does not trigger an accidental editor open.
+    const firstClip = page.locator('#tracks .clip').first();
+    const leftBefore = await firstClip.evaluate(el => el.style.left);
+    const clipBox = await firstClip.boundingBox();
+    await page.mouse.move(clipBox.x + clipBox.width/2, clipBox.y + clipBox.height/2);
+    await page.mouse.down();
+    await page.mouse.move(clipBox.x + clipBox.width/2 + 15, clipBox.y + clipBox.height/2, { steps: 3 });
+    await page.mouse.up();
+    await page.waitForTimeout(80);
+    const leftAfter = await page.locator('#tracks .clip').first().evaluate(el => el.style.left);
+    assert(leftAfter !== leftBefore, `clip drag moves clip at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#timelineScreen').isVisible(), `dragging clip does not open editor at ${viewport.width}x${viewport.height}`);
+    const widthBefore = await page.locator('#tracks .clip').first().evaluate(el => el.style.width);
+    const handle = await page.locator('#tracks .clip-resize-handle').first().boundingBox();
+    await page.mouse.move(handle.x + handle.width/2, handle.y + handle.height/2);
+    await page.mouse.down();
+    await page.mouse.move(handle.x + handle.width/2 + 18, handle.y + handle.height/2, { steps: 3 });
+    await page.mouse.up();
+    await page.waitForTimeout(80);
+    const widthAfter = await page.locator('#tracks .clip').first().evaluate(el => el.style.width);
+    assert(widthAfter !== widthBefore, `clip edge resizes duration at ${viewport.width}x${viewport.height}`);
+    await page.reload({waitUntil:'networkidle'});
+
     await page.locator('.dock button[data-screen="piano"]').click();
     const initialNotes = await page.locator('#pianogrid .note').count();
     const grid = await page.locator('#pianogrid').boundingBox();
     await page.mouse.click(grid.x + grid.width*0.72, grid.y + grid.height*0.36);
     assert(await page.locator('#pianogrid .note').count() === initialNotes+1, `tap empty Piano Roll cell adds a note at ${viewport.width}x${viewport.height}`);
+    const newNote = page.locator('#pianogrid .note').last();
+    const noteLeftBefore = await newNote.evaluate(el=>el.style.left), noteTopBefore = await newNote.evaluate(el=>el.style.top);
+    const noteBox = await newNote.boundingBox(), gridBox = await page.locator('#pianogrid').boundingBox();
+    await page.mouse.move(noteBox.x + noteBox.width/2, noteBox.y + noteBox.height/2);
+    await page.mouse.down();
+    await page.mouse.move(noteBox.x + noteBox.width/2 - gridBox.width/16, noteBox.y + noteBox.height/2 - gridBox.height/12, {steps:3});
+    await page.mouse.up();
+    await page.waitForTimeout(80);
+    const noteLeftAfter = await page.locator('#pianogrid .note').last().evaluate(el=>el.style.left), noteTopAfter=await page.locator('#pianogrid .note').last().evaluate(el=>el.style.top);
+    assert(noteLeftAfter !== noteLeftBefore && noteTopAfter !== noteTopBefore, `dragging a Piano Roll note changes pitch and time at ${viewport.width}x${viewport.height}`);
     const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
     assert(notesInside, `all Piano Roll notes remain inside note grid at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#velocity span').count() === 16, `velocity bars remain in separate lane at ${viewport.width}x${viewport.height}`);
