@@ -71,6 +71,7 @@ component
   > div
     min-width: 0
     min-height: 0
+
     > div.popup-label
       flex: 1
       display: flex
@@ -114,16 +115,25 @@ component
       min-height: 22px
       max-height: 22px
 
-// Flex-size animation caused expensive layout recalculation across the
-// nested DAW workspace on low-end phones. Keep panel transitions immediate;
-// only lightweight color feedback remains animated.
-@media (prefers-reduced-motion: no-preference) and (pointer: coarse)
-  component
-    transition: none
+// Closed Editor / Devices stay accessible from compact status-bar shortcuts;
+// do not leave dead grey bars consuming vertical Timeline space.
+html.midiable-mobile .panel-placeholder[data-panel-type="Editor"].closed,
+html.midiable-mobile .panel-placeholder[data-panel-type="Devices"].closed
+  display: none !important
+  flex: 0 0 0 !important
+  width: 0 !important
+  height: 0 !important
+  min-width: 0 !important
+  max-width: 0 !important
+  min-height: 0 !important
+  max-height: 0 !important
+
+// Large flex-property transitions trigger repeated layout work on nested panels.
+// Keep mobile panel geometry immediate for responsive interaction on entry-level devices.
+html.midiable-mobile .panel-placeholder
+  transition: none
 
 @media (prefers-reduced-motion: reduce)
-  component
-    transition: none
-
-  > header
+  html.midiable-mobile .panel-placeholder,
+  html.midiable-mobile .panel-placeholder > header
     transition: none
