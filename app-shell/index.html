@@ -212,6 +212,24 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 #devicesScreen .knob{min-width:0}
 #devicesScreen .dial{max-width:100%}
 
+ 
+.menu-overlay{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:12px;background:#02060bc7;backdrop-filter:blur(5px)}
+.menu-overlay[hidden]{display:none!important}
+.menu-sheet{width:min(560px,96vw);max-height:92dvh;overflow:auto;background:#101923;border:1px solid #34495b;border-radius:16px;padding:14px;box-shadow:0 20px 60px #000a}
+.menu-sheet-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+.menu-sheet-header h2{font-size:17px;margin:0 0 3px}.menu-sheet-header p{font-size:12px;margin:0}
+.menu-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.menu-actions button{min-height:42px;text-align:left;padding:9px 11px}
+.menu-actions .danger{color:#ff9b9e;border-color:#724048}
+.menu-rename{display:flex;gap:7px;margin-bottom:10px}.menu-rename[hidden]{display:none!important}
+.menu-rename input{min-width:0;flex:1;background:#0b1219;border:1px solid var(--line);border-radius:9px;padding:9px}
+.clip{touch-action:none;user-select:none;-webkit-user-select:none}
+.clip-label{position:relative;z-index:1;display:block;pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px}
+.clip-resize-handle{position:absolute;z-index:2;right:0;top:0;bottom:0;width:12px;cursor:ew-resize;background:linear-gradient(90deg,transparent,#ffffff24);touch-action:none}
+#pianoScreen .note-layer{touch-action:none}
+#pianoScreen .note{margin:1px 0}
+@media(max-height:480px){.menu-sheet{max-height:94dvh;padding:10px}.menu-actions{gap:5px}.menu-actions button{min-height:36px;padding:6px 8px}}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -249,10 +267,25 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 </nav>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
+<div id="trackMenuOverlay" class="menu-overlay" hidden>
+  <section class="menu-sheet" role="dialog" aria-modal="true" aria-labelledby="trackMenuTitle">
+    <div class="menu-sheet-header"><div><h2 id="trackMenuTitle">Track options</h2><p id="trackMenuSubtitle" class="muted"></p></div><button id="closeTrackMenu" aria-label="Close menu">✕</button></div>
+    <div class="menu-rename" id="renameTrackRow" hidden><input id="renameTrackInput" aria-label="Nama track baru" maxlength="64"><button id="saveTrackName" class="primary">Simpan nama</button></div>
+    <div class="menu-actions">
+      <button data-track-menu-action="rename">Ubah nama</button>
+      <button data-track-menu-action="add-midi">Tambah MIDI clip</button>
+      <button data-track-menu-action="add-audio">Tambah Audio clip</button>
+      <button data-track-menu-action="mixer">Buka Mixer</button>
+      <button data-track-menu-action="devices">Buka Devices</button>
+      <button data-track-menu-action="duplicate">Duplikat track</button>
+      <button data-track-menu-action="delete" class="danger">Hapus track</button>
+    </div>
+  </section>
+</div>
 <script>
 (function(){
 const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
-let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
+let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];\nlet trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipClick=false,ignoreNextNoteClick=false;
 let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
 {id:'t1',name:'Drums',type:'Audio',color:'#ff625e',mute:false,solo:false,gain:0,pan:0,clips:[{id:'c1',label:'Drum Loop',start:0,duration:18,color:'#ff625e'}]},
 {id:'t2',name:'Bass',type:'MIDI',color:'#168cff',mute:false,solo:false,gain:-6,pan:0,clips:[{id:'c2',label:'Bass Pattern',start:2,duration:16,color:'#168cff'}]},
@@ -271,11 +304,11 @@ function renderTracks(){
  project.tracks.forEach((t,index)=>{
   const row=document.createElement('div');row.className='trackrow';row.style.setProperty('--track',t.color);
   const label=document.createElement('div');label.className='tracklabel';
-  label.innerHTML='<div class="trackname"><span>'+ (index+1)+'. '+esc(t.name)+'</span><span style="color:var(--muted);font-size:10px">'+esc(t.type)+'</span></div><div class="trackbuttons"><button data-action="mute" data-i="'+index+'" class="'+(t.mute?'on':'')+'">M</button><button data-action="solo" data-i="'+index+'" class="'+(t.solo?'on':'')+'">S</button><button data-action="select" data-i="'+index+'" class="'+(selectedTrack===index?'active':'')+'">•••</button></div>';
+  label.innerHTML='<div class="trackname"><span>'+ (index+1)+'. '+esc(t.name)+'</span><span style="color:var(--muted);font-size:10px">'+esc(t.type)+'</span></div><div class="trackbuttons"><button data-action="mute" data-i="'+index+'" class="'+(t.mute?'on':'')+'">M</button><button data-action="solo" data-i="'+index+'" class="'+(t.solo?'on':'')+'">S</button><button data-action="menu" data-i="'+index+'" class="'+(selectedTrack===index?'active':'')+'" aria-label="Track options">•••</button></div>';
   row.appendChild(label);
   const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;
   t.clips.forEach(c=>{
-   const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(c.duration/32*100)+'%';clip.style.maxWidth='100%';clip.textContent=c.label;clip.dataset.clip=c.id;clip.title=c.label+' · tap to select';area.appendChild(clip);
+   const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(c.duration/32*100)+'%';clip.style.maxWidth='100%';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Ubah panjang clip"></span>';clip.dataset.clip=c.id;clip.title=c.label+' · ketuk pilih, ketuk ganda buka editor, geser pindah, tarik tepi untuk mengubah panjang';area.appendChild(clip);
   });
   row.appendChild(area);root.appendChild(row);
  });
@@ -344,16 +377,91 @@ function renderSamples(category='Samples',filter='All'){
 }
 function renderAll(){renderTracks();renderMixer();renderPiano();renderDevices();renderSamples();$('projectName').value=project.name;$('tempo').value=project.tempo;$('meter').value=project.meter;}
 document.querySelectorAll('.dock button').forEach(b=>b.addEventListener('click',()=>switchScreen(b.dataset.screen)));
+function pushUndoSnapshot(serialized){undoStack.push(serialized||JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
+function openTrackMenu(i){
+ if(i<0||i>=project.tracks.length)return;
+ trackMenuIndex=i;selectedTrack=i;
+ const t=project.tracks[i];$('trackMenuTitle').textContent='Track '+(i+1)+' options';$('trackMenuSubtitle').textContent=t.name+' · '+t.type;
+ $('renameTrackInput').value=t.name;$('renameTrackRow').hidden=true;
+ $('trackMenuOverlay').hidden=false;renderTracks();
+}
+function closeTrackMenu(){$('trackMenuOverlay').hidden=true;trackMenuIndex=-1}
+function addClipToTrack(i,kind){
+ const t=project.tracks[i];if(!t)return;
+ snapshot();
+ const start=Math.min(28,Math.max(0,0));
+ const label=kind==='MIDI'?'MIDI Clip':kind==='Audio'?'Audio Clip':'Automation Clip';
+ t.clips.push({id:'c'+Date.now()+Math.random().toString(16).slice(2,5),label,start,duration:4,color:t.color,kind});
+ selectedClip=t.clips[t.clips.length-1].id;selectedTrack=i;renderAll();notify(label+' ditambahkan (model UI)');
+}
+$('tracks').addEventListener('pointerdown',e=>{
+ const clip=e.target.closest('[data-clip]');if(!clip)return;
+ const trackIndex=Number(clip.closest('.cliparea').dataset.track);
+ const clipId=clip.dataset.clip;const item=project.tracks[trackIndex]?.clips.find(c=>c.id===clipId);if(!item)return;
+ const rect=clip.getBoundingClientRect();const mode=e.target.closest('.clip-resize-handle')||e.clientX>=rect.right-12?'resize':'move';
+ clipGesture={pointerId:e.pointerId,target:clip,trackIndex,clipId,mode,startX:e.clientX,originStart:item.start,originDuration:item.duration,before:JSON.stringify(project),moved:false};
+ try{clip.setPointerCapture(e.pointerId)}catch(_){}
+});
+$('tracks').addEventListener('pointermove',e=>{
+ const g=clipGesture;if(!g||g.pointerId!==e.pointerId)return;
+ const dx=e.clientX-g.startX;if(Math.abs(dx)<4&&!g.moved)return;g.moved=true;e.preventDefault();
+ const area=g.target.closest('.cliparea');const scale=Math.max(1,area.clientWidth)/32;const delta=Math.round((dx/scale)*4)/4;
+ const item=project.tracks[g.trackIndex]?.clips.find(c=>c.id===g.clipId);if(!item)return;
+ if(g.mode==='move')item.start=Math.max(0,Math.min(32-item.duration,g.originStart+delta));
+ else item.duration=Math.max(.25,Math.min(32-item.start,g.originDuration+delta));
+ g.target.style.left=(item.start/32*100)+'%';g.target.style.width=(item.duration/32*100)+'%';
+});
+function finishClipGesture(e){
+ const g=clipGesture;if(!g||e.pointerId!==g.pointerId)return;
+ if(g.moved){pushUndoSnapshot(g.before);selectedClip=g.clipId;selectedTrack=g.trackIndex;ignoreNextClipClick=true;setTimeout(()=>{ignoreNextClipClick=false},400);renderTracks();notify(g.mode==='move'?'Clip dipindahkan':'Panjang clip diubah')}
+ clipGesture=null;
+}
+$('tracks').addEventListener('pointerup',finishClipGesture);
+$('tracks').addEventListener('pointercancel',finishClipGesture);
 $('tracks').addEventListener('click',e=>{
- const act=e.target.closest('[data-action]');if(act){const i=+act.dataset.i,t=project.tracks[i];if(act.dataset.action==='select'){selectedTrack=i;switchScreen('devices');notify('Track dipilih: '+t.name)}else{snapshot();t[act.dataset.action]=!t[act.dataset.action];renderAll()}return}
- const clip=e.target.closest('[data-clip]');if(clip){const wasSelected=selectedClip===clip.dataset.clip;selectedClip=clip.dataset.clip;const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===selectedClip));if(ownerIndex>=0)selectedTrack=ownerIndex;const found=project.tracks.flatMap(t=>t.clips).find(c=>c.id===selectedClip);if(wasSelected){const tr=project.tracks[selectedTrack];switchScreen(tr.type==='MIDI'?'piano':tr.type==='Automation'?'devices':'browser');notify('Editor dibuka: '+tr.name)}else{notify('Clip dipilih: '+(found?found.label:''));renderTracks();}}
+ const act=e.target.closest('[data-action]');if(act){
+  const i=+act.dataset.i,t=project.tracks[i];if(!t)return;
+  if(act.dataset.action==='menu'){openTrackMenu(i);return}
+  if(act.dataset.action==='mute'||act.dataset.action==='solo'){snapshot();t[act.dataset.action]=!t[act.dataset.action];renderAll()}return
+ }
+ const label=e.target.closest('.tracklabel');if(label){const row=label.closest('.trackrow'),area=row?.querySelector('.cliparea'),idx=Number(area?.dataset.track);if(Number.isInteger(idx)&&idx>=0){selectedTrack=idx;renderTracks()}return}
+ const clip=e.target.closest('[data-clip]');if(clip){
+  if(ignoreNextClipClick){ignoreNextClipClick=false;return}
+  const wasSelected=selectedClip===clip.dataset.clip;selectedClip=clip.dataset.clip;
+  const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===selectedClip));if(ownerIndex>=0)selectedTrack=ownerIndex;
+  const found=project.tracks.flatMap(t=>t.clips).find(c=>c.id===selectedClip);
+  if(wasSelected){const tr=project.tracks[selectedTrack];switchScreen(found?.kind==='MIDI'||tr.type==='MIDI'?'piano':found?.kind==='Automation'||tr.type==='Automation'?'devices':'browser');notify('Editor dibuka: '+(found?.label||tr.name))}
+  else{notify('Clip dipilih: '+(found?found.label:''));renderTracks()}
+ }
 });
 $('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.length;const colors=['#ff625e','#168cff','#20cf8a','#a95bff','#ffad34','#58c9f1'];project.tracks.push({id:'t'+Date.now(),name:'Track '+(n+1),type:'MIDI',color:colors[n%colors.length],mute:false,solo:false,gain:0,pan:0,clips:[]});renderAll();notify('Track baru ditambahkan')});
 $('mixer').addEventListener('input',e=>{const el=e.target;if(!el.dataset.mix)return;const t=project.tracks[+el.dataset.i];t[el.dataset.mix]=+el.value;$(el.dataset.mix==='gain'?'gainv'+el.dataset.i:'panv'+el.dataset.i).textContent=el.dataset.mix==='gain'?Number(el.value).toFixed(1)+' dB':el.value;});
 $('mixer').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const t=project.tracks[+b.dataset.i];snapshot();t[b.dataset.action]=!t[b.dataset.action];renderAll()});
+$('pianogrid').addEventListener('pointerdown',e=>{
+ const note=e.target.closest('.note');if(!note)return;
+ const index=Number(note.dataset.noteIndex),n=project.notes[index];if(!n)return;
+ const rect=note.getBoundingClientRect();const mode=e.clientX>=rect.right-10?'resize':'move';
+ noteGesture={pointerId:e.pointerId,index,target:note,mode,startX:e.clientX,startY:e.clientY,originCol:n.col,originRow:n.row,originLen:n.len,before:JSON.stringify(project),moved:false};
+ selectedNote=index;try{note.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();
+});
+$('pianogrid').addEventListener('pointermove',e=>{
+ const g=noteGesture;if(!g||g.pointerId!==e.pointerId)return;const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
+ if(Math.max(Math.abs(dx),Math.abs(dy))<4&&!g.moved)return;g.moved=true;e.preventDefault();
+ const rect=$('pianogrid').getBoundingClientRect(),dc=Math.round(dx/(rect.width/16)),dr=Math.round(dy/(rect.height/12));const n=project.notes[g.index];if(!n)return;
+ if(g.mode==='resize'){n.len=Math.max(1,Math.min(16-g.originCol,g.originLen+dc));n.col=g.originCol;n.row=g.originRow}
+ else{n.len=g.originLen;n.col=Math.max(0,Math.min(16-g.originLen,g.originCol+dc));n.row=Math.max(0,Math.min(11,g.originRow+dr))}
+});
+function finishNoteGesture(e){
+ const g=noteGesture;if(!g||g.pointerId!==e.pointerId)return;
+ if(g.moved){pushUndoSnapshot(g.before);ignoreNextNoteClick=true;setTimeout(()=>{ignoreNextNoteClick=false},350);renderPiano();notify(g.mode==='resize'?'Durasi nada diubah':'Nada dipindahkan')}
+ noteGesture=null;
+}
+$('pianogrid').addEventListener('pointerup',finishNoteGesture);
+$('pianogrid').addEventListener('pointercancel',finishNoteGesture);
 $('pianogrid').addEventListener('click',e=>{
+ if(ignoreNextNoteClick){ignoreNextNoteClick=false;return}
  const note=e.target.closest('.note');
- if(note){selectedNote=Number(note.dataset.noteIndex);notify('Nada dipilih • tahan untuk tindakan');return}
+ if(note){selectedNote=Number(note.dataset.noteIndex);notify('Nada dipilih');return}
  const rect=e.currentTarget.getBoundingClientRect();
  const row=Math.floor((e.clientY-rect.top)/(rect.height/12));
  const col=Math.floor((e.clientX-rect.left)/(rect.width/16));
@@ -379,6 +487,28 @@ $('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(pr
 $('undo').addEventListener('click',()=>{if(!undoStack.length){notify('Tidak ada aksi untuk undo');return}redoStack.push(JSON.stringify(project));project=JSON.parse(undoStack.pop());renderAll();notify('Undo selesai')});
 $('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada aksi untuk redo');return}undoStack.push(JSON.stringify(project));project=JSON.parse(redoStack.pop());renderAll();notify('Redo selesai')});
 $('menu').addEventListener('click',()=>notify('NovaDAW Mobile · prototype UI · belum terhubung ke audio engine'));
+$('closeTrackMenu').addEventListener('click',closeTrackMenu);
+$('trackMenuOverlay').addEventListener('click',e=>{if(e.target.id==='trackMenuOverlay')closeTrackMenu()});
+$('trackMenuOverlay').addEventListener('click',e=>{
+ const b=e.target.closest('[data-track-menu-action]');if(!b||trackMenuIndex<0)return;
+ const i=trackMenuIndex,action=b.dataset.trackMenuAction,t=project.tracks[i];if(!t)return;
+ if(action==='close'){closeTrackMenu();return}
+ if(action==='rename'){$('renameTrackRow').hidden=false;$('renameTrackInput').focus();return}
+ if(action==='add-midi'||action==='add-audio'){closeTrackMenu();addClipToTrack(i,action==='add-midi'?'MIDI':'Audio');return}
+ if(action==='mixer'||action==='devices'){selectedTrack=i;closeTrackMenu();switchScreen(action);return}
+ if(action==='duplicate'){
+  snapshot();const copy=JSON.parse(JSON.stringify(t));copy.id='t'+Date.now();copy.name=t.name+' Copy';copy.clips=copy.clips.map(c=>({...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,5)}));project.tracks.splice(i+1,0,copy);selectedTrack=i+1;closeTrackMenu();renderAll();notify('Track diduplikasi');return
+ }
+ if(action==='delete'){
+  if(project.tracks.length<=1){notify('Proyek harus menyisakan satu track');return}
+  snapshot();project.tracks.splice(i,1);selectedTrack=Math.max(0,Math.min(i,project.tracks.length-1));selectedClip=null;closeTrackMenu();renderAll();notify('Track dihapus')
+ }
+});
+$('saveTrackName').addEventListener('click',()=>{
+ const t=project.tracks[trackMenuIndex];if(!t)return;const name=$('renameTrackInput').value.trim();if(!name){notify('Nama track tidak boleh kosong');return}snapshot();t.name=name;closeTrackMenu();renderAll();notify('Nama track diperbarui')
+});
+$('renameTrackInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('saveTrackName').click();if(e.key==='Escape')closeTrackMenu()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('trackMenuOverlay').hidden)closeTrackMenu()});
 renderAll();
 })();
 </script>
