@@ -40,7 +40,7 @@ export namespace WheelScaling {
             apply(element, range, event)
         }, {passive: false})
         const active = new Map<number, {x: number, y: number}>()
-        let pinch: {distance: number, anchor: number} | null = null
+        let pinch: {distance: number, anchor: number, center: number} | null = null
         const readPoints = () => Array.from(active.values())
         const distance = (points: ReadonlyArray<{x: number, y: number}>): number => {
             const [a, b] = points
@@ -52,8 +52,9 @@ export namespace WheelScaling {
             const points = readPoints()
             if (points.length !== 2) {pinch = null; return}
             const d = distance(points)
+            const center = centerX(points)
             pinch = d > 0 && range.width > 0
-                ? {distance: d, anchor: clamp(range.xToValue(centerX(points)), range.min, range.max)}
+                ? {distance: d, anchor: clamp(range.xToValue(center), range.min, range.max), center}
                 : null
         }
         const onPointerDown = (event: PointerEvent) => {
@@ -73,11 +74,18 @@ export namespace WheelScaling {
             const points = readPoints()
             const d = distance(points)
             if (d <= 0 || pinch.distance <= 0) {return}
+            const center = centerX(points)
+            const deltaX = center - pinch.center
+            // Translate the visible range with the midpoint so two-finger drags
+            // pan naturally when the finger spacing stays constant.
+            if (Math.abs(deltaX) > 0.25 && range.width > 0) {
+                range.moveUnitBy(-deltaX / range.width * range.unitRange)
+            }
             const scale = Math.log(d / pinch.distance)
             if (Math.abs(scale) > 0.0005) {
                 range.scaleBy(-scale, pinch.anchor)
-                pinch = {distance: d, anchor: pinch.anchor}
             }
+            pinch = {distance: d, anchor: pinch.anchor, center}
             event.preventDefault()
         }
         const clearPointer = (event: PointerEvent) => {
