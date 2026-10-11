@@ -155,6 +155,13 @@ export const Header = ({lifecycle, service}: Construct) => {
                                                     : name,
                                         GlobalShortcuts[ScreenShortcutKeys[key as Workspace.ScreenKeys]].shortcut)
                                 }))}
+                            onSameValue={value => {
+                                if (!isTouchLayout() || value === "default") {return}
+                                const panelType = value === "mixer" ? PanelType.Mixer
+                                    : value === "piano" ? PanelType.ContentEditor
+                                        : value === "modulation" ? PanelType.DevicePanel : null
+                                if (panelType !== null) {toggleTouchPanel(service, panelType)}
+                            }}
                             appearance={{framed: true, landscape: true}}/>
             </div>
             <hr/>
