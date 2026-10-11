@@ -356,6 +356,19 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
  #devicesScreen .mini-keyboard{height:32px}
 }
 
+
+.clip-context-menu{position:fixed;z-index:1200;width:min(230px,calc(100vw - 24px));padding:9px;background:#101923;border:1px solid #3b5367;border-radius:11px;box-shadow:0 12px 38px #000a}
+.clip-context-menu[hidden]{display:none!important}
+.clip-context-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:2px 2px 8px;border-bottom:1px solid var(--line);margin-bottom:7px}
+.clip-context-header>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.clip-context-header strong{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clip-context-header span{font-size:10px;color:var(--muted)}
+.clip-context-header button{width:28px;min-width:28px;height:28px;min-height:28px;padding:2px}
+.clip-context-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+.clip-context-actions button{min-height:34px;padding:6px 8px;text-align:left;font-size:11px}
+.clip-context-actions .danger{color:#ff9b9e;border-color:#724048}
+#tracks .clip.is-muted{opacity:.4;filter:grayscale(.65)}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -421,11 +434,23 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
     </div>
   </section>
 </div>
+<div id="clipContextMenu" class="clip-context-menu" hidden role="dialog" aria-label="Clip actions">
+  <div class="clip-context-header"><div><strong id="clipContextTitle">Clip</strong><span id="clipContextSubtitle">Clip actions</span></div><button id="closeClipContext" aria-label="Close clip menu">✕</button></div>
+  <div class="clip-context-actions">
+    <button data-clip-action="edit">Edit</button>
+    <button data-clip-action="copy">Copy</button>
+    <button data-clip-action="split">Split</button>
+    <button data-clip-action="snap">Snap</button>
+    <button data-clip-action="mute">Mute</button>
+    <button data-clip-action="delete" class="danger">Delete</button>
+  </div>
+</div>
 <script>
 (function(){
 const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
 let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
 let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipClick=false,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,timelineZoom=1,timelineScrollSync=false;
+let lastClipTap={id:null,time:0};
 let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset';
 let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
 {id:'t1',name:'Drums',type:'Audio',color:'#ff625e',mute:false,solo:false,gain:0,pan:0,clips:[{id:'c1',label:'Drum Loop',start:0,duration:18,color:'#ff625e'}]},
@@ -439,7 +464,7 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function notify(message){const el=$('toast');el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2600);}
 function snapshot(){undoStack.push(JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
-function switchScreen(name){if(!screens[name])return;currentScreen=name;Object.keys(screens).forEach(k=>{const el=$(screens[k]),active=k===name;el.hidden=!active;el.setAttribute('aria-hidden',active?'false':'true');el.style.display=active?(name==='timeline'?'flex':'block'):'none';});document.querySelectorAll('.dock button').forEach(b=>{const active=b.dataset.screen===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false');});}
+function switchScreen(name){if(!screens[name])return;if(name!=='timeline'&&$('clipContextMenu'))$('clipContextMenu').hidden=true;currentScreen=name;Object.keys(screens).forEach(k=>{const el=$(screens[k]),active=k===name;el.hidden=!active;el.setAttribute('aria-hidden',active?'false':'true');el.style.display=active?(name==='timeline'?'flex':'block'):'none';});document.querySelectorAll('.dock button').forEach(b=>{const active=b.dataset.screen===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false');});}
 function renderTracks(){
  const root=$('tracks');root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas)rulerCanvas.style.width=(timelineZoom*100)+'%';
  project.tracks.forEach((t,index)=>{
@@ -450,7 +475,7 @@ function renderTracks(){
   const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;area.dataset.timelineScroll='clip';
   const canvas=document.createElement('div');canvas.className='clip-canvas';canvas.style.width=(timelineZoom*100)+'%';
   t.clips.forEach(c=>{
-   const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(Math.min(c.duration,32-c.start)/32*100)+'%';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Ubah panjang clip"></span>';clip.dataset.clip=c.id;clip.title=c.label+' · ketuk pilih, ketuk ganda buka editor, geser pindah, tarik tepi untuk mengubah panjang';canvas.appendChild(clip);
+   const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'')+(c.muted?' is-muted':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(Math.min(c.duration,32-c.start)/32*100)+'%';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Ubah panjang clip"></span>';clip.dataset.clip=c.id;clip.title=c.label+' · ketuk pilih, ketuk ganda buka editor, geser pindah, tarik tepi untuk mengubah panjang';canvas.appendChild(clip);
   });
   area.appendChild(canvas);row.appendChild(area);root.appendChild(row);
  });
@@ -622,6 +647,26 @@ function finishClipGesture(e){
 }
 $('tracks').addEventListener('pointerup',finishClipGesture);
 $('tracks').addEventListener('pointercancel',finishClipGesture);
+function hideClipContext(){$('clipContextMenu').hidden=true}
+function openClipEditor(id){
+ const trackIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===id));if(trackIndex<0)return;
+ selectedTrack=trackIndex;selectedClip=id;const t=project.tracks[trackIndex],clip=t.clips.find(c=>c.id===id);
+ hideClipContext();
+ const kind=clip?.kind||t.type;
+ switchScreen(kind==='MIDI'||t.type==='MIDI'?'piano':kind==='Automation'||t.type==='Automation'?'devices':'browser');
+ notify('Editor dibuka: '+(clip?.label||t.name));
+}
+function showClipContext(element,trackIndex,clip){
+ const pop=$('clipContextMenu');$('clipContextTitle').textContent=clip.label||'Clip';
+ $('clipContextSubtitle').textContent=(project.tracks[trackIndex]?.name||'Track')+' · '+(clip.kind||project.tracks[trackIndex]?.type||'Clip');
+ pop.dataset.clipId=clip.id;pop.dataset.trackIndex=String(trackIndex);
+ document.querySelectorAll('#tracks .clip').forEach(el=>el.classList.toggle('selected',el.dataset.clip===clip.id));
+ const r=element.getBoundingClientRect(),width=Math.min(230,window.innerWidth-24),height=174;
+ const left=Math.max(12,Math.min(window.innerWidth-width-12,r.left));
+ const top=(r.bottom+height+12<=window.innerHeight)?r.bottom+6:Math.max(8,r.top-height-6);
+ pop.style.left=left+'px';pop.style.top=top+'px';pop.hidden=false;
+ const mute=pop.querySelector('[data-clip-action="mute"]');mute.textContent=clip.muted?'Unmute':'Mute';
+}
 $('tracks').addEventListener('click',e=>{
  const act=e.target.closest('[data-action]');if(act){
   const i=+act.dataset.i,t=project.tracks[i];if(!t)return;
@@ -631,13 +676,15 @@ $('tracks').addEventListener('click',e=>{
  const label=e.target.closest('.tracklabel');if(label){const row=label.closest('.trackrow'),area=row?.querySelector('.cliparea'),idx=Number(area?.dataset.track);if(Number.isInteger(idx)&&idx>=0){selectedTrack=idx;renderTracks()}return}
  const clip=e.target.closest('[data-clip]');if(clip){
   if(ignoreNextClipClick){ignoreNextClipClick=false;return}
-  const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===clip.dataset.clip));if(ownerIndex>=0)selectedTrack=ownerIndex;
-  if(timelineTool==='cut'){selectedClip=clip.dataset.clip;const rect=clip.getBoundingClientRect();splitSelectedClipAtRatio(Math.max(.05,Math.min(.95,(e.clientX-rect.left)/Math.max(1,rect.width))));timelineTool='select';updateTimelineTools();return}
-  const wasSelected=selectedClip===clip.dataset.clip;selectedClip=clip.dataset.clip;
-  const found=project.tracks.flatMap(t=>t.clips).find(c=>c.id===selectedClip);
-  if(wasSelected){const tr=project.tracks[selectedTrack];switchScreen(found?.kind==='MIDI'||tr.type==='MIDI'?'piano':found?.kind==='Automation'||tr.type==='Automation'?'devices':'browser');notify('Editor dibuka: '+(found?.label||tr.name))}
-  else{notify('Clip dipilih: '+(found?found.label:''));renderTracks()}
-  updateTimelineTools()
+  const id=clip.dataset.clip;
+  const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===id));if(ownerIndex>=0)selectedTrack=ownerIndex;
+  if(timelineTool==='cut'){selectedClip=id;const rect=clip.getBoundingClientRect();splitSelectedClipAtRatio(Math.max(.05,Math.min(.95,(e.clientX-rect.left)/Math.max(1,rect.width))));timelineTool='select';updateTimelineTools();hideClipContext();return}
+  const found=project.tracks[selectedTrack]?.clips.find(c=>c.id===id);
+  if(!found)return;
+  const now=Date.now(),doubleTap=lastClipTap.id===id&&(now-lastClipTap.time)<420;
+  selectedClip=id;lastClipTap={id,time:now};updateTimelineTools();
+  if(doubleTap){lastClipTap={id:null,time:0};openClipEditor(id);return}
+  showClipContext(clip,selectedTrack,found);
  }
 });
 $('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.length;const colors=['#ff625e','#168cff','#20cf8a','#a95bff','#ffad34','#58c9f1'];project.tracks.push({id:'t'+Date.now(),name:'Track '+(n+1),type:'MIDI',color:colors[n%colors.length],mute:false,solo:false,gain:0,pan:0,clips:[]});renderAll();notify('Track baru ditambahkan')});
@@ -734,6 +781,26 @@ $('timelineTools').addEventListener('click',e=>{
  }
  else if(tool==='automation'){if(selectedTrack<0||selectedTrack>=project.tracks.length)selectedTrack=0;addClipToTrack(selectedTrack,'Automation');timelineTool='select'}
  updateTimelineTools();
+});
+$('closeClipContext').addEventListener('click',hideClipContext);
+$('clipContextMenu').addEventListener('click',e=>{
+ const b=e.target.closest('[data-clip-action]');if(!b)return;
+ const id=$('clipContextMenu').dataset.clipId,trackIndex=Number($('clipContextMenu').dataset.trackIndex);
+ const track=project.tracks[trackIndex],clip=track?.clips.find(c=>c.id===id);if(!track||!clip){hideClipContext();return}
+ const action=b.dataset.clipAction;
+ if(action==='edit'){openClipEditor(id);return}
+ if(action==='copy'){
+  snapshot();const copy={...clip,id:'c'+Date.now()+Math.random().toString(16).slice(2,5),start:Math.min(32-clip.duration,clip.start+clip.duration),label:clip.label+' Copy'};
+  track.clips.push(copy);selectedClip=copy.id;hideClipContext();renderTracks();updateTimelineTools();notify('Clip disalin');return
+ }
+ if(action==='split'){selectedClip=id;hideClipContext();splitSelectedClipAtRatio(.5);return}
+ if(action==='snap'){snapshot();clip.start=Math.max(0,Math.min(32-clip.duration,Math.round(clip.start*4)/4));hideClipContext();renderTracks();notify('Clip diselaraskan ke grid');return}
+ if(action==='mute'){snapshot();clip.muted=!clip.muted;renderTracks();showClipContext(document.querySelector('#tracks .clip[data-clip="'+id+'"]'),trackIndex,clip);notify(clip.muted?'Clip dibisukan (model UI)':'Clip diaktifkan (model UI)');return}
+ if(action==='delete'){snapshot();track.clips=track.clips.filter(c=>c.id!==id);selectedClip=null;hideClipContext();renderTracks();updateTimelineTools();notify('Clip dihapus');return}
+});
+document.addEventListener('click',e=>{
+ if(e.target.closest('#clipContextMenu')||e.target.closest('#tracks .clip'))return;
+ hideClipContext();
 });
 $('closeTrackMenu').addEventListener('click',closeTrackMenu);
 $('trackMenuOverlay').addEventListener('click',e=>{if(e.target.id==='trackMenuOverlay')closeTrackMenu()});
