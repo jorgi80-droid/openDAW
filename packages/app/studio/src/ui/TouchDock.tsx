@@ -4,6 +4,7 @@ import {PanelType} from "@/ui/workspace/PanelType"
 import {Html} from "@opendaw/lib-dom"
 import {IconSymbol} from "@opendaw/studio-enums"
 import {Icon} from "@/ui/components/Icon"
+import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
 
 type Construct = {service: StudioService}
 
@@ -11,22 +12,13 @@ export const TouchDock = ({service}: Construct) => {
     const isTouchLayout = () => window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
     const nextFrame = (procedure: () => void) => requestAnimationFrame(() => requestAnimationFrame(procedure))
     const showPanel = (type: PanelType) => {
-        const panel = service.panelLayout.getByType(type)
-        if (panel.isVisible) {
-            panel.toggleMinimize()
+        if (isTouchLayout()) {
+            toggleTouchPanel(service, type)
             return
         }
-        if (isTouchLayout()) {
-            // Close the currently open touch tool first. PanelContent binds to
-            // one placeholder per panel type, so swapping tools must never leave
-            // two touch-only panels occupying the narrow workspace.
-            const exclusive: PanelType[] = [PanelType.ContentEditor, PanelType.DevicePanel, PanelType.BrowserPanel]
-            exclusive.filter(other => other !== type).forEach(other => {
-                const sibling = service.panelLayout.getByType(other)
-                if (sibling.isVisible) {sibling.toggleMinimize()}
-            })
-        }
-        service.panelLayout.showIfAvailable(type)
+        const panel = service.panelLayout.getByType(type)
+        if (panel.isVisible) {panel.toggleMinimize()}
+        else {service.panelLayout.showIfAvailable(type)}
     }
     const button = (label: string, title: string, symbol: IconSymbol, type: PanelType) => (
         <button type="button" className="touch-dock-button" title={title} aria-label={title}
