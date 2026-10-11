@@ -303,6 +303,52 @@ export const Footer = ({lifecycle, service}: Construct) => {
             <div style={{color: Colors.cream.toString()}}>
                 <LocalLink href="/privacy">Privacy</LocalLink> · <LocalLink href="/imprint">Imprint</LocalLink>
             </div>
+            <div className="mobile-edge-dock" onInit={element => {
+                const currentKey = (): string => {
+                    const active = mobileStudio.activeScreen.getValue()
+                    return active === "default" ? "default"
+                        : active === "mixer" ? "mixer"
+                            : active === "modulation" ? "modulation"
+                                : active === "piano" ? "piano" : ""
+                }
+                const sync = () => {
+                    const active = currentKey()
+                    element.querySelectorAll<HTMLButtonElement>("[data-mobile-screen]").forEach(button => {
+                        button.setAttribute("aria-pressed", String(button.dataset.mobileScreen === active))
+                    })
+                }
+                lifecycle.own(mobileStudio.activeScreen.catchupAndSubscribe(sync))
+            }}>
+                <button type="button" className="mobile-edge-handle" aria-label="Open workspace tabs"
+                        aria-expanded="false"
+                        onclick={event => {
+                            const dock = event.currentTarget.closest(".mobile-edge-dock") as HTMLElement | null
+                            if (dock === null) {return}
+                            const open = !dock.classList.contains("open")
+                            dock.classList.toggle("open", open)
+                            event.currentTarget.setAttribute("aria-expanded", String(open))
+                        }}>
+                    <Icon symbol={IconSymbol.Panel}/>
+                </button>
+                <div className="mobile-edge-panel">
+                    <button type="button" data-mobile-screen="default" aria-pressed="false"
+                            onclick={() => {mobileStudio.navigate("timeline"); document.querySelector(".mobile-edge-dock")?.classList.remove("open")}}>
+                        <Icon symbol={IconSymbol.Timeline}/><span>Timeline</span>
+                    </button>
+                    <button type="button" data-mobile-screen="mixer" aria-pressed="false"
+                            onclick={() => {mobileStudio.navigate("mixer"); document.querySelector(".mobile-edge-dock")?.classList.remove("open")}}>
+                        <Icon symbol={IconSymbol.Mixing}/><span>Mixer</span>
+                    </button>
+                    <button type="button" data-mobile-screen="modulation" aria-pressed="false"
+                            onclick={() => {mobileStudio.navigate("devices"); document.querySelector(".mobile-edge-dock")?.classList.remove("open")}}>
+                        <Icon symbol={IconSymbol.Flask}/><span>Devices</span>
+                    </button>
+                    <button type="button" data-mobile-screen="piano" aria-pressed="false"
+                            onclick={() => {mobileStudio.navigate("editor"); document.querySelector(".mobile-edge-dock")?.classList.remove("open")}}>
+                        <Icon symbol={IconSymbol.Pencil}/><span>Editor / Piano Roll</span>
+                    </button>
+                </div>
+            </div>
         </footer>
     )
 }
