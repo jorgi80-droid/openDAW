@@ -44,10 +44,11 @@ component
 
 @media (pointer: coarse)
   component
-    // Keep a forgiving touch hit target without leaving an intrusive grey handle on screen.
+    // Large hit area; the handle itself stays subtle until pressed.
     &:after
       background: transparent
       box-shadow: none
+      pointer-events: none
 
     &.vertical:after
       height: 38px
@@ -60,3 +61,4 @@ component
     &:active:after
       background: rgba(74, 220, 245, 0.95)
       box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.18)
+      pointer-events: none
