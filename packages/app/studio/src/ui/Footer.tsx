@@ -12,6 +12,7 @@ import {AudioData} from "@opendaw/lib-dsp"
 import {FooterItem} from "@/ui/FooterItem"
 import {EngineAddresses} from "@opendaw/studio-adapters"
 import {LatencyWarning} from "@/ui/LatencyWarning"
+import {PanelType} from "@/ui/workspace/PanelType"
 
 const className = Html.adoptStyleSheet(css, "footer")
 
@@ -56,6 +57,46 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 }))
                         }}/>
             <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
+            <FooterItem className="mobile-panel-shortcut editor-shortcut" title="Editor"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Editor / Piano Roll")
+                            const toggle = () => {
+                                const panel = service.panelLayout.getByType(PanelType.ContentEditor)
+                                if (panel.isVisible) {panel.toggleMinimize()}
+                                else {service.panelLayout.showIfAvailable(PanelType.ContentEditor)}
+                            }
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}>✎</FooterItem>
+            <FooterItem className="mobile-panel-shortcut devices-shortcut" title="Devices"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Devices / Effects")
+                            const toggle = () => {
+                                const panel = service.panelLayout.getByType(PanelType.DevicePanel)
+                                if (panel.isVisible) {panel.toggleMinimize()}
+                                else {service.panelLayout.showIfAvailable(PanelType.DevicePanel)}
+                            }
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}>⚗</FooterItem>
             <FooterItem title="Latency" minWidth="6ch"
                         onInit={({component, value}) => {
                             const threshold = () =>
