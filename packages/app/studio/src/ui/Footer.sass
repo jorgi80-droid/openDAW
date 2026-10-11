@@ -56,6 +56,23 @@ component
 
   component .mobile-panel-shortcut
     display: flex !important
+    max-width: 34px
+    min-width: 34px
+
+  component .mobile-panel-shortcut > .label
+    display: none !important
+
+  component .mobile-panel-shortcut > .value
+    display: flex !important
+    flex: 1 1 auto
+    min-width: 0
+    margin: 0
+    overflow: hidden
+
+  component .mobile-panel-shortcut > .value > *
+    display: block
+
+  component .mobile-panel-shortcut
     align-items: center
     justify-content: center
     flex: 0 0 34px
