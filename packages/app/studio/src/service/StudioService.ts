@@ -584,7 +584,8 @@ export class StudioService implements ProjectEnv {
             this.#projectProfileService.setValue(Option.wrap(
                 new ProjectProfile(UUID.generate(), Project.new(this), ProjectMeta.init("Untitled"), Option.None)))
         }
-        this.layout.screen.setValue("default")
+        // #listenProject/onProjectOpened selects the production workspace only after the audio worklet starts.
+        // Do not overwrite the Dashboard chosen by the original engine-error path with a misleading empty Timeline.
     }
 
     #listenPreferences(): void {
