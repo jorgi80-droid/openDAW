@@ -119,13 +119,9 @@ export const Header = ({lifecycle, service}: Construct) => {
                                         : value === "piano" ? PanelType.ContentEditor
                                             : value === "modulation" ? PanelType.DevicePanel : null
                                     if (touchLayout && panelType !== null) {
-                                        const toggle = () => toggleTouchPanel(service, panelType)
-                                        if (current !== "default") {
-                                            service.switchScreen("default")
-                                            requestAnimationFrame(() => requestAnimationFrame(toggle))
-                                        } else {
-                                            toggle()
-                                        }
+                                        // The shared controller switches to the active touch workspace
+                                        // before opening/closing the selected native panel.
+                                        toggleTouchPanel(service, panelType)
                                         return
                                     }
                                     if (current === "default" && panelType !== null) {
