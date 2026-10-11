@@ -184,7 +184,12 @@ export const PanelPlaceholder =
             if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) {return}
             const target = event.target
             if (target instanceof Element && target.closest(".panel-maximize-button") !== null) {return}
-            if (panelState.panelType !== PanelType.Timeline) {handler.toggleMinimize()}
+            // In the mobile shell a selected tool is the only root panel. A tap on its
+            // title bar must not collapse the entire focused workspace and leave an empty area.
+            // Preserve the original tap-to-collapse behavior only for actual multi-panel layouts.
+            if (panelState.panelType !== PanelType.Timeline && siblings.length > 1) {
+                handler.toggleMinimize()
+            }
         }, {capture: true}))
         lifecycle.own(Events.subscribe(header, "pointercancel", () => {touchStart = null}, {capture: true}))
         lifecycle.own(Events.subscribeDblDwn(header, event => {
