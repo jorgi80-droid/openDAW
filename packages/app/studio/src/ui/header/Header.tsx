@@ -66,11 +66,45 @@ export const Header = ({lifecycle, service}: Construct) => {
     const manuals: HTMLAnchorElement = (
         <a className="manuals" href="/manuals/" target="manuals" title="Manuals"><Icon symbol={IconSymbol.Help}/></a>
     )
-    TourAnchors.register(lifecycle, manuals, "manuals")
+    if (!isTouchLayout()) {TourAnchors.register(lifecycle, manuals, "manuals")}
     TourAnchors.register(lifecycle, transport, "transport")
     TourAnchors.register(lifecycle, timecodes, "timecodes")
     return (
         <header className={className}>
+            {isTouchLayout() ? (
+                <div className="mobile-toolbar">
+                    <div className="mobile-toolbar-primary">
+                        <div className="mobile-menu">
+                            <MenuButton root={service.menu}
+                                        onInit={element => TourAnchors.register(lifecycle, element, "menu")}
+                                        appearance={{color: Colors.gray, activeColor: Colors.bright, tinyTriangle: true}}>
+                                <h5>OpenDAW</h5>
+                            </MenuButton>
+                        </div>
+                        {transport}
+                    </div>
+                    <div className="mobile-toolbar-secondary">
+                        {timecodes}
+                        <Group onInit={element => StudioPreferences.catchupAndSubscribe(enabled =>
+                            element.classList.toggle("hidden", !enabled), "visibility", "enable-history-buttons")}>
+                            <UndoRedoButtons lifecycle={lifecycle} service={service}/>
+                        </Group>
+                        <div className="mobile-midi-controls"
+                             onInit={element => TourAnchors.register(lifecycle, element, "midi")}>
+                            <Checkbox lifecycle={lifecycle}
+                                      model={MidiDevices.available()}
+                                      appearance={{activeColor: Colors.orange, tooltip: "Midi Access", cursor: "pointer"}}>
+                                <Icon symbol={IconSymbol.Midi}/>
+                            </Checkbox>
+                            <CaptureMidiButton lifecycle={lifecycle} service={service}/>
+                        </div>
+                        <BaseFrequencyControl lifecycle={lifecycle} service={service}/>
+                        <MetronomeControl lifecycle={lifecycle} service={service} preferences={preferences}/>
+                        <HorizontalPeakMeter lifecycle={lifecycle} peaksInDb={peaksInDb} width="2.5em"/>
+                    </div>
+                </div>
+            ) : (
+                <div className="desktop-toolbar">
             <MenuButton root={service.menu}
                         onInit={element => TourAnchors.register(lifecycle, element, "menu")}
                         appearance={{color: Colors.gray, activeColor: Colors.bright, tinyTriangle: true}}>
@@ -167,6 +201,9 @@ export const Header = ({lifecycle, service}: Construct) => {
             </div>
             <hr/>
             <PerformanceStats lifecycle={lifecycle} service={service}/>
+
+                </div>
+            )}
         </header>
     )
 }
