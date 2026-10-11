@@ -16,6 +16,8 @@
 - [x] Independent Android wrapper source scaffolded under `android-wrapper-novadaw/` with package id `com.novadaw.mobile`.
 - [x] APK build script added at `scripts/build-novadaw-apk.sh`.
 - [ ] APK installed and audio-tested on device.
+- [x] Debug APK build succeeded in GitHub Actions run 38176245383; artifact `novadaw-mobile-debug-apk` (17 KB APK inside ZIP) downloaded and file type verified as Android package.
+- [ ] Visual/device smoke test pending. This artifact is a UI prototype wrapper only; OpenDAW WASM engine/plugins/audio I/O are not integrated.
 - [ ] Android APK CI currently being rerun after fixing SDK setup; first attempt failed because the setup action requested obsolete SDK package name `tools`.
 
 The current shell is an interactive UI prototype. Playback and record buttons are deliberately labelled as UI demo and do not yet produce/record sound. Timeline clips and samples are demo data. The independent Android wrapper is source-only at this milestone; no APK is attached.
