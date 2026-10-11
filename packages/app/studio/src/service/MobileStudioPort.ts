@@ -3,7 +3,7 @@ import {EngineFacade} from "@opendaw/studio-core"
 import {StudioService} from "@/service/StudioService"
 import {PanelType} from "@/ui/workspace/PanelType"
 import {Workspace} from "@/ui/workspace/Workspace"
-import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
+import {showTouchTimeline, toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
 
 /**
  * Presentation-facing contract for the mobile studio shell.
@@ -27,7 +27,7 @@ export const createMobileStudioPort = (service: StudioService): MobileStudioPort
     navigate: (destination: MobileStudioDestination) => {
         switch (destination) {
             case "timeline":
-                service.switchScreen("default")
+                showTouchTimeline(service)
                 return
             case "browser":
                 toggleTouchPanel(service, PanelType.BrowserPanel)
