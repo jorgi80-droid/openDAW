@@ -688,9 +688,9 @@ $('tracks').addEventListener('click',e=>{
   if(timelineTool==='cut'){selectedClip=id;const rect=clip.getBoundingClientRect();splitSelectedClipAtRatio(Math.max(.05,Math.min(.95,(e.clientX-rect.left)/Math.max(1,rect.width))));timelineTool='select';updateTimelineTools();hideClipContext();return}
   const found=project.tracks[selectedTrack]?.clips.find(c=>c.id===id);
   if(!found)return;
-  const now=Date.now(),doubleTap=lastClipTap.id===id&&(now-lastClipTap.time)<420;
+  const now=Date.now(),doubleTap=lastClipTap.id===id&&(now-lastClipTap.time)<650;
   selectedClip=id;lastClipTap={id,time:now};updateTimelineTools();
-  if(doubleTap){lastClipTap={id:null,time:0};openClipEditor(id);return}
+  if(doubleTap){lastClipTap={id:null,time:0};hideClipContext();openClipEditor(id);return}
   showClipContext(clip,selectedTrack,found);
  }
 });
@@ -765,10 +765,15 @@ function updateTimelineTools(){
 function splitSelectedClipAtRatio(ratio=.5){
  const match=project.tracks.flatMap((t,ti)=>t.clips.map((c,ci)=>({t,ti,c,ci}))).find(x=>x.c.id===selectedClip);
  if(!match){notify('Pilih clip dulu');return}
- const c=match.c;const left=snapEnabled?Math.round(c.duration*ratio*4)/4:c.duration*ratio;const split=Math.max(.25,Math.min(c.duration-.25,left));
- if(c.duration<.5){notify('Clip terlalu pendek untuk dipisah');return}
- snapshot();const second={...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,5),start:c.start+split,duration:c.duration-split,label:c.label+' B'};
- c.duration=split;match.t.clips.splice(match.ci+1,0,second);renderTracks();updateTimelineTools();notify('Clip dipisah menjadi dua bagian');
+ const c=match.c;if(c.duration<.5){notify('Clip terlalu pendek untuk dipisah');return}
+ const fraction=Math.max(.05,Math.min(.95,Number(ratio)||.5));
+ const rawSplit=c.duration*fraction;
+ const split=snapEnabled?Math.round(rawSplit*4)/4:rawSplit;
+ if(split<.25||c.duration-split<.25){notify('Titik split terlalu dekat dengan tepi clip');return}
+ snapshot();
+ const second={...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,5),start:c.start+split,duration:c.duration-split,label:c.label+' B'};
+ c.duration=split;match.t.clips.splice(match.ci+1,0,second);
+ selectedClip=second.id;renderTracks();updateTimelineTools();notify('Clip dipisah menjadi dua bagian');
 }
 function setTimelineZoom(next){
  const old=timelineZoom,scroll=document.querySelector('.bars-viewport')?.scrollLeft||0;
@@ -791,6 +796,7 @@ $('timelineTools').addEventListener('click',e=>{
 });
 $('closeClipContext').addEventListener('click',hideClipContext);
 $('clipContextMenu').addEventListener('click',e=>{
+ e.stopPropagation();
  const b=e.target.closest('[data-clip-action]');if(!b)return;
  const id=$('clipContextMenu').dataset.clipId,trackIndex=Number($('clipContextMenu').dataset.trackIndex);
  const track=project.tracks[trackIndex],clip=track?.clips.find(c=>c.id===id);if(!track||!clip){hideClipContext();return}
