@@ -12,10 +12,9 @@ import {AudioData} from "@opendaw/lib-dsp"
 import {FooterItem} from "@/ui/FooterItem"
 import {EngineAddresses} from "@opendaw/studio-adapters"
 import {LatencyWarning} from "@/ui/LatencyWarning"
-import {PanelType} from "@/ui/workspace/PanelType"
-import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
 import {Icon} from "@/ui/components/Icon"
 import {IconSymbol} from "@opendaw/studio-enums"
+import {createMobileStudioPort} from "@/service/MobileStudioPort"
 
 const className = Html.adoptStyleSheet(css, "footer")
 
@@ -23,8 +22,26 @@ type Construct = { lifecycle: Lifecycle, service: StudioService }
 
 export const Footer = ({lifecycle, service}: Construct) => {
     const {audioContext, buildInfo, engine, projectProfileService} = service
+    const mobileStudio = createMobileStudioPort(service)
     return (
-        <footer className={className}>
+        <footer className={className} onInit={element => {
+            const sync = () => {
+                const activeScreen = mobileStudio.activeScreen.getValue()
+                const mapping: Record<string, string> = {
+                    "timeline-shortcut": "default",
+                    "browser-shortcut": "browser",
+                    "mixer-shortcut": "mixer",
+                    "editor-shortcut": "piano",
+                    "devices-shortcut": "modulation"
+                }
+                element.querySelectorAll<HTMLElement>(".mobile-panel-shortcut").forEach(button => {
+                    const screen = Object.entries(mapping).find(([key]) => button.classList.contains(key))?.[1]
+                    button.toggleAttribute("data-pressed", screen === activeScreen)
+                })
+            }
+            lifecycle.own(mobileStudio.activeScreen.subscribe(sync))
+            requestAnimationFrame(sync)
+        }}>
             <FooterItem title="Mode" onInit={({value}) => {
                 const offlineApp = location.hostname.endsWith("androidplatform.net")
                 const updateMode = () => value.textContent = offlineApp ? "Offline" : (navigator.onLine ? "Online" : "Offline")
@@ -59,12 +76,28 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                     }
                                 }))
                         }}/>
-                        <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
+                        <FooterItem className="mobile-panel-shortcut timeline-shortcut" title="Timeline"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Open Timeline")
+                            const open = () => mobileStudio.navigate("timeline")
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", open),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        open()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Timeline}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Sample Browser")
-                            const toggle = () => toggleTouchPanel(service, PanelType.BrowserPanel)
+                            const toggle = () => mobileStudio.navigate("browser")
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -75,12 +108,28 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 })
                             )
                         }}><Icon symbol={IconSymbol.Panel}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut mixer-shortcut" title="Mixer"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Mixer")
+                            const toggle = () => mobileStudio.navigate("mixer")
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Mixing}/></FooterItem>
             <FooterItem className="mobile-panel-shortcut editor-shortcut" title="Editor"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Editor / Piano Roll")
-                            const toggle = () => toggleTouchPanel(service, PanelType.ContentEditor)
+                            const toggle = () => mobileStudio.navigate("editor")
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -96,7 +145,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Devices / Effects")
-                            const toggle = () => toggleTouchPanel(service, PanelType.DevicePanel)
+                            const toggle = () => mobileStudio.navigate("devices")
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {

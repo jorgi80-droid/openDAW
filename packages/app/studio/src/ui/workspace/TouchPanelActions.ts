@@ -11,6 +11,8 @@ const targetScreen = (type: PanelType): Workspace.ScreenKeys => {
             return "piano"
         case PanelType.DevicePanel:
             return "modulation"
+        case PanelType.BrowserPanel:
+            return "browser"
         default:
             return "default"
     }
@@ -37,19 +39,12 @@ const clearMaximized = (): void => {
     document.documentElement.classList.remove("opendaw-panel-maximized")
 }
 
-const toggleBrowserInDefault = (service: StudioService): void => {
-    const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
-    if (browser.isVisible) {
-        browser.toggleMinimize()
-    } else {
-        service.panelLayout.showIfAvailable(PanelType.BrowserPanel)
-    }
-}
-
 /**
  * Keep one state machine for the original toolbar and footer controls. The native
  * workspace must unbind the shared Browser/tool panel before it is rebound on a
  * different screen. Transition tokens cancel stale frame callbacks on rapid taps.
+ * Mobile tool screens render one original panel full-screen rather than forcing
+ * Timeline and the selected tool into a narrow split view.
  */
 export const toggleTouchPanel = (service: StudioService, type: PanelType): void => {
     if (!isTouchLayout()) {
@@ -63,12 +58,24 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
     const current = service.layout.screen.getValue()
 
     if (type === PanelType.BrowserPanel) {
+        // Mobile Browser is a full-screen destination. Timeline remains available
+        // as a separate dock item, and stale frame callbacks are cancelled by token.
         clearMaximized()
+        if (current === "browser") {
+            service.switchScreen("default")
+            return
+        }
+        const selectBrowser = (): void => {
+            if (!isCurrentTransition(service, token)) {return}
+            service.switchScreen("browser")
+            afterWorkspaceRebuild(service, token, () =>
+                service.panelLayout.showIfAvailable(PanelType.BrowserPanel))
+        }
         if (current !== "default") {
             service.switchScreen("default")
-            afterWorkspaceRebuild(service, token, () => toggleBrowserInDefault(service))
+            afterWorkspaceRebuild(service, token, selectBrowser)
         } else {
-            toggleBrowserInDefault(service)
+            selectBrowser()
         }
         return
     }

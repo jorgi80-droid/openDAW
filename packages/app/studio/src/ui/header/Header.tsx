@@ -37,6 +37,7 @@ type Construct = {
 const ScreenShortcutKeys: Record<Workspace.ScreenKeys, keyof typeof GlobalShortcuts> = {
     "dashboard": "workspace-screen-dashboard",
     "default": "workspace-screen-default",
+    "browser": "workspace-screen-default",
     "mixer": "workspace-screen-mixer",
     "modulation": "workspace-screen-modulation",
     "piano": "workspace-screen-piano",
