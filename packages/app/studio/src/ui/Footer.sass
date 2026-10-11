@@ -110,6 +110,11 @@ component
     background: rgba(66, 217, 232, 0.18)
     border-color: var(--color-blue)
 
+  // In the new shell, the footer is navigation only; hide status/debug chips so
+  // they cannot squeeze the five hit targets or force horizontal overflow.
+  component > div:not(.mobile-panel-shortcut)
+    display: none !important
+
   // Dedicated mobile DAW dock: five predictable destinations, no duplicate status controls.
   component > div[data-footer-item="Mode"],
   component > div[data-footer-item="Project"],
