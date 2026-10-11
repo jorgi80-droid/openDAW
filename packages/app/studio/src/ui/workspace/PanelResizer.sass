@@ -66,16 +66,18 @@ html.midiable-mobile .panel-resizer.horizontal
     pointer-events: none
 
 html.midiable-mobile .panel-resizer.vertical
-  flex: 0 0 0
+  // The element wired to Dragging.attach must have a real touch hit area.
+  // Negative margins overlap the seam so the extra height does not steal space.
+  flex: 0 0 32px
   width: 100%
-  height: 0
-  min-height: 0
-  margin-top: 0
-  margin-bottom: 0
+  height: 32px
+  min-height: 32px
+  margin-top: -16px
+  margin-bottom: -16px
 
   &:after
     height: 2px
-    top: -1px
+    top: 15px
     left: 0
     width: 100%
     background: transparent
