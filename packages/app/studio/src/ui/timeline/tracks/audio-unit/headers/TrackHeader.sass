@@ -120,7 +120,7 @@ component
   margin-top: 0
 @media (max-width: 900px), (pointer: coarse)
   component
-    grid-template-columns: 22px minmax(32px, 1fr) 66px 16px
+    grid-template-columns: 22px minmax(32px, 1fr) 66px 24px
     column-gap: 2px
     padding: 0 2px
     overflow: hidden
@@ -152,7 +152,17 @@ component
         padding-left: 0
         margin-top: 1px
 
-    > button,
+     > button,
     > div:last-child
-      min-width: 0
-      max-width: 16px
+      min-width: 24px
+      width: 24px
+      max-width: 24px
+      min-height: 36px
+      display: grid
+      place-items: center
+
+    > div:last-child button
+      min-width: 24px
+      width: 24px
+      min-height: 36px
+      padding: 0
