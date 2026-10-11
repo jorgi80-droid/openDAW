@@ -33,6 +33,7 @@ on:
       - "packages/app/studio/src/ui/piano-panel/PianoModePanel.sass"
       - "packages/app/studio/src/ui/timeline/Timeline.sass"
       - "packages/app/studio/src/ui/timeline/tracks/audio-unit/regions/RegionDragAndDrop.ts"
+      - "packages/app/studio/src/ui/timeline/tracks/audio-unit/clips/ClipsArea.tsx"
       - "packages/app/studio/src/ui/timeline/tracks/audio-unit/clips/ClipDragAndDrop.ts"
       - "packages/lib/dom/src/files.ts"
       - "scripts/generate-offline-samples.py"
