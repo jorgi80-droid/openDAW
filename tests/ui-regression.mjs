@@ -23,6 +23,12 @@ try {
     assert(dims.workspace.bottom <= dims.dock.top + 1, `workspace and dock do not overlap at ${viewport.width}x${viewport.height}`);
     assert(dims.timeline.height > 160 && dims.timeline.width > 300, `timeline has usable dimensions at ${viewport.width}x${viewport.height}`);
     assert(dims.rowCount >= 6, `all six starter tracks rendered at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#timelineTools').isVisible(), `timeline edit rail is visible at ${viewport.width}x${viewport.height}`);
+    const labelXBefore = await page.locator('#tracks .tracklabel').first().evaluate(el=>el.getBoundingClientRect().x);
+    const clipScroll = page.locator('#tracks .cliparea').first();
+    await clipScroll.evaluate(el=>{el.scrollLeft=100;el.dispatchEvent(new Event('scroll',{bubbles:true}));});
+    const labelXAfter = await page.locator('#tracks .tracklabel').first().evaluate(el=>el.getBoundingClientRect().x);
+    assert(Math.abs(labelXAfter-labelXBefore)<1, `track label stays fixed while clip canvas scrolls at ${viewport.width}x${viewport.height}`);
     const routes = [['timeline','timelineScreen'],['mixer','mixerScreen'],['piano','pianoScreen'],['devices','devicesScreen'],['browser','browserScreen']];
     for (const [route,id] of routes) {
       await page.locator(`.dock button[data-screen="${route}"]`).click();
@@ -31,17 +37,24 @@ try {
     }
     await page.locator('#browserTabs button[data-cat="Samples"]').click();
     assert(await page.locator('#samples .sample').count() === 10, `Browser Samples has 10 items at ${viewport.width}x${viewport.height}`);
+    const sampleRowsClean = await page.locator('#samples .sample').evaluateAll(rows => rows.every(row => {
+      const rowRect=row.getBoundingClientRect(), name=row.querySelector('.sample-name')?.getBoundingClientRect(), wave=row.querySelector('.wave')?.getBoundingClientRect(), status=row.querySelector('.sample-status')?.getBoundingClientRect();
+      return name && wave && status && name.top >= rowRect.top && status.bottom <= rowRect.bottom && name.bottom <= wave.top + 2 && wave.bottom <= status.top + 2;
+    }));
+    assert(sampleRowsClean, `Browser sample title, waveform and status do not overlap at ${viewport.width}x${viewport.height}`);
     for (const [cat,count] of [['Instruments',4],['Effects',6],['Presets',4]]) {
       await page.locator(`#browserTabs button[data-cat="${cat}"]`).click();
       assert(await page.locator('#samples .sample').count() === count, `Browser ${cat} populates ${count} items at ${viewport.width}x${viewport.height}`);
     }
     await page.locator('.dock button[data-screen="devices"]').click();
     await page.locator('#devTabs button[data-cat="Effect"]').click();
-    assert(await page.locator('#devices .panel').count() === 5, `Devices Effect tab renders 5 cards at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#devices .device-option').count() === 6, `Devices Effect tab lists 6 effects at ${viewport.width}x${viewport.height}`);\n    assert(await page.locator('#devices .device-editor').isVisible(), `Devices has one focused editor at ${viewport.width}x${viewport.height}`);\n    await page.locator('#devices .device-page-tabs button[data-device-page=\"TIME\"]').click();\n    assert(await page.locator('#devices .device-page-tabs button.active').innerText() === 'TIME', `device effect pages switch at ${viewport.width}x${viewport.height}`);
     await page.locator('.dock button[data-screen="mixer"]').click();
     assert(await page.locator('#mixer input[type="range"][data-mix="gain"]').count() === 6, `Mixer shows one gain control per track at ${viewport.width}x${viewport.height}`);
     const mixerSmall = await page.locator('#mixer .channel').evaluateAll(channels => channels.some(channel => { const r=channel.getBoundingClientRect(); return r.width < 100 || r.height < 80; }));
     assert(!mixerSmall, `mixer channel cards have usable area at ${viewport.width}x${viewport.height}`);
+    const verticalFaders = await page.locator('#mixer input[data-mix="gain"]').evaluateAll(inputs => inputs.every(el => getComputedStyle(el).writingMode.includes('vertical') && el.getBoundingClientRect().height > el.getBoundingClientRect().width * 2));
+    assert(verticalFaders, `Mixer gain faders are vertical and separate from pan at ${viewport.width}x${viewport.height}`);
     // Track context actions: rename is usable and a second tab/menu interaction does not change screen.
     await page.locator('.dock button[data-screen="timeline"]').click();
     await page.locator('#tracks [data-action="menu"]').first().click();
