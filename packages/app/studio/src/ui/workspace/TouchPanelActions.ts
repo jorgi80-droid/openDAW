@@ -49,14 +49,14 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
         })
 
         resetTouchFlex(service)
+        // Set constraints before expanding: PanelPlaceholder recalculates sibling
+        // flexGrow values during onEmbed(), so applying ratios afterwards only
+        // changes model values and leaves the visible panel sizes unchanged.
+        if (type !== PanelType.BrowserPanel) {
+            setFlex(service, PanelType.Timeline, 0.25)
+            setFlex(service, type, 4)
+        }
         service.panelLayout.showIfAvailable(type)
-        requestAnimationFrame(() => requestAnimationFrame(() => {
-            if (!service.panelLayout.getByType(type).isVisible) {return}
-            if (type !== PanelType.BrowserPanel) {
-                setFlex(service, PanelType.Timeline, 0.25)
-                setFlex(service, type, 4)
-            }
-        }))
     }
 
     if (service.layout.screen.getValue() !== "default") {
