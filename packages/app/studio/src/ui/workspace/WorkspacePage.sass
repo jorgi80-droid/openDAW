@@ -220,6 +220,11 @@ html.midiable-mobile
     border-color: var(--color-blue)
     background: rgba(66, 217, 232, 0.14)
 
+  /* Each dock destination is already full-screen; the old split-layout
+     maximize control would create a conflicting layout state here. */
+  .panel-placeholder > header > .panel-maximize-button
+    display: none !important
+
   /* Keep browser contents scrollable, but prevent page-level overscroll from
      stealing timeline pinch/drag gestures. */
   .panel-placeholder,
