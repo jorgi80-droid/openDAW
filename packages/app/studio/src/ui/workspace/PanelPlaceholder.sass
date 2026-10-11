@@ -115,19 +115,8 @@ component
       min-height: 22px
       max-height: 22px
 
-// Closed Editor / Devices stay accessible from compact status-bar shortcuts;
-// do not leave dead grey bars consuming vertical Timeline space.
-html.midiable-mobile .panel-placeholder[data-panel-type="Editor"].closed,
-html.midiable-mobile .panel-placeholder[data-panel-type="Devices"].closed
-  display: none !important
-  flex: 0 0 0 !important
-  width: 0 !important
-  height: 0 !important
-  min-width: 0 !important
-  max-width: 0 !important
-  min-height: 0 !important
-  max-height: 0 !important
-
+// Collapsed panels remain available as native compact headers. Do not
+// display:none here: WorkspaceBuilder's flex siblings and resizers are structural.
 // Large flex-property transitions trigger repeated layout work on nested panels.
 // Keep mobile panel geometry immediate for responsive interaction on entry-level devices.
 html.midiable-mobile .panel-placeholder
@@ -137,11 +126,3 @@ html.midiable-mobile .panel-placeholder
   html.midiable-mobile .panel-placeholder,
   html.midiable-mobile .panel-placeholder > header
     transition: none
-
-
-// Do not leave invisible resizer hit areas at the bottom of Timeline when the
-// adjacent Editor or Devices panel is collapsed.
-html.midiable-mobile .panel-resizer.vertical:has(+ .panel-placeholder[data-panel-type="Editor"].closed),
-html.midiable-mobile .panel-resizer.vertical:has(+ .panel-placeholder[data-panel-type="Devices"].closed),
-html.midiable-mobile .panel-placeholder[data-panel-type="Editor"].closed + .panel-resizer.vertical:has(+ .panel-placeholder[data-panel-type="Devices"].closed)
-  display: none !important
