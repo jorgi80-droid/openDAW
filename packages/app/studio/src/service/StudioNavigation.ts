@@ -2,6 +2,7 @@ import {DefaultObservableValue, EmptyExec, isDefined, Nullable, Option} from "@o
 import {RouteLocation} from "@opendaw/lib-jsx"
 import {Workspace} from "@/ui/workspace/Workspace.ts"
 import {ProjectProfileService} from "@/service/ProjectProfileService"
+import {ProjectEnv} from "@opendaw/studio-core"
 
 // Deep links that open a project are consumed: the back button must not land on them again and re-open it.
 const ConsumedRoutes: ReadonlyArray<string> = ["/open-bundle", "/open-project", "/join"]
@@ -12,7 +13,7 @@ export class StudioNavigation {
 
     #confirming: boolean = false
 
-    constructor(screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>, profiles: ProjectProfileService, _env: unknown) {
+    constructor(screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>, profiles: ProjectProfileService, _env: ProjectEnv) {
         this.#screen = screen
         this.#profiles = profiles
         RouteLocation.get().catchupAndSubscribe(({path}) => {
