@@ -39,6 +39,73 @@ button,input{font:inherit;color:inherit}button{border:1px solid var(--line);back
 .toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);padding:10px 15px;border:1px solid #3c5d77;background:#132334;border-radius:10px;box-shadow:0 8px 30px #0009;z-index:9;max-width:90vw;text-align:center}.toast[hidden]{display:none}
 @media(max-width:720px){.brand{display:none}.top{gap:5px;padding:6px}.project input{max-width:120px}.transport button{min-width:32px;padding:5px}.transport .meta{display:none}.subbar{padding:6px 8px}.workspace{padding:6px}.ruler,.trackrow{grid-template-columns:94px minmax(360px,1fr)}.trackrow{min-height:70px}.trackname{font-size:12px}.tracklabel{padding:6px}.clip{height:49px;font-size:10px}.dock button{font-size:10px;min-height:46px}.dock .ico{font-size:16px}.browserlayout{grid-template-columns:86px minmax(0,1fr)}}
 @media(min-width:1000px){.app{max-width:1600px;margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line)}.trackrow{min-height:88px}.clip{height:65px}.trackhead,.tracklabel{padding-left:12px;padding-right:12px}}
+
+/* Wide workspace first: phones should open the DAW in landscape. */
+html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
+.app{grid-template-rows:56px 48px minmax(0,1fr) 64px}
+.top{padding:5px 10px;gap:8px}
+.subbar{padding:5px 10px;gap:7px}
+.workspace{padding:7px;overflow:hidden}
+.screen{height:100%;min-height:0}
+#timelineScreen{display:flex;flex-direction:column}
+.timeline{flex:1;min-height:0}
+.tracks{overflow:auto}
+.trackrow{min-height:62px;grid-template-columns:150px minmax(0,1fr)}
+.ruler{grid-template-columns:150px minmax(0,1fr)}
+.clip{height:44px;top:8px}
+#addTrack{flex:0 0 36px;min-height:32px;margin-top:5px}
+#addTrack:not(:focus){align-self:flex-start;width:auto}
+.dock{padding:5px 10px calc(5px + env(safe-area-inset-bottom));gap:8px}
+.dock button{max-width:none;min-height:50px;flex-direction:row;gap:8px;font-size:12px}
+.dock .ico{font-size:17px}
+.panel{height:100%;overflow:auto;padding:10px}
+#devicesScreen>.panel,#browserScreen>.panel{height:100%;min-height:0;display:flex;flex-direction:column}
+#mixerScreen>.panel{height:100%;overflow:auto}
+.mixergrid{grid-template-columns:repeat(6,minmax(110px,1fr));gap:8px}
+.channel{min-height:0;display:grid;grid-template-columns:minmax(65px,1fr) 12px minmax(70px,1fr);grid-template-rows:auto auto auto auto;align-items:center;gap:6px;padding:8px}
+.channel>strong{grid-column:1/-1}
+.channel .meter{grid-column:2;grid-row:2 / span 2;height:62px;width:12px}
+.channel>label:nth-of-type(1){grid-column:1;grid-row:2}
+.channel>input:nth-of-type(1){grid-column:1;grid-row:3}
+.channel>label:nth-of-type(2){grid-column:3;grid-row:2}
+.channel>input:nth-of-type(2){grid-column:3;grid-row:3}
+.channel>div:last-child{grid-column:1/-1;justify-content:center}
+.knobs{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.knob{padding:7px 5px}
+.dial{width:40px;height:40px;font-size:10px}
+.devicegrid{grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:8px}
+.browserlayout{flex:1;min-height:0;grid-template-columns:112px minmax(0,1fr);overflow:hidden}
+.samplelist{min-height:0}
+.pianowrap{height:calc(100% - 32px);min-height:0}
+@media(orientation:portrait){
+ .app{min-height:100dvh}
+ body:before{content:"Putar perangkat ke Landscape untuk menggunakan NovaDAW";position:fixed;inset:0;z-index:99;background:#090d12;color:#eaf3fc;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;font:600 18px/1.5 system-ui}
+ .app{visibility:hidden}
+}
+@media(orientation:landscape) and (max-height:520px){
+ .app{grid-template-rows:46px 38px minmax(0,1fr) 54px}
+ .top{padding:3px 8px}
+ .subbar{padding:3px 8px}
+ .trackrow{min-height:49px}
+ .clip{height:35px;top:6px;padding:4px 6px}
+ .trackname{font-size:12px}
+ .trackbuttons button{min-height:21px;padding:1px 5px}
+ .dock{padding:3px 8px}
+ .dock button{min-height:43px}
+ .paneltitle{font-size:14px;margin-bottom:5px}
+ .channel{padding:5px;gap:3px}
+ .channel .meter{height:40px}
+ .dial{width:32px;height:32px}
+ .knob{padding:5px 3px}
+ .value{font-size:10px}
+}
+@media(min-width:900px) and (orientation:landscape){
+ .app{grid-template-rows:58px 48px minmax(0,1fr) 64px}
+ .trackrow{min-height:68px}
+ .clip{height:48px}
+ .mixergrid{grid-template-columns:repeat(6,minmax(120px,1fr))}
+}
+
 </style>
 </head>
 <body>
