@@ -230,6 +230,34 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 #pianoScreen .note{margin:1px 0}
 @media(max-height:480px){.menu-sheet{max-height:94dvh;padding:10px}.menu-actions{gap:5px}.menu-actions button{min-height:36px;padding:6px 8px}}
 
+ 
+.timeline-work-area{display:flex;gap:6px;flex:1 1 0;min-height:0;overflow:hidden}
+#timelineScreen .timeline{flex:1 1 0;min-width:0;height:auto;min-height:0;display:grid;grid-template-rows:30px minmax(0,1fr);--timeline-zoom:1}
+#timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(105px,15vw,150px) minmax(0,1fr)}
+#timelineScreen .bars-viewport{min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+#timelineScreen .bars-viewport::-webkit-scrollbar,#timelineScreen .cliparea::-webkit-scrollbar{display:none}
+#timelineScreen .bars{width:calc(100% * var(--timeline-zoom,1));min-width:100%;height:100%;display:flex;align-items:center;justify-content:space-around}
+#timelineScreen .tracks{overflow:auto;min-height:0;overscroll-behavior:contain}
+#timelineScreen .trackrow{min-width:0}
+#timelineScreen .cliparea{min-width:0;width:100%;height:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;position:relative;touch-action:pan-x pan-y}
+#timelineScreen .clip-canvas{position:relative;height:100%;width:calc(100% * var(--timeline-zoom,1));min-width:100%}
+#timelineScreen .clip{max-width:none}
+.timeline-tool-rail{flex:0 0 38px;width:38px;display:flex;flex-direction:column;align-items:center;gap:5px;padding:5px 2px;background:#101923;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.timeline-tool-rail button{display:flex;align-items:center;justify-content:center;width:32px;min-width:32px;height:32px;min-height:32px;padding:4px;border-radius:7px;font-size:15px}
+.timeline-tool-rail svg{width:18px;height:18px;display:block;stroke:currentColor}
+.timeline-tool-rail button.active{background:#123153;border-color:#1687ff;color:#7ac4ff}
+.timeline-tool-rail button:disabled{opacity:.28}
+.timeline-tool-rail .tool-separator{width:22px;height:1px;background:var(--line);margin:3px 0}
+.zoom-label{font-size:9px;color:var(--muted);white-space:nowrap;writing-mode:vertical-rl;transform:rotate(180deg);min-height:26px;text-align:center}
+@media(max-height:480px){
+ #timelineScreen .timeline{grid-template-rows:25px minmax(0,1fr)}
+ #timelineScreen .trackrow{min-height:41px}
+ #timelineScreen .bars{font-size:10px}
+ #timelineScreen>.addtrack{flex:0 0 27px;min-height:26px;margin-top:3px;padding:2px 8px}
+ .timeline-tool-rail{flex-basis:34px;width:34px;gap:3px;padding:4px 1px}
+ .timeline-tool-rail button{width:29px;min-width:29px;height:29px;min-height:29px}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -251,9 +279,22 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 <div class="subbar"><span class="chip">Tempo <b><input id="tempo" type="number" min="40" max="240" value="120" style="width:45px;background:transparent;border:0;color:#8bd2ff"></b> BPM</span><span class="chip">Meter <b><select id="meter" style="background:transparent;border:0;color:#8bd2ff"><option>4/4</option><option>3/4</option><option>6/8</option><option>5/4</option></select></b></span><span class="chip">Audio <b id="audioState">Demo</b></span><span class="grow"></span><button class="small" id="save">Simpan</button><button class="small" id="open">Buka</button><button class="small" id="export">Ekspor JSON</button><input hidden id="file" type="file" accept=".json,application/json"></div>
 <main class="workspace" id="workspace">
 <section class="screen" id="timelineScreen">
-  <div class="timeline">
-    <div class="ruler"><div class="trackhead">TRACK / CLIP</div><div class="bars"><span>1</span><span>5</span><span>9</span><span>13</span><span>17</span><span>21</span><span>25</span><span>29</span></div></div>
-    <div class="tracks" id="tracks"></div>
+  <div class="timeline-work-area">
+    <div class="timeline">
+      <div class="ruler"><div class="trackhead">TRACK / CLIP</div><div class="bars-viewport" data-timeline-scroll="ruler"><div class="bars"><span>1</span><span>5</span><span>9</span><span>13</span><span>17</span><span>21</span><span>25</span><span>29</span><span>33</span></div></div></div>
+      <div class="tracks" id="tracks"></div>
+    </div>
+    <aside class="timeline-tool-rail" id="timelineTools" aria-label="Timeline tools">
+      <button class="active" data-timeline-tool="select" aria-label="Select and move clips" title="Select / Move"><svg viewBox="0 0 24 24"><path d="M5 3l13 10-6 1-3 6z" fill="currentColor"/></svg></button>
+      <button data-timeline-tool="cut" aria-label="Split clip" title="Split selected clip"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 7l12 10M8 17L20 7" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></button>
+      <button data-timeline-tool="delete" aria-label="Delete selected clip" title="Delete clip" disabled><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 10v7m4-7v7" stroke="currentColor" stroke-width="1.7" fill="none"/></svg></button>
+      <button data-timeline-tool="automation" aria-label="Add automation clip" title="Automation lane"><svg viewBox="0 0 24 24"><path d="M3 18l5-8 4 4 4-9 5 3" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="8" cy="10" r="1.4" fill="currentColor"/><circle cx="12" cy="14" r="1.4" fill="currentColor"/><circle cx="16" cy="5" r="1.4" fill="currentColor"/></svg></button>
+      <button data-timeline-tool="snap" class="active" aria-label="Toggle snap to grid" title="Snap to grid"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 9h16M4 15h16M9 4v16M15 4v16" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
+      <div class="tool-separator"></div>
+      <button data-timeline-tool="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
+      <span id="zoomLabel" class="zoom-label">100%</span>
+      <button data-timeline-tool="zoom-in" aria-label="Zoom in" title="Zoom in">＋</button>
+    </aside>
   </div>
   <button class="addtrack" id="addTrack">＋ Tambah Track</button>
 </section>
@@ -286,7 +327,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 (function(){
 const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
 let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
-let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipClick=false,ignoreNextNoteClick=false;
+let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipClick=false,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,timelineZoom=1,timelineScrollSync=false;
 let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
 {id:'t1',name:'Drums',type:'Audio',color:'#ff625e',mute:false,solo:false,gain:0,pan:0,clips:[{id:'c1',label:'Drum Loop',start:0,duration:18,color:'#ff625e'}]},
 {id:'t2',name:'Bass',type:'MIDI',color:'#168cff',mute:false,solo:false,gain:-6,pan:0,clips:[{id:'c2',label:'Bass Pattern',start:2,duration:16,color:'#168cff'}]},
@@ -301,17 +342,18 @@ function notify(message){const el=$('toast');el.textContent=message;el.hidden=fa
 function snapshot(){undoStack.push(JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
 function switchScreen(name){if(!screens[name])return;currentScreen=name;Object.keys(screens).forEach(k=>{const el=$(screens[k]),active=k===name;el.hidden=!active;el.setAttribute('aria-hidden',active?'false':'true');el.style.display=active?(name==='timeline'?'flex':'block'):'none';});document.querySelectorAll('.dock button').forEach(b=>{const active=b.dataset.screen===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false');});}
 function renderTracks(){
- const root=$('tracks');root.innerHTML='';
+ const root=$('tracks');root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);
  project.tracks.forEach((t,index)=>{
   const row=document.createElement('div');row.className='trackrow';row.style.setProperty('--track',t.color);
   const label=document.createElement('div');label.className='tracklabel';
   label.innerHTML='<div class="trackname"><span>'+ (index+1)+'. '+esc(t.name)+'</span><span style="color:var(--muted);font-size:10px">'+esc(t.type)+'</span></div><div class="trackbuttons"><button data-action="mute" data-i="'+index+'" class="'+(t.mute?'on':'')+'">M</button><button data-action="solo" data-i="'+index+'" class="'+(t.solo?'on':'')+'">S</button><button data-action="menu" data-i="'+index+'" class="'+(selectedTrack===index?'active':'')+'" aria-label="Track options">•••</button></div>';
   row.appendChild(label);
-  const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;
+  const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;area.dataset.timelineScroll='clip';
+  const canvas=document.createElement('div');canvas.className='clip-canvas';
   t.clips.forEach(c=>{
-   const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(c.duration/32*100)+'%';clip.style.maxWidth='100%';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Ubah panjang clip"></span>';clip.dataset.clip=c.id;clip.title=c.label+' · ketuk pilih, ketuk ganda buka editor, geser pindah, tarik tepi untuk mengubah panjang';area.appendChild(clip);
+   const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(Math.min(c.duration,32-c.start)/32*100)+'%';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Ubah panjang clip"></span>';clip.dataset.clip=c.id;clip.title=c.label+' · ketuk pilih, ketuk ganda buka editor, geser pindah, tarik tepi untuk mengubah panjang';canvas.appendChild(clip);
   });
-  row.appendChild(area);root.appendChild(row);
+  area.appendChild(canvas);row.appendChild(area);root.appendChild(row);
  });
 }
 function renderMixer(){
@@ -393,7 +435,7 @@ function addClipToTrack(i,kind){
  const start=Math.min(28,Math.max(0,0));
  const label=kind==='MIDI'?'MIDI Clip':kind==='Audio'?'Audio Clip':'Automation Clip';
  t.clips.push({id:'c'+Date.now()+Math.random().toString(16).slice(2,5),label,start,duration:4,color:t.color,kind});
- selectedClip=t.clips[t.clips.length-1].id;selectedTrack=i;renderAll();notify(label+' ditambahkan (model UI)');
+ selectedClip=t.clips[t.clips.length-1].id;selectedTrack=i;renderAll();updateTimelineTools();notify(label+' ditambahkan (model UI)');
 }
 $('tracks').addEventListener('pointerdown',e=>{
  const clip=e.target.closest('[data-clip]');if(!clip)return;
@@ -406,12 +448,20 @@ $('tracks').addEventListener('pointerdown',e=>{
 $('tracks').addEventListener('pointermove',e=>{
  const g=clipGesture;if(!g||g.pointerId!==e.pointerId)return;
  const dx=e.clientX-g.startX;if(Math.abs(dx)<4&&!g.moved)return;g.moved=true;e.preventDefault();
- const area=g.target.closest('.cliparea');const scale=Math.max(1,area.clientWidth)/32;const delta=Math.round((dx/scale)*4)/4;
+ const area=g.target.closest('.cliparea'),canvas=area.querySelector('.clip-canvas');const scale=Math.max(1,canvas.clientWidth)/32;const rawDelta=dx/scale;const delta=snapEnabled?Math.round(rawDelta*4)/4:rawDelta;
  const item=project.tracks[g.trackIndex]?.clips.find(c=>c.id===g.clipId);if(!item)return;
- if(g.mode==='move')item.start=Math.max(0,Math.min(32-item.duration,g.originStart+delta));
- else item.duration=Math.max(.25,Math.min(32-item.start,g.originDuration+delta));
+ if(g.mode==='move'){const proposed=g.originStart+delta;item.start=Math.max(0,Math.min(32-item.duration,snapEnabled?Math.round(proposed*4)/4:proposed))}
+ else {const proposed=g.originDuration+delta;item.duration=Math.max(.25,Math.min(32-item.start,snapEnabled?Math.round(proposed*4)/4:proposed))}
  g.target.style.left=(item.start/32*100)+'%';g.target.style.width=(item.duration/32*100)+'%';
 });
+function syncTimelineScroll(source){
+ if(timelineScrollSync)return;timelineScrollSync=true;
+ const left=source.scrollLeft;
+ document.querySelectorAll('[data-timeline-scroll]').forEach(el=>{if(el!==source&&el.scrollLeft!==left)el.scrollLeft=left});
+ timelineScrollSync=false;
+}
+document.querySelector('.bars-viewport')?.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget),{passive:true});
+$('tracks').addEventListener('scroll',e=>{const area=e.target.closest('[data-timeline-scroll="clip"]');if(area)syncTimelineScroll(area)},{passive:true});
 function finishClipGesture(e){
  const g=clipGesture;if(!g||e.pointerId!==g.pointerId)return;
  if(g.moved){pushUndoSnapshot(g.before);selectedClip=g.clipId;selectedTrack=g.trackIndex;ignoreNextClipClick=true;setTimeout(()=>{ignoreNextClipClick=false},400);renderTracks();notify(g.mode==='move'?'Clip dipindahkan':'Panjang clip diubah')}
@@ -428,11 +478,13 @@ $('tracks').addEventListener('click',e=>{
  const label=e.target.closest('.tracklabel');if(label){const row=label.closest('.trackrow'),area=row?.querySelector('.cliparea'),idx=Number(area?.dataset.track);if(Number.isInteger(idx)&&idx>=0){selectedTrack=idx;renderTracks()}return}
  const clip=e.target.closest('[data-clip]');if(clip){
   if(ignoreNextClipClick){ignoreNextClipClick=false;return}
+  const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===clip.dataset.clip));if(ownerIndex>=0)selectedTrack=ownerIndex;
+  if(timelineTool==='cut'){selectedClip=clip.dataset.clip;const rect=clip.getBoundingClientRect();splitSelectedClipAtRatio(Math.max(.05,Math.min(.95,(e.clientX-rect.left)/Math.max(1,rect.width))));timelineTool='select';updateTimelineTools();return}
   const wasSelected=selectedClip===clip.dataset.clip;selectedClip=clip.dataset.clip;
-  const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===selectedClip));if(ownerIndex>=0)selectedTrack=ownerIndex;
   const found=project.tracks.flatMap(t=>t.clips).find(c=>c.id===selectedClip);
   if(wasSelected){const tr=project.tracks[selectedTrack];switchScreen(found?.kind==='MIDI'||tr.type==='MIDI'?'piano':found?.kind==='Automation'||tr.type==='Automation'?'devices':'browser');notify('Editor dibuka: '+(found?.label||tr.name))}
   else{notify('Clip dipilih: '+(found?found.label:''));renderTracks()}
+  updateTimelineTools()
  }
 });
 $('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.length;const colors=['#ff625e','#168cff','#20cf8a','#a95bff','#ffad34','#58c9f1'];project.tracks.push({id:'t'+Date.now(),name:'Track '+(n+1),type:'MIDI',color:colors[n%colors.length],mute:false,solo:false,gain:0,pan:0,clips:[]});renderAll();notify('Track baru ditambahkan')});
@@ -488,6 +540,41 @@ $('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(pr
 $('undo').addEventListener('click',()=>{if(!undoStack.length){notify('Tidak ada aksi untuk undo');return}redoStack.push(JSON.stringify(project));project=JSON.parse(undoStack.pop());renderAll();notify('Undo selesai')});
 $('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada aksi untuk redo');return}undoStack.push(JSON.stringify(project));project=JSON.parse(redoStack.pop());renderAll();notify('Redo selesai')});
 $('menu').addEventListener('click',()=>notify('NovaDAW Mobile · prototype UI · belum terhubung ke audio engine'));
+function updateTimelineTools(){
+ document.querySelectorAll('[data-timeline-tool]').forEach(b=>{
+  const tool=b.dataset.timelineTool;
+  if(tool==='select'||tool==='cut'||tool==='snap')b.classList.toggle('active',tool===timelineTool||(tool==='snap'&&snapEnabled));
+  if(tool==='delete')b.disabled=!selectedClip;
+ });
+ $('zoomLabel').textContent=Math.round(timelineZoom*100)+'%';
+}
+function splitSelectedClipAtRatio(ratio=.5){
+ const match=project.tracks.flatMap((t,ti)=>t.clips.map((c,ci)=>({t,ti,c,ci}))).find(x=>x.c.id===selectedClip);
+ if(!match){notify('Pilih clip dulu');return}
+ const c=match.c;const left=snapEnabled?Math.round(c.duration*ratio*4)/4:c.duration*ratio;const split=Math.max(.25,Math.min(c.duration-.25,left));
+ if(c.duration<.5){notify('Clip terlalu pendek untuk dipisah');return}
+ snapshot();const second={...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,5),start:c.start+split,duration:c.duration-split,label:c.label+' B'};
+ c.duration=split;match.t.clips.splice(match.ci+1,0,second);renderTracks();updateTimelineTools();notify('Clip dipisah menjadi dua bagian');
+}
+function setTimelineZoom(next){
+ const old=timelineZoom,scroll=document.querySelector('.bars-viewport')?.scrollLeft||0;
+ timelineZoom=Math.max(1,Math.min(2.5,next));$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);
+ renderTracks();const ruler=document.querySelector('.bars-viewport');if(ruler)ruler.scrollLeft=scroll*(timelineZoom/old);updateTimelineTools();
+}
+$('timelineTools').addEventListener('click',e=>{
+ const b=e.target.closest('[data-timeline-tool]');if(!b)return;const tool=b.dataset.timelineTool;
+ if(tool==='select'){timelineTool='select'}
+ else if(tool==='cut'){timelineTool='cut';notify('Mode Split: ketuk clip untuk memisahkannya')}
+ else if(tool==='snap'){snapEnabled=!snapEnabled;notify(snapEnabled?'Snap grid aktif':'Snap grid nonaktif')}
+ else if(tool==='zoom-in'){setTimelineZoom(timelineZoom+.25);return}
+ else if(tool==='zoom-out'){setTimelineZoom(timelineZoom-.25);return}
+ else if(tool==='delete'){
+  const idx=project.tracks.findIndex(t=>t.clips.some(c=>c.id===selectedClip));if(idx<0){notify('Pilih clip dulu');return}
+  snapshot();project.tracks[idx].clips=project.tracks[idx].clips.filter(c=>c.id!==selectedClip);selectedClip=null;renderTracks();notify('Clip dihapus')
+ }
+ else if(tool==='automation'){if(selectedTrack<0||selectedTrack>=project.tracks.length)selectedTrack=0;addClipToTrack(selectedTrack,'Automation');timelineTool='select'}
+ updateTimelineTools();
+});
 $('closeTrackMenu').addEventListener('click',closeTrackMenu);
 $('trackMenuOverlay').addEventListener('click',e=>{if(e.target.id==='trackMenuOverlay')closeTrackMenu()});
 $('trackMenuOverlay').addEventListener('click',e=>{
@@ -510,7 +597,7 @@ $('saveTrackName').addEventListener('click',()=>{
 });
 $('renameTrackInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('saveTrackName').click();if(e.key==='Escape')closeTrackMenu()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('trackMenuOverlay').hidden)closeTrackMenu()});
-renderAll();
+renderAll();updateTimelineTools();
 })();
 </script>
 </body>
