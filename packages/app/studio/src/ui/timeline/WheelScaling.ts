@@ -34,7 +34,87 @@ export namespace WheelScaling {
         range.scaleBy(scaleOf(event), anchor)
     }
 
-    export const install = (element: Element, range: TimelineRange) =>
+    /** Installs browser wheel zoom and native two-finger pinch zoom on the same timeline surface. */
+    export const install = (element: Element, range: TimelineRange) => {
+        const subscriptions = [
+            Events.subscribe(element, "wheel", (event: WheelEvent) => {
+                event.preventDefault()
+                apply(element, range, event)
+            }, {passive: false})
+        ]
+        const active = new Map<number, {x: number, y: number}>()
+        let pinch: {distance: number, anchor: number, width: number} | null = null
+        const distance = (points: Iterable<{x: number, y: number}>): number => {
+            const [a, b] = Array.from(points)
+            return Math.hypot(b.x - a.x, b.y - a.y)
+        }
+        const midpoint = (points: Iterable<{x: number, y: number}>): number => {
+            const [a, b] = Array.from(points)
+            return (a.x + b.x) / 2
+        }
+        const onPointerDown = (event: PointerEvent) => {
+            if (event.pointerType === "mouse" || event.pointerType === "pen") {return}
+            const rect = element.getBoundingClientRect()
+            active.set(event.pointerId, {x: event.clientX - rect.left, y: event.clientY - rect.top})
+            if (active.size === 2) {
+                const points = Array.from(active.values())
+                const d = distance(points)
+                if (d > 0 && range.width > 0) {
+                    const center = midpoint(points)
+                    pinch = {
+                        distance: d,
+                        anchor: clamp(range.xToValue(center), range.min, range.max),
+                        width: range.width
+                    }
+                }
+                event.preventDefault()
+            }
+        }
+        const onPointerMove = (event: PointerEvent) => {
+            if (!active.has(event.pointerId)) {return}
+            const rect = element.getBoundingClientRect()
+            active.set(event.pointerId, {x: event.clientX - rect.left, y: event.clientY - rect.top})
+            if (active.size < 2 || pinch === null) {return}
+            const points = Array.from(active.values())
+            const d = distance(points)
+            if (d <= 0 || pinch.distance <= 0) {return}
+            // Use incremental pinch distance so scaling remains smooth and does not depend
+            // on the device's absolute pixel ratio. Keep the time under the fingers anchored.
+            const scale = Math.log(d / pinch.distance)
+            if (Math.abs(scale) > 0.0005) {
+                range.scaleBy(-scale, pinch.anchor)
+                pinch = {distance: d, anchor: pinch.anchor, width: range.width}
+            }
+            event.preventDefault()
+        }
+        const clearPointer = (event: PointerEvent) => {
+            active.delete(event.pointerId)
+            pinch = null
+            if (active.size === 2) {
+                const points = Array.from(active.values())
+                const d = distance(points)
+                const center = midpoint(points)
+                pinch = d > 0 ? {distance: d, anchor: clamp(range.xToValue(center), range.min, range.max), width: range.width} : null
+            }
+        }
+        element.addEventListener("pointerdown", onPointerDown, {passive: false})
+        element.addEventListener("pointermove", onPointerMove, {passive: false})
+        element.addEventListener("pointerup", clearPointer)
+        element.addEventListener("pointercancel", clearPointer)
+        element.addEventListener("lostpointercapture", clearPointer)
+        return {
+            terminate: () => {
+                subscriptions.forEach(subscription => subscription.terminate())
+                element.removeEventListener("pointerdown", onPointerDown)
+                element.removeEventListener("pointermove", onPointerMove)
+                element.removeEventListener("pointerup", clearPointer)
+                element.removeEventListener("pointercancel", clearPointer)
+                element.removeEventListener("lostpointercapture", clearPointer)
+                active.clear()
+                pinch = null
+            }
+        }
+    }
         Events.subscribe(element, "wheel", (event: WheelEvent) => {
             event.preventDefault()
             apply(element, range, event)
