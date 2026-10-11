@@ -127,15 +127,28 @@ html.midiable-mobile .panel-placeholder
   html.midiable-mobile .panel-placeholder > header
     transition: none
 
-/* In touch mode the footer/header shortcuts are the access point for compact
-   panels. Closed placeholders and their adjacent resizers must take no space;
-   otherwise the Timeline appears separated from the footer by empty panel rows. */
+/* Keep the native placeholder/resizer nodes in the flex tree.
+   PanelContents and PanelResizer rely on this order to restore panels and resize
+   the two visible siblings; display:none breaks those invariants on touch. */
 html.midiable-mobile .panel-placeholder.closed[data-panel-type="Browser"],
 html.midiable-mobile .panel-placeholder.closed[data-panel-type="Editor"],
 html.midiable-mobile .panel-placeholder.closed[data-panel-type="Devices"],
 html.midiable-mobile .panel-placeholder.closed[data-panel-type="Mixer"]
-  display: none !important
+  flex: 0 0 22px !important
+  min-width: 22px !important
+  max-width: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
+  overflow: hidden
 
 html.midiable-mobile .panel-placeholder.closed + .panel-resizer,
 html.midiable-mobile .panel-resizer:has(+ .panel-placeholder.closed)
-  display: none !important
+  flex: 0 0 0 !important
+  width: 0 !important
+  height: 0 !important
+  min-width: 0 !important
+  min-height: 0 !important
+  max-width: 0 !important
+  max-height: 0 !important
+  margin: 0 !important
+  overflow: visible
