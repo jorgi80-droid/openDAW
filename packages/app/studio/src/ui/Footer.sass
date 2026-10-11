@@ -109,3 +109,33 @@ component
   component .mobile-panel-shortcut:active
     background: rgba(66, 217, 232, 0.18)
     border-color: var(--color-blue)
+
+  // Dedicated mobile DAW dock: five predictable destinations, no duplicate status controls.
+  component > div[data-footer-item="Mode"],
+  component > div[data-footer-item="Project"],
+  component > div[data-footer-item="SampleRate"],
+  component > div[data-footer-item="Latency"]
+    display: none !important
+
+  component .mobile-panel-shortcut
+    flex: 1 1 0
+    width: auto
+    min-width: 0
+    max-width: none
+    height: 34px
+    min-height: 34px
+    max-height: 34px
+    border-radius: 7px
+
+  component .mobile-panel-shortcut .value svg
+    width: 19px
+    height: 19px
+
+  component .mobile-panel-shortcut.timeline-shortcut,
+  component .mobile-panel-shortcut.mixer-shortcut
+    display: flex !important
+
+  component .mobile-panel-shortcut[aria-current="page"]
+    color: var(--color-blue)
+    border-color: var(--color-blue)
+    background: rgba(66, 217, 232, 0.14)
