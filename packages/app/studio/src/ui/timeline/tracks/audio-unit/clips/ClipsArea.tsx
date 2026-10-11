@@ -49,7 +49,7 @@ export const ClipsArea = ({lifecycle, service, manager, scrollModel, scrollConta
     const {project} = service
     const {selection, boxAdapters, editing, userEditingManager} = project
     const dropPreview: HTMLElement = (<div className="drop-target" tabIndex={-1}/>)
-    const element: HTMLElement = (<div className={className} tabIndex={-1}>{dropPreview}</div>)
+    const element: HTMLElement = (<div className={className} tabIndex={-1} data-scope="clips">{dropPreview}</div>)
     TourAnchors.registerRect(lifecycle, element, () => firstTrackRect(element, manager), "clips")
     const clipSelection: Selection<AnyClipBoxAdapter> = lifecycle.own(selection
         .createFilteredSelection(isVertexOfBox(UnionBoxTypes.isClipBox), {
