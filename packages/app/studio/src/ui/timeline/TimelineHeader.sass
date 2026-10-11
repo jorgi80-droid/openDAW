@@ -14,3 +14,40 @@ component
     padding: 0 0.2rem
     column-gap: 0.15rem
     font-size: 0.65rem
+
+
+/* Compact browser shortcuts live beside the Timeline ruler and stay off desktop. */
+html.midiable-mobile .Timeline
+  position: relative
+
+html.midiable-mobile .TimelineHeader
+  position: static
+
+html.midiable-mobile .mobile-timeline-tools
+  position: absolute
+  z-index: 12
+  top: 2px
+  right: 34px
+  display: flex
+  align-items: center
+  gap: 3px
+  pointer-events: auto
+
+html.midiable-mobile .mobile-timeline-tools > button
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 25px
+  min-width: 25px
+  height: 25px
+  min-height: 25px
+  padding: 0
+  border: 1px solid rgba(255, 255, 255, 0.12)
+  border-radius: 6px
+  color: var(--color-bright)
+  background: rgba(24, 28, 31, 0.92)
+  touch-action: manipulation
+
+html.midiable-mobile .mobile-timeline-tools svg
+  width: 15px
+  height: 15px
