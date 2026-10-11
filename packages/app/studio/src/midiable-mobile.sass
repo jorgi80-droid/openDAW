@@ -299,3 +299,103 @@ html.midiable-mobile .touch-dock button.piano-roll-action
     animation-duration: 0.01ms !important
     animation-iteration-count: 1 !important
     transition-duration: 0.01ms !important
+
+/* Use the actual lowercase hook classes added by PanelPlaceholder and PanelResizer. */
+html.midiable-mobile .panel-placeholder
+  flex-shrink: 1
+  border-radius: 2px
+  min-width: 0
+  min-height: 0
+
+html.midiable-mobile .panel-placeholder > header
+  min-height: 30px
+  max-height: 30px
+  height: 30px
+  padding: 0 7px
+  gap: 6px
+  font-size: 1rem
+  touch-action: manipulation
+  user-select: none
+  -webkit-user-select: none
+
+html.midiable-mobile .panel-placeholder.closed
+  flex-basis: 22px !important
+  width: 22px !important
+  min-width: 22px !important
+  max-width: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
+  height: 22px !important
+  overflow: hidden !important
+
+html.midiable-mobile .panel-placeholder.closed > header
+  width: 22px !important
+  min-width: 22px !important
+  max-width: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
+  height: 22px !important
+  padding: 0 !important
+  margin: 0 !important
+  gap: 0 !important
+  justify-content: center !important
+  overflow: hidden !important
+
+html.midiable-mobile .panel-placeholder.closed > header > span,
+html.midiable-mobile .panel-placeholder.closed > header > .presence-dots,
+html.midiable-mobile .panel-placeholder.closed > div
+  display: none !important
+
+html.midiable-mobile .panel-resizer
+  touch-action: none
+  user-select: none
+  -webkit-user-select: none
+
+html.midiable-mobile .panel-resizer::before
+  content: ""
+  position: absolute
+  z-index: 22
+  display: block
+  background: transparent
+  pointer-events: auto
+
+html.midiable-mobile .panel-resizer.horizontal::before
+  width: 38px
+  height: 100%
+  left: -18px
+  top: 0
+
+html.midiable-mobile .panel-resizer.vertical::before
+  width: 100%
+  height: 38px
+  left: 0
+  top: -18px
+
+html.midiable-mobile .panel-resizer::after
+  opacity: 0
+  pointer-events: none
+  background: transparent
+  box-shadow: none
+
+html.midiable-mobile .panel-resizer:active::after
+  opacity: 1
+  background: rgba(74, 220, 245, 0.92)
+  box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.14)
+
+@media (max-width: 900px), (max-height: 520px)
+  html.midiable-mobile .panel-placeholder[data-panel-type="Browser"]
+    flex: 0 1 22vw
+    min-width: 44px
+    max-width: min(260px, 34vw)
+
+  html.midiable-mobile .panel-placeholder[data-panel-type="Analysis"],
+  html.midiable-mobile .panel-placeholder[data-panel-type="Mixer"].closed,
+  html.midiable-mobile .panel-placeholder[data-panel-type="Devices"].closed
+    min-width: 22px !important
+    max-width: 22px !important
+
+/* Diagnostics must remain in the bottom status strip, never floating over clips. */
+html.midiable-mobile .LatencyWarning,
+html.midiable-mobile .LatencyWarning *
+  display: none !important
+
