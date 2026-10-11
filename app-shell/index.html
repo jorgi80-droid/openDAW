@@ -258,6 +258,104 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
  .timeline-tool-rail button{width:29px;min-width:29px;height:29px;min-height:29px}
 }
 
+ 
+/* Browser: three readable lines per row, all contained in the scrollable list. */
+#browserScreen .browserlayout{grid-template-columns:clamp(95px,14vw,150px) minmax(0,1fr);gap:8px;flex:1;min-height:0}
+#browserScreen .categories{min-height:0;overflow-y:auto;overscroll-behavior:contain}
+#browserScreen .samplelist{display:flex;flex-direction:column;gap:5px;min-height:0;overflow:auto;align-content:start;overscroll-behavior:contain;padding:1px 2px 4px 0}
+#browserScreen .sample{display:grid;grid-template-columns:36px minmax(0,1fr) 36px;grid-template-rows:auto;align-items:center;gap:8px;flex:0 0 54px;min-height:54px;height:54px;padding:5px 7px;overflow:hidden}
+#browserScreen .sample>button{width:34px;min-width:34px;height:34px;min-height:34px;padding:3px;font-size:14px}
+#browserScreen .sample-meta{display:grid;grid-template-rows:15px 10px 10px;gap:2px;align-content:center;min-width:0;min-height:0;overflow:hidden}
+#browserScreen .sample-name{font-size:12px;line-height:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#browserScreen .wave{height:10px;min-height:10px;max-height:10px;width:100%;margin:0;border-radius:3px;opacity:.75}
+#browserScreen .sample-status{font-size:9px;line-height:10px;color:var(--muted);margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#browserScreen .browser-empty{min-height:100px;justify-content:center}
+/* Mixer follows vertical channel-strip convention: meter + vertical gain, pan below. */
+#mixerScreen .mixergrid{grid-template-columns:repeat(6,minmax(135px,1fr));align-items:stretch;gap:8px}
+#mixerScreen .channel{display:grid!important;grid-template-columns:15px minmax(0,1fr);grid-template-rows:auto minmax(100px,1fr) auto auto;gap:7px;min-height:285px;max-height:none;height:100%;padding:9px 8px;align-items:stretch}
+#mixerScreen .channel-head{grid-column:1/-1;min-width:0;display:flex;justify-content:space-between;gap:5px;align-items:center}
+#mixerScreen .channel-head strong{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mixerScreen .channel-head .muted{font-size:10px;white-space:nowrap}
+#mixerScreen .channel .meter{grid-column:1;grid-row:2;align-self:stretch;justify-self:center;display:flex;flex-direction:column-reverse;width:12px;height:100%;min-height:95px;border-radius:5px;overflow:hidden;background:#1b2a35}
+#mixerScreen .channel .meter span{display:block;width:100%;height:var(--level);min-height:8%;background:linear-gradient(0deg,#2bdc9b,#a6e941)}
+#mixerScreen .gain-control{grid-column:2;grid-row:2;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:5px;min-width:0}
+#mixerScreen .gain-control label,#mixerScreen .pan-control label{display:flex;justify-content:space-between;gap:4px;white-space:nowrap;font-size:11px}
+#mixerScreen .gain-control input{display:block;writing-mode:vertical-rl;direction:rtl;width:26px;height:calc(100% - 24px);min-height:72px;max-height:180px;align-self:center;margin:0;accent-color:var(--blue);touch-action:pan-y}
+#mixerScreen .pan-control{grid-column:1/-1;grid-row:3;display:flex;flex-direction:column;gap:4px;min-width:0}
+#mixerScreen .pan-control input{display:block;width:100%;min-width:0;margin:0;accent-color:var(--blue);touch-action:pan-x}
+#mixerScreen .channel-actions{grid-column:1/-1;grid-row:4;display:flex;gap:6px}
+#mixerScreen .channel-actions button{flex:1;min-height:30px}
+#mixerScreen .channel .mix-control .value{color:var(--muted)}
+/* Piano velocity lane distributes bars across the full note editor width. */
+#pianoScreen .velocity{display:flex;justify-content:space-evenly;align-items:flex-end;gap:4px}
+#pianoScreen .velocity span{width:clamp(4px,.65vw,9px);min-width:3px;flex:0 1 9px;max-height:100%;border-radius:3px 3px 0 0}
+/* Device editor: asset/device picker on the left, one focused synth/effect surface on the right. */
+#devicesScreen:not([hidden])>.panel{display:flex;flex-direction:column;gap:8px}
+#devicesScreen .paneltitle{margin-bottom:0}
+#devicesScreen .devicegrid{display:grid;grid-template-columns:clamp(150px,19vw,220px) minmax(0,1fr);gap:10px;flex:1;min-height:0;overflow:hidden;align-content:stretch}
+#devicesScreen .device-picker{display:flex;flex-direction:column;gap:7px;min-height:0;overflow:hidden;border:1px solid var(--line);border-radius:10px;background:#0b1219;padding:8px}
+#devicesScreen .device-picker-heading{font-size:10px;letter-spacing:.09em;color:var(--muted);font-weight:700;padding:2px 3px}
+#devicesScreen .device-options{display:flex;flex-direction:column;gap:5px;overflow:auto;min-height:0}
+#devicesScreen .device-option{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:3px;text-align:left;min-height:48px;width:100%;padding:7px 8px;border-radius:7px;background:#111923}
+#devicesScreen .device-option.active{background:#102e4e;color:#8bcaff;border-color:var(--blue)}
+#devicesScreen .device-option-name{font-weight:650;font-size:12px;line-height:1.2}
+#devicesScreen .device-option-type{font-size:10px;color:var(--muted);line-height:1.2}
+#devicesScreen .device-editor{display:flex;flex-direction:column;gap:8px;min-width:0;min-height:0;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:10px;background:#111923}
+#devicesScreen .device-editor-header{display:flex;justify-content:space-between;align-items:center;gap:10px;min-width:0}
+#devicesScreen .device-kicker{font-size:9px;letter-spacing:.1em;color:#78bfff;font-weight:700}
+#devicesScreen .device-editor-header h3{margin:1px 0;font-size:17px;line-height:1.25}
+#devicesScreen .device-editor-header p{margin:0;color:var(--muted);font-size:10px}
+#devicesScreen .device-editor-actions{display:flex;align-items:center;justify-content:flex-end;gap:5px;flex-wrap:wrap}
+#devicesScreen .device-editor-actions select{max-width:150px;min-width:90px;background:#0b1219;border:1px solid var(--line);border-radius:7px;padding:6px;color:var(--text)}
+#devicesScreen .device-editor-actions button{min-height:32px;padding:5px 8px;font-size:11px}
+#devicesScreen .device-page-tabs{display:flex;gap:5px;overflow:auto;flex:0 0 auto}
+#devicesScreen .device-page-tabs button{flex:1;min-width:50px;min-height:32px;padding:5px 8px;font-size:10px}
+#devicesScreen .device-page-tabs button.active{background:#123153;border-color:var(--blue);color:#8bcaff}
+#devicesScreen .device-editor-main{display:grid;grid-template-columns:minmax(150px,.75fr) minmax(0,1.25fr);gap:9px;align-items:stretch;min-height:0;flex:1}
+#devicesScreen .device-scope{display:flex;flex-direction:column;gap:5px;min-width:0;border:1px solid var(--line);border-radius:9px;background:#0b1219;padding:8px}
+#devicesScreen .device-scope-label{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.04em}
+#devicesScreen .device-scope svg{width:100%;height:clamp(44px,9vh,90px);display:block;background:linear-gradient(0deg,#0d1925,#0b1219);border-radius:5px}
+#devicesScreen .waveform-row{display:flex;justify-content:space-between;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+#devicesScreen .waveform-row select{max-width:100px;background:#101923;border:1px solid var(--line);border-radius:6px;padding:5px;color:var(--text);font-size:10px}
+#devicesScreen .knob-bank{display:grid;grid-template-columns:repeat(4,minmax(62px,1fr));gap:7px;align-content:stretch;min-width:0}
+#devicesScreen .knob-control{display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:4px;padding:7px;border:1px solid var(--line);border-radius:9px;background:#0b1219;min-width:0}
+#devicesScreen .knob-head{display:flex;flex-direction:column;gap:2px;text-align:center;min-width:0}
+#devicesScreen .knob-head label{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#devicesScreen .knob-head output{font-size:12px;color:var(--text);font-variant-numeric:tabular-nums}
+#devicesScreen .knob-dial{position:relative;width:clamp(34px,5vw,54px);height:clamp(34px,5vw,54px);border:5px solid #263847;border-top-color:var(--blue);border-right-color:var(--cyan);border-radius:50%;align-self:center}
+#devicesScreen .knob-pointer{position:absolute;width:2px;height:42%;left:calc(50% - 1px);top:4%;transform-origin:50% 110%;background:#eaf3fc;border-radius:2px}
+#devicesScreen .knob-control input{width:100%;min-width:0;accent-color:var(--blue);height:17px;margin:0}
+#devicesScreen .mini-keyboard{height:clamp(36px,7vh,62px);flex:0 0 auto;display:flex;position:relative;overflow:hidden;border:1px solid #4b5d70;border-radius:5px;background:#080c11}
+#devicesScreen .white-key{height:100%;flex:1;border-right:1px solid #4c5965;background:linear-gradient(180deg,#fff,#cbd5df)}
+#devicesScreen .black-key{position:absolute;top:0;height:61%;width:clamp(8px,1vw,13px);border-radius:0 0 3px 3px;background:#101820;border:1px solid #0a1016;z-index:1}
+#devicesScreen .preset-detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(150px,.6fr);gap:12px;align-items:stretch;min-height:0;flex:1}
+#devicesScreen .preset-art{display:flex;align-items:center;padding:14px;border:1px solid var(--line);border-radius:10px;background:#0b1219}
+#devicesScreen .preset-art svg{width:100%;height:100%;min-height:80px}
+#devicesScreen .preset-meta{display:flex;flex-direction:column;justify-content:center;gap:10px;padding:12px;background:#0b1219;border:1px solid var(--line);border-radius:10px;color:var(--muted);font-size:11px}
+#devicesScreen .preset-meta span{display:flex;flex-direction:column;gap:2px}
+#devicesScreen .preset-meta b{color:var(--text);font-weight:500}
+#devicesScreen [data-device-bypass][aria-pressed="true"]{background:#512c38;border-color:#e85e73}
+@media(max-height:480px){
+ #devicesScreen .panel{padding:6px;gap:5px}
+ #devicesScreen .devicegrid{grid-template-columns:clamp(125px,19vw,160px) minmax(0,1fr);gap:5px}
+ #devicesScreen .device-picker{padding:5px;gap:4px}
+ #devicesScreen .device-option{min-height:35px;padding:5px}
+ #devicesScreen .device-option-name{font-size:10px}
+ #devicesScreen .device-editor{padding:6px;gap:5px}
+ #devicesScreen .device-editor-header h3{font-size:14px}
+ #devicesScreen .device-editor-header p{display:none}
+ #devicesScreen .device-page-tabs button{min-height:27px;padding:3px 5px}
+ #devicesScreen .device-editor-main{grid-template-columns:minmax(120px,.6fr) minmax(0,1.4fr);gap:5px}
+ #devicesScreen .device-scope{padding:5px;gap:3px}
+ #devicesScreen .device-scope svg{height:44px}
+ #devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(48px,1fr));gap:4px}
+ #devicesScreen .knob-control{padding:4px;gap:2px}
+ #devicesScreen .knob-dial{width:31px;height:31px;border-width:4px}
+ #devicesScreen .knob-head label{font-size:9px}
+ #devicesScreen .knob-head output{font-size:10px}
+ #devicesScreen .mini-keyboard{height:32px}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -328,6 +426,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
 let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
 let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipClick=false,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,timelineZoom=1,timelineScrollSync=false;
+let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset';
 let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
 {id:'t1',name:'Drums',type:'Audio',color:'#ff625e',mute:false,solo:false,gain:0,pan:0,clips:[{id:'c1',label:'Drum Loop',start:0,duration:18,color:'#ff625e'}]},
 {id:'t2',name:'Bass',type:'MIDI',color:'#168cff',mute:false,solo:false,gain:-6,pan:0,clips:[{id:'c2',label:'Bass Pattern',start:2,duration:16,color:'#168cff'}]},
@@ -362,8 +461,8 @@ function renderMixer(){
   const c=document.createElement('div');c.className='channel';const db=Number(t.gain)||0;
   c.innerHTML='<div class="channel-head"><strong style="color:'+t.color+'">'+esc(t.name)+'</strong><span class="muted">'+esc(t.type)+'</span></div>'+
   '<div class="meter" aria-label="Level meter"><span style="--level:'+Math.max(8,Math.min(100,82+db*3))+'%"></span></div>'+
-  '<div class="mix-control"><label class="value" for="gain'+i+'">Gain <span id="gainv'+i+'">'+db.toFixed(1)+' dB</span></label><input id="gain'+i+'" aria-label="'+esc(t.name)+' gain" type="range" min="-48" max="6" step=".5" value="'+db+'" data-mix="gain" data-i="'+i+'"></div>'+
-  '<div class="mix-control"><label class="value" for="pan'+i+'">Pan <span id="panv'+i+'">'+t.pan+'</span></label><input id="pan'+i+'" aria-label="'+esc(t.name)+' pan" type="range" min="-100" max="100" step="1" value="'+t.pan+'" data-mix="pan" data-i="'+i+'"></div>'+
+  '<div class="mix-control gain-control"><label class="value" for="gain'+i+'">Gain <span id="gainv'+i+'">'+db.toFixed(1)+' dB</span></label><input id="gain'+i+'" aria-label="'+esc(t.name)+' gain" type="range" min="-48" max="6" step=".5" value="'+db+'" data-mix="gain" data-i="'+i+'"></div>'+
+  '<div class="mix-control pan-control"><label class="value" for="pan'+i+'">Pan <span id="panv'+i+'">'+t.pan+'</span></label><input id="pan'+i+'" aria-label="'+esc(t.name)+' pan" type="range" min="-100" max="100" step="1" value="'+t.pan+'" data-mix="pan" data-i="'+i+'"></div>'+
   '<div class="channel-actions"><button data-action="mute" data-i="'+i+'" class="'+(t.mute?'on':'')+'" aria-pressed="'+t.mute+'">M</button><button data-action="solo" data-i="'+i+'" class="'+(t.solo?'on':'')+'" aria-pressed="'+t.solo+'">S</button></div>';
   root.appendChild(c);
  });
@@ -379,10 +478,63 @@ function renderPiano(){
  grid.appendChild(noteLayer);
  for(let i=0;i<16;i++){const s=document.createElement('span');s.style.setProperty('--h',(18+(i*37%68))+'%');s.title='Velocity';vel.appendChild(s)}
 }
-function renderDevices(cat='Instrument'){
- const root=$('devices');root.innerHTML='';
- const items=cat==='Instrument'?['Vaporisateur Synth','Nano Sampler','Playfield Drums','Soundfont Player']:cat==='Effect'?['Revamp EQ','Delay','Free Reverb','Waveshaper','Maximizer']:['Warm Keys','Deep Bass','Airy Pad','Studio Drums'];
- items.forEach((name,i)=>{const d=document.createElement('div');d.className='panel';d.innerHTML='<h3 style="margin:0 0 8px;font-size:14px">'+esc(name)+'</h3><div class="knobs">'+['Tone','Shape','Mix'].map((k,j)=>'<div class="knob"><div class="dial">'+(j===0?35+i*7:j===1?58:25)+'%</div><span class="value">'+k+'</span></div>').join('')+'</div><button style="width:100%;margin-top:9px" data-device="'+esc(name)+'">Pilih device</button>';root.appendChild(d)});
+const deviceCatalog={
+ Instrument:[
+  {name:'Vaporisateur Synth',type:'Synthesizer',detail:'Wavetable / analog-style voice'},
+  {name:'Nano Sampler',type:'Sampler',detail:'Load and shape local samples'},
+  {name:'Playfield Drums',type:'Drum Kit',detail:'Drum pads and one-shot voices'},
+  {name:'SoundFont Player',type:'Instrument',detail:'Keyboard-based multisample player'}],
+ Effect:[
+  {name:'Revamp EQ',type:'Equalizer',detail:'Tone shaping and frequency control'},
+  {name:'Delay',type:'Time effect',detail:'Echo, feedback and timing'},
+  {name:'Free Reverb',type:'Space effect',detail:'Room size, decay and damping'},
+  {name:'Waveshaper',type:'Dynamics',detail:'Harmonics and saturation'},
+  {name:'Maximizer',type:'Dynamics',detail:'Output level and limiting'},
+  {name:'Stereo Tool',type:'Stereo',detail:'Width and stereo placement'}],
+ Preset:[
+  {name:'Warm Keys',type:'Preset',detail:'Soft keys • demonstration preset'},
+  {name:'Deep Bass',type:'Preset',detail:'Sub-bass • demonstration preset'},
+  {name:'Airy Pad',type:'Preset',detail:'Slow pad • demonstration preset'},
+  {name:'Studio Drums',type:'Preset',detail:'Acoustic kit • demonstration preset'}]
+};
+const instrumentPages={
+ OSC:[['Waveform',35],['Octave',50],['Detune',12],['Stereo',25]],
+ FILTER:[['Cutoff',68],['Resonance',22],['Drive',14],['Key Track',55]],
+ ENV:[['Attack',15],['Decay',46],['Sustain',72],['Release',34]],
+ LFO:[['Rate',26],['Depth',12],['Phase',0],['Shape',50]],
+ FX:[['Reverb',20],['Delay',12],['Chorus',18],['Mix',25]]
+};
+const effectPages={
+ EQ:[['Low',50],['Mid',50],['High',58],['Output',50]],
+ DYNAMICS:[['Threshold',42],['Ratio',35],['Attack',18],['Release',48]],
+ TIME:[['Time',35],['Feedback',28],['Damping',55],['Mix',24]],
+ SPACE:[['Size',48],['Decay',38],['Width',72],['Mix',25]]
+};
+function renderDevices(cat=selectedDeviceCategory){
+ selectedDeviceCategory=cat;const root=$('devices');root.innerHTML='';
+ const items=deviceCatalog[cat]||deviceCatalog.Instrument;
+ if(!items.some(x=>x.name===selectedDevice))selectedDevice=items[0].name;
+ document.querySelectorAll('#devTabs button').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
+ const selected=items.find(x=>x.name===selectedDevice)||items[0];
+ const picker=document.createElement('aside');picker.className='device-picker';
+ picker.innerHTML='<div class="device-picker-heading">AVAILABLE '+(cat==='Instrument'?'INSTRUMENTS':cat==='Effect'?'EFFECTS':'PRESETS')+'</div><div class="device-options"></div>';
+ const options=picker.querySelector('.device-options');
+ items.forEach(item=>{
+  const b=document.createElement('button');b.className='device-option'+(item.name===selected.name?' active':'');b.dataset.deviceSelect=item.name;
+  b.innerHTML='<span class="device-option-name">'+esc(item.name)+'</span><span class="device-option-type">'+esc(item.type)+'</span>';
+  options.appendChild(b);
+ });
+ const editor=document.createElement('section');editor.className='device-editor';
+ if(cat==='Preset'){
+  editor.innerHTML='<div class="device-editor-header"><div><div class="device-kicker">PRESET LIBRARY</div><h3>'+esc(selected.name)+'</h3><p>'+esc(selected.detail)+'</p></div><button class="primary" data-apply-preset="'+esc(selected.name)+'">Gunakan preset</button></div><div class="preset-detail"><div class="preset-art"><svg viewBox="0 0 400 120" aria-hidden="true"><path d="M0 78 C30 30 52 105 80 57 S130 23 155 73 S205 98 230 50 S280 24 310 70 S360 100 400 40" fill="none" stroke="#31caff" stroke-width="3"/><path d="M0 90 C40 50 70 115 110 82 S170 55 200 90 S250 112 290 72 S360 46 400 88" fill="none" stroke="#1687ff" stroke-width="1.5" opacity=".6"/></svg></div><div class="preset-meta"><span>Type <b>'+esc(selected.type)+'</b></span><span>Source <b>Demo preset</b></span><span>Status <b>Belum dimuat ke mesin audio</b></span></div></div>';
+ }else{
+  const pages=cat==='Instrument'?['OSC','FILTER','ENV','LFO','FX']:['EQ','DYNAMICS','TIME','SPACE'];
+  if(!pages.includes(selectedDeviceTab))selectedDeviceTab=pages[0];
+  const params=(cat==='Instrument'?instrumentPages[selectedDeviceTab]:effectPages[selectedDeviceTab])||[];
+  const controls=params.map(([label,value],i)=>'<div class="knob-control"><div class="knob-head"><label for="device-param-'+i+'">'+esc(label)+'</label><output id="device-value-'+i+'">'+value+'%</output></div><div class="knob-dial" aria-hidden="true"><div class="knob-pointer" style="transform:rotate('+(value*2.7-135)+'deg)"></div></div><input id="device-param-'+i+'" type="range" min="0" max="100" value="'+value+'" data-device-param="'+esc(label)+'" aria-label="'+esc(label)+'"/></div>').join('');
+  editor.innerHTML='<div class="device-editor-header"><div><div class="device-kicker">'+esc(selected.type)+'</div><h3>'+esc(selected.name)+'</h3><p>'+esc(selected.detail)+'</p></div><div class="device-editor-actions"><label class="value" for="devicePresetSelect">Preset</label><select id="devicePresetSelect"><option>Init Preset</option><option>Warm Keys</option><option>Deep Bass</option><option>Airy Pad</option></select><button data-device-bypass="true" aria-pressed="false">Bypass</button></div></div><div class="device-page-tabs">'+pages.map(p=>'<button data-device-page="'+p+'" class="'+(p===selectedDeviceTab?'active':'')+'">'+p+'</button>').join('')+'</div><div class="device-editor-main"><div class="device-scope"><div class="device-scope-label">'+(cat==='Instrument'?'OSCILLATOR / SIGNAL':'EFFECT RESPONSE')+'</div><svg viewBox="0 0 360 110" preserveAspectRatio="none" aria-label="Demo signal"><path d="'+(selectedDeviceTab==='FILTER'?'M0 88 C30 88 50 85 75 80 S110 40 145 35 S180 38 205 66 S250 85 280 90 S330 94 360 96':'M0 55 C18 20 36 20 54 55 S90 90 108 55 S144 20 162 55 S198 90 216 55 S252 20 270 55 S306 90 324 55 S342 35 360 55')+'" fill="none" stroke="#38c7ff" stroke-width="3"/><path d="M0 100 H360" stroke="#304352" stroke-width="1"/></svg><div class="waveform-row"><span>Waveform</span><select id="waveformSelect"><option>Saw</option><option>Sine</option><option>Square</option><option>Triangle</option><option>Noise</option></select></div></div><div class="knob-bank">'+controls+'</div></div>'+(cat==='Instrument'?'<div class="mini-keyboard" aria-label="Demo piano keyboard">'+Array.from({length:14},()=>'<span class="white-key" aria-hidden="true"></span>').join('')+['1','3','4','6','8','9','11','13'].map(n=>'<span class="black-key" style="left:calc('+((Number(n)-.5)/14*100)+'% - 6px)" aria-hidden="true"></span>').join('')+'</div>':'');
+ }
+ root.appendChild(picker);root.appendChild(editor);
 }
 const samples=['Kick 01.wav','Kick 02.wav','Snare 01.wav','Snare 02.wav','HiHat Closed.wav','HiHat Open.wav','Tom 01.wav','Piano Soft.wav','Bass Sub.wav','Ambient Pad.wav'];
 const browserItems={
@@ -522,8 +674,15 @@ $('pianogrid').addEventListener('click',e=>{
  snapshot();project.notes.push({row:Math.max(0,Math.min(11,row)),col:Math.max(0,Math.min(15,col)),len:1,velocity:80});
  renderPiano();notify('Nada MIDI ditambahkan (model demo)')
 });
-$('devTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;document.querySelectorAll('#devTabs button').forEach(x=>x.classList.toggle('active',x===b));renderDevices(b.dataset.cat)});
-$('devices').addEventListener('click',e=>{const b=e.target.closest('[data-device]');if(b)notify(b.dataset.device+' — engine belum terhubung')});
+$('devTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;selectedDeviceCategory=b.dataset.cat;selectedDeviceTab=b.dataset.cat==='Instrument'?'OSC':b.dataset.cat==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory)});
+$('devices').addEventListener('click',e=>{
+ const option=e.target.closest('[data-device-select]');if(option){selectedDevice=option.dataset.deviceSelect;selectedDeviceTab=selectedDeviceCategory==='Instrument'?'OSC':selectedDeviceCategory==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory);return}
+ const page=e.target.closest('[data-device-page]');if(page){selectedDeviceTab=page.dataset.devicePage;renderDevices(selectedDeviceCategory);return}
+ const apply=e.target.closest('[data-apply-preset]');if(apply){notify(apply.dataset.applyPreset+' • preset UI belum tersambung ke mesin audio');return}
+ const bypass=e.target.closest('[data-device-bypass]');if(bypass){const active=bypass.getAttribute('aria-pressed')!=='true';bypass.setAttribute('aria-pressed',String(active));bypass.classList.toggle('active',active);notify(active?'Bypass demo aktif':'Bypass demo nonaktif')}
+});
+$('devices').addEventListener('input',e=>{const input=e.target.closest('[data-device-param]');if(!input)return;const output=input.parentElement.querySelector('output');if(output)output.textContent=input.value+'%';const dial=input.parentElement.parentElement.querySelector('.knob-dial .knob-pointer');if(dial)dial.style.transform='rotate('+(Number(input.value)*2.7-135)+'deg)'});
+$('devices').addEventListener('change',e=>{if(e.target.id==='devicePresetSelect'){devicePreset=e.target.value;notify('Preset dipilih: '+devicePreset+' • demo UI')}});
 let browseCat='Samples',browseFilter='All';
 $('browserTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;browseCat=b.dataset.cat;browseFilter='All';document.querySelectorAll('#browserTabs button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('#categories button').forEach(x=>x.classList.toggle('active',x.dataset.filter==='All'));renderSamples(browseCat,browseFilter)});
 $('categories').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;browseFilter=b.dataset.filter;document.querySelectorAll('#categories button').forEach(x=>x.classList.toggle('active',x===b));renderSamples(browseCat,browseFilter)});
