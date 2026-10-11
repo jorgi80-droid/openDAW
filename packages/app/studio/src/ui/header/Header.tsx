@@ -81,12 +81,6 @@ export const Header = ({lifecycle, service}: Construct) => {
                                 <h5>OpenDAW</h5>
                             </MenuButton>
                         </div>
-                        <div className="mobile-toolbar-spacer"/>
-                        {transport}
-                        <div className="mobile-toolbar-spacer"/>
-                        {timecodes}
-                    </div>
-                    <div className="mobile-toolbar-secondary">
                         <div className="mobile-history">
                             <Group onInit={element => StudioPreferences.catchupAndSubscribe(enabled =>
                                 element.classList.toggle("hidden", !enabled), "visibility", "enable-history-buttons")}>
@@ -102,8 +96,14 @@ export const Header = ({lifecycle, service}: Construct) => {
                             </Checkbox>
                             <CaptureMidiButton lifecycle={lifecycle} service={service}/>
                         </div>
-                        <BaseFrequencyControl lifecycle={lifecycle} service={service}/>
+                        <div className="mobile-toolbar-spacer"/>
+                        {transport}
+                        <div className="mobile-toolbar-spacer"/>
+                        {timecodes}
                         <MetronomeControl lifecycle={lifecycle} service={service} preferences={preferences}/>
+                    </div>
+                    <div className="mobile-toolbar-secondary">
+                        <BaseFrequencyControl lifecycle={lifecycle} service={service}/>
                         <HorizontalPeakMeter lifecycle={lifecycle} peaksInDb={peaksInDb} width="2.5em"/>
                     </div>
                 </div>
