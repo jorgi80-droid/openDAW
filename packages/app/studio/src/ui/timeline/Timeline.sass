@@ -30,12 +30,19 @@ component
 @media (max-width: 900px), (pointer: coarse)
   component
     --clips-width: 0px
-    --timeline-header-width: 116px
-    grid-template-columns: var(--timeline-header-width) 0 minmax(0, 1fr)
-    grid-template-rows: auto minmax(0, 1fr) 0px
+    --timeline-header-width: 104px
+    grid-template-columns: var(--timeline-header-width) minmax(0, 1fr)
+    grid-template-rows: auto auto minmax(0, 1fr) auto
+    gap: 1px
 
     &.clips-visible
-      grid-template-columns: var(--timeline-header-width) 0 minmax(0, 1fr)
+      grid-template-columns: var(--timeline-header-width) minmax(0, 1fr)
 
     &.primary-tracks-visible
-      grid-template-rows: auto auto minmax(0, 1fr) 0px
+      grid-template-rows: auto auto auto minmax(0, 1fr) auto
+
+    > div:first-child
+      grid-column: 1 / -1
+
+    > div:last-child
+      min-height: 0
