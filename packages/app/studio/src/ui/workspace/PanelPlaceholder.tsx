@@ -5,6 +5,7 @@ import {appendChildren, createElement, DomElement, Frag, Group, replaceChildren}
 import {PanelContents} from "@/ui/workspace/PanelContents.tsx"
 import {Workspace} from "@/ui/workspace/Workspace.ts"
 import {PanelState} from "@/ui/workspace/PanelState.ts"
+import {PanelType} from "@/ui/workspace/PanelType.ts"
 import {AxisProperty} from "@/ui/workspace/AxisProperty.ts"
 import {ContextMenu, MenuItem} from "@opendaw/studio-core"
 import {ContentGlue} from "@/ui/workspace/ContentGlue.ts"
@@ -27,6 +28,10 @@ type Construct = {
 export const PanelPlaceholder =
     ({lifecycle, panelContents, orientation, siblings, panelState, roomAwareness}: Construct) => {
         const {icon, name, constrains, minimizable, popoutable} = panelState
+        // Recover the primary arrangement if an older mobile build left it collapsed.
+        if (window.matchMedia("(pointer: coarse)").matches && panelState.panelType === PanelType.Timeline) {
+            panelState.isMinimized = false
+        }
         const HeaderSize = 18
         const container = <Group/>
         const element: DomElement = <div className={Html.buildClassList(className, orientation, "panel-placeholder")}
@@ -146,7 +151,7 @@ export const PanelPlaceholder =
             if (start === null || event.pointerId !== start.pointerId || event.button !== 0) {return}
             if (performance.now() - start.time > 450) {return}
             if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) {return}
-            handler.toggleMinimize()
+            if (panelState.panelType !== PanelType.Timeline) {handler.toggleMinimize()}
         }, {capture: true}))
         lifecycle.own(Events.subscribe(header, "pointercancel", () => {touchStart = null}, {capture: true}))
         lifecycle.own(Events.subscribeDblDwn(header, event => {
