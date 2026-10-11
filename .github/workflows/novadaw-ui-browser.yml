@@ -1,0 +1,49 @@
+name: NovaDAW UI browser regression
+
+on:
+  push:
+    branches: [novadaw-from-zero]
+    paths:
+      - "app-shell/**"
+      - "android-wrapper-novadaw/app/src/main/AndroidManifest.xml"
+      - "android-wrapper-novadaw/app/src/main/java/**"
+      - "tests/ui-regression.mjs"
+      - ".github/workflows/novadaw-ui-browser.yml"
+  pull_request:
+    branches: [novadaw-from-zero]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ui-browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install Playwright
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Start local UI server
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 >/tmp/novadaw-http.log 2>&1 &
+          echo $! >/tmp/novadaw-http.pid
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:4173/app-shell/index.html >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/novadaw-http.log
+          exit 1
+      - name: Run browser and layout regression checks
+        run: node tests/ui-regression.mjs
+      - name: Upload per-screen screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: novadaw-ui-screenshots
+          path: artifacts/ui-regression/*.png
+          if-no-files-found: warn
