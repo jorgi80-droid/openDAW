@@ -29,7 +29,8 @@ export namespace PreferencesPageLabels {
             label: "Appearance",
             fields: {
                 "neutral-hue": "Neutral hue (0-360)",
-                "neutral-saturation": "Neutral saturation (%)"
+                "neutral-saturation": "Neutral saturation (%)",
+                "ui-scale": "UI Scale (75–150%)"
             }
         },
         "time-display": {
