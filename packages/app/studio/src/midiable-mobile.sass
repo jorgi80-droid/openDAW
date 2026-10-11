@@ -276,22 +276,6 @@ html.midiable-mobile .touch-dock button.piano-roll-action
     padding: 0 6px
     font-size: 10px
 
-@media (orientation: portrait) and (max-width: 700px)
-  html.midiable-mobile body::before
-    content: "OpenDAW paling nyaman digunakan dalam mode landscape. Putar perangkat untuk ruang kerja lebih luas."
-    position: fixed
-    z-index: 99999
-    left: 8px
-    right: 8px
-    bottom: 8px
-    padding: 8px 12px
-    border-radius: 8px
-    background: rgba(20, 24, 28, 0.94)
-    color: #f2f4f6
-    text-align: center
-    font: 12px/1.4 system-ui, sans-serif
-    pointer-events: none
-
 @media (prefers-reduced-motion: reduce)
   html.midiable-mobile *,
   html.midiable-mobile *::before,
@@ -300,57 +284,90 @@ html.midiable-mobile .touch-dock button.piano-roll-action
     animation-iteration-count: 1 !important
     transition-duration: 0.01ms !important
 
-/* Use the actual lowercase hook classes added by PanelPlaceholder and PanelResizer. */
-html.midiable-mobile .panel-placeholder
-  flex-shrink: 1
-  border-radius: 2px
-  min-width: 0
-  min-height: 0
 
-html.midiable-mobile .panel-placeholder > header
-  min-height: 30px
-  max-height: 30px
-  height: 30px
-  padding: 0 7px
-  gap: 6px
-  font-size: 1rem
-  touch-action: manipulation
-  user-select: none
-  -webkit-user-select: none
-
+/* Collapsed panels must be compact icon tabs, not grey bands over the arrangement.
+   Horizontal and vertical panel placeholders have different collapse axes. */
+html.midiable-mobile .PanelPlaceholder.closed,
 html.midiable-mobile .panel-placeholder.closed
+  background: transparent !important
+  border: 0 !important
+  box-shadow: none !important
+  overflow: hidden !important
+
+html.midiable-mobile .PanelPlaceholder.horizontal.closed,
+html.midiable-mobile .panel-placeholder.horizontal.closed
   flex-basis: 22px !important
   width: 22px !important
   min-width: 22px !important
   max-width: 22px !important
+  height: auto !important
+  min-height: 0 !important
+  max-height: none !important
+
+html.midiable-mobile .PanelPlaceholder.vertical.closed,
+html.midiable-mobile .panel-placeholder.vertical.closed
+  flex-basis: 22px !important
+  height: 22px !important
   min-height: 22px !important
   max-height: 22px !important
-  height: 22px !important
-  overflow: hidden !important
+  width: auto !important
+  min-width: 0 !important
+  max-width: 100% !important
 
-html.midiable-mobile .panel-placeholder.closed > header
+html.midiable-mobile .PanelPlaceholder.horizontal.closed > header,
+html.midiable-mobile .panel-placeholder.horizontal.closed > header
   width: 22px !important
   min-width: 22px !important
   max-width: 22px !important
-  min-height: 22px !important
-  max-height: 22px !important
-  height: 22px !important
-  padding: 0 !important
+  height: 100% !important
+  min-height: 0 !important
+  max-height: none !important
+  padding: 2px 0 !important
   margin: 0 !important
   gap: 0 !important
-  justify-content: center !important
-  overflow: hidden !important
+  background: transparent !important
+  justify-content: flex-start !important
+  align-items: center !important
 
+html.midiable-mobile .PanelPlaceholder.vertical.closed > header,
+html.midiable-mobile .panel-placeholder.vertical.closed > header
+  width: 100% !important
+  min-width: 0 !important
+  max-width: 100% !important
+  height: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
+  padding: 0 6px !important
+  margin: 0 !important
+  gap: 0 !important
+  background: transparent !important
+  justify-content: center !important
+  align-items: center !important
+  flex-direction: row !important
+
+html.midiable-mobile .PanelPlaceholder.closed > header > span,
+html.midiable-mobile .PanelPlaceholder.closed > header > .presence-dots,
+html.midiable-mobile .PanelPlaceholder.closed > div,
 html.midiable-mobile .panel-placeholder.closed > header > span,
 html.midiable-mobile .panel-placeholder.closed > header > .presence-dots,
 html.midiable-mobile .panel-placeholder.closed > div
   display: none !important
 
+html.midiable-mobile .PanelPlaceholder.closed > header > svg,
+html.midiable-mobile .panel-placeholder.closed > header > svg
+  flex: 0 0 16px
+  width: 16px
+  height: 16px
+  margin: 0
+
+/* Actual classes include the lowercase hooks added to the native components. */
+html.midiable-mobile .PanelResizer,
 html.midiable-mobile .panel-resizer
   touch-action: none
   user-select: none
   -webkit-user-select: none
 
+html.midiable-mobile .PanelResizer::before,
 html.midiable-mobile .panel-resizer::before
   content: ""
   position: absolute
@@ -359,37 +376,44 @@ html.midiable-mobile .panel-resizer::before
   background: transparent
   pointer-events: auto
 
+html.midiable-mobile .PanelResizer.horizontal::before,
 html.midiable-mobile .panel-resizer.horizontal::before
   width: 38px
   height: 100%
   left: -18px
   top: 0
 
+html.midiable-mobile .PanelResizer.vertical::before,
 html.midiable-mobile .panel-resizer.vertical::before
   width: 100%
   height: 38px
   left: 0
   top: -18px
 
+html.midiable-mobile .PanelResizer::after,
 html.midiable-mobile .panel-resizer::after
   opacity: 0
   pointer-events: none
   background: transparent
   box-shadow: none
 
+html.midiable-mobile .PanelResizer:active::after,
 html.midiable-mobile .panel-resizer:active::after
   opacity: 1
   background: rgba(74, 220, 245, 0.92)
   box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.14)
 
+/* Preserve open Browser sizing, but never constrain the active Analysis canvas. */
 @media (max-width: 900px), (max-height: 520px)
-  html.midiable-mobile .panel-placeholder[data-panel-type="Browser"]
-    flex: 0 1 22vw
-    min-width: 44px
-    max-width: min(260px, 34vw)
+  html.midiable-mobile .PanelPlaceholder[data-panel-type="Browser"]:not(.closed),
+  html.midiable-mobile .panel-placeholder[data-panel-type="Browser"]:not(.closed)
+    flex: 0 1 22vw !important
+    min-width: 44px !important
+    max-width: min(260px, 34vw) !important
 
-  html.midiable-mobile .panel-placeholder[data-panel-type="Analysis"],
+  html.midiable-mobile .PanelPlaceholder[data-panel-type="Mixer"].closed,
   html.midiable-mobile .panel-placeholder[data-panel-type="Mixer"].closed,
+  html.midiable-mobile .PanelPlaceholder[data-panel-type="Devices"].closed,
   html.midiable-mobile .panel-placeholder[data-panel-type="Devices"].closed
     min-width: 22px !important
     max-width: 22px !important
@@ -398,4 +422,3 @@ html.midiable-mobile .panel-resizer:active::after
 html.midiable-mobile .LatencyWarning,
 html.midiable-mobile .LatencyWarning *
   display: none !important
-
