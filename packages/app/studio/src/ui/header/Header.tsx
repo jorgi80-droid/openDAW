@@ -82,9 +82,9 @@ export const Header = ({lifecycle, service}: Construct) => {
                             </MenuButton>
                         </div>
                         {transport}
+                        {timecodes}
                     </div>
                     <div className="mobile-toolbar-secondary">
-                        {timecodes}
                         <div className="mobile-history">
                             <Group onInit={element => StudioPreferences.catchupAndSubscribe(enabled =>
                                 element.classList.toggle("hidden", !enabled), "visibility", "enable-history-buttons")}>
