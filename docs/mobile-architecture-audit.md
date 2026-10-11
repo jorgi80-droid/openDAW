@@ -53,3 +53,9 @@ Keep PR #1 draft and do not merge based only on green CI. PR #1 notes Android/We
 
 ## License
 Preserve AGPL-3.0-or-later notices and comply with the project license for distributed derivatives.
+
+
+## Mobile shell implementation status (2026-10-11)
+- The five-destination mobile dock routes through `MobileStudioPort`.
+- Mobile Timeline, Browser, Mixer, Editor/Piano Roll, and Devices/FX use focused full-screen workspaces while reusing the existing OpenDAW panel content.
+- The latest UI branch is validated by the workflow attached to its current head before promotion; Android/WebView device tests remain mandatory.
