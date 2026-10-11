@@ -69,3 +69,20 @@ component
       > *
         min-width: 0
 
+
+
+// Mobile: keep workspace, touch controls and status in one bounded vertical layout.
+@media (max-width: 900px), (pointer: coarse)
+  component
+    height: auto
+    min-height: 0
+    max-height: 100%
+    flex: 1 1 0
+
+    > main
+      min-height: 0
+
+    > .touch-dock
+      position: relative
+      z-index: 5
+      flex: 0 0 auto
