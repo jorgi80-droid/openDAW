@@ -456,7 +456,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 (function(){
 const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
 let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
-let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipClick=false,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,timelineZoom=1,timelineScrollSync=false;
+let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipId=null,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,timelineZoom=1,timelineScrollSync=false;
 let lastClipTap={id:null,time:0};
 let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset';
 let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
@@ -687,8 +687,8 @@ $('tracks').addEventListener('click',e=>{
  }
  const label=e.target.closest('.tracklabel');if(label){const row=label.closest('.trackrow'),area=row?.querySelector('.cliparea'),idx=Number(area?.dataset.track);if(Number.isInteger(idx)&&idx>=0){selectedTrack=idx;renderTracks()}return}
  const clip=e.target.closest('[data-clip]');if(clip){
-  if(ignoreNextClipClick){ignoreNextClipClick=false;return}
   const id=clip.dataset.clip;
+  if(ignoreNextClipId===id){ignoreNextClipId=null;return}
   const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===id));if(ownerIndex>=0)selectedTrack=ownerIndex;
   if(timelineTool==='cut'){selectedClip=id;const rect=clip.getBoundingClientRect();splitSelectedClipAtRatio(Math.max(.05,Math.min(.95,(e.clientX-rect.left)/Math.max(1,rect.width))));timelineTool='select';updateTimelineTools();hideClipContext();return}
   const found=project.tracks[selectedTrack]?.clips.find(c=>c.id===id);
