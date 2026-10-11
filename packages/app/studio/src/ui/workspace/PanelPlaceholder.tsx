@@ -28,10 +28,6 @@ type Construct = {
 export const PanelPlaceholder =
     ({lifecycle, panelContents, orientation, siblings, panelState, roomAwareness}: Construct) => {
         const {icon, name, constrains, minimizable, popoutable} = panelState
-        // Recover the primary arrangement if an older mobile build left it collapsed.
-        if (window.matchMedia("(pointer: coarse)").matches && panelState.panelType === PanelType.Timeline) {
-            panelState.isMinimized = false
-        }
         const HeaderSize = 18
         const container = <Group/>
         const element: DomElement = <div className={Html.buildClassList(className, orientation, "panel-placeholder")}
@@ -77,9 +73,9 @@ export const PanelPlaceholder =
 
         const popupLabel: Element = (
             <div className="popup-label">
-				<span>
-					{`${panelState.name} is currently in another window.`}
-				</span>
+                <span>
+                    {`${panelState.name} is currently in another window.`}
+                </span>
             </div>
         )
         const popoutIcon = new DefaultObservableValue(IconSymbol.Embed)
