@@ -175,6 +175,43 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
  .app{visibility:hidden}
 }
 
+
+/* QA layout v2: explicit independent planes and compact landscape surface. */
+#timelineScreen .timeline{display:grid;grid-template-rows:30px minmax(0,1fr);min-height:0}
+#timelineScreen .tracks{min-height:0;overflow:auto}
+#timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(105px,15vw,150px) minmax(500px,1fr)}
+#timelineScreen .bars{min-width:500px}
+#timelineScreen .cliparea{min-width:500px}
+#timelineScreen .clip{top:6px;height:calc(100% - 12px);min-height:28px}
+#timelineScreen .trackrow{min-height:48px}
+#timelineScreen .tracklabel{overflow:hidden}
+#timelineScreen .trackname>span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#timelineScreen>.addtrack{flex:0 0 32px;min-height:30px;margin-top:4px}
+#browserScreen .sample-meta{min-width:0;overflow:hidden}
+#browserScreen .sample-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#browserScreen .sample-status{font-size:10px;color:var(--muted);margin-top:2px}
+#browserScreen .browser-empty{display:flex;flex-direction:column;gap:8px;padding:18px;border:1px dashed var(--line);border-radius:10px;color:var(--muted)}
+#browserScreen .browser-empty strong{color:var(--text)}
+#browserScreen .sample button:disabled{opacity:.35;cursor:not-allowed}
+#pianoScreen .pianowrap{display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 54px;overflow:hidden}
+#pianoScreen .pianogrid{min-width:0;min-height:0;position:relative;overflow:hidden;display:block;background-image:linear-gradient(to right,#24313e 1px,transparent 1px),linear-gradient(to bottom,#24313e 1px,transparent 1px);background-size:calc(100% / 16) calc(100% / 12)}
+#pianoScreen .note-layer{position:absolute;inset:0}
+#pianoScreen .note{position:absolute;left:auto;top:auto;height:8.333%;min-width:2px;margin:1px 2px;padding:0}
+#pianoScreen .velocity{grid-column:1/3;min-height:54px;overflow:hidden}
+#mixerScreen .mixergrid{grid-template-columns:repeat(6,minmax(145px,1fr))}
+#mixerScreen .channel{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-height:0;height:auto;max-height:none;padding:9px}
+#mixerScreen .channel-head{display:flex;justify-content:space-between;align-items:center;gap:5px;min-width:0}
+#mixerScreen .channel-head strong{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#mixerScreen .channel .meter{align-self:center;height:40px;width:100%;display:flex;flex-direction:row;border-radius:5px}
+#mixerScreen .channel .meter span{height:100%;width:var(--level);background:linear-gradient(90deg,var(--green),#a6e941)}
+#mixerScreen .mix-control{display:grid;grid-template-columns:1fr;gap:3px;min-width:0}
+#mixerScreen .mix-control label{display:flex;justify-content:space-between;gap:4px;white-space:nowrap}
+#mixerScreen .mix-control input{width:100%;min-width:0;margin:0}
+#mixerScreen .channel-actions{display:flex;gap:6px}
+#mixerScreen .channel-actions button{flex:1;min-height:30px}
+#devicesScreen .knob{min-width:0}
+#devicesScreen .dial{max-width:100%}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -205,7 +242,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 <section class="screen" id="mixerScreen" hidden><div class="panel"><h2 class="paneltitle">Mixer <span class="muted" style="font-size:12px">· per track</span></h2><div class="mixergrid" id="mixer"></div></div></section>
 <section class="screen" id="pianoScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Piano Roll <span class="muted" style="font-size:12px">· ketuk grid untuk menambah nada</span></h2><div class="pianowrap"><div class="keys" id="keys"></div><div class="pianogrid" id="pianogrid" aria-label="Grid piano roll"></div><div class="velocity" id="velocity"></div></div></div></section>
 <section class="screen" id="devicesScreen" hidden><div class="panel"><h2 class="paneltitle">Devices & Instruments</h2><div class="tabs" id="devTabs"><button class="active" data-cat="Instrument">Instrumen</button><button data-cat="Effect">Efek</button><button data-cat="Preset">Preset</button></div><div class="devicegrid" id="devices"></div><p class="muted" style="margin-bottom:0;font-size:12px">UI prototype: kontrol instrumen ini belum dirutekan ke engine OpenDAW.</p></div></section>
-<section class="screen" id="browserScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Browser</h2><div class="tabs" id="browserTabs"><button class="active" data-cat="Samples">Samples</button><button data-cat="Instruments">Instrumen</button><button data-cat="Effects">Efek</button><button data-cat="Presets">Preset</button></div><div class="browserlayout"><div class="categories" id="categories"><button class="active" data-filter="All">Semua</button><button data-filter="Drums">Drums</button><button data-filter="Bass">Bass</button><button data-filter="Synth">Synth</button><button data-filter="Piano">Piano</button><button data-filter="Vocals">Vokal</button><button data-filter="User">Impor</button></div><div class="samplelist" id="samples"></div></div><p class="muted" style="font-size:12px;margin-bottom:0">Sampel yang tercantum merupakan demo UI; audio file asli belum dipaketkan.</p></div></section>
+<section class="screen" id="browserScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Browser</h2><div class="tabs" id="browserTabs"><button class="active" data-cat="Samples">Samples</button><button data-cat="Instruments">Instrumen</button><button data-cat="Effects">Efek</button><button data-cat="Presets">Preset</button></div><div class="browserlayout"><div class="categories" id="categories"><button class="active" data-filter="All">Semua</button><button data-filter="Drums">Drums</button><button data-filter="Bass">Bass</button><button data-filter="Synth">Synth</button><button data-filter="Piano">Piano</button><button data-filter="Vocals">Vokal</button><button data-filter="User">Impor</button></div><div class="samplelist" id="samples"></div></div><p class="muted" style="font-size:12px;margin-bottom:0">Daftar ini memakai data demo UI; sampel, instrumen, dan efek belum terhubung ke mesin audio.</p></div></section>
 </main>
 <nav class="dock" aria-label="Workspace navigation">
 <button class="active" data-screen="timeline"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M3 12h18M3 19h18M7 3v18M14 3v18" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>Timeline</button><button data-screen="mixer"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M12 3v18M19 3v18" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="7" width="6" height="4" rx="1" fill="currentColor"/><rect x="9" y="14" width="6" height="4" rx="1" fill="currentColor"/><rect x="16" y="5" width="6" height="4" rx="1" fill="currentColor"/></svg>Mixer</button><button data-screen="piano"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 8h18M3 13h18M3 18h18M8 3v18M13 3v18M18 3v18" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>Piano Roll</button><button data-screen="devices"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>Devices</button><button data-screen="browser"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.6"/></svg>Browser</button>
@@ -215,7 +252,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 <script>
 (function(){
 const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
-let currentScreen='timeline',selectedTrack=0,selectedClip=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
+let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
 let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
 {id:'t1',name:'Drums',type:'Audio',color:'#ff625e',mute:false,solo:false,gain:0,pan:0,clips:[{id:'c1',label:'Drum Loop',start:0,duration:18,color:'#ff625e'}]},
 {id:'t2',name:'Bass',type:'MIDI',color:'#168cff',mute:false,solo:false,gain:-6,pan:0,clips:[{id:'c2',label:'Bass Pattern',start:2,duration:16,color:'#168cff'}]},
@@ -228,7 +265,7 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function notify(message){const el=$('toast');el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2600);}
 function snapshot(){undoStack.push(JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
-function switchScreen(name){if(!screens[name])return;currentScreen=name;Object.keys(screens).forEach(k=>{const el=$(screens[k]);el.hidden=k!==name;el.setAttribute('aria-hidden',k!==name?'true':'false');});document.querySelectorAll('.dock button').forEach(b=>{const active=b.dataset.screen===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false');});}
+function switchScreen(name){if(!screens[name])return;currentScreen=name;Object.keys(screens).forEach(k=>{const el=$(screens[k]),active=k===name;el.hidden=!active;el.setAttribute('aria-hidden',active?'false':'true');el.style.display=active?(name==='timeline'?'flex':'block'):'none';});document.querySelectorAll('.dock button').forEach(b=>{const active=b.dataset.screen===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false');});}
 function renderTracks(){
  const root=$('tracks');root.innerHTML='';
  project.tracks.forEach((t,index)=>{
@@ -247,14 +284,23 @@ function renderMixer(){
  const root=$('mixer');root.innerHTML='';
  project.tracks.forEach((t,i)=>{
   const c=document.createElement('div');c.className='channel';const db=Number(t.gain)||0;
-  c.innerHTML='<strong style="color:'+t.color+'">'+esc(t.name)+'</strong><div class="meter"><span style="--level:'+Math.max(8,Math.min(100,82+db*3))+'%"></span></div><label class="value">Gain <span id="gainv'+i+'">'+db.toFixed(1)+' dB</span></label><input aria-label="'+esc(t.name)+' gain" type="range" min="-48" max="6" step=".5" value="'+db+'" data-mix="gain" data-i="'+i+'"><label class="value">Pan <span id="panv'+i+'">'+t.pan+'</span></label><input aria-label="'+esc(t.name)+' pan" type="range" min="-100" max="100" step="1" value="'+t.pan+'" data-mix="pan" data-i="'+i+'"><div style="display:flex;gap:4px"><button data-action="mute" data-i="'+i+'" class="'+(t.mute?'on':'')+'">M</button><button data-action="solo" data-i="'+i+'" class="'+(t.solo?'on':'')+'">S</button></div>';
+  c.innerHTML='<div class="channel-head"><strong style="color:'+t.color+'">'+esc(t.name)+'</strong><span class="muted">'+esc(t.type)+'</span></div>'+
+  '<div class="meter" aria-label="Level meter"><span style="--level:'+Math.max(8,Math.min(100,82+db*3))+'%"></span></div>'+
+  '<div class="mix-control"><label class="value" for="gain'+i+'">Gain <span id="gainv'+i+'">'+db.toFixed(1)+' dB</span></label><input id="gain'+i+'" aria-label="'+esc(t.name)+' gain" type="range" min="-48" max="6" step=".5" value="'+db+'" data-mix="gain" data-i="'+i+'"></div>'+
+  '<div class="mix-control"><label class="value" for="pan'+i+'">Pan <span id="panv'+i+'">'+t.pan+'</span></label><input id="pan'+i+'" aria-label="'+esc(t.name)+' pan" type="range" min="-100" max="100" step="1" value="'+t.pan+'" data-mix="pan" data-i="'+i+'"></div>'+
+  '<div class="channel-actions"><button data-action="mute" data-i="'+i+'" class="'+(t.mute?'on':'')+'" aria-pressed="'+t.mute+'">M</button><button data-action="solo" data-i="'+i+'" class="'+(t.solo?'on':'')+'" aria-pressed="'+t.solo+'">S</button></div>';
   root.appendChild(c);
  });
 }
 function renderPiano(){
  const keys=$('keys'),grid=$('pianogrid'),vel=$('velocity');keys.innerHTML='';grid.innerHTML='';vel.innerHTML='';
- const names=['C5','B4','A#4','A4','G#4','G4','F#4','F4','E4','D#4','D4','C4'];names.forEach(n=>{const span=document.createElement('span');span.textContent=n;keys.appendChild(span)});
- project.notes.forEach((n,i)=>{const note=document.createElement('button');note.className='note';note.style.gridRow=(n.row+1);note.style.gridColumn=(n.col+1)+' / span '+n.len;note.title='MIDI note '+(60+11-n.row);note.setAttribute('aria-label',note.title);grid.appendChild(note)});
+ const names=['C5','B4','A#4','A4','G#4','G4','F#4','F4','E4','D#4','D4','C4'];
+ names.forEach(n=>{const span=document.createElement('span');span.textContent=n;keys.appendChild(span)});
+ const noteLayer=document.createElement('div');noteLayer.className='note-layer';noteLayer.setAttribute('aria-label','MIDI note lane');
+ project.notes.forEach((n,i)=>{
+  const note=document.createElement('button');note.className='note';note.style.left=(n.col/16*100)+'%';note.style.width=(Math.max(1,n.len)/16*100)+'%';note.style.top=(Math.max(0,Math.min(11,n.row))/12*100)+'%';note.style.height=(100/12)+'%';note.dataset.noteIndex=i;note.title='Nada '+names[Math.max(0,Math.min(11,n.row))];note.setAttribute('aria-label',note.title);noteLayer.appendChild(note);
+ });
+ grid.appendChild(noteLayer);
  for(let i=0;i<16;i++){const s=document.createElement('span');s.style.setProperty('--h',(18+(i*37%68))+'%');s.title='Velocity';vel.appendChild(s)}
 }
 function renderDevices(cat='Instrument'){
@@ -263,28 +309,63 @@ function renderDevices(cat='Instrument'){
  items.forEach((name,i)=>{const d=document.createElement('div');d.className='panel';d.innerHTML='<h3 style="margin:0 0 8px;font-size:14px">'+esc(name)+'</h3><div class="knobs">'+['Tone','Shape','Mix'].map((k,j)=>'<div class="knob"><div class="dial">'+(j===0?35+i*7:j===1?58:25)+'%</div><span class="value">'+k+'</span></div>').join('')+'</div><button style="width:100%;margin-top:9px" data-device="'+esc(name)+'">Pilih device</button>';root.appendChild(d)});
 }
 const samples=['Kick 01.wav','Kick 02.wav','Snare 01.wav','Snare 02.wav','HiHat Closed.wav','HiHat Open.wav','Tom 01.wav','Piano Soft.wav','Bass Sub.wav','Ambient Pad.wav'];
+const browserItems={
+ Samples:[
+  {name:'Kick 01.wav',kind:'Drums',available:false},{name:'Kick 02.wav',kind:'Drums',available:false},
+  {name:'Snare 01.wav',kind:'Drums',available:false},{name:'Snare 02.wav',kind:'Drums',available:false},
+  {name:'HiHat Closed.wav',kind:'Drums',available:false},{name:'HiHat Open.wav',kind:'Drums',available:false},
+  {name:'Tom 01.wav',kind:'Drums',available:false},{name:'Piano Soft.wav',kind:'Piano',available:false},
+  {name:'Bass Sub.wav',kind:'Bass',available:false},{name:'Ambient Pad.wav',kind:'Synth',available:false}],
+ Instruments:[
+  {name:'Vaporisateur Synth',kind:'Synth',available:false},{name:'Nano Sampler',kind:'User',available:false},
+  {name:'Playfield Drums',kind:'Drums',available:false},{name:'SoundFont Player',kind:'Piano',available:false}],
+ Effects:[
+  {name:'Revamp EQ',kind:'User',available:false},{name:'Delay',kind:'User',available:false},
+  {name:'Free Reverb',kind:'User',available:false},{name:'Waveshaper',kind:'User',available:false},
+  {name:'Maximizer',kind:'User',available:false},{name:'Stereo Tool',kind:'User',available:false}],
+ Presets:[
+  {name:'Warm Keys',kind:'Piano',available:false},{name:'Deep Bass',kind:'Bass',available:false},
+  {name:'Airy Pad',kind:'Synth',available:false},{name:'Studio Drums',kind:'Drums',available:false}]
+};
 function renderSamples(category='Samples',filter='All'){
  const root=$('samples');root.innerHTML='';
- (category==='Samples'?samples:category==='Instruments'?['Vaporisateur','Nano Sampler','Playfield','Soundfont']:category==='Effects'?['Revamp EQ','Delay','Free Reverb','Maximizer','Stereo Tool']:['Warm Keys','Deep Bass','Airy Pad']).filter(n=>filter==='All'||filter==='User'||n.toLowerCase().includes(filter.toLowerCase().slice(0,-1))||filter==='Drums'&&/kick|snare|hat|tom/i.test(n)).forEach((name,i)=>{
-  const item=document.createElement('div');item.className='sample';item.innerHTML='<button aria-label="Preview" data-preview="'+esc(name)+'">▶</button><div><div>'+esc(name)+'</div><div class="wave"></div></div><button data-addsample="'+esc(name)+'">＋</button>';root.appendChild(item);
+ const items=(browserItems[category]||[]).filter(item=>filter==='All'||(filter==='User'?item.kind==='User':item.kind===filter));
+ if(!items.length){
+  root.innerHTML='<div class="browser-empty"><strong>Tidak ada item di kategori ini</strong><span>Pilih kategori lain atau impor aset lokal. Item demo tidak memuat suara asli.</span></div>';
+  return;
+ }
+ items.forEach(item=>{
+  const row=document.createElement('div');row.className='sample';
+  row.innerHTML='<button aria-label="Preview '+esc(item.name)+'" data-preview="'+esc(item.name)+'" '+(!item.available?'disabled':'')+'>▶</button>'+
+   '<div class="sample-meta"><div class="sample-name">'+esc(item.name)+'</div><div class="wave" aria-hidden="true"></div><div class="sample-status">'+(item.available?'Aset tersedia':'Demo • aset audio belum tersedia')+'</div></div>'+
+   '<button aria-label="Tambahkan '+esc(item.name)+'" data-addsample="'+esc(item.name)+'">＋</button>';
+  root.appendChild(row);
  });
 }
 function renderAll(){renderTracks();renderMixer();renderPiano();renderDevices();renderSamples();$('projectName').value=project.name;$('tempo').value=project.tempo;$('meter').value=project.meter;}
 document.querySelectorAll('.dock button').forEach(b=>b.addEventListener('click',()=>switchScreen(b.dataset.screen)));
 $('tracks').addEventListener('click',e=>{
  const act=e.target.closest('[data-action]');if(act){const i=+act.dataset.i,t=project.tracks[i];if(act.dataset.action==='select'){selectedTrack=i;switchScreen('devices');notify('Track dipilih: '+t.name)}else{snapshot();t[act.dataset.action]=!t[act.dataset.action];renderAll()}return}
- const clip=e.target.closest('[data-clip]');if(clip){selectedClip=clip.dataset.clip;const found=project.tracks.flatMap(t=>t.clips).find(c=>c.id===selectedClip);notify('Clip dipilih: '+(found?found.label:''));renderTracks();}
+ const clip=e.target.closest('[data-clip]');if(clip){const wasSelected=selectedClip===clip.dataset.clip;selectedClip=clip.dataset.clip;const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===selectedClip));if(ownerIndex>=0)selectedTrack=ownerIndex;const found=project.tracks.flatMap(t=>t.clips).find(c=>c.id===selectedClip);if(wasSelected){const tr=project.tracks[selectedTrack];switchScreen(tr.type==='MIDI'?'piano':tr.type==='Automation'?'devices':'browser');notify('Editor dibuka: '+tr.name)}else{notify('Clip dipilih: '+(found?found.label:''));renderTracks();}}
 });
 $('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.length;const colors=['#ff625e','#168cff','#20cf8a','#a95bff','#ffad34','#58c9f1'];project.tracks.push({id:'t'+Date.now(),name:'Track '+(n+1),type:'MIDI',color:colors[n%colors.length],mute:false,solo:false,gain:0,pan:0,clips:[]});renderAll();notify('Track baru ditambahkan')});
 $('mixer').addEventListener('input',e=>{const el=e.target;if(!el.dataset.mix)return;const t=project.tracks[+el.dataset.i];t[el.dataset.mix]=+el.value;$(el.dataset.mix==='gain'?'gainv'+el.dataset.i:'panv'+el.dataset.i).textContent=el.dataset.mix==='gain'?Number(el.value).toFixed(1)+' dB':el.value;});
 $('mixer').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const t=project.tracks[+b.dataset.i];snapshot();t[b.dataset.action]=!t[b.dataset.action];renderAll()});
-$('pianogrid').addEventListener('click',e=>{if(!e.target.closest('.note')){const r=Math.floor((e.offsetY||0)/(e.currentTarget.clientHeight/12)),c=Math.floor((e.offsetX||0)/(e.currentTarget.clientWidth/16));snapshot();project.notes.push({row:Math.max(0,Math.min(11,r)),col:Math.max(0,Math.min(15,c)),len:1});renderPiano();notify('Nada MIDI ditambahkan (model demo)')}});
+$('pianogrid').addEventListener('click',e=>{
+ const note=e.target.closest('.note');
+ if(note){selectedNote=Number(note.dataset.noteIndex);notify('Nada dipilih • tahan untuk tindakan');return}
+ const rect=e.currentTarget.getBoundingClientRect();
+ const row=Math.floor((e.clientY-rect.top)/(rect.height/12));
+ const col=Math.floor((e.clientX-rect.left)/(rect.width/16));
+ snapshot();project.notes.push({row:Math.max(0,Math.min(11,row)),col:Math.max(0,Math.min(15,col)),len:1,velocity:80});
+ renderPiano();notify('Nada MIDI ditambahkan (model demo)')
+});
 $('devTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;document.querySelectorAll('#devTabs button').forEach(x=>x.classList.toggle('active',x===b));renderDevices(b.dataset.cat)});
 $('devices').addEventListener('click',e=>{const b=e.target.closest('[data-device]');if(b)notify(b.dataset.device+' — engine belum terhubung')});
 let browseCat='Samples',browseFilter='All';
-$('browserTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;browseCat=b.dataset.cat;document.querySelectorAll('#browserTabs button').forEach(x=>x.classList.toggle('active',x===b));renderSamples(browseCat,browseFilter)});
+$('browserTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;browseCat=b.dataset.cat;browseFilter='All';document.querySelectorAll('#browserTabs button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('#categories button').forEach(x=>x.classList.toggle('active',x.dataset.filter==='All'));renderSamples(browseCat,browseFilter)});
 $('categories').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;browseFilter=b.dataset.filter;document.querySelectorAll('#categories button').forEach(x=>x.classList.toggle('active',x===b));renderSamples(browseCat,browseFilter)});
-$('samples').addEventListener('click',e=>{const p=e.target.closest('[data-preview]'),a=e.target.closest('[data-addsample]');if(p){notify('Preview belum tersedia: aset audio demo belum dipaketkan')}if(a){snapshot();project.tracks[selectedTrack].clips.push({id:'c'+Date.now(),label:a.dataset.addsample,start:0,duration:8,color:project.tracks[selectedTrack].color});switchScreen('timeline');renderTracks();notify('Clip demo ditambahkan ke '+project.tracks[selectedTrack].name)}});
+$('samples').addEventListener('click',e=>{const p=e.target.closest('[data-preview]'),a=e.target.closest('[data-addsample]');if(p){notify('Preview tidak tersedia: file audio belum dikemas')}if(a){snapshot();project.tracks[selectedTrack].clips.push({id:'c'+Date.now(),label:a.dataset.addsample,start:0,duration:8,color:project.tracks[selectedTrack].color,sourceType:browseCat});switchScreen('timeline');renderTracks();notify('Clip metadata demo ditambahkan ke '+project.tracks[selectedTrack].name+' • tidak ada suara asli')}});
 $('play').addEventListener('click',()=>{playing=!playing;$('play').innerHTML=playing?'<svg class=\"workspace-dock-symbol\" viewBox=\"0 0 24 24\"><path d=\"M7 4h4v16H7zM15 4h4v16h-4z\" fill=\"currentColor\"/></svg>':'<svg class=\"workspace-dock-symbol\" viewBox=\"0 0 24 24\"><path d=\"M7 4l13 8-13 8z\" fill=\"currentColor\"/></svg>';$('audioState').textContent=playing?'Preview UI':'Demo';notify(playing?'Mode play UI aktif — engine audio belum terhubung':'Playback UI berhenti')});
 $('rewind').addEventListener('click',()=>{$('position').textContent='1:1:000';tick=0;notify('Posisi kembali ke awal')});
 $('record').addEventListener('click',()=>{recording=!recording;$('record').style.color=recording?'#ff6675':'';notify(recording?'Status rekam demo aktif — input belum direkam':'Rekam dihentikan')});
