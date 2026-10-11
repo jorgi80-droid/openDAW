@@ -29,6 +29,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                 const activeScreen = service.layout.screen.getValue()
                 const mapping: Record<string, string> = {
                     "timeline-shortcut": "default",
+                    "browser-shortcut": "browser",
                     "mixer-shortcut": "mixer",
                     "editor-shortcut": "piano",
                     "devices-shortcut": "modulation"
@@ -103,7 +104,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("aria-label", "Toggle Sample Browser")
                             const toggle = () => {
                                 toggleTouchPanel(service, PanelType.BrowserPanel)
-                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "default"))
+                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "browser"))
                             }
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
