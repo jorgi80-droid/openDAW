@@ -51,9 +51,11 @@ try {
     assert(notesInside, `all Piano Roll notes remain inside note grid at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#velocity span').count() === 16, `velocity bars remain in separate lane at ${viewport.width}x${viewport.height}`);
     assert(pageErrors.length === 0, `no JavaScript exceptions at ${viewport.width}x${viewport.height}${pageErrors.length ? ': '+pageErrors.join('; ') : ''}`);
-    await page.screenshot({ path:path.join(outDir,`${viewport.width}x${viewport.height}-piano.png`), fullPage:true });
-    await page.locator('.dock button[data-screen="timeline"]').click();
-    await page.screenshot({ path:path.join(outDir,`${viewport.width}x${viewport.height}-timeline.png`), fullPage:true });
+    for (const [route,id] of routes) {
+      await page.locator('.dock button[data-screen="'+route+'"]').click();
+      await page.locator('#toast').evaluate(el => { el.hidden = true; });
+      await page.screenshot({ path:path.join(outDir,`${viewport.width}x${viewport.height}-${route}.png`), fullPage:true });
+    }
     await context.close();
   }
 } finally { await browser.close(); }
