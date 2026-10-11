@@ -64,7 +64,12 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Open Timeline")
-                            const open = () => service.switchScreen("default")
+                            const open = () => {
+                                service.switchScreen("default")
+                                requestAnimationFrame(() => {
+                                    component.setAttribute("aria-current", "page")
+                                })
+                            }
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", open),
                                 Events.subscribe(component, "keydown", event => {
@@ -80,7 +85,10 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Sample Browser")
-                            const toggle = () => toggleTouchPanel(service, PanelType.BrowserPanel)
+                            const toggle = () => {
+                                toggleTouchPanel(service, PanelType.BrowserPanel)
+                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "default"))
+                            }
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -96,7 +104,10 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Mixer")
-                            const toggle = () => toggleTouchPanel(service, PanelType.Mixer)
+                            const toggle = () => {
+                                toggleTouchPanel(service, PanelType.Mixer)
+                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "mixer"))
+                            }
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -112,7 +123,10 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Editor / Piano Roll")
-                            const toggle = () => toggleTouchPanel(service, PanelType.ContentEditor)
+                            const toggle = () => {
+                                toggleTouchPanel(service, PanelType.ContentEditor)
+                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "piano"))
+                            }
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -128,7 +142,10 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Devices / Effects")
-                            const toggle = () => toggleTouchPanel(service, PanelType.DevicePanel)
+                            const toggle = () => {
+                                toggleTouchPanel(service, PanelType.DevicePanel)
+                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "modulation"))
+                            }
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
