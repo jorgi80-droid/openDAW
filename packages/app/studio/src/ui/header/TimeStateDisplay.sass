@@ -88,3 +88,26 @@ html.midiable-mobile .mobile-toolbar-primary .MusicalUnitDisplay
 
 html.midiable-mobile .mobile-toolbar-primary .number-display
   flex-shrink: 0
+
+
+/* Keep bar/beat, tempo and meter in the transport row as requested for phones. */
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  min-width: 0
+  max-width: 100%
+  column-gap: 0.15em
+  padding: 0 0.1em
+  overflow: hidden
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display
+  flex: 0 0 20px
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(1)
+  font-size: 10px
+  line-height: 1em
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(2)
+  font-size: 7px
+  line-height: 1em
