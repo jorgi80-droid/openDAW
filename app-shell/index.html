@@ -224,7 +224,7 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 .menu-rename{display:flex;gap:7px;margin-bottom:10px}.menu-rename[hidden]{display:none!important}
 .menu-rename input{min-width:0;flex:1;background:#0b1219;border:1px solid var(--line);border-radius:9px;padding:9px}
 .clip{touch-action:none;user-select:none;-webkit-user-select:none}
-.clip-label{position:relative;z-index:1;display:block;pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px}
+.clip-label{position:relative;z-index:1;display:block;pointer-events:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px}
 .clip-resize-handle{position:absolute;z-index:2;right:0;top:0;bottom:0;width:12px;cursor:ew-resize;background:linear-gradient(90deg,transparent,#ffffff24);touch-action:none}
 #pianoScreen .note-layer{touch-action:none}
 #pianoScreen .note{margin:1px 0}
@@ -626,7 +626,12 @@ $('tracks').addEventListener('pointerdown',e=>{
  const clip=e.target.closest('[data-clip]');if(!clip)return;
  const trackIndex=Number(clip.closest('.cliparea').dataset.track);
  const clipId=clip.dataset.clip;const item=project.tracks[trackIndex]?.clips.find(c=>c.id===clipId);if(!item)return;
- const rect=clip.getBoundingClientRect();const mode=e.target.closest('.clip-resize-handle')||e.clientX>=rect.right-12?'resize':'move';
+ const rect=clip.getBoundingClientRect();
+ const resizeHandle=e.target.closest('.clip-resize-handle');
+ const mode=resizeHandle?'resize':(e.target.closest('.clip-label')?null:'move');
+ // The clip label is a tap target. Start a gesture on blank clip surface or the explicit resize handle only.
+ if(mode===null)return;
+ if(e.button!==undefined&&e.button!==0)return;
  clipGesture={pointerId:e.pointerId,target:clip,trackIndex,clipId,mode,startX:e.clientX,originStart:item.start,originDuration:item.duration,before:JSON.stringify(project),moved:false};
  try{clip.setPointerCapture(e.pointerId)}catch(_){}
 });
