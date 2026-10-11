@@ -1,26 +1,35 @@
 import {StudioService} from "@/service/StudioService"
 import {PanelType} from "@/ui/workspace/PanelType"
+import {Workspace} from "@/ui/workspace/Workspace"
 import {isTouchLayout} from "@/ui/workspace/TouchLayout"
 
-
-const setFlex = (service: StudioService, type: PanelType, flex: number): void => {
-    service.panelLayout.getByType(type).panelState.ifSome(state => {
-        if (state.constrains.type === "flex") {state.constrains.flex = flex}
-    })
+const targetScreen = (type: PanelType): Workspace.ScreenKeys => {
+    switch (type) {
+        case PanelType.Mixer:
+            return "mixer"
+        case PanelType.ContentEditor:
+            return "piano"
+        case PanelType.DevicePanel:
+            return "modulation"
+        default:
+            return "default"
+    }
 }
 
-const resetTouchFlex = (service: StudioService): void => {
-    setFlex(service, PanelType.Timeline, 2)
-    setFlex(service, PanelType.Mixer, 3)
-    setFlex(service, PanelType.ContentEditor, 1)
-    setFlex(service, PanelType.DevicePanel, 1)
-    setFlex(service, PanelType.BrowserPanel, 0.25)
+const openBrowserInDefault = (service: StudioService): void => {
+    const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
+    if (browser.isVisible) {
+        browser.toggleMinimize()
+    } else {
+        service.panelLayout.showIfAvailable(PanelType.BrowserPanel)
+    }
 }
 
 /**
- * Shared entry point for mobile workspace tools. Only one tool is expanded at
- * once; the original native panel content stays mounted in its regular panel
- * slot, so instrument/effect/editor state is not replaced by a fake mobile UI.
+ * Mobile keeps the original Timeline as the default workspace and opens one
+ * native tool in its own existing screen variant. Every tool screen contains
+ * exactly [Timeline, selected panel], so the native PanelResizer always works
+ * on the two visible panels instead of skipping over minimized sibling panels.
  */
 export const toggleTouchPanel = (service: StudioService, type: PanelType): void => {
     if (!isTouchLayout()) {
@@ -30,39 +39,42 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
         return
     }
 
-    // All mobile tools live in the default touch workspace. A toolbar action
-    // from Mixer/Piano/Modulation screens must first return to that workspace,
-    // then operate on its currently bound native PanelState. Otherwise actions
-    // can hit a non-minimizable desktop Mixer state or a stale placeholder.
-    const toggleInDefaultWorkspace = () => {
+    const current = service.layout.screen.getValue()
+
+    if (type === PanelType.BrowserPanel) {
+        if (current !== "default") {
+            // A browser opened over a tool screen would cover the native panel.
+            service.switchScreen("default")
+            requestAnimationFrame(() => requestAnimationFrame(() => openBrowserInDefault(service)))
+        } else {
+            openBrowserInDefault(service)
+        }
+        return
+    }
+
+    const destination = targetScreen(type)
+    if (current === destination) {
         const panel = service.panelLayout.getByType(type)
         if (panel.isVisible) {
-            panel.toggleMinimize()
-            resetTouchFlex(service)
-            return
+            // Tapping the active tool shortcut collapses its screen back to the
+            // arrangement without destroying the underlying project or editor state.
+            const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
+            if (browser.isVisible) {browser.toggleMinimize()}
+            service.switchScreen("default")
+        } else {
+            // The user may have minimized the panel using its own header. Restore
+            // it in-place rather than changing screens or creating another panel.
+            service.panelLayout.showIfAvailable(type)
         }
-
-        const tools = [PanelType.BrowserPanel, PanelType.ContentEditor, PanelType.DevicePanel, PanelType.Mixer]
-        tools.filter(other => other !== type).forEach(other => {
-            const sibling = service.panelLayout.getByType(other)
-            if (sibling.isVisible) {sibling.toggleMinimize()}
-        })
-
-        resetTouchFlex(service)
-        // Set constraints before expanding: PanelPlaceholder recalculates sibling
-        // flexGrow values during onEmbed(), so applying ratios afterwards only
-        // changes model values and leaves the visible panel sizes unchanged.
-        if (type !== PanelType.BrowserPanel) {
-            setFlex(service, PanelType.Timeline, 0.25)
-            setFlex(service, type, 4)
-        }
-        service.panelLayout.showIfAvailable(type)
+        return
     }
 
-    if (service.layout.screen.getValue() !== "default") {
-        service.switchScreen("default")
-        requestAnimationFrame(() => requestAnimationFrame(toggleInDefaultWorkspace))
-    } else {
-        toggleInDefaultWorkspace()
-    }
+    // Do not leave the Browser overlay above a newly selected tool.
+    const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
+    if (browser.isVisible) {browser.toggleMinimize()}
+    service.switchScreen(destination)
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        const panel = service.panelLayout.getByType(type)
+        if (!panel.isVisible) {service.panelLayout.showIfAvailable(type)}
+    }))
 }
