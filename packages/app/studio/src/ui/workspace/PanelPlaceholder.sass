@@ -114,10 +114,6 @@ component
 
     &.closed
       flex-basis: 22px
-      min-width: 22px
-      max-width: 22px
-      min-height: 22px
-      max-height: 22px
 
 // Collapsed panels remain available as native compact headers. Do not
 // display:none here: WorkspaceBuilder's flex siblings and resizers are structural.
@@ -131,19 +127,36 @@ html.midiable-mobile .panel-placeholder
   html.midiable-mobile .panel-placeholder > header
     transition: none
 
-/* Keep the native placeholder/resizer nodes in the flex tree.
-   PanelContents and PanelResizer rely on this order to restore panels and resize
-   the two visible siblings; display:none breaks those invariants on touch. */
+/* Keep native panel placeholders mounted; preserve only the collapsed axis.
+   Horizontal parents collapse width, vertical parents collapse height. */
 html.midiable-mobile .panel-placeholder.closed[data-panel-type="Browser"],
 html.midiable-mobile .panel-placeholder.closed[data-panel-type="Editor"],
 html.midiable-mobile .panel-placeholder.closed[data-panel-type="Devices"],
 html.midiable-mobile .panel-placeholder.closed[data-panel-type="Mixer"]
   flex: 0 0 22px !important
+  overflow: hidden
+
+html.midiable-mobile .panel-placeholder.horizontal.closed[data-panel-type="Browser"],
+html.midiable-mobile .panel-placeholder.horizontal.closed[data-panel-type="Editor"],
+html.midiable-mobile .panel-placeholder.horizontal.closed[data-panel-type="Devices"],
+html.midiable-mobile .panel-placeholder.horizontal.closed[data-panel-type="Mixer"]
+  width: 22px !important
   min-width: 22px !important
   max-width: 22px !important
+  height: auto !important
+  min-height: 0 !important
+  max-height: 100% !important
+
+html.midiable-mobile .panel-placeholder.vertical.closed[data-panel-type="Browser"],
+html.midiable-mobile .panel-placeholder.vertical.closed[data-panel-type="Editor"],
+html.midiable-mobile .panel-placeholder.vertical.closed[data-panel-type="Devices"],
+html.midiable-mobile .panel-placeholder.vertical.closed[data-panel-type="Mixer"]
+  height: 22px !important
   min-height: 22px !important
   max-height: 22px !important
-  overflow: hidden
+  width: 100% !important
+  min-width: 0 !important
+  max-width: 100% !important
 
 html.midiable-mobile .panel-placeholder.closed + .panel-resizer,
 html.midiable-mobile .panel-resizer:has(+ .panel-placeholder.closed)
