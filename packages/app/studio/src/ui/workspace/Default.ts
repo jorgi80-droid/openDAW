@@ -11,6 +11,13 @@ const BrowserPanel = PanelState.create({
     constrains: {type: "flex", minSize: 44, maxSize: 360, flex: 0.25},
     minimized: true
 })
+const MobileBrowserPanel = PanelState.create({
+    type: "panel",
+    name: "Browser",
+    icon: IconSymbol.Panel,
+    panelType: PanelType.BrowserPanel,
+    constrains: {type: "flex", minSize: 0, flex: 1}
+})
 const DevicesPanel = PanelState.create({
     type: "panel",
     name: "Devices",
@@ -72,7 +79,6 @@ const MobileMixerPanel = PanelState.create({
     icon: IconSymbol.Mixing,
     panelType: PanelType.Mixer,
     constrains: {type: "flex", minSize: 0, flex: 3},
-    minimized: true
 })
 const MobileEditorPanel = PanelState.create({
     type: "panel",
@@ -80,7 +86,6 @@ const MobileEditorPanel = PanelState.create({
     icon: IconSymbol.Pencil,
     panelType: PanelType.ContentEditor,
     constrains: {type: "flex", minSize: 0, flex: 3},
-    minimized: true
 })
 const MobileDevicesPanel = PanelState.create({
     type: "panel",
@@ -89,7 +94,6 @@ const MobileDevicesPanel = PanelState.create({
     panelType: PanelType.DevicePanel,
     notPopoutable: true,
     constrains: {type: "flex", minSize: 0, flex: 3},
-    minimized: true
 })
 
 /*const ModularSystem = PanelState.create({
@@ -121,7 +125,9 @@ export const DefaultWorkspace = Object.freeze({
         icon: IconSymbol.Panel,
         hidden: true,
         content: BrowserPanel,
-        touchContent: BrowserPanel
+        // Open immediately on mobile instead of rendering a collapsed 22px header
+        // and waiting for a delayed showIfAvailable call.
+        touchContent: MobileBrowserPanel
     },
     "default": {
         name: "Default",
