@@ -73,16 +73,14 @@ try {
     // Rack identity is per track: choosing a different track must not reuse the same instrument selection.
     await page.locator('#devTabs button[data-cat="Instrument"]').click();
     await page.locator('#devices [data-device-select="Nano Sampler"]').click();
-    await page.locator('#deviceTrackMenu').click();
-    await page.locator('#deviceTrackPicker [data-rack-track="1"]').click();
+    await page.locator('#deviceTrackSelect').selectOption('1');
     await page.locator('#deviceTrackLabel').waitFor({state:'visible'});
     assert(await page.locator('#deviceTrackLabel').innerText().includes('Bass'), `Devices displays the selected track name at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#devices .device-editor h3').innerText() === 'Vaporisateur Synth', `each track retains its own instrument rack at ${viewport.width}x${viewport.height}`);
     await page.locator('.dock button[data-screen="timeline"]').click();
     await page.locator('.dock button[data-screen="devices"]').click();
     assert(await page.locator('#deviceTrackLabel').innerText().includes('Bass') && await page.locator('#devices .device-editor h3').innerText() === 'Vaporisateur Synth', `Devices refreshes the active track rack after route switching at ${viewport.width}x${viewport.height}`);
-    await page.locator('#deviceTrackMenu').click();
-    await page.locator('#deviceTrackPicker [data-rack-track="0"]').click();
+    await page.locator('#deviceTrackSelect').selectOption('0');
     assert(await page.locator('#devices .device-editor h3').innerText() === 'Nano Sampler', `switching back restores the previous track instrument at ${viewport.width}x${viewport.height}`);
     await page.locator('.dock button[data-screen="mixer"]').click();
     assert(await page.locator('#mixer input[type="range"][data-mix="gain"]').count() === 6, `Mixer shows one gain control per track at ${viewport.width}x${viewport.height}`);
