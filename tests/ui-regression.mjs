@@ -172,7 +172,7 @@ try {
     await page.waitForTimeout(80);
     const noteLeftAfter = await page.locator('#pianogrid .note').last().evaluate(el=>el.style.left), noteTopAfter=await page.locator('#pianogrid .note').last().evaluate(el=>el.style.top);
     assert(noteLeftAfter !== noteLeftBefore && noteTopAfter !== noteTopBefore, `dragging a Piano Roll note changes pitch and time at ${viewport.width}x${viewport.height}`);
-    const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
+    const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid .note-layer').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
     assert(notesInside, `all Piano Roll notes remain inside note grid at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#velocity span').count() === 32, `velocity bars remain in separate lane at ${viewport.width}x${viewport.height}`);
     assert(pageErrors.length === 0, `no JavaScript exceptions at ${viewport.width}x${viewport.height}${pageErrors.length ? ': '+pageErrors.join('; ') : ''}`);
