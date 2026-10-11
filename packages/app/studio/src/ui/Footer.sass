@@ -16,8 +16,8 @@ component
         content: " > 80% ⚠️"
         color: var(--color-orange)
 
-// Compact diagnostics row on mobile. Keep the native DAW workspace above it,
-// and expose the original Editor / Devices through small, accessible shortcuts.
+// Compact mobile status row with reachable shortcuts. Avoid oversized dock panels
+// and reserve the workspace for the actual timeline/editor surface.
 @media (max-width: 900px), (max-height: 520px)
   component
     flex: 0 0 28px
