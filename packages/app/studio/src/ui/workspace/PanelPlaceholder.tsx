@@ -155,6 +155,8 @@ export const PanelPlaceholder =
         let touchStart: { x: number, y: number, time: number, pointerId: number } | null = null
         lifecycle.own(Events.subscribe(header, "pointerdown", event => {
             if (event.pointerType === "mouse" || event.button !== 0) {return}
+            const target = event.target
+            if (target instanceof Element && target.closest(".panel-maximize-button") !== null) {return}
             touchStart = {x: event.clientX, y: event.clientY, time: performance.now(), pointerId: event.pointerId}
         }, {capture: true}))
         lifecycle.own(Events.subscribe(header, "pointerup", event => {
@@ -163,6 +165,8 @@ export const PanelPlaceholder =
             if (start === null || event.pointerId !== start.pointerId || event.button !== 0) {return}
             if (performance.now() - start.time > 450) {return}
             if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) {return}
+            const target = event.target
+            if (target instanceof Element && target.closest(".panel-maximize-button") !== null) {return}
             if (panelState.panelType !== PanelType.Timeline) {handler.toggleMinimize()}
         }, {capture: true}))
         lifecycle.own(Events.subscribe(header, "pointercancel", () => {touchStart = null}, {capture: true}))
