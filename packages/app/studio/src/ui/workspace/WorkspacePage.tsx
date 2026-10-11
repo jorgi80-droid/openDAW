@@ -13,7 +13,7 @@ export const WorkspacePage: PageFactory<StudioService> = ({lifecycle, service}: 
     const main: HTMLElement = <main/>
     const screenLifeTime = lifecycle.own(new Terminator())
     lifecycle.own(service.layout.screen.catchupAndSubscribe(owner => {
-        document.documentElement.classList.remove("opendaw-panel-maximized")
+        document.documentElement.classList.remove("opendaw-panel-maximized", "opendaw-maximized-mixer", "opendaw-maximized-editor", "opendaw-maximized-devices")
         screenLifeTime.terminate()
         WorkspaceBuilder.buildScreen(screenLifeTime, service.panelLayout, main, owner.getValue(), service.roomAwareness)
     }))

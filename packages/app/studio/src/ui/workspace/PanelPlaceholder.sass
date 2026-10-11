@@ -210,13 +210,17 @@ html.midiable-mobile .panel-placeholder > header > .panel-maximize-button:active
   background: rgba(66, 217, 232, 0.18)
   border-color: var(--color-blue)
 
-html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Timeline"],
+// Scope full-height layout to the selected tool. The other tool panels stay collapsed
+// as native 22px headers, and the Timeline is hidden only when this exact screen has it.
+html.midiable-mobile.opendaw-maximized-mixer section.workspace.vertical > .panel-placeholder[data-panel-type="Timeline"],
+html.midiable-mobile.opendaw-maximized-editor section.workspace.vertical > .panel-placeholder[data-panel-type="Timeline"],
+html.midiable-mobile.opendaw-maximized-devices section.workspace.vertical > .panel-placeholder[data-panel-type="Timeline"],
 html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-resizer.vertical
   display: none !important
 
-html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Mixer"],
-html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Editor"],
-html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Devices"]
+html.midiable-mobile.opendaw-maximized-mixer section.workspace.vertical > .panel-placeholder[data-panel-type="Mixer"],
+html.midiable-mobile.opendaw-maximized-editor section.workspace.vertical > .panel-placeholder[data-panel-type="Editor"],
+html.midiable-mobile.opendaw-maximized-devices section.workspace.vertical > .panel-placeholder[data-panel-type="Devices"]
   flex: 1 1 0 !important
   width: 100% !important
   min-width: 0 !important
@@ -224,6 +228,15 @@ html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel
   height: 100% !important
   min-height: 0 !important
   max-height: 100% !important
+  overflow: hidden !important
+
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Mixer"]:not(.closed),
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Editor"]:not(.closed),
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Devices"]:not(.closed)
+  flex: 0 0 22px !important
+  height: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
   overflow: hidden !important
 
 html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Mixer"] > div,

@@ -113,7 +113,16 @@ export const PanelPlaceholder =
                     aria-pressed={String(startsMaximized)}
                     onclick={event => {
                         event.stopPropagation()
-                        const maximized = document.documentElement.classList.toggle("opendaw-panel-maximized")
+                        const root = document.documentElement
+                        const wasMaximized = root.classList.contains("opendaw-panel-maximized")
+                        root.classList.remove("opendaw-panel-maximized", "opendaw-maximized-mixer", "opendaw-maximized-editor", "opendaw-maximized-devices")
+                        const maximized = !wasMaximized
+                        if (maximized) {
+                            root.classList.add("opendaw-panel-maximized")
+                            root.classList.add(panelState.panelType === PanelType.Mixer ? "opendaw-maximized-mixer"
+                                : panelState.panelType === PanelType.ContentEditor ? "opendaw-maximized-editor"
+                                    : "opendaw-maximized-devices")
+                        }
                         const button = event.currentTarget as HTMLButtonElement
                         button.title = maximized ? `Restore ${name}` : `Maximize ${name}`
                         button.setAttribute("aria-label", maximized ? `Restore ${name}` : `Maximize ${name}`)
