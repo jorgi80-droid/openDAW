@@ -59,16 +59,16 @@ component > .desktop-toolbar
 // access to every native tool through horizontal scrolling rather than overlap.
 @media (max-width: 900px), (max-height: 520px), (pointer: coarse)
   component
-    height: 34px
-    min-height: 34px
-    max-height: 34px
-    flex: 0 0 34px
-    padding: 1px 3px
-    column-gap: 0.25em
-    overflow-x: auto
-    overflow-y: hidden
-    scrollbar-width: none
-    touch-action: pan-x
+    height: 76px
+    min-height: 76px
+    max-height: 76px
+    flex: 0 0 76px
+    flex-direction: column
+    align-items: stretch
+    padding: 3px 4px
+    row-gap: 2px
+    overflow: hidden
+    touch-action: auto
 
     > *
       flex-shrink: 0
