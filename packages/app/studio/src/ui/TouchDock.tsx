@@ -38,7 +38,6 @@ export const TouchDock = ({service}: Construct) => {
                 nextFrame(() => service.panelLayout.showIfAvailable(PanelType.Timeline))
             })}
             {button("Piano Roll", "Buka atau pulihkan Editor pada workspace Timeline", () => {
-                document.documentElement.classList.remove("opendaw-editor-maximized")
                 openPanel("default", PanelType.ContentEditor)
             }, "piano-roll-action")}
             {button("Samples", "Buka Browser sample", () => openPanel("default", PanelType.BrowserPanel))}
