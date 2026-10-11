@@ -507,6 +507,16 @@ body{font-size:calc(14px * var(--ui-scale))}
  #settingsOverlay .setting{padding:6px}
 }
 
+
+html[data-theme="light"] body,html[data-theme="light"] .app{color:#142130}
+html[data-theme="light"] .top,html[data-theme="light"] .subbar,html[data-theme="light"] .dock{background:#eef3f8}
+html[data-theme="light"] button,html[data-theme="light"] .device-picker,html[data-theme="light"] .device-editor,html[data-theme="light"] .channel,html[data-theme="light"] .tracklabel{background:#f4f7fb;color:#142130}
+html[data-theme="light"] .clip{color:#142130}
+html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-theme="light"] .bars{color:#526478}
+.comfortable-ui .panel{padding:12px!important}
+.comfortable-ui #timelineScreen .trackrow{min-height:clamp(44px,8vh,58px)!important}
+.comfortable-ui .top,.comfortable-ui .subbar{gap:8px!important}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -521,7 +531,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 <div class="app">
 <header class="top">
   <div class="brand">NovaDAW <span>Mobile</span></div>
-  <div class="project"><button class="small" aria-label="Menu" id="menu"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/></svg></button><input id="projectName" aria-label="Nama proyek" value="My Song"></div>
+  <div class="project"><button class="small" aria-label="Home and settings" id="menu" title="Home / Settings"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/></svg></button><input id="projectName" aria-label="Nama proyek" value="My Song"></div>
   <div class="transport"><button class="small" id="rewind" aria-label="Kembali ke awal"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M19 5L7 12l12 7z" stroke="currentColor" stroke-width="1.6" fill="currentColor"/></svg></button><button class="small play" id="play" aria-label="Putar atau jeda"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg></button><button class="small" id="record" aria-label="Rekam"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6" fill="#ff5c69"/></svg></button><button class="small meta" id="position">1:1:000</button></div>
   <button class="small" id="undo" aria-label="Undo" title="Undo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4 12l5 5M4 12h10a5 5 0 0 1 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button class="small" id="redo" aria-label="Redo" title="Redo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7l5 5-5 5M20 12H10a5 5 0 0 0-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
 </header>
@@ -868,7 +878,7 @@ $('pianogrid').addEventListener('pointerdown',e=>{
 $('pianogrid').addEventListener('pointermove',e=>{
  const g=noteGesture;if(!g||g.pointerId!==e.pointerId)return;const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
  if(Math.max(Math.abs(dx),Math.abs(dy))<4&&!g.moved)return;g.moved=true;e.preventDefault();
- const rect=$('pianogrid').getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(rect.width,layer?.scrollWidth||0)/32,dc=Math.round(dx/stepWidth),dr=Math.round(dy/(rect.height/23));const n=project.notes[g.index];if(!n)return;
+ const rect=$('pianogrid').getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(rect.width,layer?.scrollWidth||0)/32,dc=Math.round(dx/stepWidth),rowHeight=Math.max(1,layer?.clientHeight||rect.height)/23,dr=Math.round(dy/rowHeight);const n=project.notes[g.index];if(!n)return;
  if(g.mode==='resize'){n.len=Math.max(1,Math.min(32-g.originCol,g.originLen+dc));n.col=g.originCol;n.row=g.originRow}
  else{n.len=g.originLen;n.col=Math.max(0,Math.min(32-g.originLen,g.originCol+dc));n.row=Math.max(0,Math.min(22,g.originRow+dr))}
 });
@@ -884,7 +894,7 @@ $('pianogrid').addEventListener('click',e=>{
  const note=e.target.closest('.note');
  if(note){selectedNote=Number(note.dataset.noteIndex);notify('Nada dipilih');return}
  const rect=e.currentTarget.getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(rect.width,layer?.scrollWidth||0)/32;
- const row=Math.floor((e.clientY-rect.top)/(rect.height/23));
+ const row=Math.floor((e.clientY-rect.top+(e.currentTarget.scrollTop||0))/(Math.max(1,layer?.clientHeight||rect.height)/23));
  const col=Math.floor((e.clientX-rect.left+(e.currentTarget.scrollLeft||0))/stepWidth);
  snapshot();project.notes.push({row:Math.max(0,Math.min(22,row)),col:Math.max(0,Math.min(31,col)),len:1,velocity:80});
  renderPiano();notify('Nada MIDI ditambahkan (model demo)')
