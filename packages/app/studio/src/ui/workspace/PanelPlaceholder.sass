@@ -137,3 +137,12 @@ html.midiable-mobile .panel-placeholder
   html.midiable-mobile .panel-placeholder,
   html.midiable-mobile .panel-placeholder > header
     transition: none
+
+
+// Do not leave invisible resizer hit areas at the bottom of Timeline when the
+// adjacent Editor or Devices panel is collapsed.
+html.midiable-mobile .panel-resizer.vertical:has(+ .panel-placeholder[data-panel-type="Editor"].closed),
+html.midiable-mobile .panel-resizer.vertical:has(+ .panel-placeholder[data-panel-type="Devices"].closed),
+html.midiable-mobile .panel-placeholder[data-panel-type="Editor"].closed + .panel-resizer.vertical,
+html.midiable-mobile .panel-placeholder[data-panel-type="Devices"].closed + .panel-resizer.vertical
+  display: none !important
