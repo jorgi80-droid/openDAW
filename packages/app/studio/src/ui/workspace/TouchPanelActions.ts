@@ -18,20 +18,10 @@ const targetScreen = (type: PanelType): Workspace.ScreenKeys => {
     }
 }
 
-const openBrowserInDefault = (service: StudioService): void => {
-    const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
-    if (browser.isVisible) {
-        browser.toggleMinimize()
-    } else {
-        service.panelLayout.showIfAvailable(PanelType.BrowserPanel)
-    }
-}
-
 /**
- * Mobile keeps the original Timeline as the default workspace and opens one
- * native tool in its own existing screen variant. Every tool screen contains
- * exactly [Timeline, selected panel], so the native PanelResizer always works
- * on the two visible panels instead of skipping over minimized sibling panels.
+ * Mobile keeps the original Timeline as the default workspace and opens each
+ * tool in its own full-screen workspace. Each workspace reuses the existing
+ * PanelContent instance so editing state and the engine/project graph are not cloned.
  */
 export const toggleTouchPanel = (service: StudioService, type: PanelType): void => {
     if (!isTouchLayout()) {
