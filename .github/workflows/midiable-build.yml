@@ -1,5 +1,12 @@
 name: OpenDAW Offline Android Build
 
+# Every change previously launched another full WASM + APK pipeline on the same
+# branch. Keep only the latest branch build so old commits cannot waste runners
+# or make it unclear which APK belongs to the current UI.
+concurrency:
+  group: opendaw-offline-android-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   push:
