@@ -24,9 +24,9 @@ component
 // inline status labels; use one bounded horizontal row with predictable widths.
 @media (max-width: 900px), (max-height: 520px), (pointer: coarse)
   component
-    flex: 0 0 32px
-    min-height: 32px
-    max-height: 32px
+    flex: 0 0 46px
+    min-height: 46px
+    max-height: 46px
     width: 100%
     box-sizing: border-box
     display: flex
@@ -90,14 +90,30 @@ component
     -webkit-tap-highlight-color: transparent
 
   component .mobile-panel-shortcut > .label
-    display: none !important
-
-  component .mobile-panel-shortcut > .value
+    order: 1
     display: flex !important
     align-items: center
     justify-content: center
     width: 100%
     min-width: 0
+    max-width: 100%
+    overflow: hidden
+    padding: 0 1px
+    font-size: 8px
+    line-height: 1
+    text-align: center
+    white-space: nowrap
+    text-overflow: ellipsis
+
+  component .mobile-panel-shortcut > .value
+    order: 0
+    display: flex !important
+    align-items: center
+    justify-content: center
+    flex: 0 0 18px
+    width: 100%
+    min-width: 0
+    height: 18px
     margin: 0
     overflow: hidden
 
@@ -124,12 +140,15 @@ component
 
   component .mobile-panel-shortcut
     flex: 1 1 0
+    flex-direction: column
+    justify-content: center
+    row-gap: 2px
     width: auto
     min-width: 0
     max-width: none
-    height: 34px
-    min-height: 34px
-    max-height: 34px
+    height: 40px
+    min-height: 40px
+    max-height: 40px
     border-radius: 7px
 
   component .mobile-panel-shortcut .value svg
