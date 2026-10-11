@@ -41,11 +41,19 @@ export const App = (service: StudioService) => {
             <Router
                 runtime={terminator}
                 service={service}
-                fallback={(context) => (
-                    <div style={{flex: "1 0 0", display: "flex", justifyContent: "center", alignItems: "center"}}>
-                        <span style={{fontSize: "50vmin"}}>404</span>
-                    </div>
-                )}
+                fallback={(context) => {
+                    // Android's trusted asset loader launches /index.html. Treat that entry path as the studio,
+                    // rather than showing 404 or mutating browser history behind the Router's back.
+                    if (context.path === "/index.html") {
+                        if (!service.hasProfile) {void service.newProject()}
+                        return WorkspacePage({...context, service})
+                    }
+                    return (
+                        <div style={{flex: "1 0 0", display: "flex", justifyContent: "center", alignItems: "center"}}>
+                            <span style={{fontSize: "50vmin"}}>404</span>
+                        </div>
+                    )
+                }}
                 routes={[
                     {path: "/", factory: WorkspacePage, reuse: true},
                     {path: "/create", factory: WorkspacePage, reuse: true},
