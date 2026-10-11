@@ -9,3 +9,8 @@ component
   grid-column: -2 / -1
   @include colors.panel-background
   @include mixins.clips-aware
+@media (max-width: 900px), (pointer: coarse)
+  component
+    min-height: 28px
+    height: 28px
+    grid-template-rows: 1fr
