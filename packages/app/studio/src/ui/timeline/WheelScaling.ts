@@ -84,12 +84,13 @@ export namespace WheelScaling {
             active.delete(event.pointerId)
             beginPinch()
         }
+        const pointerTarget = element as HTMLElement
         const pointerSubscriptions = [
-            Events.subscribe(element, "pointerdown", onPointerDown, {passive: false}),
-            Events.subscribe(element, "pointermove", onPointerMove, {passive: false}),
-            Events.subscribe(element, "pointerup", clearPointer),
-            Events.subscribe(element, "pointercancel", clearPointer),
-            Events.subscribe(element, "lostpointercapture", clearPointer)
+            Events.subscribe(pointerTarget, "pointerdown", onPointerDown, {passive: false}),
+            Events.subscribe(pointerTarget, "pointermove", onPointerMove, {passive: false}),
+            Events.subscribe(pointerTarget, "pointerup", clearPointer),
+            Events.subscribe(pointerTarget, "pointercancel", clearPointer),
+            Events.subscribe(pointerTarget, "lostpointercapture", clearPointer)
         ]
         return {
             terminate: () => {
