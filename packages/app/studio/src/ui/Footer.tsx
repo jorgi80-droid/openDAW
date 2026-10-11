@@ -58,9 +58,6 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                     }
                                 }))
                         }}/>
-
-
-
                         <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
@@ -190,6 +187,10 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 {terminate: hide}
                             )
                         }}>N/A</FooterItem>
+
+
+
+
 <FooterItem title="CPU Load" minWidth="4ch"
                         onInit={({component, value}) => {
                             lifecycle.own(engine.preferences.catchupAndSubscribe(enabled => {
