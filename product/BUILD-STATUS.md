@@ -11,8 +11,8 @@
 ## Not completed / not to overstate
 - [ ] OpenDAW Project/ProjectApi connected.
 - [ ] OpenDAW audio engine, WASM, worklets, stock devices/plugins connected.
-- [ ] Browser interaction/screenshot test run.
-- [ ] GitHub Actions workflow result confirmed.
+- [ ] Browser interaction/screenshot test run (only static contract checks completed).
+- [x] GitHub Actions UI static check workflow completed successfully (run 38175947001).
 - [ ] Independent Android wrapper and APK produced.
 - [ ] APK installed and audio-tested on device.
 
