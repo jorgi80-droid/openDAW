@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0f14">
+<title>NovaDAW Mobile — UI Prototype</title>
+<style>
+:root{color-scheme:dark;--bg:#090d12;--panel:#101720;--panel2:#151e28;--line:#283747;--text:#eaf3fc;--muted:#91a3b7;--blue:#1687ff;--cyan:#31caff;--green:#2bdc9b;--orange:#ffb340;--purple:#b56bff;--red:#ff5c69}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font:14px/1.35 Inter,Roboto,"Segoe UI",system-ui,sans-serif}
+button,input{font:inherit;color:inherit}button{border:1px solid var(--line);background:#121b25;border-radius:10px;min-height:38px;padding:7px 11px;cursor:pointer;touch-action:manipulation}button:active{transform:scale(.98)}button.primary{background:var(--blue);border-color:var(--blue)}button.active{background:#102d4c;border-color:#1687ff;color:#7ac4ff}button:disabled{opacity:.4}
+.app{height:100dvh;display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);min-height:0}
+.top{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#0f151d;border-bottom:1px solid var(--line);min-width:0}
+.brand{font-weight:800;white-space:nowrap;font-size:17px;letter-spacing:-.4px}.brand span{color:var(--blue)}
+.project{min-width:0;flex:1;display:flex;align-items:center;gap:6px}.project input{width:100%;min-width:0;max-width:180px;background:transparent;border:1px solid transparent;padding:8px;border-radius:8px}.project input:focus{outline:1px solid var(--blue);border-color:var(--blue)}
+.transport{display:flex;gap:5px;align-items:center}.transport .play{background:#10ad77;border-color:#10ad77}.small{min-width:38px;padding:6px 8px}.meta{font-size:12px;color:var(--muted);white-space:nowrap}
+.subbar{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--line);background:#0d131a;overflow:auto;white-space:nowrap}.chip{background:#131e29;border:1px solid var(--line);border-radius:8px;padding:6px 9px}.chip b{color:#80ccff}.grow{flex:1}
+.workspace{min-height:0;min-width:0;overflow:auto;position:relative;padding:8px;overscroll-behavior:contain}
+.screen{height:100%;min-height:240px;min-width:0}.screen[hidden]{display:none}
+.timeline{height:100%;display:grid;grid-template-rows:30px minmax(0,1fr);border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#0d141c}
+.ruler{display:grid;grid-template-columns:132px minmax(400px,1fr);background:#111b26;border-bottom:1px solid var(--line);font-size:11px;color:#9cafc5}
+.trackhead{padding:7px 9px;border-right:1px solid var(--line);font-weight:700}.bars{display:flex;align-items:center;justify-content:space-around;min-width:0}
+.tracks{min-height:0;overflow:auto}.trackrow{display:grid;grid-template-columns:132px minmax(400px,1fr);min-height:76px;border-bottom:1px solid #202d3a}
+.tracklabel{padding:8px;display:flex;flex-direction:column;justify-content:center;gap:5px;background:#111923;border-right:1px solid var(--line);border-left:3px solid var(--track);min-width:0}
+.trackname{display:flex;align-items:center;justify-content:space-between;gap:4px;font-weight:650}.trackbuttons{display:flex;gap:4px}.trackbuttons button{font-size:10px;min-height:25px;padding:2px 6px;border-radius:6px}.trackbuttons button.on{color:var(--orange);border-color:var(--orange)}
+.cliparea{position:relative;min-width:0;background-image:linear-gradient(to right,transparent calc(25% - 1px),#23303d 25%,transparent calc(25% + 1px)),linear-gradient(to right,transparent calc(50% - 1px),#23303d 50%,transparent calc(50% + 1px)),linear-gradient(to right,transparent calc(75% - 1px),#23303d 75%,transparent calc(75% + 1px));background-size:100% 100%}
+.clip{position:absolute;top:9px;height:54px;border-radius:6px;border:1px solid color-mix(in srgb,var(--clip) 80%,white);background:color-mix(in srgb,var(--clip) 33%,#121b25);color:#eff8ff;text-align:left;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;padding:6px 8px;min-height:0;font-size:12px;box-shadow:inset 0 0 0 1px #ffffff08}
+.clip:after{content:"";position:absolute;inset:18px 4px 7px;opacity:.5;background:repeating-linear-gradient(90deg,transparent 0 5px,var(--clip) 5px 7px,transparent 7px 11px);pointer-events:none}.clip.selected{outline:2px solid white;outline-offset:1px}
+.addtrack{display:flex;align-items:center;gap:10px;width:100%;justify-content:center;margin-top:7px}
+.dock{display:flex;justify-content:center;gap:5px;padding:7px 8px calc(8px + env(safe-area-inset-bottom));background:#0e141c;border-top:1px solid var(--line);overflow-x:auto}
+.dock button{flex:1;max-width:155px;min-width:58px;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:5px;font-size:11px}.dock .ico{font-size:17px;line-height:1.1}
+.panel{border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:12px;min-width:0}
+.paneltitle{font-size:16px;font-weight:750;margin:0 0 10px}.muted{color:var(--muted)}
+.mixergrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:8px;align-items:stretch}.channel{background:#0b1219;border:1px solid var(--line);border-radius:10px;padding:10px 8px;display:flex;flex-direction:column;gap:10px;align-items:center;min-height:290px}.meter{height:80px;width:12px;border-radius:5px;background:#1b2a35;display:flex;align-items:end;overflow:hidden}.meter span{display:block;width:100%;height:var(--level);background:linear-gradient(var(--green),#a6e941)}input[type=range]{width:100%;accent-color:var(--blue)}.value{font-size:11px;color:var(--muted)}
+.pianowrap{height:calc(100% - 48px);min-height:250px;display:grid;grid-template-columns:48px minmax(0,1fr);grid-template-rows:minmax(0,1fr) 80px;border:1px solid var(--line);border-radius:12px;overflow:auto;background:#0e151d}.keys{display:grid;grid-template-rows:repeat(12,1fr);border-right:1px solid var(--line);background:#111c27}.keys span{border-bottom:1px solid #2b3a49;padding:1px 4px;color:#bacada;font-size:10px}.pianogrid{display:grid;grid-template-columns:repeat(16,minmax(24px,1fr));grid-template-rows:repeat(12,minmax(22px,1fr));min-width:384px;background-image:linear-gradient(to right,#24313e 1px,transparent 1px),linear-gradient(to bottom,#24313e 1px,transparent 1px);background-size:calc(100% / 16) calc(100% / 12);position:relative}.note{background:#1688ef;border:1px solid #66c6ff;border-radius:4px;margin:3px;min-height:0;min-width:0;padding:0}.velocity{grid-column:1/3;border-top:1px solid var(--line);display:flex;align-items:end;gap:6px;padding:8px;background:#111923}.velocity span{width:5px;background:#28a8ff;border-radius:3px 3px 0 0;height:var(--h)}
+.tabs{display:flex;gap:6px;overflow:auto;margin-bottom:10px}.tabs button{flex:1;white-space:nowrap}
+.devicegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:9px}.knobs{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.knob{background:#0b1219;border:1px solid var(--line);border-radius:10px;padding:12px 8px;text-align:center}.dial{width:52px;height:52px;border-radius:50%;margin:0 auto 7px;border:4px solid #263847;border-top-color:var(--blue);border-right-color:#42caff;display:grid;place-items:center;font-size:10px}
+.browserlayout{display:grid;grid-template-columns:110px minmax(0,1fr);gap:9px;height:calc(100% - 48px);min-height:230px}.categories{display:flex;flex-direction:column;gap:5px}.categories button{text-align:left}.samplelist{display:flex;flex-direction:column;gap:6px;overflow:auto}.sample{display:grid;grid-template-columns:36px minmax(0,1fr) auto;gap:8px;align-items:center;background:#0c131b;border:1px solid var(--line);border-radius:8px;padding:7px}.wave{height:28px;border-radius:4px;opacity:.8;background:repeating-linear-gradient(90deg,#80bfff 0 2px,transparent 2px 4px);mask-image:linear-gradient(90deg,black,transparent);margin-top:5px}
+.toast{position:fixed;left:50%;bottom:85px;transform:translateX(-50%);padding:10px 15px;border:1px solid #3c5d77;background:#132334;border-radius:10px;box-shadow:0 8px 30px #0009;z-index:9;max-width:90vw;text-align:center}.toast[hidden]{display:none}
+@media(max-width:720px){.brand{display:none}.top{gap:5px;padding:6px}.project input{max-width:120px}.transport button{min-width:32px;padding:5px}.transport .meta{display:none}.subbar{padding:6px 8px}.workspace{padding:6px}.ruler,.trackrow{grid-template-columns:94px minmax(360px,1fr)}.trackrow{min-height:70px}.trackname{font-size:12px}.tracklabel{padding:6px}.clip{height:49px;font-size:10px}.dock button{font-size:10px;min-height:46px}.dock .ico{font-size:16px}.browserlayout{grid-template-columns:86px minmax(0,1fr)}}
+@media(min-width:1000px){.app{max-width:1600px;margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line)}.trackrow{min-height:88px}.clip{height:65px}.trackhead,.tracklabel{padding-left:12px;padding-right:12px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand">NovaDAW <span>Mobile</span></div>
+  <div class="project"><button class="small" aria-label="Menu" id="menu">☰</button><input id="projectName" aria-label="Nama proyek" value="My Song"></div>
+  <div class="transport"><button class="small" id="rewind" aria-label="Kembali ke awal">|◀</button><button class="small play" id="play" aria-label="Putar atau jeda">▶</button><button class="small" id="record" aria-label="Rekam">●</button><button class="small meta" id="position">1:1:000</button></div>
+  <button class="small" id="undo" aria-label="Undo" title="Undo">↶</button><button class="small" id="redo" aria-label="Redo" title="Redo">↷</button>
+</header>
+<div class="subbar"><span class="chip">Tempo <b><input id="tempo" type="number" min="40" max="240" value="120" style="width:45px;background:transparent;border:0;color:#8bd2ff"></b> BPM</span><span class="chip">Meter <b><select id="meter" style="background:transparent;border:0;color:#8bd2ff"><option>4/4</option><option>3/4</option><option>6/8</option><option>5/4</option></select></b></span><span class="chip">Audio <b id="audioState">Demo</b></span><span class="grow"></span><button class="small" id="save">Simpan</button><button class="small" id="open">Buka</button><button class="small" id="export">Ekspor JSON</button><input hidden id="file" type="file" accept=".json,application/json"></div>
+<main class="workspace" id="workspace">
+<section class="screen" id="timelineScreen">
+  <div class="timeline">
+    <div class="ruler"><div class="trackhead">TRACK / CLIP</div><div class="bars"><span>1</span><span>5</span><span>9</span><span>13</span><span>17</span><span>21</span><span>25</span><span>29</span></div></div>
+    <div class="tracks" id="tracks"></div>
+  </div>
+  <button class="addtrack" id="addTrack">＋ Tambah Track</button>
+</section>
+<section class="screen" id="mixerScreen" hidden><div class="panel"><h2 class="paneltitle">Mixer <span class="muted" style="font-size:12px">· per track</span></h2><div class="mixergrid" id="mixer"></div></div></section>
+<section class="screen" id="pianoScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Piano Roll <span class="muted" style="font-size:12px">· ketuk grid untuk menambah nada</span></h2><div class="pianowrap"><div class="keys" id="keys"></div><div class="pianogrid" id="pianogrid" aria-label="Grid piano roll"></div><div class="velocity" id="velocity"></div></div></div></section>
+<section class="screen" id="devicesScreen" hidden><div class="panel"><h2 class="paneltitle">Devices & Instruments</h2><div class="tabs" id="devTabs"><button class="active" data-cat="Instrument">Instrumen</button><button data-cat="Effect">Efek</button><button data-cat="Preset">Preset</button></div><div class="devicegrid" id="devices"></div><p class="muted" style="margin-bottom:0;font-size:12px">UI prototype: kontrol instrumen ini belum dirutekan ke engine OpenDAW.</p></div></section>
+<section class="screen" id="browserScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Browser</h2><div class="tabs" id="browserTabs"><button class="active" data-cat="Samples">Samples</button><button data-cat="Instruments">Instrumen</button><button data-cat="Effects">Efek</button><button data-cat="Presets">Preset</button></div><div class="browserlayout"><div class="categories" id="categories"><button class="active" data-filter="All">Semua</button><button data-filter="Drums">Drums</button><button data-filter="Bass">Bass</button><button data-filter="Synth">Synth</button><button data-filter="Piano">Piano</button><button data-filter="Vocals">Vokal</button><button data-filter="User">Impor</button></div><div class="samplelist" id="samples"></div></div><p class="muted" style="font-size:12px;margin-bottom:0">Sampel yang tercantum merupakan demo UI; audio file asli belum dipaketkan.</p></div></section>
+</main>
+<nav class="dock" aria-label="Workspace navigation">
+<button class="active" data-screen="timeline"><span class="ico">⌁</span>Timeline</button><button data-screen="mixer"><span class="ico">☷</span>Mixer</button><button data-screen="piano"><span class="ico">▥</span>Piano Roll</button><button data-screen="devices"><span class="ico">▦</span>Devices</button><button data-screen="browser"><span class="ico">▱</span>Browser</button>
+</nav>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+<script>
+(function(){
+const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
+let currentScreen='timeline',selectedTrack=0,selectedClip=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
+let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
+{id:'t1',name:'Drums',type:'Audio',color:'#ff625e',mute:false,solo:false,gain:0,pan:0,clips:[{id:'c1',label:'Drum Loop',start:0,duration:18,color:'#ff625e'}]},
+{id:'t2',name:'Bass',type:'MIDI',color:'#168cff',mute:false,solo:false,gain:-6,pan:0,clips:[{id:'c2',label:'Bass Pattern',start:2,duration:16,color:'#168cff'}]},
+{id:'t3',name:'Piano',type:'MIDI',color:'#20cf8a',mute:false,solo:false,gain:-1.5,pan:0,clips:[{id:'c3',label:'Chord Progression',start:2,duration:14,color:'#20cf8a'},{id:'c4',label:'Variation',start:18,duration:12,color:'#20cf8a'}]},
+{id:'t4',name:'Guitar',type:'Audio',color:'#a95bff',mute:false,solo:false,gain:-4.8,pan:-12,clips:[{id:'c5',label:'Guitar Take',start:0,duration:22,color:'#a95bff'}]},
+{id:'t5',name:'Vocal',type:'Audio',color:'#ffad34',mute:false,solo:false,gain:-2.1,pan:0,clips:[{id:'c6',label:'Vocal Main',start:2,duration:26,color:'#ffad34'}]},
+{id:'t6',name:'FX',type:'Automation',color:'#58c9f1',mute:false,solo:false,gain:-8,pan:0,clips:[{id:'c7',label:'Filter Sweep',start:0,duration:8,color:'#58c9f1'},{id:'c8',label:'Reverb Send',start:10,duration:9,color:'#58c9f1'}]}
+],notes:[{row:7,col:0,len:1},{row:6,col:1,len:2},{row:5,col:2,len:1},{row:4,col:3,len:2},{row:5,col:4,len:1},{row:7,col:5,len:1},{row:8,col:6,len:2},{row:9,col:8,len:2},{row:10,col:10,len:2},{row:8,col:12,len:2},{row:7,col:14,len:2}]};
+const $=id=>document.getElementById(id);
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function notify(message){const el=$('toast');el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2600);}
+function snapshot(){undoStack.push(JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
+function switchScreen(name){if(!screens[name])return;currentScreen=name;Object.keys(screens).forEach(k=>$(screens[k]).hidden=k!==name);document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.screen===name));}
+function renderTracks(){
+ const root=$('tracks');root.innerHTML='';
+ project.tracks.forEach((t,index)=>{
+  const row=document.createElement('div');row.className='trackrow';row.style.setProperty('--track',t.color);
+  const label=document.createElement('div');label.className='tracklabel';
+  label.innerHTML='<div class="trackname"><span>'+ (index+1)+'. '+esc(t.name)+'</span><span style="color:var(--muted);font-size:10px">'+esc(t.type)+'</span></div><div class="trackbuttons"><button data-action="mute" data-i="'+index+'" class="'+(t.mute?'on':'')+'">M</button><button data-action="solo" data-i="'+index+'" class="'+(t.solo?'on':'')+'">S</button><button data-action="select" data-i="'+index+'" class="'+(selectedTrack===index?'active':'')+'">•••</button></div>';
+  row.appendChild(label);
+  const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;
+  t.clips.forEach(c=>{
+   const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(c.duration/32*100)+'%';clip.style.maxWidth='100%';clip.textContent=c.label;clip.dataset.clip=c.id;clip.title=c.label+' · tap to select';area.appendChild(clip);
+  });
+  row.appendChild(area);root.appendChild(row);
+ });
+}
+function renderMixer(){
+ const root=$('mixer');root.innerHTML='';
+ project.tracks.forEach((t,i)=>{
+  const c=document.createElement('div');c.className='channel';const db=Number(t.gain)||0;
+  c.innerHTML='<strong style="color:'+t.color+'">'+esc(t.name)+'</strong><div class="meter"><span style="--level:'+Math.max(8,Math.min(100,82+db*3))+'%"></span></div><label class="value">Gain <span id="gainv'+i+'">'+db.toFixed(1)+' dB</span></label><input aria-label="'+esc(t.name)+' gain" type="range" min="-48" max="6" step=".5" value="'+db+'" data-mix="gain" data-i="'+i+'"><label class="value">Pan <span id="panv'+i+'">'+t.pan+'</span></label><input aria-label="'+esc(t.name)+' pan" type="range" min="-100" max="100" step="1" value="'+t.pan+'" data-mix="pan" data-i="'+i+'"><div style="display:flex;gap:4px"><button data-action="mute" data-i="'+i+'" class="'+(t.mute?'on':'')+'">M</button><button data-action="solo" data-i="'+i+'" class="'+(t.solo?'on':'')+'">S</button></div>';
+  root.appendChild(c);
+ });
+}
+function renderPiano(){
+ const keys=$('keys'),grid=$('pianogrid'),vel=$('velocity');keys.innerHTML='';grid.innerHTML='';vel.innerHTML='';
+ const names=['C5','B4','A#4','A4','G#4','G4','F#4','F4','E4','D#4','D4','C4'];names.forEach(n=>{const span=document.createElement('span');span.textContent=n;keys.appendChild(span)});
+ project.notes.forEach((n,i)=>{const note=document.createElement('button');note.className='note';note.style.gridRow=(n.row+1);note.style.gridColumn=(n.col+1)+' / span '+n.len;note.title='MIDI note '+(60+11-n.row);note.setAttribute('aria-label',note.title);grid.appendChild(note)});
+ for(let i=0;i<16;i++){const s=document.createElement('span');s.style.setProperty('--h',(18+(i*37%68))+'%');s.title='Velocity';vel.appendChild(s)}
+}
+function renderDevices(cat='Instrument'){
+ const root=$('devices');root.innerHTML='';
+ const items=cat==='Instrument'?['Vaporisateur Synth','Nano Sampler','Playfield Drums','Soundfont Player']:cat==='Effect'?['Revamp EQ','Delay','Free Reverb','Waveshaper','Maximizer']:['Warm Keys','Deep Bass','Airy Pad','Studio Drums'];
+ items.forEach((name,i)=>{const d=document.createElement('div');d.className='panel';d.innerHTML='<h3 style="margin:0 0 8px;font-size:14px">'+esc(name)+'</h3><div class="knobs">'+['Tone','Shape','Mix'].map((k,j)=>'<div class="knob"><div class="dial">'+(j===0?35+i*7:j===1?58:25)+'%</div><span class="value">'+k+'</span></div>').join('')+'</div><button style="width:100%;margin-top:9px" data-device="'+esc(name)+'">Pilih device</button>';root.appendChild(d)});
+}
+const samples=['Kick 01.wav','Kick 02.wav','Snare 01.wav','Snare 02.wav','HiHat Closed.wav','HiHat Open.wav','Tom 01.wav','Piano Soft.wav','Bass Sub.wav','Ambient Pad.wav'];
+function renderSamples(category='Samples',filter='All'){
+ const root=$('samples');root.innerHTML='';
+ (category==='Samples'?samples:category==='Instruments'?['Vaporisateur','Nano Sampler','Playfield','Soundfont']:category==='Effects'?['Revamp EQ','Delay','Free Reverb','Maximizer','Stereo Tool']:['Warm Keys','Deep Bass','Airy Pad']).filter(n=>filter==='All'||filter==='User'||n.toLowerCase().includes(filter.toLowerCase().slice(0,-1))||filter==='Drums'&&/kick|snare|hat|tom/i.test(n)).forEach((name,i)=>{
+  const item=document.createElement('div');item.className='sample';item.innerHTML='<button aria-label="Preview" data-preview="'+esc(name)+'">▶</button><div><div>'+esc(name)+'</div><div class="wave"></div></div><button data-addsample="'+esc(name)+'">＋</button>';root.appendChild(item);
+ });
+}
+function renderAll(){renderTracks();renderMixer();renderPiano();renderDevices();renderSamples();$('projectName').value=project.name;$('tempo').value=project.tempo;$('meter').value=project.meter;}
+document.querySelectorAll('.dock button').forEach(b=>b.addEventListener('click',()=>switchScreen(b.dataset.screen)));
+$('tracks').addEventListener('click',e=>{
+ const act=e.target.closest('[data-action]');if(act){const i=+act.dataset.i,t=project.tracks[i];if(act.dataset.action==='select'){selectedTrack=i;switchScreen('devices');notify('Track dipilih: '+t.name)}else{snapshot();t[act.dataset.action]=!t[act.dataset.action];renderAll()}return}
+ const clip=e.target.closest('[data-clip]');if(clip){selectedClip=clip.dataset.clip;const found=project.tracks.flatMap(t=>t.clips).find(c=>c.id===selectedClip);notify('Clip dipilih: '+(found?found.label:''));renderTracks();}
+});
+$('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.length;const colors=['#ff625e','#168cff','#20cf8a','#a95bff','#ffad34','#58c9f1'];project.tracks.push({id:'t'+Date.now(),name:'Track '+(n+1),type:'MIDI',color:colors[n%colors.length],mute:false,solo:false,gain:0,pan:0,clips:[]});renderAll();notify('Track baru ditambahkan')});
+$('mixer').addEventListener('input',e=>{const el=e.target;if(!el.dataset.mix)return;const t=project.tracks[+el.dataset.i];t[el.dataset.mix]=+el.value;$(el.dataset.mix==='gain'?'gainv'+el.dataset.i:'panv'+el.dataset.i).textContent=el.dataset.mix==='gain'?Number(el.value).toFixed(1)+' dB':el.value;});
+$('mixer').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const t=project.tracks[+b.dataset.i];snapshot();t[b.dataset.action]=!t[b.dataset.action];renderAll()});
+$('pianogrid').addEventListener('click',e=>{if(!e.target.closest('.note')&&e.target.id!=='pianogrid'){const r=Math.floor((e.offsetY||0)/(e.currentTarget.clientHeight/12)),c=Math.floor((e.offsetX||0)/(e.currentTarget.clientWidth/16));snapshot();project.notes.push({row:Math.max(0,Math.min(11,r)),col:Math.max(0,Math.min(15,c)),len:1});renderPiano();notify('Nada MIDI ditambahkan (model demo)')}});
+$('devTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;document.querySelectorAll('#devTabs button').forEach(x=>x.classList.toggle('active',x===b));renderDevices(b.dataset.cat)});
+$('devices').addEventListener('click',e=>{const b=e.target.closest('[data-device]');if(b)notify(b.dataset.device+' — engine belum terhubung')});
+let browseCat='Samples',browseFilter='All';
+$('browserTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;browseCat=b.dataset.cat;document.querySelectorAll('#browserTabs button').forEach(x=>x.classList.toggle('active',x===b));renderSamples(browseCat,browseFilter)});
+$('categories').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;browseFilter=b.dataset.filter;document.querySelectorAll('#categories button').forEach(x=>x.classList.toggle('active',x===b));renderSamples(browseCat,browseFilter)});
+$('samples').addEventListener('click',e=>{const p=e.target.closest('[data-preview]'),a=e.target.closest('[data-addsample]');if(p){notify('Preview belum tersedia: aset audio demo belum dipaketkan')}if(a){snapshot();project.tracks[selectedTrack].clips.push({id:'c'+Date.now(),label:a.dataset.addsample,start:0,duration:8,color:project.tracks[selectedTrack].color});switchScreen('timeline');renderTracks();notify('Clip demo ditambahkan ke '+project.tracks[selectedTrack].name)}});
+$('play').addEventListener('click',()=>{playing=!playing;$('play').textContent=playing?'Ⅱ':'▶';$('audioState').textContent=playing?'Preview UI':'Demo';notify(playing?'Mode play UI aktif — engine audio belum terhubung':'Playback UI berhenti')});
+$('rewind').addEventListener('click',()=>{$('position').textContent='1:1:000';tick=0;notify('Posisi kembali ke awal')});
+$('record').addEventListener('click',()=>{recording=!recording;$('record').style.color=recording?'#ff6675':'';notify(recording?'Status rekam demo aktif — input belum direkam':'Rekam dihentikan')});
+$('tempo').addEventListener('change',()=>{snapshot();project.tempo=Math.max(40,Math.min(240,+$('tempo').value||120));$('tempo').value=project.tempo;notify('Tempo proyek: '+project.tempo+' BPM')});
+$('meter').addEventListener('change',()=>{snapshot();project.meter=$('meter').value;notify('Meter proyek diubah ke '+project.meter)});
+$('projectName').addEventListener('change',()=>{snapshot();project.name=$('projectName').value.trim()||'Untitled';$('projectName').value=project.name});
+$('save').addEventListener('click',()=>{try{localStorage.setItem('novadaw-project',JSON.stringify(project));notify('Proyek tersimpan di penyimpanan browser')}catch(e){notify('Penyimpanan tidak tersedia di mode ini')}});
+$('open').addEventListener('click',()=>{const s=localStorage.getItem('novadaw-project');if(s){try{snapshot();project=JSON.parse(s);selectedClip=null;renderAll();notify('Proyek dibuka')}catch(e){notify('Data proyek tidak valid')}}else{$('file').click()}});
+$('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const p=JSON.parse(await f.text());if(!Array.isArray(p.tracks)||!Array.isArray(p.notes))throw Error('format');snapshot();project=p;renderAll();notify('Proyek JSON diimpor')}catch(_){notify('File proyek JSON tidak valid')}e.target.value=''});
+$('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify(project,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(project.name||'novadaw').replace(/[^a-z0-9-_]/gi,'_')+'.json';a.click();URL.revokeObjectURL(url);notify('Ekspor JSON dibuat')});
+$('undo').addEventListener('click',()=>{if(!undoStack.length){notify('Tidak ada aksi untuk undo');return}redoStack.push(JSON.stringify(project));project=JSON.parse(undoStack.pop());renderAll();notify('Undo selesai')});
+$('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada aksi untuk redo');return}undoStack.push(JSON.stringify(project));project=JSON.parse(redoStack.pop());renderAll();notify('Redo selesai')});
+$('menu').addEventListener('click',()=>notify('NovaDAW Mobile · prototype UI · belum terhubung ke audio engine'));
+renderAll();
+})();
+</script>
+</body>
+</html>
