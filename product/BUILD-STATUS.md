@@ -13,10 +13,11 @@
 - [ ] OpenDAW audio engine, WASM, worklets, stock devices/plugins connected.
 - [ ] Browser interaction/screenshot test run (only static contract checks completed).
 - [x] GitHub Actions UI static check workflow completed successfully (run 38175947001).
-- [ ] Independent Android wrapper and APK produced.
+- [x] Independent Android wrapper source scaffolded under `android-wrapper-novadaw/` with package id `com.novadaw.mobile`.
+- [x] APK build script added at `scripts/build-novadaw-apk.sh`.
 - [ ] APK installed and audio-tested on device.
 
-The current shell is an interactive UI prototype. Playback and record buttons are deliberately labelled as UI demo and do not yet produce/record sound. Timeline clips and samples are demo data. No APK is attached by this milestone.
+The current shell is an interactive UI prototype. Playback and record buttons are deliberately labelled as UI demo and do not yet produce/record sound. Timeline clips and samples are demo data. The independent Android wrapper is source-only at this milestone; no APK is attached.
 
 ## Upstream notes
 OpenDAW's README declares AGPL-3.0-or-later and describes an independent commercial license path. Its architecture docs describe a TypeScript workspace and Rust/WASM engine. The existing root Android wrapper uses a MidiAble/OpenDAW identity, so NovaDAW must have a separate application id and wrapper.
