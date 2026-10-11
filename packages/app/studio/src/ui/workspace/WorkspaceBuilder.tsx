@@ -58,6 +58,9 @@ export namespace WorkspaceBuilder {
                 )
             }
         }
-        build(element, [], Workspace.Default[screenKey].content, null, "vertical")
+        const screen = Workspace.Default[screenKey]
+        const isTouchLayout = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
+        const content = isTouchLayout ? (screen.touchContent ?? screen.content) : screen.content
+        build(element, [], content, null, "vertical")
     }
 }
