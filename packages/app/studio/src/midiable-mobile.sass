@@ -204,10 +204,13 @@ html.midiable-mobile [data-panel-type="Editor"]
     min-width: 44px !important
     max-width: min(260px, 34vw) !important
 
-// Resizers keep their native Dragging/pointer-capture behavior. The 38px invisible
-// hit area is for fingers; the old grey handle is hidden and only an active drag
-// receives a temporary cyan affordance.
+// The real resizer element itself receives Dragging events; keep its layout
+// footprint at zero while expanding only the touch hit target.
 html.midiable-mobile .panel-resizer
+  position: relative
+  flex: 0 0 0
+  min-width: 0
+  min-height: 0
   touch-action: none
   user-select: none
   -webkit-user-select: none
