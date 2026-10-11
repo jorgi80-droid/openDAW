@@ -45,7 +45,9 @@ export const App = (service: StudioService) => {
                     // Android's trusted asset loader launches /index.html. Treat that entry path as the studio,
                     // rather than showing 404 or mutating browser history behind the Router's back.
                     if (context.path === "/index.html") {
+                        history.replaceState(null, "", "/create")
                         if (!service.hasProfile) {void service.newProject()}
+                        service.layout.screen.setValue("default")
                         return WorkspacePage({...context, service})
                     }
                     return (
