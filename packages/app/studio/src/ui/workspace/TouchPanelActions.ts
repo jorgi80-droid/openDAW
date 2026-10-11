@@ -44,12 +44,14 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
     })
 
     resetTouchFlex(service)
+    // Apply the new ratio on the active panel's live state. Some screen
+    // variants reuse panel states, so resize the selected tool after mounting.
     service.panelLayout.showIfAvailable(type)
-    // Set flex on the live panel state after it is mounted in the default layout.
-    // Browser is a temporary overlay; editing tools expand to a usable work area
-    // while preserving a small Timeline strip.
-    if (type !== PanelType.BrowserPanel) {
-        setFlex(service, PanelType.Timeline, 0.25)
-        setFlex(service, type, 4)
-    }
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (!service.panelLayout.getByType(type).isVisible) {return}
+        if (type !== PanelType.BrowserPanel) {
+            setFlex(service, PanelType.Timeline, 0.25)
+            setFlex(service, type, 4)
+        }
+    }))
 }
