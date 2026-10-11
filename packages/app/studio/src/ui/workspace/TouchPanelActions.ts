@@ -40,6 +40,16 @@ const clearMaximized = (): void => {
 }
 
 /**
+ * Select Timeline and invalidate any delayed tool transition before rebuilding.
+ * This prevents a stale Browser/Mixer callback from stealing focus after a rapid tap.
+ */
+export const showTouchTimeline = (service: StudioService): void => {
+    beginTransition(service)
+    clearMaximized()
+    service.switchScreen("default")
+}
+
+/**
  * Keep one state machine for the original toolbar and footer controls. The native
  * workspace must unbind the shared Browser/tool panel before it is rebound on a
  * different screen. Transition tokens cancel stale frame callbacks on rapid taps.
