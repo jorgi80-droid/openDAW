@@ -10,7 +10,6 @@ import {isTouchLayout} from "@/ui/workspace/TouchLayout"
 type Construct = {service: StudioService}
 
 export const TouchDock = ({service}: Construct) => {
-    const nextFrame = (procedure: () => void) => requestAnimationFrame(() => requestAnimationFrame(procedure))
     const showPanel = (type: PanelType) => {
         if (isTouchLayout()) {
             toggleTouchPanel(service, type)
@@ -22,14 +21,7 @@ export const TouchDock = ({service}: Construct) => {
     }
     const button = (label: string, title: string, symbol: IconSymbol, type: PanelType) => (
         <button type="button" className="touch-dock-button" title={title} aria-label={title}
-                onclick={() => {
-                    if (service.layout.screen.getValue() !== "default") {
-                        service.switchScreen("default")
-                        nextFrame(() => showPanel(type))
-                    } else {
-                        showPanel(type)
-                    }
-                }}>
+                onclick={() => showPanel(type)}>
             <Icon symbol={symbol}/><span>{label}</span>
         </button>
     )
