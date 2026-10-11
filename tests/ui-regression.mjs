@@ -104,7 +104,7 @@ try {
     await page.locator('#timelineTools [data-timeline-tool="cut"]').click();
     const splitTarget = page.locator('#tracks .clip').first();
     const splitBox = await splitTarget.boundingBox();
-    await page.mouse.click(splitBox.x + splitBox.width*0.65, splitBox.y + splitBox.height/2);
+    await page.mouse.click(splitBox.x + splitBox.width*0.45, splitBox.y + splitBox.height/2);
     assert(await page.locator('#tracks .clip').count() === clipsBeforeSplit + 1, `Split tool divides one clip at ${viewport.width}x${viewport.height}`);
 
     // FL Studio Mobile-style clip controls: one tap shows controls; a quick second tap enters the editor.
