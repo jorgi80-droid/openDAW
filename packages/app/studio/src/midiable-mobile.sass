@@ -265,11 +265,15 @@ html.midiable-mobile [data-scope="regions"],
 html.midiable-mobile [data-scope="clips"]
   -webkit-tap-highlight-color: transparent
 
-/* Direct manipulation: let the browser dispatch pinch pointer events to OpenDAW,
-   while all single-pointer timeline tools continue to use the native handlers. */
+/* Timeline gestures are handled by OpenDAW's pointer system. Keep the
+   arrangement scrollable while preserving pointer capture for clip editing. */
 html.midiable-mobile .time-axis,
-html.midiable-mobile .time-axis canvas,
-html.midiable-mobile .timeline-range-slider,
-html.midiable-mobile .timeline-range-slider svg
+html.midiable-mobile .time-axis canvas
   touch-action: none
   overscroll-behavior: contain
+
+html.midiable-mobile .panel-placeholder > header
+  touch-action: manipulation
+
+html.midiable-mobile .panel-resizer
+  touch-action: none
