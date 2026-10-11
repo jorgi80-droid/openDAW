@@ -93,10 +93,6 @@ export const TourSteps: Record<TourAnchor, TourStep> = {
         screen: "project", placement: "center", headline: "Project Info",
         text: "Name, cover and notes of your project. Everything you save goes with the project."
     },
-    shadertoy: {
-        screen: "shadertoy", placement: "center", headline: "Shadertoy",
-        text: "A GLSL visual that reacts to your music. Edit the shader on the right, watch it on the left."
-    },
     tap: {
         screen: "tap", placement: "center", headline: "Match Tempo",
         text: "Tap along to find the tempo of a recording and set it for the project."
