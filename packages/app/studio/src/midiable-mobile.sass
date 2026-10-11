@@ -167,7 +167,8 @@ html.midiable-mobile .PanelResizer::before
   position: absolute
   z-index: 21
   background: transparent
-  pointer-events: none
+  // The resizer has zero flex-basis; this invisible pseudo-element is its actual finger hit target.
+  pointer-events: auto
 
 html.midiable-mobile .PanelResizer.horizontal::before
   width: 38px
