@@ -16,6 +16,10 @@ component
         content: " > 80% ⚠️"
         color: var(--color-orange)
 
+  // The controls are only part of the mobile workflow; desktop remains unchanged.
+  .mobile-panel-shortcut
+    display: none
+
 // Compact mobile status row with reachable shortcuts. Avoid oversized dock panels
 // and reserve the workspace for the actual timeline/editor surface.
 @media (max-width: 900px), (max-height: 520px), (pointer: coarse)
