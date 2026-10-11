@@ -45,7 +45,7 @@ try {
     // Compact UI preferences must be accessible and apply without route loss.
     await page.locator('#menu').click();
     assert(await page.locator('#settingsOverlay').isVisible(), `menu opens Settings at ${viewport.width}x${viewport.height}`);
-    await page.locator('#uiScale').fill('80');
+    await page.locator('#uiScale').evaluate(el=>{el.value='80';el.dispatchEvent(new Event('input',{bubbles:true}));});
     assert(await page.locator('#uiScaleValue').innerText() === '80%', `UI Scale control updates its value at ${viewport.width}x${viewport.height}`);
     await page.locator('#uiTheme').selectOption('midnight');
     assert(await page.locator('html').getAttribute('data-theme') === 'midnight', `theme selection updates UI preference at ${viewport.width}x${viewport.height}`);
