@@ -2,7 +2,7 @@
 @use "@/mixins"
 
 component
-  flex: 1
+  flex: 1 1 0
   width: 100%
   height: 100%
   min-width: 0
@@ -74,7 +74,7 @@ component
 // Mobile: keep workspace, touch controls and status in one bounded vertical layout.
 @media (max-width: 900px), (pointer: coarse)
   component
-    height: auto
+    height: 100%
     min-height: 0
     max-height: 100%
     flex: 1 1 0
