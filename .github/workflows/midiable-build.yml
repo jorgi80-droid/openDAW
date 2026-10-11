@@ -27,6 +27,8 @@ on:
       - "packages/app/studio/src/ui/workspace/PanelPlaceholder.sass"
       - "packages/app/studio/src/ui/header/Header.tsx"
       - "packages/app/studio/src/ui/header/Header.sass"
+      - "packages/app/studio/src/ui/header/TimeStateDisplay.sass"
+      - "packages/app/studio/src/ui/tour/Tour.tsx"
       - "packages/app/studio/src/ui/dashboard/Dashboard.tsx"
       - "packages/app/studio/src/ui/workspace/Default.ts"
       - "packages/app/studio/src/ui/workspace/TouchPanelActions.ts"
