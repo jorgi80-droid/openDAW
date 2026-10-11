@@ -17,7 +17,7 @@ const DevicesPanel = PanelState.create({
     icon: IconSymbol.Flask,
     panelType: PanelType.DevicePanel,
     notPopoutable: true,
-    constrains: {type: "flex", minSize: 0, maxSize: 420, flex: 0.6},
+    constrains: {type: "flex", minSize: 72, maxSize: 420, flex: 1},
     minimized: true
 })
 const NotepadPanel = PanelState.create({
@@ -84,14 +84,14 @@ export const DefaultWorkspace = Object.freeze({
                             name: "Timeline",
                             icon: IconSymbol.Timeline,
                             panelType: PanelType.Timeline,
-                            constrains: {type: "flex", minSize: 94, flex: 1}
+                            constrains: {type: "flex", minSize: 120, flex: 2}
                         }),
                         PanelState.create({
                             type: "panel",
                             name: "Editor",
                             icon: IconSymbol.Pencil,
                             panelType: PanelType.ContentEditor,
-                            constrains: {type: "flex", minSize: 0, maxSize: 420, flex: 0.65},
+                            constrains: {type: "flex", minSize: 80, maxSize: 420, flex: 1},
                             minimized: true
                         }),
                         DevicesPanel
