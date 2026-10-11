@@ -3,4 +3,4 @@ export type TourAnchor =
     | "presets" | "samples" | "soundfonts" | "clips" | "regions" | "devices"
     | "mixer" | "analysis"
     | "modulation"
-    | "piano" | "project" | "shadertoy" | "tap"
+    | "piano" | "project" | "tap"
