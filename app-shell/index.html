@@ -224,7 +224,7 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 .menu-rename{display:flex;gap:7px;margin-bottom:10px}.menu-rename[hidden]{display:none!important}
 .menu-rename input{min-width:0;flex:1;background:#0b1219;border:1px solid var(--line);border-radius:9px;padding:9px}
 .clip{touch-action:none;user-select:none;-webkit-user-select:none}
-.clip-label{position:relative;z-index:1;display:block;pointer-events:auto;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px}
+.clip-label{position:relative;z-index:1;display:block;pointer-events:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:8px}
 .clip-resize-handle{position:absolute;z-index:2;right:0;top:0;bottom:0;width:12px;cursor:ew-resize;background:linear-gradient(90deg,transparent,#ffffff24);touch-action:none}
 #pianoScreen .note-layer{touch-action:none}
 #pianoScreen .note{margin:1px 0}
@@ -628,9 +628,8 @@ $('tracks').addEventListener('pointerdown',e=>{
  const clipId=clip.dataset.clip;const item=project.tracks[trackIndex]?.clips.find(c=>c.id===clipId);if(!item)return;
  const rect=clip.getBoundingClientRect();
  const resizeHandle=e.target.closest('.clip-resize-handle');
- const mode=resizeHandle?'resize':(e.target.closest('.clip-label')?null:'move');
- // The clip label is a tap target. Start a gesture on blank clip surface or the explicit resize handle only.
- if(mode===null)return;
+ const mode=resizeHandle?'resize':'move';
+ // The full clip surface supports moving; the narrow end handle is reserved for resizing.
  if(e.button!==undefined&&e.button!==0)return;
  clipGesture={pointerId:e.pointerId,target:clip,trackIndex,clipId,mode,startX:e.clientX,originStart:item.start,originDuration:item.duration,before:JSON.stringify(project),moved:false};
  try{clip.setPointerCapture(e.pointerId)}catch(_){}
@@ -654,7 +653,7 @@ document.querySelector('.bars-viewport')?.addEventListener('scroll',e=>syncTimel
 $('tracks').addEventListener('scroll',e=>{const area=e.target.closest('[data-timeline-scroll="clip"]');if(area)syncTimelineScroll(area)},{passive:true});
 function finishClipGesture(e){
  const g=clipGesture;if(!g||e.pointerId!==g.pointerId)return;
- if(g.moved){pushUndoSnapshot(g.before);selectedClip=g.clipId;selectedTrack=g.trackIndex;ignoreNextClipClick=true;setTimeout(()=>{ignoreNextClipClick=false},400);renderTracks();notify(g.mode==='move'?'Clip dipindahkan':'Panjang clip diubah')}
+ if(g.moved){pushUndoSnapshot(g.before);selectedClip=g.clipId;selectedTrack=g.trackIndex;ignoreNextClipId=g.clipId;setTimeout(()=>{if(ignoreNextClipId===g.clipId)ignoreNextClipId=null},400);renderTracks();notify(g.mode==='move'?'Clip dipindahkan':'Panjang clip diubah')}
  clipGesture=null;
 }
 $('tracks').addEventListener('pointerup',finishClipGesture);
@@ -808,7 +807,14 @@ $('clipContextMenu').addEventListener('click',e=>{
  const action=b.dataset.clipAction;
  if(action==='edit'){openClipEditor(id);return}
  if(action==='copy'){
-  snapshot();const copy={...clip,id:'c'+Date.now()+Math.random().toString(16).slice(2,5),start:Math.min(32-clip.duration,clip.start+clip.duration),label:clip.label+' Copy'};
+  snapshot();
+  const id='c'+Date.now()+Math.random().toString(16).slice(2,5);
+  const occupied=track.clips.filter(c=>c.id!==clip.id).map(c=>[c.start,c.start+c.duration]).sort((a,b)=>a[0]-b[0]);
+  let start=Math.min(32-clip.duration,clip.start+clip.duration);
+  for(const [a,b] of occupied){if(start+clip.duration<=a)break;if(start<b)start=b}
+  if(start+clip.duration>32){start=0;for(const [a,b] of occupied){if(start+clip.duration<=a)break;if(start<b)start=b}}
+  if(start+clip.duration>32){hideClipContext();notify('Tidak ada ruang kosong untuk salinan clip');return}
+  const copy={...clip,id,start,label:clip.label+' Copy'};
   track.clips.push(copy);selectedClip=copy.id;hideClipContext();renderTracks();updateTimelineTools();notify('Clip disalin');return
  }
  if(action==='split'){selectedClip=id;hideClipContext();splitSelectedClipAtRatio(.5);return}
