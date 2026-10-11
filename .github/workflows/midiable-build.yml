@@ -35,6 +35,7 @@ on:
       - "packages/app/studio/src/ui/workspace/WorkspacePage.sass"
       - "packages/app/studio/src/ui/Footer.tsx"
       - "packages/app/studio/src/ui/piano-panel/PianoModePanel.sass"
+      - "packages/app/studio/src/ui/mixer/Mixer.sass"
       - "packages/app/studio/src/ui/timeline/Timeline.sass"
       - "packages/app/studio/src/ui/timeline/TimelineNavigation.sass"
       - "packages/app/studio/src/ui/timeline/TimeAxis.sass"
