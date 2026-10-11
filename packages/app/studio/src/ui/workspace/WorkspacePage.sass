@@ -82,35 +82,36 @@ component
     > main
       min-height: 0
 
-/* Touch layout: nested workspace panels must shrink within the actual viewport. */
+/* The root component is itself the flex child between fixed Header and Footer.
+   Keep main as its normal contents wrapper; making it flex adds an extra flex
+   layer that the native workspace tree was not designed around. */
 html.midiable-mobile component
-  min-height: 0
+  flex: 1 1 0
   min-width: 0
+  min-height: 0
+  max-height: 100%
+  overflow: hidden
 
 html.midiable-mobile component > main
-  display: flex
-  flex-direction: column
-  flex: 1 1 0
-  width: 100%
-  height: auto
-  min-height: 0
-  min-width: 0
-  overflow: hidden
+  display: contents
 
 html.midiable-mobile component > main > section.workspace
   flex: 1 1 0
   width: 100%
-  height: auto
   min-width: 0
   min-height: 0
+  max-height: 100%
   overflow: hidden
 
 html.midiable-mobile section.workspace.vertical
   flex: 1 1 0
+  min-width: 0
   min-height: 0
-  height: auto
+  max-height: 100%
   overflow: hidden
 
 html.midiable-mobile section.workspace.vertical > .panel-placeholder
   flex-shrink: 1
+  min-width: 0
   min-height: 0
+  max-height: 100%
