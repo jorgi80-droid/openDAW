@@ -13,6 +13,8 @@ import {FooterItem} from "@/ui/FooterItem"
 import {EngineAddresses} from "@opendaw/studio-adapters"
 import {LatencyWarning} from "@/ui/LatencyWarning"
 import {PanelType} from "@/ui/workspace/PanelType"
+import {Icon} from "@/ui/components/Icon"
+import {IconSymbol} from "@opendaw/studio-enums"
 
 const className = Html.adoptStyleSheet(css, "footer")
 
@@ -63,9 +65,16 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Editor / Piano Roll")
                             const toggle = () => {
-                                const panel = service.panelLayout.getByType(PanelType.ContentEditor)
-                                if (panel.isVisible) {panel.toggleMinimize()}
-                                else {service.panelLayout.showIfAvailable(PanelType.ContentEditor)}
+                                const editor = service.panelLayout.getByType(PanelType.ContentEditor)
+                                const devices = service.panelLayout.getByType(PanelType.DevicePanel)
+                                if (editor.isVisible) {
+                                    editor.toggleMinimize()
+                                } else {
+                                    if (window.matchMedia("(max-width: 900px), (pointer: coarse)").matches && devices.isVisible) {
+                                        devices.toggleMinimize()
+                                    }
+                                    service.panelLayout.showIfAvailable(PanelType.ContentEditor)
+                                }
                             }
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
@@ -76,16 +85,23 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                     }
                                 })
                             )
-                        }}>✎</FooterItem>
+                        }}><Icon symbol={IconSymbol.Pencil}/></FooterItem>
             <FooterItem className="mobile-panel-shortcut devices-shortcut" title="Devices"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Devices / Effects")
                             const toggle = () => {
-                                const panel = service.panelLayout.getByType(PanelType.DevicePanel)
-                                if (panel.isVisible) {panel.toggleMinimize()}
-                                else {service.panelLayout.showIfAvailable(PanelType.DevicePanel)}
+                                const devices = service.panelLayout.getByType(PanelType.DevicePanel)
+                                const editor = service.panelLayout.getByType(PanelType.ContentEditor)
+                                if (devices.isVisible) {
+                                    devices.toggleMinimize()
+                                } else {
+                                    if (window.matchMedia("(max-width: 900px), (pointer: coarse)").matches && editor.isVisible) {
+                                        editor.toggleMinimize()
+                                    }
+                                    service.panelLayout.showIfAvailable(PanelType.DevicePanel)
+                                }
                             }
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
@@ -96,7 +112,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                     }
                                 })
                             )
-                        }}>⚗</FooterItem>
+                        }}><Icon symbol={IconSymbol.Flask}/></FooterItem>
             <FooterItem className="mobile-panel-shortcut editor-shortcut" title="Editor"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
