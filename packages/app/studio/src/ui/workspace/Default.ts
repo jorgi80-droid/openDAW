@@ -35,6 +35,13 @@ const TimelinePanel = PanelState.create({
     panelType: PanelType.Timeline,
     constrains: {type: "flex", minSize: 120, flex: 2}
 })
+const MobileTimelinePanel = PanelState.create({
+    type: "panel",
+    name: "Timeline",
+    icon: IconSymbol.Timeline,
+    panelType: PanelType.Timeline,
+    constrains: {type: "flex", minSize: 100, flex: 1}
+})
 const EditorPanel = PanelState.create({
     type: "panel",
     name: "Editor",
@@ -72,7 +79,7 @@ const MobileEditorPanel = PanelState.create({
     name: "Editor",
     icon: IconSymbol.Pencil,
     panelType: PanelType.ContentEditor,
-    constrains: {type: "flex", minSize: 0, flex: 1},
+    constrains: {type: "flex", minSize: 0, flex: 3},
     minimized: true
 })
 const MobileDevicesPanel = PanelState.create({
@@ -81,7 +88,7 @@ const MobileDevicesPanel = PanelState.create({
     icon: IconSymbol.Flask,
     panelType: PanelType.DevicePanel,
     notPopoutable: true,
-    constrains: {type: "flex", minSize: 0, flex: 1},
+    constrains: {type: "flex", minSize: 0, flex: 3},
     minimized: true
 })
 
@@ -141,7 +148,7 @@ export const DefaultWorkspace = Object.freeze({
                 {
                     type: "layout",
                     orientation: "vertical",
-                    contents: [TimelinePanel],
+                    contents: [MobileTimelinePanel],
                     constrains: {type: "flex", minSize: 0, flex: 1}
                 }
             ],
@@ -179,7 +186,7 @@ export const DefaultWorkspace = Object.freeze({
                 {
                     type: "layout",
                     orientation: "vertical",
-                    contents: [TimelinePanel, MobileMixerPanel],
+                    contents: [MobileTimelinePanel, MobileMixerPanel],
                     constrains: {type: "flex", minSize: 0, flex: 1}
                 }
             ],
@@ -243,7 +250,7 @@ export const DefaultWorkspace = Object.freeze({
                 {
                     type: "layout",
                     orientation: "vertical",
-                    contents: [TimelinePanel, MobileDevicesPanel],
+                    contents: [MobileTimelinePanel, MobileDevicesPanel],
                     constrains: {type: "flex", minSize: 0, flex: 1}
                 }
             ],
@@ -270,7 +277,7 @@ export const DefaultWorkspace = Object.freeze({
                 {
                     type: "layout",
                     orientation: "vertical",
-                    contents: [TimelinePanel, MobileEditorPanel],
+                    contents: [MobileTimelinePanel, MobileEditorPanel],
                     constrains: {type: "flex", minSize: 0, flex: 1}
                 }
             ],
