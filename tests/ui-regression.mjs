@@ -55,7 +55,10 @@ try {
     }
     await page.locator('.dock button[data-screen="devices"]').click();
     await page.locator('#devTabs button[data-cat="Effect"]').click();
-    assert(await page.locator('#devices .device-option').count() === 6, `Devices Effect tab lists 6 effects at ${viewport.width}x${viewport.height}`);\n    assert(await page.locator('#devices .device-editor').isVisible(), `Devices has one focused editor at ${viewport.width}x${viewport.height}`);\n    await page.locator('#devices .device-page-tabs button[data-device-page=\"TIME\"]').click();\n    assert(await page.locator('#devices .device-page-tabs button.active').innerText() === 'TIME', `device effect pages switch at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#devices .device-option').count() === 6, `Devices Effect tab lists 6 effects at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#devices .device-editor').isVisible(), `Devices has one focused editor at ${viewport.width}x${viewport.height}`);
+    await page.locator('#devices .device-page-tabs button[data-device-page=\"TIME\"]').click();
+    assert(await page.locator('#devices .device-page-tabs button.active').innerText() === 'TIME', `device effect pages switch at ${viewport.width}x${viewport.height}`);
     await page.locator('.dock button[data-screen="mixer"]').click();
     assert(await page.locator('#mixer input[type="range"][data-mix="gain"]').count() === 6, `Mixer shows one gain control per track at ${viewport.width}x${viewport.height}`);
     const mixerSmall = await page.locator('#mixer .channel').evaluateAll(channels => channels.some(channel => { const r=channel.getBoundingClientRect(); return r.width < 100 || r.height < 80; }));
