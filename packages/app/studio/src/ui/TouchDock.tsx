@@ -1,11 +1,58 @@
-// The former bottom touch dock is intentionally kept as a small compatibility
-// component, but it no longer renders a second row of controls. Mobile panel
-// toggles are exposed in the native status footer so the workspace retains height.
 import {createElement} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService"
+import {PanelType} from "@/ui/workspace/PanelType"
+import {Events, Html} from "@opendaw/lib-dom"
+import {Lifecycle} from "@opendaw/lib-std"
+import {Colors, IconSymbol} from "@opendaw/studio-enums"
+import {Icon} from "@/ui/components/Icon"
 
-type Construct = {service: StudioService}
+type Construct = {service: StudioService, lifecycle?: Lifecycle}
 
-export const TouchDock = (_: Construct) => (
-    <nav className="touch-dock-removed" aria-label="OpenDAW touch shortcuts" aria-hidden="true"/>
-)
+export const TouchDock = ({service}: Construct) => {
+    const isTouchLayout = () => window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
+    const nextFrame = (procedure: () => void) => requestAnimationFrame(() => requestAnimationFrame(procedure))
+    const showPanel = (type: PanelType) => {
+        const panel = service.panelLayout.getByType(type)
+        if (panel.isVisible) {
+            panel.toggleMinimize()
+            return
+        }
+        if (isTouchLayout()) {
+            const exclusive: PanelType[] = [PanelType.ContentEditor, PanelType.DevicePanel, PanelType.BrowserPanel]
+            if (exclusive.includes(type)) {
+                exclusive.filter(other => other !== type).forEach(other => {
+                    const sibling = service.panelLayout.getByType(other)
+                    if (sibling.isVisible) {sibling.toggleMinimize()}
+                })
+            }
+        }
+        service.panelLayout.showIfAvailable(type)
+    }
+    const button = (label: string, title: string, symbol: IconSymbol, type: PanelType) => (
+        <button type="button" className="touch-dock-button" title={title} aria-label={title}
+                onpointerdown={(event: PointerEvent) => {
+                    if (event.pointerType === "touch") {event.preventDefault()}
+                }}
+                onclick={() => {
+                    if (service.layout.screen.getValue() !== "default") {
+                        service.switchScreen("default")
+                        nextFrame(() => showPanel(type))
+                    } else {
+                        showPanel(type)
+                    }
+                }}>
+            <Icon symbol={symbol}/><span>{label}</span>
+        </button>
+    )
+    const nav: HTMLElement = (
+        <nav className={Html.buildClassList("touch-dock", isTouchLayout() && "touch-dock-mobile")}
+             aria-label="OpenDAW panels">
+            {button("Browser", "Open or close sample browser", IconSymbol.Panel, PanelType.BrowserPanel)}
+            {button("Editor", "Open or close Piano Roll editor", IconSymbol.Pencil, PanelType.ContentEditor)}
+            {button("Devices", "Open or close instruments and effects", IconSymbol.Flask, PanelType.DevicePanel)}
+        </nav>
+    )
+    const updateLayout = () => nav.classList.toggle("touch-dock-mobile", isTouchLayout())
+    window.addEventListener("resize", updateLayout, {passive: true})
+    return nav
+}
