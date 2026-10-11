@@ -386,6 +386,127 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 @media(max-height:480px){.device-trackbar{min-height:30px;margin-bottom:5px;padding:4px 7px}.device-trackbar button{min-height:26px}.device-rack-state{padding:4px 7px;margin-bottom:5px}}
 
 .device-track-picker{position:fixed;z-index:30;right:12px;top:72px;width:min(310px,calc(100vw - 24px));max-height:calc(100dvh - 100px);overflow:auto;background:#101720;border:1px solid #3a5268;border-radius:12px;box-shadow:0 18px 60px #000c;padding:9px}.device-track-picker-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 2px 9px}.device-track-picker-head strong{font-size:13px}.device-track-picker-head button{min-height:30px;padding:4px 9px}.device-track-picker-list{display:flex;flex-direction:column;gap:5px}.device-track-picker-list button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;min-height:40px}.device-track-picker-list button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.device-track-picker-list button small{color:var(--muted);white-space:nowrap}.device-track-picker-list button.active{border-color:var(--blue);background:#102d4c}
+
+/* Compact landscape DAW UI, adjustable scale/theme, usable piano grid. */
+:root{--ui-scale:1}
+html{font-size:calc(14px * var(--ui-scale))}
+body{font-size:calc(14px * var(--ui-scale))}
+.app{grid-template-rows:clamp(38px,6.2vh,48px) clamp(32px,5vh,39px) minmax(0,1fr) clamp(42px,7vh,52px)!important}
+.top{gap:5px!important;padding:3px 7px!important;min-height:0}
+.top .brand{font-size:calc(15px * var(--ui-scale));letter-spacing:-.5px}
+.top .project{gap:3px}
+.top .project input{font-size:calc(13px * var(--ui-scale));padding:4px 5px;max-width:clamp(80px,12vw,150px)}
+.top button,.subbar button{min-height:30px;padding:4px 7px;border-radius:8px}
+.top .transport{gap:3px}
+.top .transport button{min-width:30px}
+.top .workspace-dock-symbol{width:17px;height:17px;flex:0 0 17px}
+.subbar{gap:5px!important;padding:3px 7px!important;min-height:0}
+.subbar .chip{padding:4px 7px;font-size:calc(12px * var(--ui-scale));border-radius:7px}
+.subbar .chip input{width:36px!important;font-size:inherit}
+.subbar .small{font-size:calc(11px * var(--ui-scale));white-space:nowrap}
+#export{max-width:104px;overflow:hidden;text-overflow:ellipsis}
+.workspace{padding:5px!important}
+.panel{padding:8px!important;border-radius:10px}
+.paneltitle{font-size:calc(14px * var(--ui-scale));margin-bottom:6px}
+.dock{gap:5px!important;padding:3px 6px!important}
+.dock button{min-height:38px!important;padding:3px 5px!important;font-size:calc(11px * var(--ui-scale))!important;gap:5px!important}
+.dock .workspace-dock-symbol{width:17px;height:17px;flex-basis:17px}
+#timelineScreen .timeline-work-area{gap:4px}
+#timelineScreen .timeline-tool-rail{width:31px;flex-basis:31px;gap:3px;padding:3px 1px}
+#timelineScreen .timeline-tool-rail button{width:27px;min-width:27px;height:27px;min-height:27px;padding:3px}
+#timelineScreen .timeline-tool-rail svg{width:16px;height:16px}
+#timelineScreen .ruler{grid-template-columns:clamp(78px,10vw,112px) minmax(0,1fr)!important;font-size:10px}
+#timelineScreen .trackrow{grid-template-columns:clamp(78px,10vw,112px) minmax(0,1fr)!important;min-height:clamp(38px,7.6vh,52px)!important}
+#timelineScreen .tracklabel{padding:4px 5px;gap:3px}
+#timelineScreen .trackname{font-size:calc(10px * var(--ui-scale));gap:3px}
+#timelineScreen .trackname span:last-child{font-size:9px!important}
+#timelineScreen .trackbuttons{gap:3px}
+#timelineScreen .trackbuttons button{font-size:9px;min-height:20px;padding:1px 4px;border-radius:5px}
+#timelineScreen .ruler .trackhead{padding:5px 6px;font-size:9px}
+#timelineScreen .bars-viewport{overflow-x:auto;min-width:0}
+#timelineScreen .bars{min-width:100%;width:100%;justify-content:space-between;padding:0 12px}
+#timelineScreen .cliparea{min-width:0!important;width:100%;overflow-x:auto}
+#timelineScreen .clip-canvas{min-width:100%;width:calc(100% * var(--timeline-zoom,1))}
+#timelineScreen .clip{top:5px!important;height:calc(100% - 10px)!important;min-height:25px;font-size:calc(10px * var(--ui-scale));padding:3px 5px}
+#timelineScreen .clip:after{inset:15px 3px 5px}
+#timelineScreen>.addtrack{min-height:27px!important;flex-basis:29px!important;margin-top:3px!important;padding:3px 9px!important;font-size:calc(11px * var(--ui-scale))}
+#pianoScreen>.panel{display:flex;flex-direction:column;gap:0}
+#pianoScreen .paneltitle{flex:0 0 auto}
+#pianoScreen .pianowrap{flex:1 1 0;height:auto!important;min-height:0!important;display:grid;grid-template-columns:clamp(42px,5.2vw,58px) minmax(0,1fr);grid-template-rows:minmax(0,1fr) clamp(38px,8vh,54px)!important;overflow:hidden!important}
+#pianoScreen .keys{grid-column:1;grid-row:1;display:grid;grid-template-rows:repeat(23,minmax(0,1fr));min-height:0;overflow:hidden}
+#pianoScreen .keys span{display:flex;align-items:center;padding:0 4px;font-size:calc(9px * var(--ui-scale));line-height:1;overflow:hidden}
+#pianoScreen .pianogrid{grid-column:2;grid-row:1;min-width:0!important;min-height:0;overflow:auto!important;touch-action:pan-x pan-y;background-color:#0b1219}
+#pianoScreen .note-layer{position:relative;width:200%;min-width:960px;height:100%;min-height:276px;display:block;background-image:repeating-linear-gradient(to right,transparent 0 calc(3.125% - 1px),#263543 calc(3.125% - 1px) 3.125%),repeating-linear-gradient(to bottom,transparent 0 calc(4.3478% - 1px),#263543 calc(4.3478% - 1px) 4.3478%);background-size:100% 100%}
+#pianoScreen .note-layer .note{position:absolute;height:4.3478%;min-width:6px;margin:1px 0;padding:0;z-index:1;border-radius:3px}
+#pianoScreen .velocity{grid-column:1/3;grid-row:2;min-height:0!important;height:100%;padding:3px 6px;gap:4px;align-items:stretch;overflow:hidden}
+#pianoScreen .velocity span{flex:1;width:auto;min-width:2px;align-self:end;max-height:100%;min-height:3px}
+#devicesScreen>.panel{gap:6px!important;padding:8px!important}
+#devicesScreen .device-trackbar{flex:0 0 auto;gap:6px;flex-wrap:nowrap;min-height:30px;margin:0;padding:4px 6px}
+#devicesScreen .device-trackbar strong{font-size:calc(11px * var(--ui-scale));min-width:0}
+#devicesScreen .device-trackbar .muted{font-size:10px}
+#devicesScreen .device-trackbar button{min-height:26px;padding:3px 7px;font-size:10px}
+#devicesScreen #devTabs{flex:0 0 auto;margin-bottom:0}
+#devicesScreen #devTabs button{min-height:31px;padding:4px 8px;font-size:calc(11px * var(--ui-scale))}
+#devicesScreen .devicegrid{grid-template-columns:clamp(118px,15vw,160px) minmax(0,1fr)!important;gap:6px;flex:1 1 0;min-height:0;overflow:hidden}
+#devicesScreen .device-picker{padding:5px;gap:4px}
+#devicesScreen .device-picker-heading{font-size:9px;line-height:1.2}
+#devicesScreen .device-options{gap:3px}
+#devicesScreen .device-option{min-height:32px;padding:4px 5px;gap:2px}
+#devicesScreen .device-option-name{font-size:calc(10px * var(--ui-scale));line-height:1.15}
+#devicesScreen .device-option-type{font-size:9px;line-height:1.1}
+#devicesScreen .device-editor{gap:5px;padding:6px;overflow:auto;min-height:0}
+#devicesScreen .device-editor-header{gap:5px;flex:0 0 auto}
+#devicesScreen .device-editor-header h3{font-size:calc(14px * var(--ui-scale))}
+#devicesScreen .device-editor-header p{font-size:9px;line-height:1.2}
+#devicesScreen .device-editor-actions .value{display:none}
+#devicesScreen .device-editor-actions select{min-width:72px;width:88px;font-size:10px;padding:4px}
+#devicesScreen .device-editor-actions button{min-height:26px;padding:3px 6px;font-size:10px}
+#devicesScreen .device-page-tabs{gap:3px}
+#devicesScreen .device-page-tabs button{min-height:27px;min-width:38px;padding:3px 5px;font-size:9px}
+#devicesScreen .device-editor-main{grid-template-columns:minmax(85px,.45fr) minmax(0,1.55fr);gap:5px;flex:1 0 auto}
+#devicesScreen .device-scope{padding:5px;gap:3px}
+#devicesScreen .device-scope-label{font-size:8px}
+#devicesScreen .device-scope svg{height:clamp(35px,6vh,58px);flex:0 0 auto}
+#devicesScreen .waveform-row{font-size:9px}
+#devicesScreen .waveform-row select{font-size:9px;padding:3px;max-width:72px}
+#devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(36px,1fr));gap:4px}
+#devicesScreen .knob-control{padding:4px;gap:3px}
+#devicesScreen .knob-head{gap:1px}
+#devicesScreen .knob-head label{font-size:9px}
+#devicesScreen .knob-head output{font-size:10px}
+#devicesScreen .knob-dial{width:clamp(27px,3.7vw,38px);height:clamp(27px,3.7vw,38px);border-width:4px}
+#devicesScreen .knob-control input{height:14px;touch-action:pan-x}
+#devicesScreen .mini-keyboard{height:clamp(26px,4.4vh,36px)}
+#devicesScreen .preset-detail{grid-template-columns:minmax(0,1fr) minmax(90px,.65fr);gap:6px}
+#devicesScreen .preset-meta{padding:6px;gap:5px;font-size:10px}
+#devicesScreen .preset-art{padding:5px;min-height:40px}
+#settingsOverlay .menu-sheet{width:min(520px,94vw);max-height:88dvh;padding:12px}
+#settingsOverlay .settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#settingsOverlay .setting{display:flex;flex-direction:column;gap:5px;padding:9px;border:1px solid var(--line);border-radius:9px;background:#0b1219;min-width:0}
+#settingsOverlay label{font-size:11px;color:var(--muted)}
+#settingsOverlay select,#settingsOverlay input[type=range]{width:100%;min-width:0;background:#0d141c;color:var(--text);accent-color:var(--blue);border:1px solid var(--line);border-radius:7px;padding:6px}
+#settingsOverlay .setting small{font-size:10px;color:var(--muted)}
+@media(max-height:480px){
+ .app{grid-template-rows:38px 31px minmax(0,1fr) 40px!important}
+ .top .brand{font-size:12px}.top .project input{max-width:95px}
+ .top button,.subbar button{min-height:26px;padding:2px 5px}
+ .subbar .chip{padding:3px 5px;font-size:10px}
+ #timelineScreen .trackrow{min-height:36px!important}
+ #timelineScreen .trackbuttons button{min-height:18px;font-size:8px;padding:0 3px}
+ #timelineScreen .trackhead{font-size:8px}
+ #devicesScreen .device-editor-main{grid-template-columns:minmax(65px,.35fr) minmax(0,1.65fr)}
+ #devicesScreen .device-scope{padding:3px}
+ #devicesScreen .device-scope svg{height:30px}
+ #devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(31px,1fr));gap:2px}
+ #devicesScreen .knob-control{padding:2px}
+ #devicesScreen .knob-dial{width:24px;height:24px}
+ #devicesScreen .device-editor-header p{display:none}
+ #pianoScreen .pianowrap{grid-template-rows:minmax(0,1fr) 32px!important}
+ #pianoScreen .keys span{font-size:8px}
+ #settingsOverlay .settings-grid{gap:5px}
+ #settingsOverlay .setting{padding:6px}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -434,6 +555,19 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 <nav class="dock" aria-label="Workspace navigation">
 <button class="active" data-screen="timeline"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M3 12h18M3 19h18M7 3v18M14 3v18" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>Timeline</button><button data-screen="mixer"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M12 3v18M19 3v18" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="7" width="6" height="4" rx="1" fill="currentColor"/><rect x="9" y="14" width="6" height="4" rx="1" fill="currentColor"/><rect x="16" y="5" width="6" height="4" rx="1" fill="currentColor"/></svg>Mixer</button><button data-screen="piano"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 8h18M3 13h18M3 18h18M8 3v18M13 3v18M18 3v18" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>Piano Roll</button><button data-screen="devices"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>Devices</button><button data-screen="browser"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.6"/></svg>Browser</button>
 </nav>
+</div>
+
+<div id="settingsOverlay" class="menu-overlay" hidden>
+ <section class="menu-sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+  <div class="menu-sheet-header"><div><h2 id="settingsTitle">Home / Settings</h2><p class="muted">Preferensi tampilan NovaDAW</p></div><button id="closeSettings" aria-label="Tutup pengaturan">✕</button></div>
+  <div class="settings-grid">
+   <div class="setting"><label for="uiScale">UI Scale <output id="uiScaleValue">85%</output></label><input id="uiScale" type="range" min="70" max="110" step="5" value="85"><small>Skala teks dan kontrol; layout tetap ringkas.</small></div>
+   <div class="setting"><label for="uiTheme">Tema</label><select id="uiTheme"><option value="dark">Dark / FL-like</option><option value="midnight">Midnight Blue</option><option value="light">Light</option></select><small>Terapkan warna ke seluruh workspace.</small></div>
+   <div class="setting"><label for="compactMode">Kepadatan UI</label><select id="compactMode"><option value="compact">Compact</option><option value="comfortable">Comfortable</option></select><small>Atur jarak dan tinggi panel.</small></div>
+   <div class="setting"><label for="gridSnap">Grid snap</label><select id="gridSnap"><option value="on">1/4 beat</option><option value="off">Bebas</option></select><small>Snap untuk perpindahan dan resize klip.</small></div>
+  </div>
+  <div class="menu-actions" style="margin-top:10px"><button id="resetUiSettings">Reset tampilan</button><button class="primary" id="closeSettingsDone">Selesai</button></div>
+ </section>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
 <div id="trackMenuOverlay" class="menu-overlay" hidden>
@@ -498,6 +632,7 @@ function renderTracks(){
   label.innerHTML='<div class="trackname"><span>'+ (index+1)+'. '+esc(t.name)+'</span><span style="color:var(--muted);font-size:10px">'+esc(t.type)+'</span></div><div class="trackbuttons"><button data-action="mute" data-i="'+index+'" class="'+(t.mute?'on':'')+'">M</button><button data-action="solo" data-i="'+index+'" class="'+(t.solo?'on':'')+'">S</button><button data-action="menu" data-i="'+index+'" class="'+(selectedTrack===index?'active':'')+'" aria-label="Track options">•••</button></div>';
   row.appendChild(label);
   const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;area.dataset.timelineScroll='clip';
+  area.style.backgroundImage='linear-gradient(to right,#263543 1px,transparent 1px),linear-gradient(to right,#182531 1px,transparent 1px)';area.style.backgroundSize=(100/32*timelineZoom)+'% 100%, '+(100/128*timelineZoom)+'% 100%';
   const canvas=document.createElement('div');canvas.className='clip-canvas';canvas.style.width=(timelineZoom*100)+'%';
   t.clips.forEach(c=>{
    const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'')+(c.muted?' is-muted':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(Math.min(c.duration,32-c.start)/32*100)+'%';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Ubah panjang clip"></span>';clip.dataset.clip=c.id;clip.title=c.label+' · ketuk pilih, ketuk ganda buka editor, geser pindah, tarik tepi untuk mengubah panjang';canvas.appendChild(clip);
@@ -519,14 +654,13 @@ function renderMixer(){
 }
 function renderPiano(){
  const keys=$('keys'),grid=$('pianogrid'),vel=$('velocity');keys.innerHTML='';grid.innerHTML='';vel.innerHTML='';
- const names=['C5','B4','A#4','A4','G#4','G4','F#4','F4','E4','D#4','D4','C4'];
- names.forEach(n=>{const span=document.createElement('span');span.textContent=n;keys.appendChild(span)});
- const noteLayer=document.createElement('div');noteLayer.className='note-layer';noteLayer.setAttribute('aria-label','MIDI note lane');
- project.notes.forEach((n,i)=>{
-  const note=document.createElement('button');note.className='note';note.style.left=(n.col/16*100)+'%';note.style.width=(Math.max(1,n.len)/16*100)+'%';note.style.top=(Math.max(0,Math.min(11,n.row))/12*100)+'%';note.style.height=(100/12)+'%';note.dataset.noteIndex=i;note.title='Nada '+names[Math.max(0,Math.min(11,n.row))];note.setAttribute('aria-label',note.title);noteLayer.appendChild(note);
- });
- grid.appendChild(noteLayer);
- for(let i=0;i<16;i++){const s=document.createElement('span');s.style.setProperty('--h',(18+(i*37%68))+'%');s.title='Velocity';vel.appendChild(s)}
+ const names=['C6','B5','A#5','A5','G#5','G5','F#5','F5','E5','D#5','D5','C5','B4','A#4','A4','G#4','G4','F#4','F4','E4','D#4','D4','C4'];
+ const rows=names.length;keys.style.gridTemplateRows='repeat('+rows+',minmax(0,1fr))';
+ names.forEach((name,i)=>{const span=document.createElement('span');span.textContent=name;span.dataset.pianoRow=i;if(name.includes('#'))span.classList.add('black-note-name');keys.appendChild(span)});
+ const layer=document.createElement('div');layer.className='note-layer';layer.setAttribute('aria-label','MIDI note lane');layer.style.width='200%';layer.style.minWidth='960px';
+ project.notes.forEach((n,i)=>{const row=Math.max(0,Math.min(rows-1,Number(n.row)||0));const note=document.createElement('button');note.className='note';note.style.left=(Math.max(0,n.col)/32*100)+'%';note.style.width=(Math.max(1,n.len)/32*100)+'%';note.style.top=(row/rows*100)+'%';note.style.height=(100/rows)+'%';note.dataset.noteIndex=i;note.title='Nada '+names[row];note.setAttribute('aria-label',note.title);layer.appendChild(note)});
+ grid.appendChild(layer);
+ for(let i=0;i<32;i++){const s=document.createElement('span');s.style.setProperty('--h',(18+(i*37%68))+'%');s.title='Velocity';s.dataset.velocityIndex=i;vel.appendChild(s)}
 }
 const deviceCatalog={
  Instrument:[
@@ -734,9 +868,9 @@ $('pianogrid').addEventListener('pointerdown',e=>{
 $('pianogrid').addEventListener('pointermove',e=>{
  const g=noteGesture;if(!g||g.pointerId!==e.pointerId)return;const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
  if(Math.max(Math.abs(dx),Math.abs(dy))<4&&!g.moved)return;g.moved=true;e.preventDefault();
- const rect=$('pianogrid').getBoundingClientRect(),dc=Math.round(dx/(rect.width/16)),dr=Math.round(dy/(rect.height/12));const n=project.notes[g.index];if(!n)return;
- if(g.mode==='resize'){n.len=Math.max(1,Math.min(16-g.originCol,g.originLen+dc));n.col=g.originCol;n.row=g.originRow}
- else{n.len=g.originLen;n.col=Math.max(0,Math.min(16-g.originLen,g.originCol+dc));n.row=Math.max(0,Math.min(11,g.originRow+dr))}
+ const rect=$('pianogrid').getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(rect.width,layer?.scrollWidth||0)/32,dc=Math.round(dx/stepWidth),dr=Math.round(dy/(rect.height/23));const n=project.notes[g.index];if(!n)return;
+ if(g.mode==='resize'){n.len=Math.max(1,Math.min(32-g.originCol,g.originLen+dc));n.col=g.originCol;n.row=g.originRow}
+ else{n.len=g.originLen;n.col=Math.max(0,Math.min(32-g.originLen,g.originCol+dc));n.row=Math.max(0,Math.min(22,g.originRow+dr))}
 });
 function finishNoteGesture(e){
  const g=noteGesture;if(!g||g.pointerId!==e.pointerId)return;
@@ -749,10 +883,10 @@ $('pianogrid').addEventListener('click',e=>{
  if(ignoreNextNoteClick){ignoreNextNoteClick=false;return}
  const note=e.target.closest('.note');
  if(note){selectedNote=Number(note.dataset.noteIndex);notify('Nada dipilih');return}
- const rect=e.currentTarget.getBoundingClientRect();
- const row=Math.floor((e.clientY-rect.top)/(rect.height/12));
- const col=Math.floor((e.clientX-rect.left)/(rect.width/16));
- snapshot();project.notes.push({row:Math.max(0,Math.min(11,row)),col:Math.max(0,Math.min(15,col)),len:1,velocity:80});
+ const rect=e.currentTarget.getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(rect.width,layer?.scrollWidth||0)/32;
+ const row=Math.floor((e.clientY-rect.top)/(rect.height/23));
+ const col=Math.floor((e.clientX-rect.left+(e.currentTarget.scrollLeft||0))/stepWidth);
+ snapshot();project.notes.push({row:Math.max(0,Math.min(22,row)),col:Math.max(0,Math.min(31,col)),len:1,velocity:80});
  renderPiano();notify('Nada MIDI ditambahkan (model demo)')
 });
 $('deviceTrackMenu').addEventListener('click',()=>{const pop=$('deviceTrackPicker');if(pop){pop.hidden=!pop.hidden;return;}const el=document.createElement('div');el.id='deviceTrackPicker';el.className='device-track-picker';el.innerHTML='<div class="device-track-picker-head"><strong>Pilih track untuk rack</strong><button type="button" data-close-device-tracks>✕</button></div><div class="device-track-picker-list">'+project.tracks.map((t,i)=>'<button type="button" data-rack-track="'+i+'" class="'+(i===selectedTrack?'active':'')+'"><span>'+String(i+1).padStart(2,'0')+'. '+esc(t.name)+'</span><small>'+esc(t.type)+'</small></button>').join('')+'</div>';document.body.appendChild(el);el.addEventListener('click',ev=>{if(ev.target.closest('[data-close-device-tracks]')){el.remove();return}const b=ev.target.closest('[data-rack-track]');if(!b)return;selectedTrack=Number(b.dataset.rackTrack);el.remove();renderTracks();renderMixer();renderDevices();notify('Rack track: '+project.tracks[selectedTrack].name)});});
@@ -781,7 +915,30 @@ $('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)re
 $('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({...project,uiRackState:trackRacks},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(project.name||'novadaw').replace(/[^a-z0-9-_]/gi,'_')+'.json';a.click();URL.revokeObjectURL(url);notify('Ekspor JSON dibuat')});
 $('undo').addEventListener('click',()=>{if(!undoStack.length){notify('Tidak ada aksi untuk undo');return}redoStack.push(JSON.stringify(project));project=JSON.parse(undoStack.pop());renderAll();notify('Undo selesai')});
 $('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada aksi untuk redo');return}undoStack.push(JSON.stringify(project));project=JSON.parse(redoStack.pop());renderAll();notify('Redo selesai')});
-$('menu').addEventListener('click',()=>notify('NovaDAW Mobile · prototype UI · belum terhubung ke audio engine'));
+const uiPrefs={scale:85,theme:'dark',density:'compact'};
+function applyUiPrefs(){
+ const scale=Math.max(70,Math.min(110,Number(uiPrefs.scale)||85));
+ document.documentElement.style.setProperty('--ui-scale',String(scale/100));
+ const root=document.documentElement;root.dataset.theme=uiPrefs.theme||'dark';root.dataset.density=uiPrefs.density||'compact';
+ $('uiScale').value=String(scale);$('uiScaleValue').textContent=scale+'%';$('uiTheme').value=uiPrefs.theme;$('compactMode').value=uiPrefs.density;
+ document.body.classList.toggle('comfortable-ui',uiPrefs.density==='comfortable');
+ const themes={dark:{bg:'#090d12',panel:'#101720',panel2:'#151e28',line:'#283747',text:'#eaf3fc',muted:'#91a3b7',blue:'#1687ff',cyan:'#31caff'},midnight:{bg:'#070b16',panel:'#0e1626',panel2:'#13213a',line:'#263a58',text:'#eaf2ff',muted:'#91a6c8',blue:'#4c91ff',cyan:'#50d7ff'},light:{bg:'#e7edf4',panel:'#f7f9fc',panel2:'#fff',line:'#bac7d5',text:'#142130',muted:'#5b6d80',blue:'#176bd1',cyan:'#009fbe'}};
+ Object.entries(themes[uiPrefs.theme]||themes.dark).forEach(([k,v])=>root.style.setProperty('--'+k,v));
+ localStorage.setItem('novadaw-ui-prefs',JSON.stringify(uiPrefs));
+}
+function openSettings(){try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}applyUiPrefs();$('settingsOverlay').hidden=false}
+function closeSettings(){$('settingsOverlay').hidden=true}
+$('menu').addEventListener('click',openSettings);$('closeSettings').addEventListener('click',closeSettings);$('closeSettingsDone').addEventListener('click',closeSettings);
+$('settingsOverlay').addEventListener('click',e=>{if(e.target.id==='settingsOverlay')closeSettings()});
+$('uiScale').addEventListener('input',e=>{uiPrefs.scale=Number(e.target.value);applyUiPrefs()});
+$('uiTheme').addEventListener('change',e=>{uiPrefs.theme=e.target.value;applyUiPrefs()});
+$('compactMode').addEventListener('change',e=>{uiPrefs.density=e.target.value;applyUiPrefs()});
+$('gridSnap').addEventListener('change',e=>{snapEnabled=e.target.value==='on';uiPrefs.snap=snapEnabled;updateTimelineTools();applyUiPrefs()});
+$('resetUiSettings').addEventListener('click',()=>{Object.assign(uiPrefs,{scale:85,theme:'dark',density:'compact'});snapEnabled=true;applyUiPrefs();$('gridSnap').value='on';notify('Tampilan direset')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSettings()});
+try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}
+applyUiPrefs();
+
 function updateTimelineTools(){
  document.querySelectorAll('[data-timeline-tool]').forEach(b=>{
   const tool=b.dataset.timelineTool;
