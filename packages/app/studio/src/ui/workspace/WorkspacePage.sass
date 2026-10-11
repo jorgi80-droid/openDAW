@@ -180,13 +180,20 @@ html.midiable-mobile
       flex-shrink: 0
 
     a.manuals,
-    h5,
     .manuals,
     > hr,
     .panel-selector,
-    [data-class="radio-group"],
-    [data-class="checkbox"]:first-child
+    [data-class="radio-group"]
       display: none
+
+  /* Keep the real OpenDAW menu visible; only the development banner is hidden. */
+  .mobile-header > h5
+    display: none !important
+
+  .mobile-header > button h5
+    display: flex !important
+    font-size: 0.7rem
+    white-space: nowrap
 
   footer
     z-index: 40
