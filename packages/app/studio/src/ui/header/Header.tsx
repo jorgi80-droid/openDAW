@@ -25,6 +25,7 @@ import {BaseFrequencyControl} from "@/ui/header/BaseFrequencyControl"
 import {CaptureMidiButton} from "@/ui/header/CaptureMidiButton"
 import {TourAnchors} from "@/ui/tour/TourAnchors"
 import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
+import {isTouchLayout} from "@/ui/workspace/TouchLayout"
 
 const className = Html.buildClassList(Html.adoptStyleSheet(css, "Header"), "mobile-header")
 
@@ -113,7 +114,7 @@ export const Header = ({lifecycle, service}: Construct) => {
                                 setValue(value: Nullable<Workspace.ScreenKeys>): void {
                                     if (!service.hasProfile) {return}
                                     const current = service.layout.screen.getValue()
-                                    const touchLayout = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
+                                    const touchLayout = isTouchLayout()
                                     const panelType = value === "mixer" ? PanelType.Mixer
                                         : value === "piano" ? PanelType.ContentEditor
                                             : value === "modulation" ? PanelType.DevicePanel : null
