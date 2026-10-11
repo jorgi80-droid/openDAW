@@ -1,17 +1,24 @@
 @use "@/colors"
 
 component
-  flex: 1 0 0
+  flex: 1 1 0
   width: 100%
+  min-width: 0
+  min-height: 0
+  height: 100%
   display: flex
   flex-direction: column
+  overflow: hidden
   row-gap: 1px
 
   > div.channel-strips-wrapper
     display: flex
-    flex: 1 0 0
+    flex: 1 1 0
     width: 100%
-    overflow: hidden
+    min-width: 0
+    min-height: 0
+    overflow: auto
+    overscroll-behavior: contain
     @include colors.panel-background
 
     > div.channel-strips
@@ -40,3 +47,22 @@ component
           justify-content: right
           color: rgba(white, 0.4)
           pointer-events: none
+@media (max-width: 900px), (max-height: 520px), (pointer: coarse)
+  component
+    min-width: 0
+    min-height: 0
+    height: 100%
+
+    > div.channel-strips-wrapper
+      min-width: 0
+      min-height: 0
+      overflow: auto
+      overscroll-behavior: contain
+      touch-action: pan-x pan-y
+
+      > div.channel-strips
+        min-width: max-content
+        min-height: 100%
+        grid-auto-columns: minmax(96px, 118px)
+        column-gap: 6px
+        padding: 6px

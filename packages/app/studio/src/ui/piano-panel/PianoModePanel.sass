@@ -1,10 +1,12 @@
 @use "@/colors"
 
 component
-  flex: 1 0 0
+  flex: 1 1 0
   height: 100%
+  width: 100%
   min-width: 0
   min-height: 0
+  overflow: hidden
   display: flex
   flex-direction: column
   row-gap: 1px
@@ -38,7 +40,7 @@ component
     flex: 0 0 auto
 
     &:nth-child(1)
-      flex: 1 0 0
+      flex: 1 1 0
       min-width: 0
       min-height: 0
 
@@ -62,3 +64,16 @@ component
       max-width: min(90vw, 360px)
       max-height: 55vh
       padding: 0.75rem
+
+@media (max-width: 900px), (max-height: 520px), (pointer: coarse)
+  component
+    min-width: 0
+    min-height: 0
+    height: 100%
+
+    > .controls
+      z-index: 5
+      max-height: min(48dvh, 360px)
+      overflow: auto
+      overscroll-behavior: contain
+      touch-action: pan-y

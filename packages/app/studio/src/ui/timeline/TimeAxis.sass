@@ -51,3 +51,11 @@ component
       border-bottom: 6px solid transparent
       border-right: 6px solid var(--color-blue)
       pointer-events: all
+@media (max-width: 900px), (pointer: coarse)
+  component
+    min-height: 28px
+
+    > canvas
+      top: 0
+      height: 100%
+      font-size: 0.65em

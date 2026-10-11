@@ -28,10 +28,6 @@ type Construct = {
 export const PanelPlaceholder =
     ({lifecycle, panelContents, orientation, siblings, panelState, roomAwareness}: Construct) => {
         const {icon, name, constrains, minimizable, popoutable} = panelState
-        // Recover the primary arrangement if an older mobile build left it collapsed.
-        if (window.matchMedia("(pointer: coarse)").matches && panelState.panelType === PanelType.Timeline) {
-            panelState.isMinimized = false
-        }
         const HeaderSize = 18
         const container = <Group/>
         const element: DomElement = <div className={Html.buildClassList(className, orientation, "panel-placeholder")}
@@ -77,9 +73,9 @@ export const PanelPlaceholder =
 
         const popupLabel: Element = (
             <div className="popup-label">
-				<span>
-					{`${panelState.name} is currently in another window.`}
-				</span>
+                <span>
+                    {`${panelState.name} is currently in another window.`}
+                </span>
             </div>
         )
         const popoutIcon = new DefaultObservableValue(IconSymbol.Embed)
@@ -104,9 +100,42 @@ export const PanelPlaceholder =
             }
         }))
         const presenceDots: HTMLElement = <div className="presence-dots"/>
+        const touchMaximizable = panelState.minimizable &&
+            (panelState.panelType === PanelType.Mixer ||
+                panelState.panelType === PanelType.ContentEditor ||
+                panelState.panelType === PanelType.DevicePanel)
+        const maximizeClass = panelState.panelType === PanelType.Mixer ? "opendaw-maximized-mixer"
+            : panelState.panelType === PanelType.ContentEditor ? "opendaw-maximized-editor" : "opendaw-maximized-devices"
+        const startsMaximized = document.documentElement.classList.contains(maximizeClass)
+        const maximizeButton: HTMLElement | null = touchMaximizable ? (
+            <button type="button"
+                    className="panel-maximize-button"
+                    title={startsMaximized ? `Restore ${name}` : `Maximize ${name}`}
+                    aria-label={startsMaximized ? `Restore ${name}` : `Maximize ${name}`}
+                    aria-pressed={String(startsMaximized)}
+                    onclick={event => {
+                        event.stopPropagation()
+                        const root = document.documentElement
+                        const maximized = !root.classList.contains(maximizeClass)
+                        root.classList.remove("opendaw-panel-maximized", "opendaw-maximized-mixer", "opendaw-maximized-editor", "opendaw-maximized-devices")
+                        if (maximized) {
+                            root.classList.add("opendaw-panel-maximized", maximizeClass)
+                        }
+                        const button = event.currentTarget as HTMLButtonElement
+                        button.title = maximized ? `Restore ${name}` : `Maximize ${name}`
+                        button.setAttribute("aria-label", maximized ? `Restore ${name}` : `Maximize ${name}`)
+                        button.setAttribute("aria-pressed", String(maximized))
+                        const svg = button.querySelector("svg")
+                        if (svg !== null) {
+                            svg.replaceWith(<Icon symbol={maximized ? IconSymbol.Minimized : IconSymbol.Maximized}/>)
+                        }
+                    }}>
+                <Icon symbol={startsMaximized ? IconSymbol.Minimized : IconSymbol.Maximized}/>
+            </button>
+        ) : null
         const header: HTMLElement = (
             <header>
-                <Icon symbol={icon}/> <span>{name}</span> {presenceDots}
+                <Icon symbol={icon}/> <span>{name}</span> {presenceDots} {maximizeButton}
             </header>
         )
         const roomLifecycle = lifecycle.own(new Terminator())
@@ -143,6 +172,8 @@ export const PanelPlaceholder =
         let touchStart: { x: number, y: number, time: number, pointerId: number } | null = null
         lifecycle.own(Events.subscribe(header, "pointerdown", event => {
             if (event.pointerType === "mouse" || event.button !== 0) {return}
+            const target = event.target
+            if (target instanceof Element && target.closest(".panel-maximize-button") !== null) {return}
             touchStart = {x: event.clientX, y: event.clientY, time: performance.now(), pointerId: event.pointerId}
         }, {capture: true}))
         lifecycle.own(Events.subscribe(header, "pointerup", event => {
@@ -151,6 +182,8 @@ export const PanelPlaceholder =
             if (start === null || event.pointerId !== start.pointerId || event.button !== 0) {return}
             if (performance.now() - start.time > 450) {return}
             if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > 10) {return}
+            const target = event.target
+            if (target instanceof Element && target.closest(".panel-maximize-button") !== null) {return}
             if (panelState.panelType !== PanelType.Timeline) {handler.toggleMinimize()}
         }, {capture: true}))
         lifecycle.own(Events.subscribe(header, "pointercancel", () => {touchStart = null}, {capture: true}))

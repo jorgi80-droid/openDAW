@@ -33,3 +33,32 @@ component
       flex-direction: row
       font-size: 0.5em
       column-gap: 0.5em
+@media (max-width: 900px), (pointer: coarse)
+  component
+    width: 66px
+    max-width: 66px
+    min-width: 0
+    overflow: hidden
+    grid-auto-rows: min-content 3px
+    row-gap: 1px
+
+    > header
+      column-gap: 2px
+      min-width: 0
+      overflow: hidden
+
+      > div.channel-mix
+        font-size: 0.5em
+        column-gap: 1px
+        flex: 0 0 auto
+
+      > div.channel-isolation
+        font-size: 0.42em
+        column-gap: 1px
+        flex: 0 0 auto
+
+      > div.channel-capture
+        width: 1.2em
+        min-width: 0
+        flex: 0 0 auto
+        font-size: 0.42em

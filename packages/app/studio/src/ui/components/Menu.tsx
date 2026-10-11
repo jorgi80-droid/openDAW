@@ -275,9 +275,38 @@ export class Menu implements Terminable, Lifecycle {
                     if (hasChildren) {
                         itemElement.classList.add("has-children")
                     }
-                    itemElement.onpointerenter = () => this.#onPointerEnter(item, itemElement)
+                    itemElement.onpointerenter = (event: PointerEvent) => {
+                        if (event.pointerType !== "touch") {this.#onPointerEnter(item, itemElement)}
+                    }
                     itemElement.onpointerleave = (event: PointerEvent) => this.#onPointerLeave(item, itemElement, event)
+                    // Menus open at the top of the viewport on touch screens often miss the
+                    // old 250ms guard before the first tap has finished. Track a fresh touch
+                    // start and activate only the item directly touched, while desktop keeps
+                    // the hover-selection behaviour.
+                    let touchStart: {x: number, y: number, time: number, pointerId: number} | null = null
+                    itemElement.onpointerdown = (event: PointerEvent) => {
+                        if (event.pointerType === "touch" || event.pointerType === "pen") {
+                            touchStart = {x: event.clientX, y: event.clientY, time: Date.now(), pointerId: event.pointerId}
+                        }
+                    }
+                    itemElement.onpointercancel = () => {touchStart = null}
                     itemElement.onpointerup = (event: PointerEvent) => {
+                        if (event.pointerType === "touch" || event.pointerType === "pen") {
+                            const start = touchStart
+                            touchStart = null
+                            if (start === null || start.pointerId !== event.pointerId ||
+                                Date.now() - start.time < 35 ||
+                                Math.hypot(event.clientX - start.x, event.clientY - start.y) > 18) {return}
+                            event.preventDefault()
+                            event.stopPropagation()
+                            if (item.hasChildren) {
+                                this.#onPointerEnter(item, itemElement)
+                                return
+                            }
+                            this.root.terminate()
+                            item.trigger()
+                            return
+                        }
                         if (Date.now() - this.#openTime < Menu.MIN_TIME_MS) {return}
                         this.#onPointerUp(item, itemElement, event)
                     }

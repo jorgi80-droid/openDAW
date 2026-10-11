@@ -25,6 +25,7 @@ import {ChainedSampleProvider, ChainedSoundfontProvider, ChainedWclapProvider, T
 import {populateStudioMenu} from "@/service/StudioMenu"
 import {Snapping} from "@/ui/timeline/Snapping.ts"
 import {PanelContents} from "@/ui/workspace/PanelContents.tsx"
+import {isTouchLayout} from "@/ui/workspace/TouchLayout"
 import {createPanelFactory} from "@/ui/workspace/PanelFactory.tsx"
 import {SpotlightDataSupplier} from "@/ui/spotlight/SpotlightDataSupplier.ts"
 import {Workspace} from "@/ui/workspace/Workspace.ts"
@@ -511,7 +512,22 @@ export class StudioService implements ProjectEnv {
                     project,
                     snapping.registerSignatureTrackAdapter(project.timelineBoxAdapter.signatureTrack),
                     userEditingManager.timeline.catchupAndSubscribe(option => option
-                        .ifSome(() => AnimationFrame.once(() => this.panelLayout.showIfAvailable(PanelType.ContentEditor)))),
+                        .ifSome(() => AnimationFrame.once(() => {
+                            if (isTouchLayout()) {
+                                // The mobile default deliberately contains only Timeline.
+                                // Editing a region routes to the native Piano Roll workspace,
+                                // where Timeline and Editor have their own active resizer.
+                                if (this.layout.screen.getValue() !== "piano") {
+                                    this.switchScreen("piano")
+                                    requestAnimationFrame(() => requestAnimationFrame(() =>
+                                        this.panelLayout.showIfAvailable(PanelType.ContentEditor)))
+                                } else {
+                                    this.panelLayout.showIfAvailable(PanelType.ContentEditor)
+                                }
+                            } else {
+                                this.panelLayout.showIfAvailable(PanelType.ContentEditor)
+                            }
+                        }))),
                     timelineBox.durationInPulses.catchupAndSubscribe(owner => range.maxUnits = owner.getValue() + PPQN.Bar)
                 )
                 this.#navigation.onProjectOpened()

@@ -29,8 +29,23 @@ component
 
 @media (max-width: 900px), (pointer: coarse)
   component
-    --clips-width: 40px
-    grid-template-rows: auto minmax(0, 1fr) 14px
+    --clips-width: 0px
+    --timeline-header-width: clamp(154px, 40vw, 172px)
+    // Keep the original three-column grid contract: ClipsHeader uses subgrid,
+    // and TimelineNavigation is explicitly placed in the final column.
+    grid-template-columns: var(--timeline-header-width) 0 minmax(0, 1fr)
+    grid-template-rows: auto minmax(0, 1fr) 0px
+    gap: 1px
+
+    &.clips-visible
+      grid-template-columns: var(--timeline-header-width) repeat(var(--clips-count), 0px) minmax(0, 1fr)
 
     &.primary-tracks-visible
-      grid-template-rows: auto auto minmax(0, 1fr) 14px
+      grid-template-rows: auto auto minmax(0, 1fr) 0px
+
+    // The desktop clip-launch rack is a second column set, not the arrangement.
+    // On phones its controls otherwise overflow fixed 0px columns and sit on top
+    // of track names. Hide only the launcher header; keep the original grid
+    // columns and per-track clips/regions intact.
+    > div:nth-child(2)
+      display: none

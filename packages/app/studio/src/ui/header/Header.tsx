@@ -24,6 +24,8 @@ import {PerformanceStats} from "@/ui/header/PerformanceStats"
 import {BaseFrequencyControl} from "@/ui/header/BaseFrequencyControl"
 import {CaptureMidiButton} from "@/ui/header/CaptureMidiButton"
 import {TourAnchors} from "@/ui/tour/TourAnchors"
+import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
+import {isTouchLayout} from "@/ui/workspace/TouchLayout"
 
 const className = Html.buildClassList(Html.adoptStyleSheet(css, "Header"), "mobile-header")
 
@@ -38,8 +40,6 @@ const ScreenShortcutKeys: Record<Workspace.ScreenKeys, keyof typeof GlobalShortc
     "mixer": "workspace-screen-mixer",
     "modulation": "workspace-screen-modulation",
     "piano": "workspace-screen-piano",
-    "project": "workspace-screen-project",
-    "shadertoy": "workspace-screen-shadertoy",
     "code": "workspace-screen-default",
     "tap": "workspace-screen-tap"
 }
@@ -114,16 +114,21 @@ export const Header = ({lifecycle, service}: Construct) => {
                                 setValue(value: Nullable<Workspace.ScreenKeys>): void {
                                     if (!service.hasProfile) {return}
                                     const current = service.layout.screen.getValue()
-                                    if (current === "default") {
-                                        const panelType = value === "mixer" ? PanelType.Mixer
-                                            : value === "piano" ? PanelType.ContentEditor
-                                                : value === "modulation" ? PanelType.DevicePanel : null
-                                        if (panelType !== null) {
-                                            const panel = service.panelLayout.getByType(panelType)
-                                            if (panel.isVisible) {panel.toggleMinimize()}
-                                            else {service.panelLayout.showIfAvailable(panelType)}
-                                            return
-                                        }
+                                    const touchLayout = isTouchLayout()
+                                    const panelType = value === "mixer" ? PanelType.Mixer
+                                        : value === "piano" ? PanelType.ContentEditor
+                                            : value === "modulation" ? PanelType.DevicePanel : null
+                                    if (touchLayout && panelType !== null) {
+                                        // The shared controller switches to the active touch workspace
+                                        // before opening/closing the selected native panel.
+                                        toggleTouchPanel(service, panelType)
+                                        return
+                                    }
+                                    if (current === "default" && panelType !== null) {
+                                        const panel = service.panelLayout.getByType(panelType)
+                                        if (panel.isVisible) {panel.toggleMinimize()}
+                                        else {service.panelLayout.showIfAvailable(panelType)}
+                                        return
                                     }
                                     service.switchScreen(value)
                                 }
@@ -150,6 +155,13 @@ export const Header = ({lifecycle, service}: Construct) => {
                                                     : name,
                                         GlobalShortcuts[ScreenShortcutKeys[key as Workspace.ScreenKeys]].shortcut)
                                 }))}
+                            onSameValue={value => {
+                                if (!isTouchLayout() || value === "default") {return}
+                                const panelType = value === "mixer" ? PanelType.Mixer
+                                    : value === "piano" ? PanelType.ContentEditor
+                                        : value === "modulation" ? PanelType.DevicePanel : null
+                                if (panelType !== null) {toggleTouchPanel(service, panelType)}
+                            }}
                             appearance={{framed: true, landscape: true}}/>
             </div>
             <hr/>

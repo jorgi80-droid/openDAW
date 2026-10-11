@@ -90,7 +90,6 @@ export const TimelineRangeSlider = ({lifecycle, range, style, className: extraCl
             }), slider, {horizontal: true, trackLength, ratio: 1.0}))
         onUpdate()
     }
-
     lifecycle.own(Html.watchResize(slider, onResize))
     lifecycle.own(range.subscribe(onUpdate))
     lifecycle.own(Events.subscribeDblDwn(slider, () => range.showAll()))

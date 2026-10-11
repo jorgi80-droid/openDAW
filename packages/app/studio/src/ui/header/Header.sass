@@ -51,3 +51,32 @@ component
   .panel-selector
     .no-project &
       opacity: 0.5
+
+// Reduce the always-visible transport footprint on touch devices while preserving
+// access to every native tool through horizontal scrolling rather than overlap.
+@media (max-width: 900px), (max-height: 520px), (pointer: coarse)
+  component
+    height: 34px
+    min-height: 34px
+    max-height: 34px
+    flex: 0 0 34px
+    padding: 1px 3px
+    column-gap: 0.25em
+    overflow-x: auto
+    overflow-y: hidden
+    scrollbar-width: none
+    touch-action: pan-x
+
+    > *
+      flex-shrink: 0
+
+  component .panel-selector [data-class="radio-group"] > label
+    min-width: 32px !important
+    width: 32px !important
+    height: 32px !important
+    min-height: 32px !important
+    max-height: 32px !important
+
+  component .panel-selector [data-class="radio-group"] > label > *
+    width: 16px
+    height: 16px

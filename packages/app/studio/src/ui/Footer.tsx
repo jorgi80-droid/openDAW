@@ -12,6 +12,10 @@ import {AudioData} from "@opendaw/lib-dsp"
 import {FooterItem} from "@/ui/FooterItem"
 import {EngineAddresses} from "@opendaw/studio-adapters"
 import {LatencyWarning} from "@/ui/LatencyWarning"
+import {PanelType} from "@/ui/workspace/PanelType"
+import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
+import {Icon} from "@/ui/components/Icon"
+import {IconSymbol} from "@opendaw/studio-enums"
 
 const className = Html.adoptStyleSheet(css, "footer")
 
@@ -55,6 +59,54 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                     }
                                 }))
                         }}/>
+                        <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Sample Browser")
+                            const toggle = () => toggleTouchPanel(service, PanelType.BrowserPanel)
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Panel}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut editor-shortcut" title="Editor"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Editor / Piano Roll")
+                            const toggle = () => toggleTouchPanel(service, PanelType.ContentEditor)
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Pencil}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut devices-shortcut" title="Devices"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Devices / Effects")
+                            const toggle = () => toggleTouchPanel(service, PanelType.DevicePanel)
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Flask}/></FooterItem>
             <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
             <FooterItem title="Latency" minWidth="6ch"
                         onInit={({component, value}) => {
@@ -94,7 +146,8 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 {terminate: hide}
                             )
                         }}>N/A</FooterItem>
-            <FooterItem title="CPU Load" minWidth="4ch"
+
+<FooterItem title="CPU Load" minWidth="4ch"
                         onInit={({component, value}) => {
                             lifecycle.own(engine.preferences.catchupAndSubscribe(enabled => {
                                 component.classList.toggle("hidden", !enabled)

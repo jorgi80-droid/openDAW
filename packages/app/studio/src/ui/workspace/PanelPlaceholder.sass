@@ -69,8 +69,13 @@ component
         border-radius: 50%
 
   > div
+    flex: 1 1 0
+    display: flex
+    flex-direction: column
     min-width: 0
     min-height: 0
+    overflow: hidden
+
     > div.popup-label
       flex: 1
       display: flex
@@ -100,23 +105,145 @@ component
       > div.controls
         min-height: 28px
 
-
-
-@media (pointer: coarse)
-  component
-    transition: flex-grow 180ms ease, flex-basis 180ms ease, width 180ms ease, height 180ms ease, min-width 180ms ease, max-width 180ms ease, min-height 180ms ease, max-height 180ms ease
-
     > header
       cursor: pointer
       -webkit-tap-highlight-color: transparent
-      transition: background-color 140ms ease
 
     > header:active
       background-color: rgba(66, 217, 232, 0.12)
 
     &.closed
       flex-basis: 22px
-      min-width: 22px
-      max-width: 22px
-      min-height: 22px
-      max-height: 22px
+
+// Collapsed panels remain available as native compact headers. Do not
+// display:none here: WorkspaceBuilder's flex siblings and resizers are structural.
+// Large flex-property transitions trigger repeated layout work on nested panels.
+// Keep mobile panel geometry immediate for responsive interaction on entry-level devices.
+html.midiable-mobile .panel-placeholder
+  transition: none
+
+@media (prefers-reduced-motion: reduce)
+  html.midiable-mobile .panel-placeholder,
+  html.midiable-mobile .panel-placeholder > header
+    transition: none
+
+/* Keep native panel placeholders mounted; preserve only the collapsed axis.
+   Horizontal parents collapse width, vertical parents collapse height. */
+html.midiable-mobile .panel-placeholder.closed[data-panel-type="Browser"],
+html.midiable-mobile .panel-placeholder.closed[data-panel-type="Editor"],
+html.midiable-mobile .panel-placeholder.closed[data-panel-type="Devices"],
+html.midiable-mobile .panel-placeholder.closed[data-panel-type="Mixer"]
+  flex: 0 0 22px !important
+  overflow: hidden
+
+html.midiable-mobile .panel-placeholder.horizontal.closed[data-panel-type="Browser"],
+html.midiable-mobile .panel-placeholder.horizontal.closed[data-panel-type="Editor"],
+html.midiable-mobile .panel-placeholder.horizontal.closed[data-panel-type="Devices"],
+html.midiable-mobile .panel-placeholder.horizontal.closed[data-panel-type="Mixer"]
+  width: 22px !important
+  min-width: 22px !important
+  max-width: 22px !important
+  height: auto !important
+  min-height: 0 !important
+  max-height: 100% !important
+
+html.midiable-mobile .panel-placeholder.vertical.closed[data-panel-type="Browser"],
+html.midiable-mobile .panel-placeholder.vertical.closed[data-panel-type="Editor"],
+html.midiable-mobile .panel-placeholder.vertical.closed[data-panel-type="Devices"],
+html.midiable-mobile .panel-placeholder.vertical.closed[data-panel-type="Mixer"]
+  height: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
+  width: 100% !important
+  min-width: 0 !important
+  max-width: 100% !important
+
+html.midiable-mobile .panel-placeholder.closed + .panel-resizer,
+html.midiable-mobile .panel-resizer:has(+ .panel-placeholder.closed)
+  flex: 0 0 0 !important
+  width: 0 !important
+  height: 0 !important
+  min-width: 0 !important
+  min-height: 0 !important
+  max-width: 0 !important
+  max-height: 0 !important
+  margin: 0 !important
+  overflow: visible
+
+
+// Full-height panel mode keeps the native panel content mounted.
+html.midiable-mobile .panel-placeholder > header
+  min-width: 0
+  user-select: none
+  -webkit-user-select: none
+
+html.midiable-mobile .panel-placeholder > header > span
+  min-width: 0
+  overflow: hidden
+  text-overflow: ellipsis
+
+html.midiable-mobile .panel-placeholder > header > .panel-maximize-button
+  display: flex
+  align-items: center
+  justify-content: center
+  flex: 0 0 32px
+  width: 32px
+  min-width: 32px
+  max-width: 32px
+  height: 28px
+  min-height: 28px
+  max-height: 28px
+  margin-left: auto
+  padding: 0
+  border: 1px solid rgba(255, 255, 255, 0.12)
+  border-radius: 5px
+  color: var(--color-bright)
+  background: rgba(255, 255, 255, 0.04)
+  touch-action: manipulation
+
+html.midiable-mobile .panel-placeholder > header > .panel-maximize-button svg
+  width: 17px
+  height: 17px
+  pointer-events: none
+
+html.midiable-mobile .panel-placeholder > header > .panel-maximize-button:active
+  background: rgba(66, 217, 232, 0.18)
+  border-color: var(--color-blue)
+
+// Scope full-height layout to the selected tool. The other tool panels stay collapsed
+// as native 22px headers, and the Timeline is hidden only when this exact screen has it.
+html.midiable-mobile.opendaw-maximized-mixer section.workspace.vertical > .panel-placeholder[data-panel-type="Timeline"],
+html.midiable-mobile.opendaw-maximized-editor section.workspace.vertical > .panel-placeholder[data-panel-type="Timeline"],
+html.midiable-mobile.opendaw-maximized-devices section.workspace.vertical > .panel-placeholder[data-panel-type="Timeline"],
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-resizer.vertical
+  display: none !important
+
+html.midiable-mobile.opendaw-maximized-mixer section.workspace.vertical > .panel-placeholder[data-panel-type="Mixer"],
+html.midiable-mobile.opendaw-maximized-editor section.workspace.vertical > .panel-placeholder[data-panel-type="Editor"],
+html.midiable-mobile.opendaw-maximized-devices section.workspace.vertical > .panel-placeholder[data-panel-type="Devices"]
+  flex: 1 1 0 !important
+  width: 100% !important
+  min-width: 0 !important
+  max-width: 100% !important
+  height: 100% !important
+  min-height: 0 !important
+  max-height: 100% !important
+  overflow: hidden !important
+
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Mixer"]:not(.closed),
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Editor"]:not(.closed),
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Devices"]:not(.closed)
+  flex: 0 0 22px !important
+  height: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
+  overflow: hidden !important
+
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Mixer"] > div,
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Editor"] > div,
+html.midiable-mobile.opendaw-panel-maximized section.workspace.vertical > .panel-placeholder[data-panel-type="Devices"] > div
+  flex: 1 1 0
+  min-width: 0
+  min-height: 0
+  overflow: auto
+  overscroll-behavior: contain

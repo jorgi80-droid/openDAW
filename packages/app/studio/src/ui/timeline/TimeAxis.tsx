@@ -6,7 +6,7 @@ import {CanvasPainter, StudioPreferences, TimeGrid, TimelineRange} from "@openda
 import {Colors} from "@opendaw/studio-enums"
 import {Snapping} from "@/ui/timeline/Snapping.ts"
 import {ppqn, PPQN} from "@opendaw/lib-dsp"
-import {Dragging, Html} from "@opendaw/lib-dom"
+import {Dragging, Events, Html} from "@opendaw/lib-dom"
 import {DblClckTextInput} from "@/ui/wrapper/DblClckTextInput"
 import {TextTooltip} from "@/ui/surface/TextTooltip"
 import {WheelScaling} from "@/ui/timeline/WheelScaling"
@@ -80,6 +80,24 @@ export const TimeAxis = ({lifecycle, service, snapping, range, mapper}: Construc
         endMarkerElement.style.left = `${Math.floor(range.unitToX(pulses))}px`
         endMarkerElement.style.visibility = range.unitMin <= pulses && pulses < range.unitMax ? "visible" : "hidden"
     }
+    // A second touch converts this pointer sequence into a timeline pinch.
+    // Once pinching starts, do not let the one-finger playhead drag resume until
+    // every finger is lifted; otherwise zooming also scrubs the playhead.
+    const activeTouchPointers = new Set<number>()
+    let touchGestureConsumedByPinch = false
+    const finishTouchPointer = (event: PointerEvent) => {
+        activeTouchPointers.delete(event.pointerId)
+        if (activeTouchPointers.size === 0) {touchGestureConsumedByPinch = false}
+    }
+    lifecycle.ownAll(
+        Events.subscribe(canvas, "pointerdown", event => {
+            if (event.pointerType === "mouse" || event.pointerType === "pen") {return}
+            activeTouchPointers.add(event.pointerId)
+            if (activeTouchPointers.size > 1) {touchGestureConsumedByPinch = true}
+        }),
+        Events.subscribe(canvas, "pointerup", finishTouchPointer),
+        Events.subscribe(canvas, "pointercancel", finishTouchPointer)
+    )
     const onResize = () => {
         if (!canvas.isConnected) {return}
         range.width = canvas.clientWidth
@@ -94,6 +112,7 @@ export const TimeAxis = ({lifecycle, service, snapping, range, mapper}: Construc
         durationInPulses.catchupAndSubscribe(() => updateEndMarker()),
         Dragging.attach(canvas, () => Option.wrap({
             update: (event: Dragging.Event) => {
+                if (touchGestureConsumedByPinch) {return}
                 const x = event.clientX - canvas.getBoundingClientRect().left
                 const p = Math.max(0, range.xToUnit(x))
                 engine.setPosition(snapping.round(p))

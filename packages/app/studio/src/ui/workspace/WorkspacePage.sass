@@ -2,7 +2,7 @@
 @use "@/mixins"
 
 component
-  flex: 1
+  flex: 1 1 0
   width: 100%
   height: 100%
   min-width: 0
@@ -74,10 +74,44 @@ component
 // Mobile: keep workspace, touch controls and status in one bounded vertical layout.
 @media (max-width: 900px), (pointer: coarse)
   component
-    height: auto
+    height: 100%
     min-height: 0
     max-height: 100%
     flex: 1 1 0
 
     > main
       min-height: 0
+
+/* The root component is itself the flex child between fixed Header and Footer.
+   Keep main as its normal contents wrapper; making it flex adds an extra flex
+   layer that the native workspace tree was not designed around. */
+html.midiable-mobile component
+  flex: 1 1 0
+  min-width: 0
+  min-height: 0
+  max-height: 100%
+  overflow: hidden
+
+html.midiable-mobile component > main
+  display: contents
+
+html.midiable-mobile component > main > section.workspace
+  flex: 1 1 0
+  width: 100%
+  min-width: 0
+  min-height: 0
+  max-height: 100%
+  overflow: hidden
+
+html.midiable-mobile section.workspace.vertical
+  flex: 1 1 0
+  min-width: 0
+  min-height: 0
+  max-height: 100%
+  overflow: hidden
+
+html.midiable-mobile section.workspace.vertical > .panel-placeholder
+  flex-shrink: 1
+  min-width: 0
+  min-height: 0
+  max-height: 100%
