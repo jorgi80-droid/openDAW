@@ -18,9 +18,8 @@
 - [ ] APK installed and audio-tested on device.
 - [x] Debug APK build succeeded in GitHub Actions run 38176245383; artifact `novadaw-mobile-debug-apk` (17 KB APK inside ZIP) downloaded and file type verified as Android package.
 - [ ] Visual/device smoke test pending. This artifact is a UI prototype wrapper only; OpenDAW WASM engine/plugins/audio I/O are not integrated.
-- [ ] Android APK CI currently being rerun after fixing SDK setup; first attempt failed because the setup action requested obsolete SDK package name `tools`.
 
-The current shell is an interactive UI prototype. Playback and record buttons are deliberately labelled as UI demo and do not yet produce/record sound. Timeline clips and samples are demo data. The independent Android wrapper is source-only at this milestone; no APK is attached.
+The current shell is an interactive UI prototype. Playback and record buttons are deliberately labelled as UI demo and do not yet produce/record sound. Timeline clips and samples are demo data. The wrapper APK built successfully, but it contains only the UI prototype, not the OpenDAW engine.
 
 ## Upstream notes
 OpenDAW's README declares AGPL-3.0-or-later and describes an independent commercial license path. Its architecture docs describe a TypeScript workspace and Rust/WASM engine. The existing root Android wrapper uses a MidiAble/OpenDAW identity, so NovaDAW must have a separate application id and wrapper.
