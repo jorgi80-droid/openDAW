@@ -29,8 +29,9 @@ component
 
 @media (max-width: 900px), (pointer: coarse)
   component
-    --clips-width: 40px
-    grid-template-rows: auto minmax(0, 1fr) 14px
+    --clips-width: 0px
+    --timeline-header-width: 116px
+    grid-template-rows: auto minmax(0, 1fr) 0px
 
     &.primary-tracks-visible
-      grid-template-rows: auto auto minmax(0, 1fr) 14px
+      grid-template-rows: auto auto minmax(0, 1fr) 0px
