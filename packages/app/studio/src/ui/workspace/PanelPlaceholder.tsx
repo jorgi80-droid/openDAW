@@ -104,7 +104,10 @@ export const PanelPlaceholder =
             (panelState.panelType === PanelType.Mixer ||
                 panelState.panelType === PanelType.ContentEditor ||
                 panelState.panelType === PanelType.DevicePanel)
-        const startsMaximized = document.documentElement.classList.contains("opendaw-panel-maximized")
+        const currentRoot = document.documentElement
+        const maximizeClass = panelState.panelType === PanelType.Mixer ? "opendaw-maximized-mixer"
+            : panelState.panelType === PanelType.ContentEditor ? "opendaw-maximized-editor" : "opendaw-maximized-devices"
+        const startsMaximized = currentRoot.classList.contains(maximizeClass)
         const maximizeButton: HTMLElement | null = touchMaximizable ? (
             <button type="button"
                     className="panel-maximize-button"
@@ -114,32 +117,23 @@ export const PanelPlaceholder =
                     onclick={event => {
                         event.stopPropagation()
                         const root = document.documentElement
-                        const wasMaximized = root.classList.contains("opendaw-panel-maximized")
+                        const maximized = !root.classList.contains(maximizeClass)
                         root.classList.remove("opendaw-panel-maximized", "opendaw-maximized-mixer", "opendaw-maximized-editor", "opendaw-maximized-devices")
-                        const maximized = !wasMaximized
                         if (maximized) {
-                            root.classList.add("opendaw-panel-maximized")
-                            root.classList.add(panelState.panelType === PanelType.Mixer ? "opendaw-maximized-mixer"
-                                : panelState.panelType === PanelType.ContentEditor ? "opendaw-maximized-editor"
-                                    : "opendaw-maximized-devices")
+                            root.classList.add("opendaw-panel-maximized", maximizeClass)
                         }
                         const button = event.currentTarget as HTMLButtonElement
                         button.title = maximized ? `Restore ${name}` : `Maximize ${name}`
                         button.setAttribute("aria-label", maximized ? `Restore ${name}` : `Maximize ${name}`)
                         button.setAttribute("aria-pressed", String(maximized))
-                        const icon = button.querySelector("svg")
-                        if (icon !== null) {
-                            icon.replaceWith(<Icon symbol={maximized ? IconSymbol.Minimized : IconSymbol.Maximized}/>)
+                        const svg = button.querySelector("svg")
+                        if (svg !== null) {
+                            svg.replaceWith(<Icon symbol={maximized ? IconSymbol.Minimized : IconSymbol.Maximized}/>)
                         }
                     }}>
                 <Icon symbol={startsMaximized ? IconSymbol.Minimized : IconSymbol.Maximized}/>
             </button>
         ) : null
-        const header: HTMLElement = (
-            <header>
-                <Icon symbol={icon}/> <span>{name}</span> {presenceDots} {maximizeButton}
-            </header>
-        )
         const roomLifecycle = lifecycle.own(new Terminator())
         lifecycle.own(roomAwareness.catchupAndSubscribe(owner => {
             roomLifecycle.terminate()
