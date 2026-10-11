@@ -703,7 +703,15 @@ function renderPiano(){
  const rows=names.length;keys.style.gridTemplateRows='repeat('+rows+',minmax(0,1fr))';
  names.forEach((name,i)=>{const span=document.createElement('span');span.textContent=name;span.dataset.pianoRow=i;if(name.includes('#'))span.classList.add('black-note-name');keys.appendChild(span)});
  const layer=document.createElement('div');layer.className='note-layer';layer.setAttribute('aria-label','MIDI note lane');layer.style.width='200%';layer.style.minWidth='960px';
- project.notes.forEach((n,i)=>{const row=Math.max(0,Math.min(rows-1,Number(n.row)||0));const note=document.createElement('button');note.className='note';note.style.left=(Math.max(0,n.col)/32*100)+'%';note.style.width=(Math.max(1,n.len)/32*100)+'%';note.style.top=(row/rows*100)+'%';note.style.height=(100/rows)+'%';note.dataset.noteIndex=i;note.title='Nada '+names[row];note.setAttribute('aria-label',note.title);layer.appendChild(note)});
+ project.notes.forEach((n,i)=>{
+  const row=Math.max(0,Math.min(rows-1,Number(n.row)||0));
+  const note=document.createElement('button');note.className='note';
+  note.style.left=(Math.max(0,n.col)/32*100)+'%';note.style.width=(Math.max(1,n.len)/32*100)+'%';
+  note.style.top=(row/rows*100)+'%';note.style.height=(100/rows)+'%';
+  note.dataset.noteIndex=i;note.title='Nada '+names[row];note.setAttribute('aria-label',note.title);
+  note.addEventListener('pointerdown',e=>beginNoteGesture(e,note));
+  layer.appendChild(note);
+ });
  grid.appendChild(layer);
  for(let i=0;i<32;i++){const s=document.createElement('span');s.style.setProperty('--h',(18+(i*37%68))+'%');s.title='Velocity';s.dataset.velocityIndex=i;vel.appendChild(s)}
 }
@@ -903,14 +911,15 @@ $('tracks').addEventListener('click',e=>{
 $('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.length;const colors=['#ff625e','#168cff','#20cf8a','#a95bff','#ffad34','#58c9f1'];project.tracks.push({id:'t'+Date.now(),name:'Track '+(n+1),type:'MIDI',color:colors[n%colors.length],mute:false,solo:false,gain:0,pan:0,clips:[]});renderAll();notify('Track baru ditambahkan')});
 $('mixer').addEventListener('input',e=>{const el=e.target;if(!el.dataset.mix)return;const t=project.tracks[+el.dataset.i];t[el.dataset.mix]=+el.value;$(el.dataset.mix==='gain'?'gainv'+el.dataset.i:'panv'+el.dataset.i).textContent=el.dataset.mix==='gain'?Number(el.value).toFixed(1)+' dB':el.value;});
 $('mixer').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const t=project.tracks[+b.dataset.i];snapshot();t[b.dataset.action]=!t[b.dataset.action];renderAll()});
-$('pianogrid').addEventListener('pointerdown',e=>{
- const note=e.target.closest('.note');if(!note)return;
+function beginNoteGesture(e,note){
+ if(e.button!==undefined&&e.button!==0)return;
  const index=Number(note.dataset.noteIndex),n=project.notes[index];if(!n)return;
  const rect=note.getBoundingClientRect(),mode=e.clientX>=rect.right-10?'resize':'move';
  noteGesture={pointerId:e.pointerId,index,target:note,mode,startX:e.clientX,startY:e.clientY,originCol:n.col,originRow:n.row,originLen:n.len,before:JSON.stringify(project),moved:false};
  selectedNote=index;
+ try{note.setPointerCapture(e.pointerId)}catch(_){}
  e.preventDefault();
-});
+}
 function updateNoteGesture(e){
  const g=noteGesture;if(!g||g.pointerId!==e.pointerId)return;
  const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
