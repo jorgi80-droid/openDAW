@@ -11,6 +11,8 @@ const targetScreen = (type: PanelType): Workspace.ScreenKeys => {
             return "piano"
         case PanelType.DevicePanel:
             return "modulation"
+        case PanelType.BrowserPanel:
+            return "browser"
         default:
             return "default"
     }
@@ -42,11 +44,14 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
     const current = service.layout.screen.getValue()
 
     if (type === PanelType.BrowserPanel) {
-        if (current !== "default") {
+        // The browser is a full-screen destination on mobile; Timeline remains
+        // available as a separate dock item. Desktop keeps the panel-toggle path.
+        if (current === "browser") {
             service.switchScreen("default")
-            requestAnimationFrame(() => requestAnimationFrame(() => openBrowserInDefault(service)))
         } else {
-            openBrowserInDefault(service)
+            service.switchScreen("browser")
+            requestAnimationFrame(() => requestAnimationFrame(() =>
+                service.panelLayout.showIfAvailable(PanelType.BrowserPanel)))
         }
         return
     }
