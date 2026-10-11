@@ -64,3 +64,57 @@ component
 
     > div.space
       @include colors.panel-background
+
+/* Focused mobile Piano Roll / region editor. Keep the existing OpenDAW
+   editor grid and event handlers, but enlarge its tool row and touch surfaces. */
+@media (max-width: 900px), (max-height: 520px), (pointer: coarse)
+  component
+    min-width: 0
+    min-height: 0
+    overflow: hidden
+
+    > div.generic
+      min-width: 0
+      min-height: 0
+      grid-template: 38px minmax(0, 1fr) 18px / clamp(116px, 34vw, 146px) minmax(0, 1fr)
+      gap: 1px
+
+      > div.tool
+        min-width: 0
+        min-height: 38px
+        padding: 0 3px
+        column-gap: 3px
+        overflow-x: auto
+        overflow-y: hidden
+        overscroll-behavior-x: contain
+        scrollbar-width: none
+        touch-action: pan-x
+
+        > *
+          flex: 0 0 auto
+
+        > div.menu
+          font-size: 11px
+          column-gap: 2px
+
+          > *
+            min-height: 36px
+            touch-action: manipulation
+
+      > div.time-axis
+        min-width: 0
+        min-height: 0
+        overflow: hidden
+
+      > div.editor
+        min-width: 0
+        min-height: 0
+        overflow: hidden
+
+      > div.space
+        min-width: 0
+        min-height: 0
+
+      > div:last-child
+        min-height: 18px
+        height: 18px
