@@ -30,7 +30,7 @@ component
 @media (max-width: 900px), (pointer: coarse)
   component
     --clips-width: 0px
-    --timeline-header-width: 104px
+    --timeline-header-width: clamp(154px, 40vw, 172px)
     // Keep the original three-column grid contract: ClipsHeader uses subgrid,
     // and TimelineNavigation is explicitly placed in the final column.
     grid-template-columns: var(--timeline-header-width) 0 minmax(0, 1fr)
