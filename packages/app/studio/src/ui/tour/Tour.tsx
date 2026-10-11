@@ -23,6 +23,9 @@ export namespace Tour {
             const wasIdle = idle.value
             idle.value = optProfile.isEmpty()
             if (optProfile.isEmpty() || !wasIdle) {return}
+            // The welcome tour is an optional onboarding flow, not part of the studio boot.
+            // Auto-opening it on Android can cover the workspace and appear to freeze the DAW.
+            if (document.documentElement.classList.contains("midiable-mobile")) {return}
             if (!StudioPreferences.settings.visibility["offer-studio-tour"]) {return}
             if (RouteLocation.get().path.startsWith("/join")) {return}
             AnimationFrame.once(() => {
