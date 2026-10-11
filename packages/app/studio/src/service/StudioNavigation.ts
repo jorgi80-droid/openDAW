@@ -1,39 +1,25 @@
-import {DefaultObservableValue, EmptyExec, isDefined, Nullable, Option, UUID} from "@opendaw/lib-std"
+import {DefaultObservableValue, EmptyExec, isDefined, Nullable, Option} from "@opendaw/lib-std"
 import {RouteLocation} from "@opendaw/lib-jsx"
 import {Workspace} from "@/ui/workspace/Workspace.ts"
 import {ProjectProfileService} from "@/service/ProjectProfileService"
-import {Project, ProjectEnv, ProjectMeta, ProjectProfile} from "@opendaw/studio-core"
 
 // Deep links that open a project are consumed: the back button must not land on them again and re-open it.
-// Every other page (script editor, graph, ...) stays reachable with the back button.
 const ConsumedRoutes: ReadonlyArray<string> = ["/open-bundle", "/open-project", "/join"]
 
-// The project profile is the single source of truth: project open ⇔ "/create" + a studio screen,
-// no project ⇔ "/" + dashboard. Other routes are plain pages and leave everything untouched.
-// Routes never mutate state directly: "/" with an open project is a close request (confirmed when
-// there are unsaved changes), "/create" without a project is invalid and re-derived back to "/".
 export class StudioNavigation {
     readonly #screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>
     readonly #profiles: ProjectProfileService
-    readonly #env: ProjectEnv
 
     #confirming: boolean = false
-    #startingProject: boolean = false
 
-    constructor(screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>, profiles: ProjectProfileService, env: ProjectEnv) {
+    constructor(screen: DefaultObservableValue<Nullable<Workspace.ScreenKeys>>, profiles: ProjectProfileService) {
         this.#screen = screen
         this.#profiles = profiles
-        this.#env = env
         RouteLocation.get().catchupAndSubscribe(({path}) => {
             const hasProfile = this.#profiles.getValue().nonEmpty()
-            // Fresh launch goes straight to an empty Timeline arrangement, not the promotional Dashboard.
-            // Explicit project/bundle deep links keep their existing route behavior.
-            if (path === "/" && !hasProfile && !this.#startingProject) {
-                this.#startingProject = true
-                this.#profiles.setValue(Option.wrap(new ProjectProfile(
-                    UUID.generate(), Project.new(this.#env), ProjectMeta.init("Untitled"), Option.None)))
-                RouteLocation.get().replaceWith("/create")
-            } else if (path === "/" && hasProfile) {
+            // Preserve the original OpenDAW route contract: a fresh launch opens Dashboard.
+            // A project is created only when the user explicitly chooses New Project or opens a file.
+            if (path === "/" && hasProfile) {
                 this.closeProject().then(EmptyExec)
             } else if (path === "/create" && !hasProfile) {
                 RouteLocation.get().replaceWith("/")
