@@ -59,6 +59,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 }))
                         }}/>
 
+
                         <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
             <FooterItem title="Latency" minWidth="6ch"
                         onInit={({component, value}) => {
