@@ -80,3 +80,137 @@ component
   component .panel-selector [data-class="radio-group"] > label > *
     width: 16px
     height: 16px
+
+  component .desktop-toolbar
+    display: contents
+
+  component .mobile-toolbar
+    display: flex
+    flex: 1 1 0
+    flex-direction: column
+    width: 100%
+    min-width: 0
+    min-height: 0
+    row-gap: 2px
+    overflow: hidden
+
+  component .mobile-toolbar-primary,
+  component .mobile-toolbar-secondary
+    display: flex
+    flex: 0 0 32px
+    align-items: center
+    width: 100%
+    min-width: 0
+    min-height: 32px
+    max-height: 32px
+    column-gap: 5px
+    overflow-x: auto
+    overflow-y: hidden
+    scrollbar-width: none
+    touch-action: pan-x
+    overscroll-behavior-x: contain
+
+  component .mobile-toolbar-primary
+    flex-basis: 34px
+    min-height: 34px
+    max-height: 34px
+
+  component .mobile-menu
+    display: flex
+    flex: 0 0 auto
+    align-items: center
+    height: 32px
+    padding: 0 6px
+    border: 1px solid rgba(255, 255, 255, 0.12)
+    border-radius: 6px
+    background: rgba(255, 255, 255, 0.03)
+
+    > button
+      min-width: 0
+      min-height: 30px
+      padding: 0
+      font-size: 0.7rem
+      white-space: nowrap
+
+    h5
+      display: flex
+      align-items: center
+      margin: 0
+      font-size: 0.7rem
+      white-space: nowrap
+
+  component .mobile-toolbar-primary .TransportGroup
+    display: flex
+    flex: 0 0 auto
+    align-items: center
+    column-gap: 3px
+
+    > *
+      flex: 0 0 30px
+      min-width: 30px
+      width: 30px
+      max-width: 30px
+      height: 30px
+      min-height: 30px
+      max-height: 30px
+      border-radius: 6px
+
+    svg
+      width: 17px
+      height: 17px
+
+  component .mobile-toolbar-secondary .TimeStateDisplay
+    flex: 0 0 auto
+    align-items: center
+    min-width: max-content
+    column-gap: 4px
+    padding: 0 3px
+    border-right: 1px solid rgba(255, 255, 255, 0.10)
+
+  component .mobile-history
+    display: flex
+    flex: 0 0 auto
+    align-items: center
+
+    > *:first-child
+      display: flex
+      align-items: center
+      column-gap: 6px
+
+    svg
+      width: 18px
+      height: 18px
+
+  component .mobile-midi-controls
+    display: flex
+    flex: 0 0 auto
+    align-items: center
+    column-gap: 4px
+    padding: 0 3px
+    border-left: 1px solid rgba(255, 255, 255, 0.10)
+
+    > *
+      flex: 0 0 30px
+      min-width: 30px
+      width: 30px
+      max-width: 30px
+      height: 30px
+      min-height: 30px
+
+    svg
+      max-width: 18px
+      max-height: 18px
+
+  component .mobile-toolbar-secondary .BaseFrequencyControl
+    flex: 0 0 auto
+    min-width: 24px
+    padding: 0 2px
+
+  component .mobile-toolbar-secondary > *
+    flex-shrink: 0
+
+  component .mobile-toolbar-secondary .mobile-midi-controls button,
+  component .mobile-toolbar-secondary .mobile-history svg,
+  component .mobile-toolbar-secondary > label
+    touch-action: manipulation
+    -webkit-tap-highlight-color: transparent
