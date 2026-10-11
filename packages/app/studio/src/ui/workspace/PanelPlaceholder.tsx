@@ -104,10 +104,9 @@ export const PanelPlaceholder =
             (panelState.panelType === PanelType.Mixer ||
                 panelState.panelType === PanelType.ContentEditor ||
                 panelState.panelType === PanelType.DevicePanel)
-        const currentRoot = document.documentElement
         const maximizeClass = panelState.panelType === PanelType.Mixer ? "opendaw-maximized-mixer"
             : panelState.panelType === PanelType.ContentEditor ? "opendaw-maximized-editor" : "opendaw-maximized-devices"
-        const startsMaximized = currentRoot.classList.contains(maximizeClass)
+        const startsMaximized = document.documentElement.classList.contains(maximizeClass)
         const maximizeButton: HTMLElement | null = touchMaximizable ? (
             <button type="button"
                     className="panel-maximize-button"
