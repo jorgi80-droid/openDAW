@@ -84,14 +84,14 @@ export const DefaultWorkspace = Object.freeze({
                             name: "Timeline",
                             icon: IconSymbol.Timeline,
                             panelType: PanelType.Timeline,
-                            constrains: {type: "flex", minSize: 94, flex: 2}
+                            constrains: {type: "flex", minSize: 94, flex: 1}
                         }),
                         PanelState.create({
                             type: "panel",
                             name: "Editor",
                             icon: IconSymbol.Pencil,
                             panelType: PanelType.ContentEditor,
-                            constrains: {type: "flex", minSize: 96, flex: 1},
+                            constrains: {type: "flex", minSize: 0, maxSize: 420, flex: 0.65},
                             minimized: true
                         }),
                         DevicesPanel
