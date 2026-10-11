@@ -5,11 +5,11 @@ import {Html} from "@opendaw/lib-dom"
 import {IconSymbol} from "@opendaw/studio-enums"
 import {Icon} from "@/ui/components/Icon"
 import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
+import {isTouchLayout} from "@/ui/workspace/TouchLayout"
 
 type Construct = {service: StudioService}
 
 export const TouchDock = ({service}: Construct) => {
-    const isTouchLayout = () => window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
     const nextFrame = (procedure: () => void) => requestAnimationFrame(() => requestAnimationFrame(procedure))
     const showPanel = (type: PanelType) => {
         if (isTouchLayout()) {
