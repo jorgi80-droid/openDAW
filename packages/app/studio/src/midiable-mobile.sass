@@ -330,3 +330,19 @@ html.midiable-mobile .panel-resizer:active::after
 html.midiable-mobile .LatencyWarning,
 html.midiable-mobile .LatencyWarning *
   display: none !important
+
+
+/* Direct-manipulation surfaces use the DAW's pointer-capture drag handlers.
+   Leave the entire Timeline root touch-friendly; only disable browser gesture takeover
+   on the areas that actually move clips, regions, playhead, or MIDI notes. */
+html.midiable-mobile .time-axis canvas,
+html.midiable-mobile [data-scope="regions"],
+html.midiable-mobile [data-scope="clips"],
+html.midiable-mobile .pitch-body canvas
+  touch-action: none
+  user-select: none
+  -webkit-user-select: none
+
+html.midiable-mobile [data-scope="regions"],
+html.midiable-mobile [data-scope="clips"]
+  -webkit-tap-highlight-color: transparent
