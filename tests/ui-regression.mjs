@@ -54,6 +54,8 @@ try {
     await page.locator('#closeSettingsDone').click();
     assert(await page.locator('#settingsOverlay').isHidden(), `Settings closes cleanly at ${viewport.width}x${viewport.height}`);
     await page.locator('#browserTabs button[data-cat="Samples"]').click();
+    const browserTabHeight = await page.locator('#browserTabs button').first().evaluate(el=>el.getBoundingClientRect().height);
+    assert(browserTabHeight <= 32, `Browser category tabs stay compact at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#samples .sample').count() === 10, `Browser Samples has 10 items at ${viewport.width}x${viewport.height}`);
     const sampleRowsClean = await page.locator('#samples .sample').evaluateAll(rows => rows.every(row => {
       const rowRect=row.getBoundingClientRect(), name=row.querySelector('.sample-name')?.getBoundingClientRect(), wave=row.querySelector('.wave')?.getBoundingClientRect(), status=row.querySelector('.sample-status')?.getBoundingClientRect();
