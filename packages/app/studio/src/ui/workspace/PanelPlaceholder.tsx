@@ -105,8 +105,6 @@ export const PanelPlaceholder =
                 panelState.panelType === PanelType.ContentEditor ||
                 panelState.panelType === PanelType.DevicePanel)
         const startsMaximized = document.documentElement.classList.contains("opendaw-panel-maximized")
-        const maximizeIcon = new DefaultObservableValue(
-            startsMaximized ? IconSymbol.Minimized : IconSymbol.Maximized)
         const maximizeButton: HTMLElement | null = touchMaximizable ? (
             <button type="button"
                     className="panel-maximize-button"
@@ -116,13 +114,16 @@ export const PanelPlaceholder =
                     onclick={event => {
                         event.stopPropagation()
                         const maximized = document.documentElement.classList.toggle("opendaw-panel-maximized")
-                        maximizeIcon.setValue(maximized ? IconSymbol.Minimized : IconSymbol.Maximized)
                         const button = event.currentTarget as HTMLButtonElement
                         button.title = maximized ? `Restore ${name}` : `Maximize ${name}`
                         button.setAttribute("aria-label", maximized ? `Restore ${name}` : `Maximize ${name}`)
                         button.setAttribute("aria-pressed", String(maximized))
+                        const icon = button.querySelector("svg")
+                        if (icon !== null) {
+                            icon.replaceWith(<Icon symbol={maximized ? IconSymbol.Minimized : IconSymbol.Maximized}/>)
+                        }
                     }}>
-                <Icon symbol={maximizeIcon}/>
+                <Icon symbol={startsMaximized ? IconSymbol.Minimized : IconSymbol.Maximized}/>
             </button>
         ) : null
         const header: HTMLElement = (
