@@ -84,14 +84,6 @@ const MobileDevicesPanel = PanelState.create({
     constrains: {type: "flex", minSize: 0, flex: 1},
     minimized: true
 })
-const MobileAnalysisPanel = PanelState.create({
-    type: "panel",
-    name: "Analysis",
-    icon: IconSymbol.Charts,
-    panelType: PanelType.Analysis,
-    constrains: {type: "flex", minSize: 0, maxSize: 200, flex: 0.5},
-    minimized: true
-})
 
 /*const ModularSystem = PanelState.create({
     type: "panel",
@@ -138,9 +130,9 @@ export const DefaultWorkspace = Object.freeze({
             ],
             constrains: {type: "flex", minSize: 0, flex: 1}
         },
-        // Touch layout keeps the original Timeline as the main work surface.
-        // The Mixer opens through its existing toolbar screen, rather than
-        // permanently taking width from the arrangement on narrow devices.
+        // Mobile default is an arrangement-first workspace. Tool panels are
+        // opened by the existing Mixer / FX / Piano Roll controls in their own
+        // two-panel layouts, so closed tool rows cannot leave empty gaps.
         touchContent: {
             type: "layout",
             orientation: "horizontal",
@@ -149,12 +141,7 @@ export const DefaultWorkspace = Object.freeze({
                 {
                     type: "layout",
                     orientation: "vertical",
-                    contents: [
-                        TimelinePanel,
-                        MobileMixerPanel,
-                        MobileEditorPanel,
-                        MobileDevicesPanel
-                    ],
+                    contents: [TimelinePanel],
                     constrains: {type: "flex", minSize: 0, flex: 1}
                 }
             ],
@@ -182,9 +169,8 @@ export const DefaultWorkspace = Object.freeze({
             ],
             constrains: {type: "flex", minSize: 20, flex: 1}
         },
-        // Mobile mixer is a full-width vertical workspace. Mixer, Editor,
-        // Devices, and Analysis remain the same native panel implementations,
-        // with drag-resizers placed between each panel by WorkspaceBuilder.
+        // Mobile Mixer keeps the Timeline and Mixer adjacent so the native
+        // resizer always acts on the two visible panels (not collapsed siblings).
         touchContent: {
             type: "layout",
             orientation: "horizontal",
@@ -193,12 +179,7 @@ export const DefaultWorkspace = Object.freeze({
                 {
                     type: "layout",
                     orientation: "vertical",
-                    contents: [
-                        MobileMixerPanel,
-                        MobileEditorPanel,
-                        MobileDevicesPanel,
-                        MobileAnalysisPanel
-                    ],
+                    contents: [TimelinePanel, MobileMixerPanel],
                     constrains: {type: "flex", minSize: 0, flex: 1}
                 }
             ],
@@ -253,6 +234,20 @@ export const DefaultWorkspace = Object.freeze({
                 }
             ],
             constrains: {type: "flex", minSize: 20, flex: 1}
+        },
+        touchContent: {
+            type: "layout",
+            orientation: "horizontal",
+            contents: [
+                BrowserPanel,
+                {
+                    type: "layout",
+                    orientation: "vertical",
+                    contents: [TimelinePanel, MobileDevicesPanel],
+                    constrains: {type: "flex", minSize: 0, flex: 1}
+                }
+            ],
+            constrains: {type: "flex", minSize: 0, flex: 1}
         }
     },
     "piano": {
@@ -264,7 +259,23 @@ export const DefaultWorkspace = Object.freeze({
             icon: IconSymbol.Piano,
             panelType: PanelType.MidiFall,
             constrains: {type: "flex", minSize: 0, flex: 1}
-        })
+        }),
+        // On mobile the same toolbar button opens the real native Piano Roll
+        // editor beside the Timeline; desktop tutorial mode is unchanged.
+        touchContent: {
+            type: "layout",
+            orientation: "horizontal",
+            contents: [
+                BrowserPanel,
+                {
+                    type: "layout",
+                    orientation: "vertical",
+                    contents: [TimelinePanel, MobileEditorPanel],
+                    constrains: {type: "flex", minSize: 0, flex: 1}
+                }
+            ],
+            constrains: {type: "flex", minSize: 0, flex: 1}
+        }
     },
     "code": {
         name: "Code",
