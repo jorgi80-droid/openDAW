@@ -1,3 +1,5 @@
+@use "@/colors"
+
 component
   flex: 0 0 0
   position: relative
@@ -42,21 +44,33 @@ component
       height: 100%
       position: absolute
 
+// The resizer element is the native Dragging target. Enlarge that element's
+// hit region on coarse pointers rather than adding a pseudo-element overlay:
+// overlays can steal pointer events from the original Dragging handler.
 @media (pointer: coarse)
   component
-    // Large hit area; the handle itself stays subtle until pressed.
+    z-index: 30
+
     &:after
       background: transparent
       box-shadow: none
       pointer-events: none
 
-    &.vertical:after
-      height: 38px
-      top: -18px
+    &.vertical
+      min-height: 0
 
-    &.horizontal:after
-      width: 38px
-      left: -18px
+      &:after
+        height: 38px
+        top: -18px
+        pointer-events: none
+
+    &.horizontal
+      min-width: 0
+
+      &:after
+        width: 38px
+        left: -18px
+        pointer-events: none
 
     &:active:after
       background: rgba(74, 220, 245, 0.95)
