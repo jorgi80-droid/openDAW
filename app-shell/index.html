@@ -517,6 +517,7 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
 .comfortable-ui #timelineScreen .trackrow{min-height:clamp(44px,8vh,58px)!important}
 .comfortable-ui .top,.comfortable-ui .subbar{gap:8px!important}
 
+#devicesScreen .device-trackbar select{flex:0 1 150px;min-width:92px;max-width:38%;min-height:26px;padding:3px 6px;font-size:10px;color:var(--text);background:#0b1219;border:1px solid var(--line);border-radius:7px}
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -559,7 +560,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 </section>
 <section class="screen" id="mixerScreen" hidden><div class="panel"><h2 class="paneltitle">Mixer <span class="muted" style="font-size:12px">· per track</span></h2><div class="mixergrid" id="mixer"></div></div></section>
 <section class="screen" id="pianoScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Piano Roll <span class="muted" style="font-size:12px">· ketuk grid untuk menambah nada</span></h2><div class="pianowrap"><div class="keys" id="keys"></div><div class="pianogrid" id="pianogrid" aria-label="Grid piano roll"></div><div class="velocity" id="velocity"></div></div></div></section>
-<section class="screen" id="devicesScreen" hidden><div class="panel"><h2 class="paneltitle">Devices & Instruments</h2><div class="device-trackbar"><strong id="deviceTrackLabel">Track 1 · Drums · Audio</strong><span class="muted">Rack per-track</span><button id="deviceTrackMenu" type="button">Pilih track</button></div><div class="tabs" id="devTabs"><button class="active" data-cat="Instrument">Instrumen</button><button data-cat="Effect">Efek</button><button data-cat="Preset">Preset</button></div><div class="devicegrid" id="devices"></div><p class="muted" style="margin-bottom:0;font-size:12px">UI prototype: kontrol instrumen ini belum dirutekan ke engine OpenDAW.</p></div></section>
+<section class="screen" id="devicesScreen" hidden><div class="panel"><h2 class="paneltitle">Devices & Instruments</h2><div class="device-trackbar"><strong id="deviceTrackLabel">Track 1 · Drums · Audio</strong><span class="muted">Rack per-track</span><select id="deviceTrackSelect" aria-label="Pilih track untuk rack"></select></div><div class="tabs" id="devTabs"><button class="active" data-cat="Instrument">Instrumen</button><button data-cat="Effect">Efek</button><button data-cat="Preset">Preset</button></div><div class="devicegrid" id="devices"></div><p class="muted" style="margin-bottom:0;font-size:12px">UI prototype: kontrol instrumen ini belum dirutekan ke engine OpenDAW.</p></div></section>
 <section class="screen" id="browserScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Browser</h2><div class="tabs" id="browserTabs"><button class="active" data-cat="Samples">Samples</button><button data-cat="Instruments">Instrumen</button><button data-cat="Effects">Efek</button><button data-cat="Presets">Preset</button></div><div class="browserlayout"><div class="categories" id="categories"><button class="active" data-filter="All">Semua</button><button data-filter="Drums">Drums</button><button data-filter="Bass">Bass</button><button data-filter="Synth">Synth</button><button data-filter="Piano">Piano</button><button data-filter="Vocals">Vokal</button><button data-filter="User">Impor</button></div><div class="samplelist" id="samples"></div></div><p class="muted" style="font-size:12px;margin-bottom:0">Daftar ini memakai data demo UI; sampel, instrumen, dan efek belum terhubung ke mesin audio.</p></div></section>
 </main>
 <nav class="dock" aria-label="Workspace navigation">
@@ -627,7 +628,15 @@ function getTrackRack(index=selectedTrack){
  if(!trackRacks[track.id])trackRacks[track.id]={instrument:'Vaporisateur Synth',effect:'Revamp EQ',preset:'Warm Keys',instrumentParams:{},effectParams:{},bypassed:false};
  return trackRacks[track.id];
 }
-function syncRackView(){const track=project.tracks[selectedTrack];const label=$('deviceTrackLabel');if(label)label.textContent=track?'Track '+(selectedTrack+1)+' · '+track.name+' · '+track.type:'Tidak ada track';}
+function syncRackView(){
+ const track=project.tracks[selectedTrack],label=$('deviceTrackLabel'),select=$('deviceTrackSelect');
+ if(label)label.textContent=track?'Track '+(selectedTrack+1)+' · '+track.name+' · '+track.type:'Tidak ada track';
+ if(select){
+  const current=String(selectedTrack);
+  select.innerHTML=project.tracks.map((item,i)=>'<option value="'+i+'">'+String(i+1).padStart(2,'0')+'. '+esc(item.name)+' · '+esc(item.type)+'</option>').join('');
+  select.value=current;
+ }
+}
 
 const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -898,7 +907,7 @@ $('pianogrid').addEventListener('click',e=>{
  snapshot();project.notes.push({row:Math.max(0,Math.min(22,row)),col:Math.max(0,Math.min(31,col)),len:1,velocity:80});
  renderPiano();notify('Nada MIDI ditambahkan (model demo)')
 });
-$('deviceTrackMenu').addEventListener('click',()=>{const pop=$('deviceTrackPicker');if(pop){pop.hidden=!pop.hidden;return;}const el=document.createElement('div');el.id='deviceTrackPicker';el.className='device-track-picker';el.innerHTML='<div class="device-track-picker-head"><strong>Pilih track untuk rack</strong><button type="button" data-close-device-tracks>✕</button></div><div class="device-track-picker-list">'+project.tracks.map((t,i)=>'<button type="button" data-rack-track="'+i+'" class="'+(i===selectedTrack?'active':'')+'"><span>'+String(i+1).padStart(2,'0')+'. '+esc(t.name)+'</span><small>'+esc(t.type)+'</small></button>').join('')+'</div>';document.body.appendChild(el);el.addEventListener('click',ev=>{if(ev.target.closest('[data-close-device-tracks]')){el.remove();return}const b=ev.target.closest('[data-rack-track]');if(!b)return;selectedTrack=Number(b.dataset.rackTrack);el.remove();renderDevices();syncRackView();notify('Rack track: '+project.tracks[selectedTrack].name)});});
+$('deviceTrackSelect').addEventListener('change',e=>{const index=Number(e.target.value);if(!Number.isInteger(index)||!project.tracks[index])return;selectedTrack=index;renderDevices();syncRackView();notify('Rack track: '+project.tracks[index].name)});
 $('devTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;selectedDeviceCategory=b.dataset.cat;selectedDeviceTab=b.dataset.cat==='Instrument'?'OSC':b.dataset.cat==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory)});
 $('devices').addEventListener('click',e=>{
  const option=e.target.closest('[data-device-select]');if(option){const rack=getTrackRack();if(selectedDeviceCategory==='Instrument')rack.instrument=option.dataset.deviceSelect;else if(selectedDeviceCategory==='Effect')rack.effect=option.dataset.deviceSelect;else rack.preset=option.dataset.deviceSelect;selectedDevice=option.dataset.deviceSelect;selectedDeviceTab=selectedDeviceCategory==='Instrument'?'OSC':selectedDeviceCategory==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory);return}
