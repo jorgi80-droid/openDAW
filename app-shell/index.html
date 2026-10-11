@@ -687,7 +687,9 @@ $('tracks').addEventListener('click',e=>{
  const label=e.target.closest('.tracklabel');if(label){const row=label.closest('.trackrow'),area=row?.querySelector('.cliparea'),idx=Number(area?.dataset.track);if(Number.isInteger(idx)&&idx>=0){selectedTrack=idx;renderTracks()}return}
  const clip=e.target.closest('[data-clip]');if(clip){
   const id=clip.dataset.clip;
-  if(ignoreNextClipId===id){ignoreNextClipId=null;return}
+  // Ignore only the synthetic click that can follow a drag/resize in Select mode.
+  // Tool actions such as Split must still receive the next deliberate tap on that clip.
+  if(ignoreNextClipId===id&&timelineTool==='select'){ignoreNextClipId=null;return}
   const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===id));if(ownerIndex>=0)selectedTrack=ownerIndex;
   if(timelineTool==='cut'){selectedClip=id;const rect=clip.getBoundingClientRect();splitSelectedClipAtRatio(Math.max(.05,Math.min(.95,(e.clientX-rect.left)/Math.max(1,rect.width))));timelineTool='select';updateTimelineTools();hideClipContext();return}
   const found=project.tracks[selectedTrack]?.clips.find(c=>c.id===id);
@@ -786,6 +788,8 @@ function setTimelineZoom(next){
 }
 $('timelineTools').addEventListener('click',e=>{
  const b=e.target.closest('[data-timeline-tool]');if(!b)return;const tool=b.dataset.timelineTool;
+ // A tool change starts a new gesture context; never let a prior tap be treated as a double tap.
+ lastClipTap={id:null,time:0};
  if(tool==='select'){timelineTool='select'}
  else if(tool==='cut'){timelineTool='cut';notify('Mode Split: ketuk clip untuk memisahkannya')}
  else if(tool==='snap'){snapEnabled=!snapEnabled;notify(snapEnabled?'Snap grid aktif':'Snap grid nonaktif')}
