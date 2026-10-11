@@ -73,6 +73,7 @@ try {
     await page.locator('#devices [data-device-select="Nano Sampler"]').click();
     await page.locator('#deviceTrackMenu').click();
     await page.locator('#deviceTrackPicker [data-rack-track="1"]').click();
+    await page.locator('#deviceTrackLabel').waitFor({state:'visible'});
     assert(await page.locator('#deviceTrackLabel').innerText().includes('Bass'), `Devices displays the selected track name at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#devices .device-editor h3').innerText() === 'Vaporisateur Synth', `each track retains its own instrument rack at ${viewport.width}x${viewport.height}`);
     await page.locator('.dock button[data-screen="timeline"]').click();
