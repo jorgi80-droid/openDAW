@@ -16,6 +16,9 @@ export const TouchDock = ({service}: Construct) => {
             panel.toggleMinimize()
             return
         }
+        // Mobile uses a single contextual tool surface. Close the current
+        // tool only after opening the requested one so native PanelContent
+        // never has two active gesture surfaces fighting for the same viewport.
         if (isTouchLayout()) {
             const exclusive: PanelType[] = [PanelType.ContentEditor, PanelType.DevicePanel, PanelType.BrowserPanel]
             exclusive.filter(other => other !== type).forEach(other => {
