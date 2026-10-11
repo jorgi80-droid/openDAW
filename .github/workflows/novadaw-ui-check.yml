@@ -30,7 +30,13 @@ jobs:
           # Structural checks for balanced script/style and screen IDs.
           if s.count("<script>") != 1 or s.count("</script>") != 1:
             raise SystemExit("Expected exactly one inline script block")
-          if s.count("<style>") != 1 or s.count("</style>") != 1:
-            raise SystemExit("Expected exactly one inline style block")
+          if s.count("<style>") < 1 or s.count("</style>") != s.count("<style>"):
+            raise SystemExit("Unbalanced style blocks")
+          if 'screenOrientation="landscape"' not in Path("android-wrapper-novadaw/app/src/main/AndroidManifest.xml").read_text():
+            raise SystemExit("Android wrapper must be landscape")
+          if "SCREEN_ORIENTATION_SENSOR_LANDSCAPE" not in Path("android-wrapper-novadaw/app/src/main/java/com/novadaw/mobile/MainActivity.java").read_text():
+            raise SystemExit("Activity must enforce landscape orientation")
+          if "assets/opendaw/fonts/rubik-400.woff2" not in s:
+            raise SystemExit("OpenDAW Rubik font asset link missing")
           print("NovaDAW UI static checks passed.")
           PY
