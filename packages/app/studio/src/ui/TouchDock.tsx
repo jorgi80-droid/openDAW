@@ -2,7 +2,7 @@ import {createElement} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService"
 import {PanelType} from "@/ui/workspace/PanelType"
 import {Html} from "@opendaw/lib-dom"
-import {Colors, IconSymbol} from "@opendaw/studio-enums"
+import {IconSymbol} from "@opendaw/studio-enums"
 import {Icon} from "@/ui/components/Icon"
 
 type Construct = {service: StudioService}
