@@ -332,19 +332,19 @@ export const Footer = ({lifecycle, service}: Construct) => {
                 </button>
                 <div className="mobile-edge-panel">
                     <button type="button" data-mobile-screen="default" aria-pressed="false"
-                            onclick={() => {mobileStudio.navigate("timeline"); document.querySelector(".mobile-edge-dock")?.classList.remove("open")}}>
+                            onclick={() => {mobileStudio.navigate("timeline"); (() => { const dock = document.querySelector<HTMLElement>(".mobile-edge-dock"); dock?.classList.remove("open"); dock?.querySelector(".mobile-edge-handle")?.setAttribute("aria-expanded", "false") })()}}>
                         <Icon symbol={IconSymbol.Timeline}/><span>Timeline</span>
                     </button>
                     <button type="button" data-mobile-screen="mixer" aria-pressed="false"
-                            onclick={() => {mobileStudio.navigate("mixer"); document.querySelector(".mobile-edge-dock")?.classList.remove("open")}}>
+                            onclick={() => {mobileStudio.navigate("mixer"); (() => { const dock = document.querySelector<HTMLElement>(".mobile-edge-dock"); dock?.classList.remove("open"); dock?.querySelector(".mobile-edge-handle")?.setAttribute("aria-expanded", "false") })()}}>
                         <Icon symbol={IconSymbol.Mixing}/><span>Mixer</span>
                     </button>
                     <button type="button" data-mobile-screen="modulation" aria-pressed="false"
-                            onclick={() => {mobileStudio.navigate("devices"); document.querySelector(".mobile-edge-dock")?.classList.remove("open")}}>
+                            onclick={() => {mobileStudio.navigate("devices"); (() => { const dock = document.querySelector<HTMLElement>(".mobile-edge-dock"); dock?.classList.remove("open"); dock?.querySelector(".mobile-edge-handle")?.setAttribute("aria-expanded", "false") })()}}>
                         <Icon symbol={IconSymbol.Flask}/><span>Devices</span>
                     </button>
                     <button type="button" data-mobile-screen="piano" aria-pressed="false"
-                            onclick={() => {mobileStudio.navigate("editor"); document.querySelector(".mobile-edge-dock")?.classList.remove("open")}}>
+                            onclick={() => {mobileStudio.navigate("editor"); (() => { const dock = document.querySelector<HTMLElement>(".mobile-edge-dock"); dock?.classList.remove("open"); dock?.querySelector(".mobile-edge-handle")?.setAttribute("aria-expanded", "false") })()}}>
                         <Icon symbol={IconSymbol.Pencil}/><span>Editor / Piano Roll</span>
                     </button>
                 </div>
