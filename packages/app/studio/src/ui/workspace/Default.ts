@@ -192,12 +192,6 @@ export const DefaultWorkspace = Object.freeze({
             constrains: {type: "flex", minSize: 0, flex: 1}
         })
     },
-    "project": {
-        name: "Project Info",
-        icon: IconSymbol.NotePad,
-        hidden: true,
-        content: ProjectInfoPanel
-    },
     "code": {
         name: "Code",
         icon: IconSymbol.Code,
