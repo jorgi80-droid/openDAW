@@ -1,0 +1,49 @@
+name: NovaDAW APK build
+
+on:
+  push:
+    branches: [novadaw-from-zero]
+    paths:
+      - "app-shell/**"
+      - "android-wrapper-novadaw/**"
+      - "scripts/build-novadaw-apk.sh"
+      - ".github/workflows/novadaw-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-debug-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Package NovaDAW UI assets
+        run: |
+          mkdir -p android-wrapper-novadaw/app/src/main/assets/novadaw
+          cp app-shell/index.html android-wrapper-novadaw/app/src/main/assets/novadaw/index.html
+
+      - name: Build debug APK
+        working-directory: android-wrapper-novadaw
+        run: gradle assembleDebug --no-daemon
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: novadaw-mobile-debug-apk
+          path: android-wrapper-novadaw/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
