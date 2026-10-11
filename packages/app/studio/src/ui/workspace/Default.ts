@@ -20,14 +20,6 @@ const DevicesPanel = PanelState.create({
     constrains: {type: "flex", minSize: 72, maxSize: 420, flex: 1},
     minimized: true
 })
-const NotepadPanel = PanelState.create({
-    type: "panel",
-    name: "Notepad",
-    icon: IconSymbol.NotePad,
-    panelType: PanelType.Notepad,
-    notMinimizable: true,
-    constrains: {type: "fixed", fixedSize: 480}
-})
 const ProjectInfoPanel = PanelState.create({
     type: "panel",
     name: "Project Info",
@@ -203,48 +195,8 @@ export const DefaultWorkspace = Object.freeze({
     "project": {
         name: "Project Info",
         icon: IconSymbol.NotePad,
-        content: {
-            type: "layout",
-            orientation: "horizontal",
-            contents: [
-                ProjectInfoPanel,
-                NotepadPanel,
-                PanelState.create({
-                    type: "panel",
-                    name: "Empty",
-                    icon: IconSymbol.OpenDAW,
-                    panelType: PanelType.EmptyFlexSpace,
-                    constrains: {type: "flex", minSize: 0, flex: 1}
-                })
-            ],
-            constrains: {type: "flex", minSize: 0, flex: 1}
-        }
-    },
-    "shadertoy": {
-        name: "Shadertoy",
-        icon: IconSymbol.Shadertoy,
-        content: {
-            type: "layout",
-            orientation: "horizontal",
-            contents: [
-                PanelState.create({
-                    type: "panel",
-                    name: "Preview",
-                    icon: IconSymbol.Shadertoy,
-                    panelType: PanelType.ShadertoyPreview,
-                    constrains: {type: "flex", minSize: 320, flex: 1}
-                }),
-                PanelState.create({
-                    type: "panel",
-                    name: "Editor",
-                    icon: IconSymbol.Generator,
-                    panelType: PanelType.ShadertoyEditor,
-                    constrains: {type: "flex", minSize: 0, flex: 1},
-                    notPopoutable: true
-                })
-            ],
-            constrains: {type: "flex", minSize: 0, flex: 1}
-        }
+        hidden: true,
+        content: ProjectInfoPanel
     },
     "code": {
         name: "Code",
