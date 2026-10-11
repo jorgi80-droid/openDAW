@@ -20,14 +20,6 @@ const DevicesPanel = PanelState.create({
     constrains: {type: "flex", minSize: 72, maxSize: 420, flex: 1},
     minimized: true
 })
-const ProjectInfoPanel = PanelState.create({
-    type: "panel",
-    name: "Project Info",
-    icon: IconSymbol.Box,
-    panelType: PanelType.ProjectInfo,
-    notMinimizable: true,
-    constrains: {type: "flex", minSize: 384, flex: 1}
-})
 const AnalysisPanel: PanelState = PanelState.create({
     type: "panel",
     name: "Analysis",
