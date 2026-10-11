@@ -47,8 +47,11 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 .subbar{padding:5px 10px;gap:7px}
 .workspace{padding:7px;overflow:hidden}
 .screen{height:100%;min-height:0}
-#timelineScreen{display:flex;flex-direction:column}
-.timeline{flex:1;min-height:0}
+#timelineScreen{display:flex;flex-direction:column;min-height:0}
+#timelineScreen[hidden]{display:none!important}
+.screen[hidden]{display:none!important}
+.timeline{flex:1 1 0;height:auto;min-height:0}
+#timelineScreen>.addtrack{flex:0 0 auto;width:max-content;max-width:100%;margin-top:6px}
 .tracks{overflow:auto}
 .trackrow{min-height:62px;grid-template-columns:150px minmax(0,1fr)}
 .ruler{grid-template-columns:150px minmax(0,1fr)}
