@@ -192,6 +192,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
 
 
 
+
 <FooterItem title="CPU Load" minWidth="4ch"
                         onInit={({component, value}) => {
                             lifecycle.own(engine.preferences.catchupAndSubscribe(enabled => {
