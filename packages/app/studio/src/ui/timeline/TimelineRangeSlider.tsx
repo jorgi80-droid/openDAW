@@ -93,6 +93,56 @@ export const TimelineRangeSlider = ({lifecycle, range, style, className: extraCl
 
     lifecycle.own(Html.watchResize(slider, onResize))
     lifecycle.own(range.subscribe(onUpdate))
-    lifecycle.own(Events.subscribeDblDwn(slider, () => range.showAll()))
+    lifecycle.ownAll(
+        Events.subscribeDblDwn(slider, () => range.showAll()),
+        (() => {
+            const pointers = new Map<number, number>()
+            let begin: {distance: number, min: number, max: number} | null = null
+            const onDown = (event: PointerEvent) => {
+                if (event.pointerType === "mouse") {return}
+                pointers.set(event.pointerId, event.clientX)
+                if (pointers.size === 2) {
+                    const xs = Array.from(pointers.values())
+                    begin = {distance: Math.abs(xs[1] - xs[0]), min: range.min, max: range.max}
+                    event.preventDefault()
+                }
+            }
+            const onMove = (event: PointerEvent) => {
+                if (!pointers.has(event.pointerId)) {return}
+                pointers.set(event.pointerId, event.clientX)
+                if (pointers.size !== 2 || begin === null || begin.distance < 1) {return}
+                const xs = Array.from(pointers.values())
+                const center = (xs[0] + xs[1]) / 2
+                const distance = Math.max(1, Math.abs(xs[1] - xs[0]))
+                const width = Math.min(1, Math.max(0.002, (begin.max - begin.min) * begin.distance / distance))
+                const rect = slider.getBoundingClientRect()
+                const anchor = Math.min(1, Math.max(0, (center - rect.left - padding) / Math.max(1, rect.width - padding * 2)))
+                const fraction = (anchor - begin.min) / Math.max(0.0001, begin.max - begin.min)
+                range.min = Math.min(1 - width, Math.max(0, anchor - fraction * width))
+                range.max = range.min + width
+                event.preventDefault()
+            }
+            const onUp = (event: PointerEvent) => {
+                pointers.delete(event.pointerId)
+                begin = null
+                if (pointers.size === 2) {
+                    const xs = Array.from(pointers.values())
+                    begin = {distance: Math.abs(xs[1] - xs[0]), min: range.min, max: range.max}
+                }
+            }
+            slider.addEventListener("pointerdown", onDown, {passive: false})
+            slider.addEventListener("pointermove", onMove, {passive: false})
+            slider.addEventListener("pointerup", onUp)
+            slider.addEventListener("pointercancel", onUp)
+            return {terminate: () => {
+                slider.removeEventListener("pointerdown", onDown)
+                slider.removeEventListener("pointermove", onMove)
+                slider.removeEventListener("pointerup", onUp)
+                slider.removeEventListener("pointercancel", onUp)
+                pointers.clear()
+                begin = null
+            }}
+        })()
+    )
     return <div className={Html.buildClassList(className, extraClassName)} style={style}>{slider}</div>
 }
