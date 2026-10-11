@@ -1,4 +1,8 @@
 name: NovaDAW UI regression tests
+concurrency:
+  group: novadaw-ui-regression-${{ github.ref }}
+  cancel-in-progress: true
+
 
 on:
   push:
