@@ -12,6 +12,7 @@ import {MenuButton} from "@/ui/components/MenuButton"
 import {MenuItem} from "@opendaw/studio-core"
 import {GlobalShortcuts} from "@/ui/shortcuts/GlobalShortcuts"
 import {ShortcutTooltip} from "@/ui/shortcuts/ShortcutTooltip"
+import {createMobileStudioPort} from "@/service/MobileStudioPort"
 
 const className = Html.adoptStyleSheet(css, "TimelineHeader")
 
@@ -22,6 +23,7 @@ type Construct = {
 
 export const TimelineHeader = ({lifecycle, service}: Construct) => {
     const {snapping, followCursor, primaryVisibility: {markers, tempo, signature}, clips} = service.timeline
+    const mobileStudio = createMobileStudioPort(service)
     return (
         <div className={className}>
             <SnapSelector lifecycle={lifecycle} snapping={snapping}/>
@@ -70,6 +72,14 @@ export const TimelineHeader = ({lifecycle, service}: Construct) => {
                       }}>
                 <Icon symbol={IconSymbol.Clips}/>
             </Checkbox>
+            <div className="mobile-timeline-tools">
+                <button type="button" title="Samples" aria-label="Samples"
+                        onclick={() => mobileStudio.navigate("browser")}><Icon symbol={IconSymbol.Panel}/></button>
+                <button type="button" title="Plugins and presets" aria-label="Plugins and presets"
+                        onclick={() => mobileStudio.navigate("browser")}><Icon symbol={IconSymbol.Pencil}/></button>
+                <button type="button" title="Effects and devices" aria-label="Effects and devices"
+                        onclick={() => mobileStudio.navigate("devices")}><Icon symbol={IconSymbol.Flask}/></button>
+            </div>
         </div>
     )
 }
