@@ -133,6 +133,11 @@ export const PanelPlaceholder =
                 <Icon symbol={startsMaximized ? IconSymbol.Minimized : IconSymbol.Maximized}/>
             </button>
         ) : null
+        const header: HTMLElement = (
+            <header>
+                <Icon symbol={icon}/> <span>{name}</span> {presenceDots} {maximizeButton}
+            </header>
+        )
         const roomLifecycle = lifecycle.own(new Terminator())
         lifecycle.own(roomAwareness.catchupAndSubscribe(owner => {
             roomLifecycle.terminate()
