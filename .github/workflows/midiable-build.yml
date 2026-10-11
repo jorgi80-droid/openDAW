@@ -50,6 +50,8 @@ on:
       - "packages/app/studio/src/ui/mixer/Mixer.sass"
       - "packages/app/studio/src/ui/devices/panel/DevicePanel.sass"
       - "packages/app/studio/src/ui/timeline/editors/ContentEditor.sass"
+      - "packages/app/studio/src/ui/timeline/TimelineHeader.tsx"
+      - "packages/app/studio/src/ui/timeline/TimelineHeader.sass"
       - "packages/app/studio/src/ui/timeline/Timeline.sass"
       - "packages/app/studio/src/ui/timeline/TimelineNavigation.sass"
       - "packages/app/studio/src/ui/timeline/TimeAxis.sass"
