@@ -31,6 +31,10 @@ const openBrowserInDefault = (service: StudioService): void => {
  * exactly [Timeline, selected panel], so the native PanelResizer always works
  * on the two visible panels instead of skipping over minimized sibling panels.
  */
+const clearMaximized = (): void => {
+    document.documentElement.classList.remove("opendaw-panel-maximized")
+}
+
 export const toggleTouchPanel = (service: StudioService, type: PanelType): void => {
     if (!isTouchLayout()) {
         const panel = service.panelLayout.getByType(type)
@@ -42,6 +46,7 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
     const current = service.layout.screen.getValue()
 
     if (type === PanelType.BrowserPanel) {
+        clearMaximized()
         if (current !== "default") {
             service.switchScreen("default")
             requestAnimationFrame(() => requestAnimationFrame(() => openBrowserInDefault(service)))
@@ -57,12 +62,14 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
     // first rather than PanelContent.isVisible: the latter can point at a stale
     // placeholder while a workspace screen is being swapped.
     if (current === destination) {
+        clearMaximized()
         const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
         if (browser.isVisible) {browser.toggleMinimize()}
         service.switchScreen("default")
         return
     }
 
+    clearMaximized()
     const selectDestination = () => {
         // Browser and the tool use the same PanelContent instance, so close the
         // overlay before rebuilding another workspace which binds that panel.

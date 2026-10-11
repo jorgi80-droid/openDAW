@@ -100,9 +100,25 @@ export const PanelPlaceholder =
             }
         }))
         const presenceDots: HTMLElement = <div className="presence-dots"/>
+        const touchMaximizable = panelState.minimizable &&
+            (panelState.panelType === PanelType.Mixer ||
+                panelState.panelType === PanelType.ContentEditor ||
+                panelState.panelType === PanelType.DevicePanel)
+        const maximizeButton: HTMLElement | null = touchMaximizable ? (
+            <button type="button"
+                    className="panel-maximize-button"
+                    title="Maximize / restore panel"
+                    aria-label={`Maximize or restore ${name}`}
+                    onclick={event => {
+                        event.stopPropagation()
+                        document.documentElement.classList.toggle("opendaw-panel-maximized")
+                    }}>
+                <Icon symbol={IconSymbol.Maximized}/>
+            </button>
+        ) : null
         const header: HTMLElement = (
             <header>
-                <Icon symbol={icon}/> <span>{name}</span> {presenceDots}
+                <Icon symbol={icon}/> <span>{name}</span> {presenceDots} {maximizeButton}
             </header>
         )
         const roomLifecycle = lifecycle.own(new Terminator())
