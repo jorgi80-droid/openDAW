@@ -395,9 +395,9 @@ html.midiable-mobile .mobile-header .mobile-toolbar-secondary > *
 html.midiable-mobile footer
   z-index: 40
   display: flex
-  flex: 0 0 46px
-  min-height: 46px
-  max-height: 46px
+  flex: 0 0 40px
+  min-height: 40px
+  max-height: 40px
   width: 100%
   box-sizing: border-box
   align-items: center
@@ -582,3 +582,28 @@ html.midiable-mobile .mobile-toolbar-primary .MusicalUnitDisplay
 
 html.midiable-mobile .mobile-toolbar-primary .number-display
   flex-shrink: 0
+
+
+/* Symmetric spacers center the transport controls while anchoring time to the
+   right edge, keeping the Timeline viewport as tall as possible. */
+html.midiable-mobile .mobile-toolbar-spacer
+  flex: 1 1 0
+  min-width: 2px
+  height: 1px
+
+html.midiable-mobile footer .mobile-panel-shortcut
+  height: 34px
+  min-height: 34px
+  max-height: 34px
+  border-radius: 6px
+
+html.midiable-mobile footer .mobile-panel-shortcut > .value
+  flex-basis: 16px
+  height: 16px
+
+html.midiable-mobile footer .mobile-panel-shortcut > .value svg
+  width: 16px
+  height: 16px
+
+html.midiable-mobile footer .mobile-panel-shortcut > .label
+  font-size: 8px
