@@ -1,0 +1,18 @@
+plugins {
+    id 'com.android.application'
+}
+android {
+    namespace 'com.novadaw.mobile'
+    compileSdk 35
+    defaultConfig {
+        applicationId 'com.novadaw.mobile'
+        minSdk 26
+        targetSdk 35
+        versionCode 1
+        versionName '0.1.0-prototype'
+    }
+    buildTypes {
+        debug { minifyEnabled false }
+        release { minifyEnabled false }
+    }
+}
