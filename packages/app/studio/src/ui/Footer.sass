@@ -15,3 +15,33 @@ component
       &:after
         content: " > 80% ⚠️"
         color: var(--color-orange)
+
+
+// On phones, the transport remains in the top header; keep diagnostics out of the music workspace.
+@media (max-width: 900px), (max-height: 520px)
+  component
+    flex: 0 0 24px
+    min-height: 24px
+    max-height: 24px
+    width: 100%
+    box-sizing: border-box
+    gap: 0.5rem
+    padding: 0 6px
+    overflow: hidden
+    white-space: nowrap
+    font-size: 9px
+
+    > div
+      flex: 0 0 auto
+
+    > div[style*="flex: 1"]
+      display: none
+
+    > div:last-child
+      display: none
+
+  component [title="CPU Load"],
+  component [title="Memory"],
+  component [title="FPS"],
+  component [title="Samples (GC)"]
+    display: none !important
