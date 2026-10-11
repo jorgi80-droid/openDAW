@@ -59,7 +59,23 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                     }
                                 }))
                         }}/>
-                        <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
+                        <FooterItem className="mobile-panel-shortcut timeline-shortcut" title="Timeline"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Open Timeline")
+                            const open = () => service.switchScreen("default")
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", open),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        open()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Timeline}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
@@ -75,6 +91,22 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 })
                             )
                         }}><Icon symbol={IconSymbol.Panel}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut mixer-shortcut" title="Mixer"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Mixer")
+                            const toggle = () => toggleTouchPanel(service, PanelType.Mixer)
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Mixing}/></FooterItem>
             <FooterItem className="mobile-panel-shortcut editor-shortcut" title="Editor"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
