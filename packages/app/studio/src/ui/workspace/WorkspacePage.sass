@@ -81,3 +81,17 @@ component
 
     > main
       min-height: 0
+
+
+// On phones, the active secondary editor/device panel gets a usable workspace
+// area under the arrangement. Only one is opened at a time by the compact footer.
+@media (max-width: 900px), (max-height: 520px)
+  html.midiable-mobile .panel-placeholder[data-panel-type="Editor"]:not(.closed),
+  html.midiable-mobile .panel-placeholder[data-panel-type="Devices"]:not(.closed)
+    flex: 0 1 42% !important
+    min-height: 72px
+    max-height: 52dvh
+
+  html.midiable-mobile .panel-placeholder[data-panel-type="Timeline"]
+    flex: 1 1 58%
+    min-height: 120px
