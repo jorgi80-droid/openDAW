@@ -8,7 +8,7 @@ const BrowserPanel = PanelState.create({
     name: "Browser",
     icon: IconSymbol.Panel,
     panelType: PanelType.BrowserPanel,
-    constrains: {type: "flex", minSize: 100, maxSize: 360, flex: 0.25},
+    constrains: {type: "flex", minSize: 44, maxSize: 360, flex: 0.25},
     minimized: true
 })
 const DevicesPanel = PanelState.create({
@@ -103,7 +103,7 @@ export const DefaultWorkspace = Object.freeze({
                     name: "Mixer",
                     icon: IconSymbol.Mixing,
                     panelType: PanelType.Mixer,
-                    constrains: {type: "flex", minSize: 20, maxSize: 480, flex: 0.25},
+                    constrains: {type: "flex", minSize: 20, maxSize: 320, flex: 0.16},
                     minimized: true
                 })
             ],
