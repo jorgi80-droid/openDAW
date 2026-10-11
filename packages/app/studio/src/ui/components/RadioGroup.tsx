@@ -16,9 +16,11 @@ type Construct<VALUE> = {
     style?: Partial<CSSStyleDeclaration>
     className?: string
     appearance?: Appearance
+    /** Called when a user taps the already-selected radio item. */
+    onSameValue?: (value: VALUE) => void
 }
 
-export const RadioGroup = <T, >({lifecycle, model, elements, style, className, appearance}: Construct<T>) => {
+export const RadioGroup = <T, >({lifecycle, model, elements, style, className, appearance, onSameValue}: Construct<T>) => {
     const name = Html.nextID()
     const map = new Map<T, HTMLInputElement>()
     const children: ReadonlyArray<[HTMLInputElement, HTMLLabelElement]> =
@@ -34,6 +36,12 @@ export const RadioGroup = <T, >({lifecycle, model, elements, style, className, a
                            model.setValue(value)
                            input.checked = value === model.getValue()
                            input.blur()
+                       }}
+                       onclick={() => {
+                           // Native radio inputs do not emit input/change when the
+                           // already-checked choice is tapped. Mobile tool shortcuts
+                           // need that second tap to collapse their active workspace.
+                           if (value === model.getValue()) {onSameValue?.(value)}
                        }}/>
             )
             const label = <label className={className} htmlFor={glue}>{element}</label>
