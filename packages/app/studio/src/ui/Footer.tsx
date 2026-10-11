@@ -68,6 +68,8 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             }
                             const show = () => {
                                 if (isNotNull(state.warning) || state.dismissed) {return}
+                                // Keep audio diagnostics passive on touch screens: no floating tooltip over the arrangement.
+                                if (window.matchMedia("(pointer: coarse)").matches) {return}
                                 const warning: HTMLElement = (
                                     <LatencyWarning anchor={component} dismiss={() => {
                                         state.dismissed = true
