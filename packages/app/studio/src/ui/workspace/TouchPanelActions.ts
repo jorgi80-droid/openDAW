@@ -1,8 +1,7 @@
 import {StudioService} from "@/service/StudioService"
 import {PanelType} from "@/ui/workspace/PanelType"
+import {isTouchLayout} from "@/ui/workspace/TouchLayout"
 
-const isTouchLayout = (): boolean =>
-    (document.documentElement.classList.contains("midiable-mobile") || window.matchMedia("(max-width: 900px), (pointer: coarse)").matches)
 
 const setFlex = (service: StudioService, type: PanelType, flex: number): void => {
     service.panelLayout.getByType(type).panelState.ifSome(state => {
