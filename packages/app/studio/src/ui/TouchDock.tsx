@@ -1,12 +1,11 @@
 import {createElement} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService"
 import {PanelType} from "@/ui/workspace/PanelType"
-import {Events, Html} from "@opendaw/lib-dom"
-import {Lifecycle} from "@opendaw/lib-std"
+import {Html} from "@opendaw/lib-dom"
 import {Colors, IconSymbol} from "@opendaw/studio-enums"
 import {Icon} from "@/ui/components/Icon"
 
-type Construct = {service: StudioService, lifecycle?: Lifecycle}
+type Construct = {service: StudioService}
 
 export const TouchDock = ({service}: Construct) => {
     const isTouchLayout = () => window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
@@ -19,20 +18,15 @@ export const TouchDock = ({service}: Construct) => {
         }
         if (isTouchLayout()) {
             const exclusive: PanelType[] = [PanelType.ContentEditor, PanelType.DevicePanel, PanelType.BrowserPanel]
-            if (exclusive.includes(type)) {
-                exclusive.filter(other => other !== type).forEach(other => {
-                    const sibling = service.panelLayout.getByType(other)
-                    if (sibling.isVisible) {sibling.toggleMinimize()}
-                })
-            }
+            exclusive.filter(other => other !== type).forEach(other => {
+                const sibling = service.panelLayout.getByType(other)
+                if (sibling.isVisible) {sibling.toggleMinimize()}
+            })
         }
         service.panelLayout.showIfAvailable(type)
     }
     const button = (label: string, title: string, symbol: IconSymbol, type: PanelType) => (
         <button type="button" className="touch-dock-button" title={title} aria-label={title}
-                onpointerdown={(event: PointerEvent) => {
-                    if (event.pointerType === "touch") {event.preventDefault()}
-                }}
                 onclick={() => {
                     if (service.layout.screen.getValue() !== "default") {
                         service.switchScreen("default")
@@ -44,7 +38,7 @@ export const TouchDock = ({service}: Construct) => {
             <Icon symbol={symbol}/><span>{label}</span>
         </button>
     )
-    const nav: HTMLElement = (
+    return (
         <nav className={Html.buildClassList("touch-dock", isTouchLayout() && "touch-dock-mobile")}
              aria-label="OpenDAW panels">
             {button("Browser", "Open or close sample browser", IconSymbol.Panel, PanelType.BrowserPanel)}
@@ -52,7 +46,4 @@ export const TouchDock = ({service}: Construct) => {
             {button("Devices", "Open or close instruments and effects", IconSymbol.Flask, PanelType.DevicePanel)}
         </nav>
     )
-    const updateLayout = () => nav.classList.toggle("touch-dock-mobile", isTouchLayout())
-    window.addEventListener("resize", updateLayout, {passive: true})
-    return nav
 }
