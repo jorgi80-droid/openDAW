@@ -607,3 +607,130 @@ html.midiable-mobile footer .mobile-panel-shortcut > .value svg
 
 html.midiable-mobile footer .mobile-panel-shortcut > .label
   font-size: 8px
+
+
+/* FL Studio Mobile-inspired shell: hide the full-width top bar but keep its controls
+   in one floating transport pill anchored at the bottom. */
+html.midiable-mobile .mobile-header
+  position: static
+  z-index: 80
+  flex: 0 0 0 !important
+  width: 0
+  height: 0
+  min-height: 0 !important
+  max-height: 0 !important
+  padding: 0
+  border: 0
+  overflow: visible
+  background: transparent
+  pointer-events: none
+
+html.midiable-mobile .mobile-header .mobile-toolbar
+  display: contents
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary
+  position: fixed
+  z-index: 95
+  left: 50%
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px))
+  transform: translateX(-50%)
+  display: flex
+  flex: 0 1 auto
+  align-items: center
+  gap: 4px
+  width: min(780px, calc(100vw - 12px))
+  min-width: 0
+  max-width: calc(100vw - 12px)
+  height: 44px
+  min-height: 44px
+  max-height: 44px
+  padding: 4px 8px
+  border: 1px solid rgba(255, 255, 255, 0.18)
+  border-radius: 999px
+  background: rgba(14, 17, 19, 0.94)
+  box-shadow: 0 5px 24px rgba(0, 0, 0, 0.42)
+  backdrop-filter: blur(14px)
+  overflow-x: auto
+  overflow-y: hidden
+  scrollbar-width: none
+  pointer-events: auto
+  touch-action: pan-x
+  overscroll-behavior-x: contain
+
+html.midiable-mobile .mobile-header .mobile-toolbar-secondary
+  display: none !important
+
+html.midiable-mobile .mobile-header .mobile-menu
+  flex: 0 0 auto
+  height: 30px
+  padding: 0 5px
+  border: 0
+  background: transparent
+
+html.midiable-mobile .mobile-header .mobile-menu h5
+  font-size: 10px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-history,
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-midi-controls
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  gap: 2px
+  padding: 0 4px
+  border-right: 1px solid rgba(255, 255, 255, 0.12)
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-history svg,
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-midi-controls svg
+  width: 16px
+  height: 16px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  gap: 2px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup > *
+  flex: 0 0 26px
+  width: 26px
+  min-width: 26px
+  max-width: 26px
+  height: 30px
+  min-height: 30px
+  max-height: 30px
+  border-radius: 7px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup svg
+  width: 16px
+  height: 16px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-toolbar-spacer
+  flex: 1 1 0
+  min-width: 1px
+  height: 1px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  column-gap: 3px
+  padding: 0 4px
+  border-left: 1px solid rgba(255, 255, 255, 0.12)
+  overflow: visible
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > .number-display
+  flex: 0 0 20px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(1)
+  font-size: 11px
+  line-height: 1em
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(2)
+  font-size: 7px
+  line-height: 1em
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .MetronomeControl
+  flex: 0 0 auto
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary > *
+  flex-shrink: 0
