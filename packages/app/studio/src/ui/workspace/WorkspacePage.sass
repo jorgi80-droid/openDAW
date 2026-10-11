@@ -134,7 +134,7 @@ html.midiable-mobile section.workspace.vertical > .panel-placeholder
    panels; only shell geometry and navigation are replaced for touch screens. */
 html.midiable-mobile
   --mobile-toolbar-height: 76px
-  --mobile-dock-height: 42px
+  --mobile-dock-height: 46px
 
   body
     height: 100dvh
@@ -203,8 +203,8 @@ html.midiable-mobile
     flex: 0 0 var(--mobile-dock-height)
     min-height: var(--mobile-dock-height)
     max-height: var(--mobile-dock-height)
-    padding: 3px 6px
-    gap: 5px
+    padding: 2px 6px
+    gap: 4px
     border-top: 1px solid rgba(255, 255, 255, 0.10)
     background: var(--color-footer-background)
     overflow: hidden
@@ -213,9 +213,12 @@ html.midiable-mobile
     flex: 1 1 0
     min-width: 0
     max-width: none
-    height: 34px
-    min-height: 34px
-    max-height: 34px
+    flex-direction: column
+    justify-content: center
+    row-gap: 2px
+    height: 40px
+    min-height: 40px
+    max-height: 40px
     border-radius: 8px
 
   footer .mobile-panel-shortcut[data-pressed]
