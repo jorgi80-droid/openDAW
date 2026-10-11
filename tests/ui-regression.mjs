@@ -155,6 +155,8 @@ try {
     const initialNotes = await page.locator('#pianogrid .note').count();
     const grid = await page.locator('#pianogrid').boundingBox();
     await page.mouse.click(grid.x + grid.width*0.72, grid.y + grid.height*0.36);
+    assert(await page.locator('#keys span').count() === 25, `Piano Roll shows all 25 chromatic keys from C6 to C4 at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#keys span').filter({hasText:'C#5'}).count() === 1 && await page.locator('#keys span').filter({hasText:'C#4'}).count() === 1, `Piano Roll includes both C-sharp rows at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#pianogrid .note').count() === initialNotes+1, `tap empty Piano Roll cell adds a note at ${viewport.width}x${viewport.height}`);
     const newNote = page.locator('#pianogrid .note').last();
     const noteLeftBefore = await newNote.evaluate(el=>el.style.left), noteTopBefore = await newNote.evaluate(el=>el.style.top);
