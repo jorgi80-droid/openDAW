@@ -1,13 +1,6 @@
 name: NovaDAW APK build
 
 on:
-  push:
-    branches: [novadaw-from-zero]
-    paths:
-      - "app-shell/**"
-      - "android-wrapper-novadaw/**"
-      - "scripts/build-novadaw-apk.sh"
-      - ".github/workflows/novadaw-apk.yml"
   workflow_dispatch:
 
 permissions:
@@ -15,6 +8,7 @@ permissions:
 
 jobs:
   build-debug-apk:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
