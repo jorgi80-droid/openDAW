@@ -906,9 +906,10 @@ $('mixer').addEventListener('click',e=>{const b=e.target.closest('[data-action]'
 $('pianogrid').addEventListener('pointerdown',e=>{
  const note=e.target.closest('.note');if(!note)return;
  const index=Number(note.dataset.noteIndex),n=project.notes[index];if(!n)return;
- const rect=note.getBoundingClientRect();const mode=e.clientX>=rect.right-10?'resize':'move';
+ const rect=note.getBoundingClientRect(),mode=e.clientX>=rect.right-10?'resize':'move';
  noteGesture={pointerId:e.pointerId,index,target:note,mode,startX:e.clientX,startY:e.clientY,originCol:n.col,originRow:n.row,originLen:n.len,before:JSON.stringify(project),moved:false};
- selectedNote=index;try{note.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault();
+ selectedNote=index;
+ e.preventDefault();
 });
 function updateNoteGesture(e){
  const g=noteGesture;if(!g||g.pointerId!==e.pointerId)return;
@@ -916,12 +917,13 @@ function updateNoteGesture(e){
  if(Math.max(Math.abs(dx),Math.abs(dy))<4&&!g.moved)return;
  g.moved=true;e.preventDefault();
  const layer=$('pianogrid .note-layer');
- const stepWidth=Math.max(1,layer?.getBoundingClientRect().width||$('pianogrid').clientWidth)/32;
- const rowHeight=Math.max(1,layer?.getBoundingClientRect().height||$('pianogrid').clientHeight)/25;
+ const layerRect=layer?.getBoundingClientRect(),gridRect=$('pianogrid').getBoundingClientRect();
+ const stepWidth=Math.max(1,layerRect?.width||gridRect.width)/32;
+ const rowHeight=Math.max(1,layerRect?.height||gridRect.height)/25;
  const dc=Math.round(dx/stepWidth),dr=Math.round(dy/rowHeight),n=project.notes[g.index];if(!n)return;
  if(g.mode==='resize'){n.len=Math.max(1,Math.min(32-g.originCol,g.originLen+dc));n.col=g.originCol;n.row=g.originRow}
  else{n.len=g.originLen;n.col=Math.max(0,Math.min(32-g.originLen,g.originCol+dc));n.row=Math.max(0,Math.min(24,g.originRow+dr))}
- const live=$('pianogrid .note-layer')?.querySelector('[data-note-index="'+g.index+'"]');
+ const live=layer?.querySelector('[data-note-index="'+g.index+'"]');
  if(live){live.style.left=(n.col/32*100)+'%';live.style.width=(n.len/32*100)+'%';live.style.top=(n.row/25*100)+'%'}
 }
 function finishNoteGesture(e){
@@ -932,9 +934,9 @@ function finishNoteGesture(e){
 $('pianogrid').addEventListener('pointermove',updateNoteGesture);
 $('pianogrid').addEventListener('pointerup',finishNoteGesture);
 $('pianogrid').addEventListener('pointercancel',finishNoteGesture);
-window.addEventListener('pointermove',updateNoteGesture);
-window.addEventListener('pointerup',finishNoteGesture);
-window.addEventListener('pointercancel',finishNoteGesture);
+document.addEventListener('pointermove',updateNoteGesture,true);
+document.addEventListener('pointerup',finishNoteGesture,true);
+document.addEventListener('pointercancel',finishNoteGesture,true);
 $('pianogrid').addEventListener('click',e=>{
  if(ignoreNextNoteClick){ignoreNextNoteClick=false;return}
  const note=e.target.closest('.note');
