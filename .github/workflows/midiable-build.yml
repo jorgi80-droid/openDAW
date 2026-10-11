@@ -19,6 +19,7 @@ on:
       - "packages/app/studio/src/ui/header/Header.tsx"
       - "packages/app/studio/src/ui/dashboard/Dashboard.tsx"
       - "packages/app/studio/src/ui/workspace/Default.ts"
+      - "packages/app/studio/src/ui/workspace/TouchPanelActions.ts"
       - "packages/app/studio/src/ui/workspace/PanelPlaceholder.tsx"
       - "packages/app/studio/src/ui/workspace/PanelResizer.tsx"
       - "packages/app/studio/src/ui/browse/AndroidSampleBridge.ts"
