@@ -11,6 +11,7 @@ on:
       - "packages/app/studio/src/service/StudioNavigation.ts"
       - "packages/app/studio/src/service/StudioService.ts"
       - "packages/app/studio/src/ui/Footer.tsx"
+      - "packages/app/studio/src/ui/Footer.sass"
       - "packages/app/studio/src/ui/App.tsx"
       - "packages/app/studio/src/ui/TouchDock.tsx"
       - "packages/app/studio/src/ui/workspace/PanelResizer.sass"
