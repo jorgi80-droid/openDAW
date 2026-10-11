@@ -58,3 +58,33 @@ component
   html.midiable-mobile .TimeStateDisplay > .number-display > div:nth-child(2)
     font-size: 7px
     line-height: 1em
+
+
+/* Keep the transport time, tempo and meter in the primary row alongside Play/Stop.
+   Compact each unit so mobile never sacrifices the main Timeline viewport. */
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay
+  display: flex
+  flex: 0 1 auto
+  min-width: 0
+  max-width: 100%
+  column-gap: 0.2em
+  padding: 0 0.15em
+  overflow: hidden
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display
+  flex: 0 0 21px
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(1)
+  font-size: 11px
+  line-height: 1em
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(2)
+  font-size: 7px
+  line-height: 1em
+
+html.midiable-mobile .mobile-toolbar-primary .MusicalUnitDisplay
+  display: flex
+  flex: 0 0 auto
+
+html.midiable-mobile .mobile-toolbar-primary .number-display
+  flex-shrink: 0
