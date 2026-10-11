@@ -59,6 +59,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 }))
                         }}/>
 
+                        <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
             <FooterItem title="Latency" minWidth="6ch"
                         onInit={({component, value}) => {
                             const threshold = () =>
@@ -97,7 +98,6 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 {terminate: hide}
                             )
                         }}>N/A</FooterItem>
-                        <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
             <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
