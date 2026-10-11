@@ -120,6 +120,17 @@ export const Header = ({lifecycle, service}: Construct) => {
                                                 : value === "modulation" ? PanelType.DevicePanel : null
                                         if (panelType !== null) {
                                             const panel = service.panelLayout.getByType(panelType)
+                                            const touchLayout = window.matchMedia("(max-width: 900px), (pointer: coarse)").matches
+                                            if (!panel.isVisible && touchLayout) {
+                                                const otherPanelType = panelType === PanelType.ContentEditor
+                                                    ? PanelType.DevicePanel
+                                                    : panelType === PanelType.DevicePanel
+                                                        ? PanelType.ContentEditor : null
+                                                if (otherPanelType !== null) {
+                                                    const otherPanel = service.panelLayout.getByType(otherPanelType)
+                                                    if (otherPanel.isVisible) {otherPanel.toggleMinimize()}
+                                                }
+                                            }
                                             if (panel.isVisible) {panel.toggleMinimize()}
                                             else {service.panelLayout.showIfAvailable(panelType)}
                                             return
