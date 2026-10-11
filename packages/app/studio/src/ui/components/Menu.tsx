@@ -283,19 +283,28 @@ export class Menu implements Terminable, Lifecycle {
                     // old 250ms guard before the first tap has finished. Track a fresh touch
                     // start and activate only the item directly touched, while desktop keeps
                     // the hover-selection behaviour.
-                    let touchStartAt = 0
+                    let touchStart: {x: number, y: number, time: number, pointerId: number} | null = null
                     itemElement.onpointerdown = (event: PointerEvent) => {
                         if (event.pointerType === "touch" || event.pointerType === "pen") {
-                            touchStartAt = Date.now()
+                            touchStart = {x: event.clientX, y: event.clientY, time: Date.now(), pointerId: event.pointerId}
                         }
                     }
+                    itemElement.onpointercancel = () => {touchStart = null}
                     itemElement.onpointerup = (event: PointerEvent) => {
                         if (event.pointerType === "touch" || event.pointerType === "pen") {
-                            if (touchStartAt === 0 || Date.now() - touchStartAt < 35) {return}
+                            const start = touchStart
+                            touchStart = null
+                            if (start === null || start.pointerId !== event.pointerId ||
+                                Date.now() - start.time < 35 ||
+                                Math.hypot(event.clientX - start.x, event.clientY - start.y) > 18) {return}
                             event.preventDefault()
+                            event.stopPropagation()
+                            if (item.hasChildren) {
+                                this.#onPointerEnter(item, itemElement)
+                                return
+                            }
                             this.root.terminate()
                             item.trigger()
-                            touchStartAt = 0
                             return
                         }
                         if (Date.now() - this.#openTime < Menu.MIN_TIME_MS) {return}
