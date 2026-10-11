@@ -64,8 +64,25 @@ const MobileMixerPanel = PanelState.create({
     name: "Mixer",
     icon: IconSymbol.Mixing,
     panelType: PanelType.Mixer,
-    notMinimizable: true,
-    constrains: {type: "flex", minSize: 0, flex: 3}
+    constrains: {type: "flex", minSize: 0, flex: 3},
+    minimized: true
+})
+const MobileEditorPanel = PanelState.create({
+    type: "panel",
+    name: "Editor",
+    icon: IconSymbol.Pencil,
+    panelType: PanelType.ContentEditor,
+    constrains: {type: "flex", minSize: 0, flex: 1},
+    minimized: true
+})
+const MobileDevicesPanel = PanelState.create({
+    type: "panel",
+    name: "Devices",
+    icon: IconSymbol.Flask,
+    panelType: PanelType.DevicePanel,
+    notPopoutable: true,
+    constrains: {type: "flex", minSize: 0, flex: 1},
+    minimized: true
 })
 const MobileAnalysisPanel = PanelState.create({
     type: "panel",
@@ -134,8 +151,9 @@ export const DefaultWorkspace = Object.freeze({
                     orientation: "vertical",
                     contents: [
                         TimelinePanel,
-                        EditorPanel,
-                        DevicesPanel
+                        MobileMixerPanel,
+                        MobileEditorPanel,
+                        MobileDevicesPanel
                     ],
                     constrains: {type: "flex", minSize: 0, flex: 1}
                 }
@@ -177,8 +195,8 @@ export const DefaultWorkspace = Object.freeze({
                     orientation: "vertical",
                     contents: [
                         MobileMixerPanel,
-                        EditorPanel,
-                        DevicesPanel,
+                        MobileEditorPanel,
+                        MobileDevicesPanel,
                         MobileAnalysisPanel
                     ],
                     constrains: {type: "flex", minSize: 0, flex: 1}
