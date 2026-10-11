@@ -123,6 +123,7 @@ export class StudioService implements ProjectEnv {
     readonly spotlightDataSupplier = new SpotlightDataSupplier()
     readonly samplePlayback: SamplePlayback
     readonly recovery = new Recovery(() => this.#projectProfileService.getValue(), this)
+    readonly #recoveryReady: Promise<void>
     readonly engine = new EngineFacade()
     readonly presets = new PresetService(this)
     readonly materialAnalyzer = new AudioMaterialAnalyzer(STRETCH_WASM_URL)
@@ -177,7 +178,7 @@ export class StudioService implements ProjectEnv {
         this.#installConsoleCommands()
         this.#populateSpotlightData()
         this.#configBeforeUnload()
-        this.#checkRecovery()
+        this.#recoveryReady = this.#checkRecovery()
         this.#listenPreferences()
     }
 
@@ -564,12 +565,26 @@ export class StudioService implements ProjectEnv {
         })
     }
 
-    #checkRecovery(): void {
-        this.recovery.restoreProfile().then(optProfile => {
+    #checkRecovery(): Promise<void> {
+        return this.recovery.restoreProfile().then(optProfile => {
             if (optProfile.nonEmpty()) {
                 this.#projectProfileService.setValue(optProfile)
             }
         }, EmptyExec)
+    }
+
+    /**
+     * Android's bundled index.html is an app entry point, not a project route.
+     * Wait for auto-recovery before creating anything so a recovered project cannot race
+     * with a fresh Untitled project and leave the workspace between screen states.
+     */
+    async prepareStartupWorkspace(): Promise<void> {
+        await this.#recoveryReady
+        if (!this.hasProfile) {
+            this.#projectProfileService.setValue(Option.wrap(
+                new ProjectProfile(UUID.generate(), Project.new(this), ProjectMeta.init("Untitled"), Option.None)))
+        }
+        this.layout.screen.setValue("default")
     }
 
     #listenPreferences(): void {
