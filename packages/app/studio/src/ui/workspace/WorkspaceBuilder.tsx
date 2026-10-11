@@ -7,6 +7,7 @@ import {isDefined, Iterables, Lifecycle, Nullable, ObservableValue, Unhandled} f
 import {RoomAwareness} from "@/service/RoomAwareness"
 import {Html} from "@opendaw/lib-dom"
 import {appendChildren, createElement} from "@opendaw/lib-jsx"
+import {isTouchLayout} from "@/ui/workspace/TouchLayout"
 
 export namespace WorkspaceBuilder {
     export const buildScreen = (lifecycle: Lifecycle,
@@ -58,6 +59,8 @@ export namespace WorkspaceBuilder {
                 )
             }
         }
-        build(element, [], Workspace.Default[screenKey].content, null, "vertical")
+        const screen: Workspace.Screen = Workspace.Default[screenKey]
+        const content = isTouchLayout() ? (screen.touchContent ?? screen.content) : screen.content
+        build(element, [], content, null, "vertical")
     }
 }

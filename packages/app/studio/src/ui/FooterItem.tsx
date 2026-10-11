@@ -22,7 +22,8 @@ export const FooterItem = ({title, minWidth, className: extraClassName, onInit}:
         <span className="value" style={{minWidth}}>{children}</span>
     )
     const component: HTMLElement = (
-        <div className={Html.buildClassList(className, extraClassName)}>
+        <div className={Html.buildClassList(className, extraClassName)}
+             data-footer-item={title}>
             {titleElem}{valueElem}
         </div>
     )

@@ -12,6 +12,9 @@ import {AudioData} from "@opendaw/lib-dsp"
 import {FooterItem} from "@/ui/FooterItem"
 import {EngineAddresses} from "@opendaw/studio-adapters"
 import {LatencyWarning} from "@/ui/LatencyWarning"
+import {Icon} from "@/ui/components/Icon"
+import {IconSymbol} from "@opendaw/studio-enums"
+import {createMobileStudioPort} from "@/service/MobileStudioPort"
 
 const className = Html.adoptStyleSheet(css, "footer")
 
@@ -19,8 +22,26 @@ type Construct = { lifecycle: Lifecycle, service: StudioService }
 
 export const Footer = ({lifecycle, service}: Construct) => {
     const {audioContext, buildInfo, engine, projectProfileService} = service
+    const mobileStudio = createMobileStudioPort(service)
     return (
-        <footer className={className}>
+        <footer className={className} onInit={element => {
+            const sync = () => {
+                const activeScreen = mobileStudio.activeScreen.getValue()
+                const mapping: Record<string, string> = {
+                    "timeline-shortcut": "default",
+                    "browser-shortcut": "browser",
+                    "mixer-shortcut": "mixer",
+                    "editor-shortcut": "piano",
+                    "devices-shortcut": "modulation"
+                }
+                element.querySelectorAll<HTMLElement>(".mobile-panel-shortcut").forEach(button => {
+                    const screen = Object.entries(mapping).find(([key]) => button.classList.contains(key))?.[1]
+                    button.toggleAttribute("data-pressed", screen === activeScreen)
+                })
+            }
+            lifecycle.own(mobileStudio.activeScreen.subscribe(sync))
+            requestAnimationFrame(sync)
+        }}>
             <FooterItem title="Mode" onInit={({value}) => {
                 const offlineApp = location.hostname.endsWith("androidplatform.net")
                 const updateMode = () => value.textContent = offlineApp ? "Offline" : (navigator.onLine ? "Online" : "Offline")
@@ -55,6 +76,86 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                     }
                                 }))
                         }}/>
+                        <FooterItem className="mobile-panel-shortcut timeline-shortcut" title="Timeline"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Open Timeline")
+                            const open = () => mobileStudio.navigate("timeline")
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", open),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        open()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Timeline}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Sample Browser")
+                            const toggle = () => mobileStudio.navigate("browser")
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Panel}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut mixer-shortcut" title="Mixer"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Mixer")
+                            const toggle = () => mobileStudio.navigate("mixer")
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Mixing}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut editor-shortcut" title="Editor"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Editor / Piano Roll")
+                            const toggle = () => mobileStudio.navigate("editor")
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Pencil}/></FooterItem>
+            <FooterItem className="mobile-panel-shortcut devices-shortcut" title="Devices"
+                        onInit={({component}) => {
+                            component.setAttribute("role", "button")
+                            component.setAttribute("tabindex", "0")
+                            component.setAttribute("aria-label", "Toggle Devices / Effects")
+                            const toggle = () => mobileStudio.navigate("devices")
+                            lifecycle.ownAll(
+                                Events.subscribe(component, "click", toggle),
+                                Events.subscribe(component, "keydown", event => {
+                                    if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault()
+                                        toggle()
+                                    }
+                                })
+                            )
+                        }}><Icon symbol={IconSymbol.Flask}/></FooterItem>
             <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
             <FooterItem title="Latency" minWidth="6ch"
                         onInit={({component, value}) => {
@@ -94,7 +195,8 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 {terminate: hide}
                             )
                         }}>N/A</FooterItem>
-            <FooterItem title="CPU Load" minWidth="4ch"
+
+<FooterItem title="CPU Load" minWidth="4ch"
                         onInit={({component, value}) => {
                             lifecycle.own(engine.preferences.catchupAndSubscribe(enabled => {
                                 component.classList.toggle("hidden", !enabled)
@@ -200,6 +302,53 @@ export const Footer = ({lifecycle, service}: Construct) => {
             <div style={{flex: "1"}}/>
             <div style={{color: Colors.cream.toString()}}>
                 <LocalLink href="/privacy">Privacy</LocalLink> · <LocalLink href="/imprint">Imprint</LocalLink>
+            </div>
+            <div className="mobile-edge-dock" onInit={element => {
+                const currentKey = (): string => {
+                    const active = mobileStudio.activeScreen.getValue()
+                    return active === "default" ? "default"
+                        : active === "mixer" ? "mixer"
+                            : active === "modulation" ? "modulation"
+                                : active === "piano" ? "piano" : ""
+                }
+                const sync = () => {
+                    const active = currentKey()
+                    element.querySelectorAll<HTMLButtonElement>("[data-mobile-screen]").forEach(button => {
+                        button.setAttribute("aria-pressed", String(button.dataset.mobileScreen === active))
+                    })
+                }
+                lifecycle.own(mobileStudio.activeScreen.catchupAndSubscribe(sync))
+            }}>
+                <button type="button" className="mobile-edge-handle" aria-label="Open workspace tabs"
+                        aria-expanded="false"
+                        onclick={event => {
+                            const handle = event.currentTarget as HTMLButtonElement
+                            const dock = handle.closest(".mobile-edge-dock") as HTMLElement | null
+                            if (dock === null) {return}
+                            const open = !dock.classList.contains("open")
+                            dock.classList.toggle("open", open)
+                            handle.setAttribute("aria-expanded", String(open))
+                        }}>
+                    <Icon symbol={IconSymbol.Panel}/>
+                </button>
+                <div className="mobile-edge-panel">
+                    <button type="button" data-mobile-screen="default" aria-pressed="false"
+                            onclick={() => {mobileStudio.navigate("timeline"); (() => { const dock = document.querySelector<HTMLElement>(".mobile-edge-dock"); dock?.classList.remove("open"); dock?.querySelector(".mobile-edge-handle")?.setAttribute("aria-expanded", "false") })()}}>
+                        <Icon symbol={IconSymbol.Timeline}/><span>Timeline</span>
+                    </button>
+                    <button type="button" data-mobile-screen="mixer" aria-pressed="false"
+                            onclick={() => {mobileStudio.navigate("mixer"); (() => { const dock = document.querySelector<HTMLElement>(".mobile-edge-dock"); dock?.classList.remove("open"); dock?.querySelector(".mobile-edge-handle")?.setAttribute("aria-expanded", "false") })()}}>
+                        <Icon symbol={IconSymbol.Mixing}/><span>Mixer</span>
+                    </button>
+                    <button type="button" data-mobile-screen="modulation" aria-pressed="false"
+                            onclick={() => {mobileStudio.navigate("devices"); (() => { const dock = document.querySelector<HTMLElement>(".mobile-edge-dock"); dock?.classList.remove("open"); dock?.querySelector(".mobile-edge-handle")?.setAttribute("aria-expanded", "false") })()}}>
+                        <Icon symbol={IconSymbol.Flask}/><span>Devices</span>
+                    </button>
+                    <button type="button" data-mobile-screen="piano" aria-pressed="false"
+                            onclick={() => {mobileStudio.navigate("editor"); (() => { const dock = document.querySelector<HTMLElement>(".mobile-edge-dock"); dock?.classList.remove("open"); dock?.querySelector(".mobile-edge-handle")?.setAttribute("aria-expanded", "false") })()}}>
+                        <Icon symbol={IconSymbol.Pencil}/><span>Editor / Piano Roll</span>
+                    </button>
+                </div>
             </div>
         </footer>
     )

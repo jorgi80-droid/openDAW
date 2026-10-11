@@ -16,32 +16,253 @@ component
         content: " > 80% ⚠️"
         color: var(--color-orange)
 
+  // The controls are only part of the mobile workflow; desktop remains unchanged.
+  .mobile-panel-shortcut
+    display: none
 
-// On phones, the transport remains in the top header; keep diagnostics out of the music workspace.
-@media (max-width: 900px), (max-height: 520px)
+// Mobile status/shortcut row. Do not place the shortcut icons between
+// inline status labels; use one bounded horizontal row with predictable widths.
+@media (max-width: 900px), (max-height: 520px), (pointer: coarse)
   component
-    flex: 0 0 24px
-    min-height: 24px
-    max-height: 24px
+    flex: 0 0 46px
+    min-height: 46px
+    max-height: 46px
     width: 100%
     box-sizing: border-box
-    gap: 0.5rem
-    padding: 0 6px
-    overflow: hidden
+    display: flex
+    align-items: center
+    gap: 4px
+    padding: 0 4px
+    overflow-x: auto
+    overflow-y: hidden
     white-space: nowrap
     font-size: 9px
+    line-height: 1
+    scrollbar-width: none
+    touch-action: pan-x
 
     > div
       flex: 0 0 auto
+      min-width: max-content
 
-    > div[style*="flex: 1"]
-      display: none
-
+    > div[style*="flex: 1"],
     > div:last-child
-      display: none
+      display: none !important
 
-  component [title="CPU Load"],
-  component [title="Memory"],
-  component [title="FPS"],
-  component [title="Samples (GC)"]
+  component [data-footer-item="CPU Load"],
+  component [data-footer-item="Memory"],
+  component [data-footer-item="FPS"],
+  component [data-footer-item="Samples (GC)"]
     display: none !important
+
+  component > div[data-footer-item="Project"]
+    max-width: 76px
+    min-width: 0
+    overflow: hidden
+    text-overflow: ellipsis
+
+  component > div[data-footer-item="Project"] > .value
+    min-width: 0
+    max-width: 76px
+    overflow: hidden
+    text-overflow: ellipsis
+
+  component .mobile-panel-shortcut
+    display: flex !important
+    align-items: center
+    justify-content: center
+    flex: 0 0 32px
+    width: 32px
+    min-width: 32px
+    max-width: 32px
+    height: 28px
+    min-height: 28px
+    max-height: 28px
+    box-sizing: border-box
+    overflow: hidden
+    padding: 0
+    margin: 0
+    border: 1px solid rgba(255, 255, 255, 0.14)
+    border-radius: 5px
+    color: var(--color-bright)
+    background: rgba(255, 255, 255, 0.04)
+    touch-action: manipulation
+    -webkit-tap-highlight-color: transparent
+
+  component .mobile-panel-shortcut > .label
+    order: 1
+    display: flex !important
+    align-items: center
+    justify-content: center
+    width: 100%
+    min-width: 0
+    max-width: 100%
+    overflow: hidden
+    padding: 0 1px
+    font-size: 9px
+    line-height: 1
+    text-align: center
+    margin-right: 0
+    white-space: nowrap
+    text-overflow: ellipsis
+
+  component .mobile-panel-shortcut > .value
+    order: 0
+    display: flex !important
+    align-items: center
+    justify-content: center
+    flex: 0 0 18px
+    width: 100%
+    min-width: 0
+    height: 18px
+    margin: 0
+    overflow: hidden
+
+    svg
+      display: block
+      width: 17px
+      height: 17px
+
+  component .mobile-panel-shortcut:active
+    background: rgba(66, 217, 232, 0.18)
+    border-color: var(--color-blue)
+
+  // In the new shell, the footer is navigation only; hide status/debug chips so
+  // they cannot squeeze the five hit targets or force horizontal overflow.
+  component > div:not(.mobile-panel-shortcut)
+    display: none !important
+
+  // Dedicated mobile DAW dock: five predictable destinations, no duplicate status controls.
+  component > div[data-footer-item="Mode"],
+  component > div[data-footer-item="Project"],
+  component > div[data-footer-item="SampleRate"],
+  component > div[data-footer-item="Latency"]
+    display: none !important
+
+  component .mobile-panel-shortcut
+    flex: 1 1 0
+    flex-direction: column
+    justify-content: center
+    row-gap: 2px
+    width: auto
+    min-width: 0
+    max-width: none
+    height: 40px
+    min-height: 40px
+    max-height: 40px
+    border-radius: 7px
+
+  component .mobile-panel-shortcut .value svg
+    width: 19px
+    height: 19px
+
+  component .mobile-panel-shortcut.timeline-shortcut,
+  component .mobile-panel-shortcut.mixer-shortcut
+    display: flex !important
+
+  component .mobile-panel-shortcut[data-pressed]
+    color: var(--color-blue)
+    border-color: var(--color-blue)
+    background: rgba(66, 217, 232, 0.14)
+
+
+/* Mobile footer becomes an overlay layer only; navigation is opened from the
+   narrow handle at the right bezel instead of a permanent full-width dock. */
+html.midiable-mobile footer
+  position: static
+  flex: 0 0 0 !important
+  width: 0
+  height: 0
+  min-height: 0 !important
+  max-height: 0 !important
+  padding: 0 !important
+  margin: 0
+  border: 0
+  overflow: visible
+  background: transparent
+  pointer-events: none
+
+html.midiable-mobile footer > .mobile-panel-shortcut
+  display: none !important
+
+html.midiable-mobile .mobile-edge-dock
+  position: fixed
+  z-index: 90
+  top: 50%
+  right: 0
+  display: flex
+  align-items: center
+  transform: translateY(-50%)
+  pointer-events: auto
+
+html.midiable-mobile .mobile-edge-handle
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 22px
+  height: 68px
+  padding: 0
+  border: 1px solid rgba(255, 255, 255, 0.18)
+  border-right: 0
+  border-radius: 12px 0 0 12px
+  color: var(--color-bright)
+  background: rgba(25, 30, 33, 0.92)
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28)
+  touch-action: manipulation
+
+html.midiable-mobile .mobile-edge-handle svg
+  width: 16px
+  height: 16px
+
+html.midiable-mobile .mobile-edge-panel
+  display: none
+  flex-direction: column
+  gap: 5px
+  margin-right: 7px
+  padding: 6px
+  border: 1px solid rgba(255, 255, 255, 0.14)
+  border-radius: 12px
+  background: rgba(20, 24, 27, 0.96)
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4)
+  backdrop-filter: blur(12px)
+
+html.midiable-mobile .mobile-edge-dock.open .mobile-edge-panel
+  display: flex
+
+html.midiable-mobile .mobile-edge-panel > button
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: 3px
+  width: 70px
+  min-width: 70px
+  height: 48px
+  padding: 3px 2px
+  border: 1px solid rgba(255, 255, 255, 0.10)
+  border-radius: 8px
+  color: var(--color-bright)
+  background: rgba(255, 255, 255, 0.045)
+  font-size: 9px
+  line-height: 1.1
+  text-align: center
+  touch-action: manipulation
+
+html.midiable-mobile .mobile-edge-panel > button svg
+  width: 18px
+  height: 18px
+
+html.midiable-mobile .mobile-edge-panel > button[aria-pressed="true"]
+  color: var(--color-blue)
+  border-color: var(--color-blue)
+  background: rgba(66, 217, 232, 0.14)
+
+@media (orientation: portrait)
+  html.midiable-mobile .mobile-edge-panel > button
+    width: 58px
+    min-width: 58px
+
+
+/* Opening the dock keeps its handle against the bezel and expands inward. */
+html.midiable-mobile .mobile-edge-dock.open
+  flex-direction: row-reverse

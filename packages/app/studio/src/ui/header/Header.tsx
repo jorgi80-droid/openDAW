@@ -24,6 +24,8 @@ import {PerformanceStats} from "@/ui/header/PerformanceStats"
 import {BaseFrequencyControl} from "@/ui/header/BaseFrequencyControl"
 import {CaptureMidiButton} from "@/ui/header/CaptureMidiButton"
 import {TourAnchors} from "@/ui/tour/TourAnchors"
+import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
+import {isTouchLayout} from "@/ui/workspace/TouchLayout"
 
 const className = Html.buildClassList(Html.adoptStyleSheet(css, "Header"), "mobile-header")
 
@@ -35,11 +37,10 @@ type Construct = {
 const ScreenShortcutKeys: Record<Workspace.ScreenKeys, keyof typeof GlobalShortcuts> = {
     "dashboard": "workspace-screen-dashboard",
     "default": "workspace-screen-default",
+    "browser": "workspace-screen-default",
     "mixer": "workspace-screen-mixer",
     "modulation": "workspace-screen-modulation",
     "piano": "workspace-screen-piano",
-    "project": "workspace-screen-project",
-    "shadertoy": "workspace-screen-shadertoy",
     "code": "workspace-screen-default",
     "tap": "workspace-screen-tap"
 }
@@ -65,11 +66,49 @@ export const Header = ({lifecycle, service}: Construct) => {
     const manuals: HTMLAnchorElement = (
         <a className="manuals" href="/manuals/" target="manuals" title="Manuals"><Icon symbol={IconSymbol.Help}/></a>
     )
-    TourAnchors.register(lifecycle, manuals, "manuals")
+    if (!isTouchLayout()) {TourAnchors.register(lifecycle, manuals, "manuals")}
     TourAnchors.register(lifecycle, transport, "transport")
     TourAnchors.register(lifecycle, timecodes, "timecodes")
     return (
         <header className={className}>
+            {isTouchLayout() ? (
+                <div className="mobile-toolbar">
+                    <div className="mobile-toolbar-primary">
+                        <div className="mobile-menu">
+                            <MenuButton root={service.menu}
+                                        onInit={element => TourAnchors.register(lifecycle, element, "menu")}
+                                        appearance={{color: Colors.gray, activeColor: Colors.bright, tinyTriangle: true}}>
+                                <h5>OpenDAW</h5>
+                            </MenuButton>
+                        </div>
+                        <div className="mobile-history">
+                            <Group onInit={element => StudioPreferences.catchupAndSubscribe(enabled =>
+                                element.classList.toggle("hidden", !enabled), "visibility", "enable-history-buttons")}>
+                                <UndoRedoButtons lifecycle={lifecycle} service={service}/>
+                            </Group>
+                        </div>
+                        <div className="mobile-midi-controls"
+                             onInit={element => TourAnchors.register(lifecycle, element, "midi")}>
+                            <Checkbox lifecycle={lifecycle}
+                                      model={MidiDevices.available()}
+                                      appearance={{activeColor: Colors.orange, tooltip: "Midi Access", cursor: "pointer"}}>
+                                <Icon symbol={IconSymbol.Midi}/>
+                            </Checkbox>
+                            <CaptureMidiButton lifecycle={lifecycle} service={service}/>
+                        </div>
+                        <div className="mobile-toolbar-spacer"/>
+                        {transport}
+                        <div className="mobile-toolbar-spacer"/>
+                        {timecodes}
+                        <MetronomeControl lifecycle={lifecycle} service={service} preferences={preferences}/>
+                    </div>
+                    <div className="mobile-toolbar-secondary">
+                        <BaseFrequencyControl lifecycle={lifecycle} service={service}/>
+                        <HorizontalPeakMeter lifecycle={lifecycle} peaksInDb={peaksInDb} width="2.5em"/>
+                    </div>
+                </div>
+            ) : (
+                <div className="desktop-toolbar">
             <MenuButton root={service.menu}
                         onInit={element => TourAnchors.register(lifecycle, element, "menu")}
                         appearance={{color: Colors.gray, activeColor: Colors.bright, tinyTriangle: true}}>
@@ -114,16 +153,21 @@ export const Header = ({lifecycle, service}: Construct) => {
                                 setValue(value: Nullable<Workspace.ScreenKeys>): void {
                                     if (!service.hasProfile) {return}
                                     const current = service.layout.screen.getValue()
-                                    if (current === "default") {
-                                        const panelType = value === "mixer" ? PanelType.Mixer
-                                            : value === "piano" ? PanelType.ContentEditor
-                                                : value === "modulation" ? PanelType.DevicePanel : null
-                                        if (panelType !== null) {
-                                            const panel = service.panelLayout.getByType(panelType)
-                                            if (panel.isVisible) {panel.toggleMinimize()}
-                                            else {service.panelLayout.showIfAvailable(panelType)}
-                                            return
-                                        }
+                                    const touchLayout = isTouchLayout()
+                                    const panelType = value === "mixer" ? PanelType.Mixer
+                                        : value === "piano" ? PanelType.ContentEditor
+                                            : value === "modulation" ? PanelType.DevicePanel : null
+                                    if (touchLayout && panelType !== null) {
+                                        // The shared controller switches to the active touch workspace
+                                        // before opening/closing the selected native panel.
+                                        toggleTouchPanel(service, panelType)
+                                        return
+                                    }
+                                    if (current === "default" && panelType !== null) {
+                                        const panel = service.panelLayout.getByType(panelType)
+                                        if (panel.isVisible) {panel.toggleMinimize()}
+                                        else {service.panelLayout.showIfAvailable(panelType)}
+                                        return
                                     }
                                     service.switchScreen(value)
                                 }
@@ -150,10 +194,20 @@ export const Header = ({lifecycle, service}: Construct) => {
                                                     : name,
                                         GlobalShortcuts[ScreenShortcutKeys[key as Workspace.ScreenKeys]].shortcut)
                                 }))}
+                            onSameValue={value => {
+                                if (!isTouchLayout() || value === "default") {return}
+                                const panelType = value === "mixer" ? PanelType.Mixer
+                                    : value === "piano" ? PanelType.ContentEditor
+                                        : value === "modulation" ? PanelType.DevicePanel : null
+                                if (panelType !== null) {toggleTouchPanel(service, panelType)}
+                            }}
                             appearance={{framed: true, landscape: true}}/>
             </div>
             <hr/>
             <PerformanceStats lifecycle={lifecycle} service={service}/>
+
+                </div>
+            )}
         </header>
     )
 }

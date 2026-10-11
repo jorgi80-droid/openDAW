@@ -40,3 +40,74 @@ component
         color: hsl(from var(--display-stroke) h s l / 0.75)
         font-size: 8px
         line-height: 1em
+
+// Compact transport time readout on touch devices; retain the bar/beat/BPM/meter labels.
+@media (max-width: 900px), (max-height: 520px), (pointer: coarse)
+  html.midiable-mobile .TimeStateDisplay
+    column-gap: 0.25em
+    padding: 0.1em 0.2em
+    border-radius: 2px
+
+  html.midiable-mobile .TimeStateDisplay > .number-display
+    flex-basis: 19px
+
+  html.midiable-mobile .TimeStateDisplay > .number-display > div:nth-child(1)
+    font-size: 10px
+    line-height: 1em
+
+  html.midiable-mobile .TimeStateDisplay > .number-display > div:nth-child(2)
+    font-size: 7px
+    line-height: 1em
+
+
+/* Keep the transport time, tempo and meter in the primary row alongside Play/Stop.
+   Compact each unit so mobile never sacrifices the main Timeline viewport. */
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay
+  display: flex
+  flex: 0 1 auto
+  min-width: 0
+  max-width: 100%
+  column-gap: 0.2em
+  padding: 0 0.15em
+  overflow: hidden
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display
+  flex: 0 0 21px
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(1)
+  font-size: 11px
+  line-height: 1em
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(2)
+  font-size: 7px
+  line-height: 1em
+
+html.midiable-mobile .mobile-toolbar-primary .MusicalUnitDisplay
+  display: flex
+  flex: 0 0 auto
+
+html.midiable-mobile .mobile-toolbar-primary .number-display
+  flex-shrink: 0
+
+
+/* Keep bar/beat, tempo and meter in the transport row as requested for phones. */
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  min-width: 0
+  max-width: 100%
+  column-gap: 0.15em
+  padding: 0 0.1em
+  overflow: hidden
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display
+  flex: 0 0 20px
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(1)
+  font-size: 10px
+  line-height: 1em
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(2)
+  font-size: 7px
+  line-height: 1em

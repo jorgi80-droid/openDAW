@@ -21,3 +21,13 @@ component
 
     &:active
       opacity: 1.0
+@media (pointer: coarse)
+  component
+    height: 18px
+    min-height: 18px
+    touch-action: none
+
+    > svg.slider
+      height: 16px
+      width: calc(100% - 0.5rem)
+      opacity: 0.85

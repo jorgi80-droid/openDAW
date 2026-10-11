@@ -1,5 +1,12 @@
 name: OpenDAW Offline Android Build
 
+# Every change previously launched another full WASM + APK pipeline on the same
+# branch. Keep only the latest branch build so old commits cannot waste runners
+# or make it unclear which APK belongs to the current UI.
+concurrency:
+  group: opendaw-offline-android-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   workflow_dispatch:
   push:
@@ -10,18 +17,27 @@ on:
       - "packages/app/studio/src/boot.ts"
       - "packages/app/studio/src/service/StudioNavigation.ts"
       - "packages/app/studio/src/service/StudioService.ts"
+      - "packages/app/studio/src/service/MobileStudioPort.ts"
       - "packages/app/studio/src/ui/Footer.tsx"
+      - "packages/app/studio/src/ui/FooterItem.tsx"
+      - "packages/app/studio/src/ui/Footer.sass"
       - "packages/app/studio/src/ui/App.tsx"
       - "packages/app/studio/src/ui/TouchDock.tsx"
       - "packages/app/studio/src/ui/workspace/PanelResizer.sass"
       - "packages/app/studio/src/ui/workspace/PanelPlaceholder.sass"
       - "packages/app/studio/src/ui/header/Header.tsx"
+      - "packages/app/studio/src/ui/header/Header.sass"
+      - "packages/app/studio/src/ui/header/TimeStateDisplay.sass"
+      - "packages/app/studio/src/ui/tour/Tour.tsx"
       - "packages/app/studio/src/ui/dashboard/Dashboard.tsx"
       - "packages/app/studio/src/ui/workspace/Default.ts"
+      - "packages/app/studio/src/ui/workspace/TouchPanelActions.ts"
+      - "packages/app/studio/src/ui/workspace/TouchLayout.ts"
       - "packages/app/studio/src/ui/workspace/PanelPlaceholder.tsx"
       - "packages/app/studio/src/ui/workspace/PanelResizer.tsx"
       - "packages/app/studio/src/ui/browse/AndroidSampleBridge.ts"
       - "packages/app/studio/src/ui/browse/SampleBrowser.tsx"
+      - "packages/app/studio/src/ui/browse/ResourceBrowser.tsx"
       - "packages/app/studio/src/ui/browse/SampleView.tsx"
       - "packages/app/studio/src/ui/browse/SampleSelection.ts"
       - "packages/app/studio/src/ui/browse/PresetService.ts"
@@ -31,7 +47,23 @@ on:
       - "packages/app/studio/src/ui/workspace/WorkspacePage.sass"
       - "packages/app/studio/src/ui/Footer.tsx"
       - "packages/app/studio/src/ui/piano-panel/PianoModePanel.sass"
+      - "packages/app/studio/src/ui/mixer/Mixer.sass"
+      - "packages/app/studio/src/ui/devices/panel/DevicePanel.sass"
+      - "packages/app/studio/src/ui/timeline/editors/ContentEditor.sass"
+      - "packages/app/studio/src/ui/timeline/TimelineHeader.tsx"
+      - "packages/app/studio/src/ui/timeline/TimelineHeader.sass"
       - "packages/app/studio/src/ui/timeline/Timeline.sass"
+      - "packages/app/studio/src/ui/timeline/TimelineNavigation.sass"
+      - "packages/app/studio/src/ui/timeline/TimeAxis.sass"
+      - "packages/app/studio/src/ui/timeline/TimeAxis.tsx"
+      - "packages/app/studio/src/ui/workspace/Workspace.ts"
+      - "packages/app/studio/src/ui/timeline/tracks/audio-unit/headers/TrackHeader.sass"
+      - "packages/app/studio/src/ui/timeline/tracks/audio-unit/AudioUnitChannelControls.sass"
+      - "packages/app/studio/src/ui/timeline/WheelScaling.ts"
+      - "packages/app/studio/src/ui/workspace/WorkspaceBuilder.tsx"
+      - "packages/app/studio/src/ui/timeline/TimelineRangeSlider.tsx"
+      - "packages/app/studio/src/ui/timeline/TimelineRangeSlider.sass"
+      - "packages/app/studio/src/ui/timeline/tracks/footer/TracksFooter.sass"
       - "packages/app/studio/src/ui/timeline/tracks/audio-unit/regions/RegionDragAndDrop.ts"
       - "packages/app/studio/src/ui/timeline/tracks/audio-unit/clips/ClipsArea.tsx"
       - "packages/app/studio/src/ui/timeline/tracks/audio-unit/clips/ClipDragAndDrop.ts"

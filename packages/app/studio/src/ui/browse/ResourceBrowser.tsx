@@ -304,7 +304,8 @@ export const ResourceBrowser = <T, >({
                                     service.subscribeSignal(() => {
                                         if (!importing.getValue()) {debounceSetLocation()}
                                     }, config.importSignal))
-                                searchInput.focus()
+                                // Keep the Android keyboard closed when the Browser opens or refreshes.
+                                // SearchInput can receive focus only after an explicit user tap.
                                 return entries
                             }}/>
                     )

@@ -39,10 +39,12 @@ export const StudioSettingsSchema = z.object({
     }),
     "appearance": z.object({
         "neutral-hue": z.number().catch(197),
-        "neutral-saturation": z.number().catch(100)
+        "neutral-saturation": z.number().catch(100),
+        "ui-scale": z.number().min(0.75).max(1.5).catch(1)
     }).default({
         "neutral-hue": 197,
-        "neutral-saturation": 100
+        "neutral-saturation": 100,
+        "ui-scale": 1
     }),
     "time-display": z.object({
         "musical": z.boolean(),

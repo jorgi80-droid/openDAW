@@ -1,4 +1,5 @@
-// Consolidated mobile overrides. Preserve the original OpenDAW panel/timeline implementation.
+// Mobile workspace rules. Keep OpenDAW's native panels and editing surfaces;
+// this file only adapts sizing and touch hit targets for coarse-pointer devices.
 html.midiable-mobile,
 html.midiable-mobile body
   width: 100%
@@ -6,6 +7,7 @@ html.midiable-mobile body
   height: 100dvh
   min-width: 0
   min-height: 0
+  margin: 0
   overflow: hidden
   overscroll-behavior: none
   -webkit-text-size-adjust: 100%
@@ -22,26 +24,29 @@ html.midiable-mobile summary
 
 html.midiable-mobile button,
 html.midiable-mobile [role="button"]
-  min-width: 28px
-  min-height: 28px
+  min-width: 36px
+  min-height: 36px
+  -webkit-tap-highlight-color: transparent
 
 html.midiable-mobile input[type="range"]
-  min-height: 28px
+  min-height: 36px
+
+html.midiable-mobile input,
+html.midiable-mobile select,
+html.midiable-mobile textarea
+  max-width: 100%
 
 html.midiable-mobile section.workspace,
 html.midiable-mobile section.workspace > *,
 html.midiable-mobile section.workspace > div,
 html.midiable-mobile section.workspace > section,
-html.midiable-mobile .PanelPlaceholder,
-html.midiable-mobile .PanelPlaceholder > div
+html.midiable-mobile .panel-placeholder,
+html.midiable-mobile .panel-placeholder > div
   min-width: 0
   min-height: 0
 
 html.midiable-mobile section.workspace
   gap: 2px
-
-html.midiable-mobile canvas
-  touch-action: none
 
 html.midiable-mobile dialog,
 html.midiable-mobile [role="dialog"]
@@ -49,57 +54,34 @@ html.midiable-mobile [role="dialog"]
   max-height: calc(100dvh - 12px)
   overflow: auto
 
-html.midiable-mobile input,
-html.midiable-mobile select,
-html.midiable-mobile textarea
-  max-width: 100%
-
-// Keep the desktop toolbar functions, but make its hit targets reachable on narrow screens.
+// The mobile shell uses a two-row toolbar. The workspace itself remains below it;
+// controls must not scroll over the Timeline or wrap into the work area.
 html.midiable-mobile .mobile-header
-  min-height: 40px
-  max-height: 40px
-  height: 40px
-  padding: 2px 6px
-  column-gap: 0.4em
-  flex: 0 0 40px
+  min-width: 0
+  min-height: 76px
+  max-height: 76px
+  height: 76px
+  padding: 3px 4px
+  flex: 0 0 76px
+  flex-direction: column
+  align-items: stretch
+  row-gap: 2px
   box-sizing: border-box
-  overflow-x: auto
-  overflow-y: hidden
-  scrollbar-width: none
-  touch-action: pan-x
+  overflow: hidden
+  touch-action: auto
 
 html.midiable-mobile .mobile-header > *
   flex-shrink: 0
 
-html.midiable-mobile .mobile-header .panel-selector
-  flex: 0 0 auto
-  min-width: max-content
-
-html.midiable-mobile .mobile-header .panel-selector [data-class="radio-group"] > label
-  min-width: 36px !important
-  width: 36px !important
-  height: 36px !important
-  min-height: 36px !important
-  max-height: 36px !important
-  padding: 0 !important
-  box-sizing: border-box
-  border-radius: 5px
-  touch-action: manipulation
-
-html.midiable-mobile .mobile-header .panel-selector [data-class="radio-group"] > label > *
-  width: 18px
-  height: 18px
-
-html.midiable-mobile .mobile-header > hr
-  margin: 0 2px
-  flex: 0 0 1px
-
-// A collapsed panel must remain a usable small tab to reopen it by touch.
-html.midiable-mobile .PanelPlaceholder
+// Native panel headers remain the only collapse/restore controls.
+// Closed panels become compact icon tabs rather than overlays or grey bars.
+html.midiable-mobile .panel-placeholder
   flex-shrink: 1
   border-radius: 2px
+  min-width: 0
+  min-height: 0
 
-html.midiable-mobile .PanelPlaceholder > header
+html.midiable-mobile .panel-placeholder > header
   min-height: 30px
   max-height: 30px
   height: 30px
@@ -109,120 +91,30 @@ html.midiable-mobile .PanelPlaceholder > header
   touch-action: manipulation
   user-select: none
   -webkit-user-select: none
+  -webkit-tap-highlight-color: transparent
 
-html.midiable-mobile .PanelPlaceholder.closed
-  flex-basis: 22px !important
-  width: 22px !important
-  min-width: 22px !important
-  max-width: 22px !important
-  min-height: 22px !important
-  max-height: 22px !important
-  height: 22px !important
-  overflow: hidden !important
-
-html.midiable-mobile .PanelPlaceholder.closed > header
-  min-width: 22px !important
-  max-width: 22px !important
-  min-height: 22px !important
-  max-height: 22px !important
-  height: 22px !important
-  padding: 0 !important
-  margin: 0 !important
-  gap: 0 !important
-  justify-content: center !important
-  overflow: hidden !important
-
-html.midiable-mobile .PanelPlaceholder.closed > header > span,
-html.midiable-mobile .PanelPlaceholder.closed > header > .presence-dots,
-html.midiable-mobile .PanelPlaceholder.closed > div
-  display: none !important
-
-// Timeline is the main arrangement area; don't squeeze it with desktop-sized fixed minimums.
-html.midiable-mobile section.workspace.horizontal > section.workspace.vertical
-  flex: 1 1 0
-  min-width: 0
-  min-height: 0
-
-html.midiable-mobile section.workspace.horizontal > .PanelPlaceholder[data-panel-type="Browser"]
-  flex: 0 1 22vw !important
-  min-width: 44px !important
-  max-width: min(260px, 34vw) !important
-
-html.midiable-mobile [data-panel-type="Timeline"]
-  min-width: 0
-  min-height: 94px
-
-html.midiable-mobile [data-panel-type="Editor"]
-  min-width: 0
-  min-height: 88px
-
-// Native resizer uses the existing pointer-capture implementation; enlarge hit targets invisibly.
-html.midiable-mobile .PanelResizer
-  touch-action: none
-  user-select: none
-  -webkit-user-select: none
-
-html.midiable-mobile .PanelResizer::before
-  content: ""
-  position: absolute
-  z-index: 21
-  background: transparent
-  // The resizer has zero flex-basis; this invisible pseudo-element is its actual finger hit target.
-  pointer-events: auto
-
-html.midiable-mobile .PanelResizer.horizontal::before
-  width: 38px
-  height: 100%
-  left: -18px
-  top: 0
-
-html.midiable-mobile .PanelResizer.vertical::before
-  width: 100%
-  height: 38px
-  left: 0
-  top: -18px
-
-html.midiable-mobile .PanelResizer::after
-  opacity: 0
-  pointer-events: none
-  background: transparent
-  box-shadow: none
-
-html.midiable-mobile .PanelResizer:active::after
-  opacity: 1
-  background: rgba(74, 220, 245, 0.92)
-  box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.14)
-
-/* Collapsed panels must be compact icon tabs, not grey bands over the arrangement.
-   Horizontal and vertical panel placeholders have different collapse axes. */
-html.midiable-mobile .PanelPlaceholder.closed,
 html.midiable-mobile .panel-placeholder.closed
   background: transparent !important
   border: 0 !important
   box-shadow: none !important
   overflow: hidden !important
-
-html.midiable-mobile .PanelPlaceholder.horizontal.closed,
-html.midiable-mobile .panel-placeholder.horizontal.closed
   flex-basis: 22px !important
-  width: 22px !important
   min-width: 22px !important
   max-width: 22px !important
+  min-height: 22px !important
+  max-height: 22px !important
+
+html.midiable-mobile .panel-placeholder.horizontal.closed
+  width: 22px !important
   height: auto !important
   min-height: 0 !important
   max-height: none !important
 
-html.midiable-mobile .PanelPlaceholder.vertical.closed,
 html.midiable-mobile .panel-placeholder.vertical.closed
-  flex-basis: 22px !important
-  height: 22px !important
-  min-height: 22px !important
-  max-height: 22px !important
   width: auto !important
-  min-width: 0 !important
   max-width: 100% !important
+  height: 22px !important
 
-html.midiable-mobile .PanelPlaceholder.horizontal.closed > header,
 html.midiable-mobile .panel-placeholder.horizontal.closed > header
   width: 22px !important
   min-width: 22px !important
@@ -234,10 +126,9 @@ html.midiable-mobile .panel-placeholder.horizontal.closed > header
   margin: 0 !important
   gap: 0 !important
   background: transparent !important
-  justify-content: flex-start !important
+  justify-content: center !important
   align-items: center !important
 
-html.midiable-mobile .PanelPlaceholder.vertical.closed > header,
 html.midiable-mobile .panel-placeholder.vertical.closed > header
   width: 100% !important
   min-width: 0 !important
@@ -253,29 +144,56 @@ html.midiable-mobile .panel-placeholder.vertical.closed > header
   align-items: center !important
   flex-direction: row !important
 
-html.midiable-mobile .PanelPlaceholder.closed > header > span,
-html.midiable-mobile .PanelPlaceholder.closed > header > .presence-dots,
-html.midiable-mobile .PanelPlaceholder.closed > div,
 html.midiable-mobile .panel-placeholder.closed > header > span,
 html.midiable-mobile .panel-placeholder.closed > header > .presence-dots,
 html.midiable-mobile .panel-placeholder.closed > div
   display: none !important
 
-html.midiable-mobile .PanelPlaceholder.closed > header > svg,
 html.midiable-mobile .panel-placeholder.closed > header > svg
   flex: 0 0 16px
   width: 16px
   height: 16px
   margin: 0
 
-/* Actual classes include the lowercase hooks added to the native components. */
-html.midiable-mobile .PanelResizer,
+// Let the arrangement take all remaining space; avoid desktop minimum widths
+// pushing Timeline, Mixer, or Devices outside the visible viewport.
+html.midiable-mobile section.workspace.horizontal > section.workspace.vertical
+  flex: 1 1 0
+  min-width: 0
+  min-height: 0
+
+/* Only legacy split layouts use a narrow Browser panel. The new mobile
+   Browser destination is a root panel and must fill the work area. */
+html.midiable-mobile section.workspace.horizontal > .panel-placeholder[data-panel-type="Browser"]:not(.closed)
+  flex: 0 1 22vw !important
+  min-width: 44px !important
+  max-width: min(260px, 34vw) !important
+
+html.midiable-mobile [data-panel-type="Timeline"]
+  min-width: 0
+  min-height: 94px
+
+html.midiable-mobile [data-panel-type="Editor"]
+  min-width: 0
+  min-height: 88px
+
+@media (max-width: 900px), (max-height: 520px)
+  html.midiable-mobile section.workspace.horizontal > .panel-placeholder[data-panel-type="Browser"]:not(.closed)
+    flex: 0 1 22vw !important
+    min-width: 44px !important
+    max-width: min(260px, 34vw) !important
+
+// The real resizer element itself receives Dragging events; keep its layout
+// footprint at zero while expanding only the touch hit target.
 html.midiable-mobile .panel-resizer
+  position: relative
+  flex: 0 0 0
+  min-width: 0
+  min-height: 0
   touch-action: none
   user-select: none
   -webkit-user-select: none
 
-html.midiable-mobile .PanelResizer::before,
 html.midiable-mobile .panel-resizer::before
   content: ""
   position: absolute
@@ -284,57 +202,39 @@ html.midiable-mobile .panel-resizer::before
   background: transparent
   pointer-events: auto
 
-html.midiable-mobile .PanelResizer.horizontal::before,
 html.midiable-mobile .panel-resizer.horizontal::before
   width: 38px
   height: 100%
   left: -18px
   top: 0
 
-html.midiable-mobile .PanelResizer.vertical::before,
 html.midiable-mobile .panel-resizer.vertical::before
   width: 100%
   height: 38px
   left: 0
   top: -18px
 
-html.midiable-mobile .PanelResizer::after,
 html.midiable-mobile .panel-resizer::after
   opacity: 0
   pointer-events: none
   background: transparent
   box-shadow: none
 
-html.midiable-mobile .PanelResizer:active::after,
 html.midiable-mobile .panel-resizer:active::after
   opacity: 1
   background: rgba(74, 220, 245, 0.92)
   box-shadow: 0 0 0 2px rgba(74, 220, 245, 0.14)
 
-/* Preserve open Browser sizing, but never constrain the active Analysis canvas. */
-@media (max-width: 900px), (max-height: 520px)
-  html.midiable-mobile .PanelPlaceholder[data-panel-type="Browser"]:not(.closed),
-  html.midiable-mobile .panel-placeholder[data-panel-type="Browser"]:not(.closed)
-    flex: 0 1 22vw !important
-    min-width: 44px !important
-    max-width: min(260px, 34vw) !important
-
-  html.midiable-mobile .PanelPlaceholder[data-panel-type="Mixer"].closed,
-  html.midiable-mobile .panel-placeholder[data-panel-type="Mixer"].closed,
-  html.midiable-mobile .PanelPlaceholder[data-panel-type="Devices"].closed,
-  html.midiable-mobile .panel-placeholder[data-panel-type="Devices"].closed
-    min-width: 22px !important
-    max-width: 22px !important
-
-/* Diagnostics must remain in the bottom status strip, never floating over clips. */
+// Diagnostics must not float over the arrangement.
 html.midiable-mobile .LatencyWarning,
 html.midiable-mobile .LatencyWarning *
   display: none !important
 
+// Direct-manipulation surfaces use OpenDAW's native pointer handlers. Disable
+// browser gesture takeover only where clips, regions, time-axis, or MIDI notes move.
+html.midiable-mobile canvas
+  touch-action: none
 
-/* Direct-manipulation surfaces use the DAW's pointer-capture drag handlers.
-   Leave the entire Timeline root touch-friendly; only disable browser gesture takeover
-   on the areas that actually move clips, regions, playhead, or MIDI notes. */
 html.midiable-mobile .time-axis canvas,
 html.midiable-mobile [data-scope="regions"],
 html.midiable-mobile [data-scope="clips"],
@@ -346,3 +246,491 @@ html.midiable-mobile .pitch-body canvas
 html.midiable-mobile [data-scope="regions"],
 html.midiable-mobile [data-scope="clips"]
   -webkit-tap-highlight-color: transparent
+
+/* Timeline gestures are handled by OpenDAW's pointer system. Keep the
+   arrangement scrollable while preserving pointer capture for clip editing. */
+html.midiable-mobile .time-axis,
+html.midiable-mobile .time-axis canvas
+  touch-action: none
+  overscroll-behavior: contain
+
+html.midiable-mobile .panel-placeholder > header
+  touch-action: manipulation
+
+html.midiable-mobile .panel-resizer
+  touch-action: none
+
+/* The Browser is a temporary tool surface on phones, not a permanent narrow
+   column. Keep its native header/tabs/search and overlay it over the workspace;
+   tapping the Browser shortcut again returns the full-width arrangement. */
+html.midiable-mobile section.workspace.horizontal > .panel-placeholder[data-panel-type="Browser"]:not(.closed)
+  position: absolute !important
+  inset: 0 auto 0 0
+  z-index: 50
+  flex: 0 0 auto !important
+  width: min(88vw, 320px) !important
+  min-width: min(88vw, 320px) !important
+  max-width: min(88vw, 320px) !important
+  height: 100% !important
+  min-height: 0 !important
+  max-height: 100% !important
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.4)
+  background: var(--color-panel-background)
+
+html.midiable-mobile section.workspace.horizontal > .panel-placeholder[data-panel-type="Browser"]:not(.closed) + .panel-resizer.horizontal
+  display: none !important
+
+
+/* Android WebView can report a desktop-sized CSS viewport or a fine pointer.
+   TouchLayout also recognizes the explicit midiable-mobile root class, so the
+   header/dock must respond to that same signal instead of depending on @media. */
+html.midiable-mobile .mobile-header .mobile-toolbar-primary,
+html.midiable-mobile .mobile-header .mobile-toolbar-secondary
+  display: flex
+  flex: 0 0 32px
+  align-items: center
+  width: 100%
+  min-width: 0
+  min-height: 32px
+  max-height: 32px
+  column-gap: 5px
+  overflow-x: auto
+  overflow-y: hidden
+  scrollbar-width: none
+  touch-action: pan-x
+  overscroll-behavior-x: contain
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary
+  flex-basis: 34px
+  min-height: 34px
+  max-height: 34px
+
+html.midiable-mobile .mobile-header .mobile-menu
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  height: 32px
+  padding: 0 6px
+  border: 1px solid rgba(255, 255, 255, 0.12)
+  border-radius: 6px
+  background: rgba(255, 255, 255, 0.03)
+
+html.midiable-mobile .mobile-header .mobile-menu > button
+  min-width: 0
+  min-height: 30px
+  padding: 0
+  font-size: 0.7rem
+  white-space: nowrap
+
+html.midiable-mobile .mobile-header .mobile-menu h5
+  display: flex
+  align-items: center
+  margin: 0
+  font-size: 0.7rem
+  white-space: nowrap
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  column-gap: 3px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup > *
+  flex: 0 0 30px
+  min-width: 30px
+  width: 30px
+  max-width: 30px
+  height: 30px
+  min-height: 30px
+  max-height: 30px
+  border-radius: 6px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup svg
+  width: 17px
+  height: 17px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-secondary .TimeStateDisplay
+  flex: 0 0 auto
+  align-items: center
+  min-width: max-content
+  column-gap: 4px
+  padding: 0 3px
+  border-right: 1px solid rgba(255, 255, 255, 0.10)
+
+html.midiable-mobile .mobile-header .mobile-history,
+html.midiable-mobile .mobile-header .mobile-midi-controls
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  column-gap: 4px
+
+html.midiable-mobile .mobile-header .mobile-history svg
+  width: 18px
+  height: 18px
+
+html.midiable-mobile .mobile-header .mobile-midi-controls
+  padding: 0 3px
+  border-left: 1px solid rgba(255, 255, 255, 0.10)
+
+html.midiable-mobile .mobile-header .mobile-midi-controls > *
+  flex: 0 0 30px
+  min-width: 30px
+  width: 30px
+  max-width: 30px
+  height: 30px
+  min-height: 30px
+
+html.midiable-mobile .mobile-header .mobile-midi-controls svg
+  max-width: 18px
+  max-height: 18px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-secondary .BaseFrequencyControl
+  flex: 0 0 auto
+  min-width: 24px
+  padding: 0 2px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-secondary > *
+  flex-shrink: 0
+
+html.midiable-mobile footer
+  z-index: 40
+  display: flex
+  flex: 0 0 40px
+  min-height: 40px
+  max-height: 40px
+  width: 100%
+  box-sizing: border-box
+  align-items: center
+  gap: 4px
+  padding: 2px 6px
+  overflow: hidden
+  background: var(--color-footer-background)
+  white-space: nowrap
+  font-size: 9px
+  line-height: 1
+
+html.midiable-mobile footer > div:not(.mobile-panel-shortcut)
+  display: none !important
+
+html.midiable-mobile footer .mobile-panel-shortcut
+  display: flex !important
+  flex: 1 1 0
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  row-gap: 2px
+  width: auto
+  min-width: 0
+  max-width: none
+  height: 40px
+  min-height: 40px
+  max-height: 40px
+  margin: 0
+  padding: 0
+  overflow: hidden
+  border: 1px solid rgba(255, 255, 255, 0.14)
+  border-radius: 8px
+  color: var(--color-bright)
+  background: rgba(255, 255, 255, 0.04)
+  touch-action: manipulation
+  -webkit-tap-highlight-color: transparent
+
+html.midiable-mobile footer .mobile-panel-shortcut > .label
+  order: 1
+  display: flex !important
+  align-items: center
+  justify-content: center
+  width: 100%
+  min-width: 0
+  max-width: 100%
+  overflow: hidden
+  padding: 0 1px
+  font-size: 9px
+  line-height: 1
+  text-align: center
+  white-space: nowrap
+  text-overflow: ellipsis
+
+html.midiable-mobile footer .mobile-panel-shortcut > .value
+  order: 0
+  display: flex
+  align-items: center
+  justify-content: center
+  flex: 0 0 19px
+  width: 100%
+  min-width: 0
+  height: 19px
+  margin: 0
+  overflow: hidden
+
+html.midiable-mobile footer .mobile-panel-shortcut > .value svg
+  display: block
+  width: 19px
+  height: 19px
+
+html.midiable-mobile footer .mobile-panel-shortcut[data-pressed]
+  color: var(--color-blue)
+  border-color: var(--color-blue)
+  background: rgba(66, 217, 232, 0.14)
+
+
+/* Mobile shell geometry must work even if the WebView reports desktop pointer/media. */
+html.midiable-mobile .mobile-toolbar-primary
+  display: flex
+  flex: 0 0 34px
+  align-items: center
+  width: 100%
+  min-width: 0
+  min-height: 34px
+  max-height: 34px
+  column-gap: 4px
+  overflow: hidden
+  touch-action: manipulation
+
+html.midiable-mobile .mobile-toolbar-primary .mobile-menu
+  flex: 0 0 auto
+
+html.midiable-mobile .mobile-toolbar-primary .TransportGroup
+  flex: 0 0 auto
+  display: flex
+  align-items: center
+  column-gap: 2px
+
+html.midiable-mobile .mobile-toolbar-primary .TransportGroup > *
+  flex: 0 0 28px
+  min-width: 28px
+  width: 28px
+  max-width: 28px
+  height: 30px
+  min-height: 30px
+  max-height: 30px
+
+html.midiable-mobile .mobile-toolbar-secondary
+  display: flex
+  flex: 0 0 32px
+  align-items: center
+  width: 100%
+  min-width: 0
+  min-height: 32px
+  max-height: 32px
+  column-gap: 5px
+  overflow-x: auto
+  overflow-y: hidden
+  scrollbar-width: none
+  touch-action: pan-x
+
+html.midiable-mobile .mobile-toolbar-secondary .TimeStateDisplay
+  display: none !important
+
+html.midiable-mobile .mobile-header .mobile-toolbar
+  gap: 2px
+
+
+/* Compact primary transport row is scoped to the explicit mobile root class,
+   since Android WebView may report desktop pointer/media dimensions. */
+html.midiable-mobile .mobile-toolbar-primary
+  display: flex
+  flex: 0 0 34px
+  align-items: center
+  width: 100%
+  min-width: 0
+  min-height: 34px
+  max-height: 34px
+  column-gap: 3px
+  overflow: hidden
+  touch-action: manipulation
+
+html.midiable-mobile .mobile-toolbar-primary .mobile-menu
+  flex: 0 0 auto
+
+html.midiable-mobile .mobile-toolbar-primary .TransportGroup
+  flex: 0 0 auto
+  display: flex
+  align-items: center
+  column-gap: 2px
+
+html.midiable-mobile .mobile-toolbar-primary .TransportGroup > *
+  flex: 0 0 26px
+  min-width: 26px
+  width: 26px
+  max-width: 26px
+  height: 30px
+  min-height: 30px
+  max-height: 30px
+
+html.midiable-mobile .mobile-toolbar-secondary
+  display: flex
+  flex: 0 0 32px
+  align-items: center
+  width: 100%
+  min-width: 0
+  min-height: 32px
+  max-height: 32px
+  column-gap: 4px
+  overflow-x: auto
+  overflow-y: hidden
+  scrollbar-width: none
+  touch-action: pan-x
+
+html.midiable-mobile .mobile-toolbar-primary .TimeStateDisplay
+  flex: 0 0 auto
+  column-gap: 0.15em
+
+html.midiable-mobile .mobile-toolbar-primary .MusicalUnitDisplay
+  flex: 0 0 auto
+  column-gap: 0.15em
+
+html.midiable-mobile .mobile-toolbar-primary .number-display
+  flex-shrink: 0
+
+
+/* Symmetric spacers center the transport controls while anchoring time to the
+   right edge, keeping the Timeline viewport as tall as possible. */
+html.midiable-mobile .mobile-toolbar-spacer
+  flex: 1 1 0
+  min-width: 2px
+  height: 1px
+
+html.midiable-mobile footer .mobile-panel-shortcut
+  height: 34px
+  min-height: 34px
+  max-height: 34px
+  border-radius: 6px
+
+html.midiable-mobile footer .mobile-panel-shortcut > .value
+  flex-basis: 16px
+  height: 16px
+
+html.midiable-mobile footer .mobile-panel-shortcut > .value svg
+  width: 16px
+  height: 16px
+
+html.midiable-mobile footer .mobile-panel-shortcut > .label
+  font-size: 8px
+
+
+/* FL Studio Mobile-inspired shell: hide the full-width top bar but keep its controls
+   in one floating transport pill anchored at the bottom. */
+html.midiable-mobile .mobile-header
+  position: static
+  z-index: 80
+  flex: 0 0 0 !important
+  width: 0
+  height: 0
+  min-height: 0 !important
+  max-height: 0 !important
+  padding: 0
+  border: 0
+  overflow: visible
+  background: transparent
+  pointer-events: none
+
+html.midiable-mobile .mobile-header .mobile-toolbar
+  display: contents
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary
+  position: fixed
+  z-index: 95
+  left: 50%
+  bottom: calc(8px + env(safe-area-inset-bottom, 0px))
+  transform: translateX(-50%)
+  display: flex
+  flex: 0 1 auto
+  align-items: center
+  gap: 4px
+  width: min(780px, calc(100vw - 12px))
+  min-width: 0
+  max-width: calc(100vw - 12px)
+  height: 44px
+  min-height: 44px
+  max-height: 44px
+  padding: 4px 8px
+  border: 1px solid rgba(255, 255, 255, 0.18)
+  border-radius: 999px
+  background: rgba(14, 17, 19, 0.94)
+  box-shadow: 0 5px 24px rgba(0, 0, 0, 0.42)
+  backdrop-filter: blur(14px)
+  overflow-x: auto
+  overflow-y: hidden
+  scrollbar-width: none
+  pointer-events: auto
+  touch-action: pan-x
+  overscroll-behavior-x: contain
+
+html.midiable-mobile .mobile-header .mobile-toolbar-secondary
+  display: none !important
+
+html.midiable-mobile .mobile-header .mobile-menu
+  flex: 0 0 auto
+  height: 30px
+  padding: 0 5px
+  border: 0
+  background: transparent
+
+html.midiable-mobile .mobile-header .mobile-menu h5
+  font-size: 10px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-history,
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-midi-controls
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  gap: 2px
+  padding: 0 4px
+  border-right: 1px solid rgba(255, 255, 255, 0.12)
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-history svg,
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-midi-controls svg
+  width: 16px
+  height: 16px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  gap: 2px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup > *
+  flex: 0 0 26px
+  width: 26px
+  min-width: 26px
+  max-width: 26px
+  height: 30px
+  min-height: 30px
+  max-height: 30px
+  border-radius: 7px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup svg
+  width: 16px
+  height: 16px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-toolbar-spacer
+  flex: 1 1 0
+  min-width: 1px
+  height: 1px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay
+  display: flex
+  flex: 0 0 auto
+  align-items: center
+  column-gap: 3px
+  padding: 0 4px
+  border-left: 1px solid rgba(255, 255, 255, 0.12)
+  overflow: visible
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > .number-display
+  flex: 0 0 20px
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(1)
+  font-size: 11px
+  line-height: 1em
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(2)
+  font-size: 7px
+  line-height: 1em
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .MetronomeControl
+  flex: 0 0 auto
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary > *
+  flex-shrink: 0

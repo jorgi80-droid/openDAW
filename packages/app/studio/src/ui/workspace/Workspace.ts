@@ -8,6 +8,8 @@ export namespace Workspace {
         name: string
         icon: IconSymbol
         content: Content
+        /** Alternative native-panel arrangement for touch/coarse-pointer viewports. */
+        touchContent?: Content
         hidden?: true
     }
     export type FlexLayoutConstrains = {

@@ -2,7 +2,7 @@
 @use "@/mixins"
 
 component
-  flex: 1
+  flex: 1 1 0
   width: 100%
   height: 100%
   min-width: 0
@@ -74,10 +74,166 @@ component
 // Mobile: keep workspace, touch controls and status in one bounded vertical layout.
 @media (max-width: 900px), (pointer: coarse)
   component
-    height: auto
+    height: 100%
     min-height: 0
     max-height: 100%
     flex: 1 1 0
 
     > main
       min-height: 0
+
+/* The root component is itself the flex child between fixed Header and Footer.
+   Keep main as its normal contents wrapper; making it flex adds an extra flex
+   layer that the native workspace tree was not designed around. */
+html.midiable-mobile component
+  flex: 1 1 0
+  min-width: 0
+  min-height: 0
+  max-height: 100%
+  overflow: hidden
+
+html.midiable-mobile component > main
+  display: contents
+
+html.midiable-mobile component > main > section.workspace
+  flex: 1 1 0
+  width: 100%
+  min-width: 0
+  min-height: 0
+  max-height: 100%
+  overflow: hidden
+
+/* A focused mobile tool is a root PanelState, not a split workspace.
+   PanelPlaceholder defaults to flex: 0 0 0 for sibling-managed desktop layouts;
+   as the single root child it must be allowed to fill the entire work area. */
+html.midiable-mobile component > main > .panel-placeholder
+  flex: 1 1 0 !important
+  width: 100%
+  min-width: 0
+  max-width: 100%
+  height: 100%
+  min-height: 0
+  max-height: 100%
+  overflow: hidden
+
+html.midiable-mobile section.workspace.vertical
+  flex: 1 1 0
+  min-width: 0
+  min-height: 0
+  max-height: 100%
+  overflow: hidden
+
+html.midiable-mobile section.workspace.vertical > .panel-placeholder
+  flex-shrink: 1
+  min-width: 0
+  min-height: 0
+  max-height: 100%
+
+
+/* Mobile-first presentation layer. The workspace panels remain genuine OpenDAW
+   panels; only shell geometry and navigation are replaced for touch screens. */
+html.midiable-mobile
+  --mobile-toolbar-height: 76px
+  --mobile-dock-height: 40px
+
+  body
+    height: 100dvh
+    min-height: 0
+    overflow: hidden
+    overscroll-behavior: none
+
+  main
+    min-height: 0
+    overflow: hidden
+
+  section.workspace
+    gap: 2px
+    min-width: 0
+    min-height: 0
+    overflow: hidden
+
+  section.workspace.vertical
+    min-height: 0
+    overflow: hidden
+
+  section.workspace .panel-placeholder
+    min-width: 0
+    min-height: 0
+    max-width: 100%
+    max-height: 100%
+    overflow: hidden
+
+  /* Touch panels switch as full-screen tools instead of squeezing Timeline,
+     Editor, Mixer and Devices into stacked rows. */
+  section.workspace.vertical > .panel-placeholder
+    flex: 1 1 0
+    min-height: 0
+    max-height: 100%
+
+  section.workspace.vertical > .panel-resizer
+    display: none
+
+  .mobile-header
+    position: relative
+    z-index: 30
+    flex: 0 0 var(--mobile-toolbar-height)
+    min-height: var(--mobile-toolbar-height)
+    max-height: var(--mobile-toolbar-height)
+    width: 100%
+    padding: 3px 4px
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08)
+    background: var(--color-header-background)
+    overflow: hidden
+
+  .mobile-header .desktop-toolbar
+    display: contents
+
+  .mobile-header .mobile-toolbar
+    display: flex
+    flex: 1 1 0
+    flex-direction: column
+    width: 100%
+    min-width: 0
+    min-height: 0
+    gap: 2px
+    overflow: hidden
+
+  footer
+    z-index: 40
+    flex: 0 0 var(--mobile-dock-height)
+    min-height: var(--mobile-dock-height)
+    max-height: var(--mobile-dock-height)
+    padding: 2px 6px
+    gap: 4px
+    border-top: 1px solid rgba(255, 255, 255, 0.10)
+    background: var(--color-footer-background)
+    overflow: hidden
+
+  footer .mobile-panel-shortcut
+    flex: 1 1 0
+    min-width: 0
+    max-width: none
+    flex-direction: column
+    justify-content: center
+    row-gap: 2px
+    height: 40px
+    min-height: 40px
+    max-height: 40px
+    border-radius: 8px
+
+  footer .mobile-panel-shortcut[data-pressed]
+    color: var(--color-blue)
+    border-color: var(--color-blue)
+    background: rgba(66, 217, 232, 0.14)
+
+  /* Each dock destination is already full-screen; the old split-layout
+     maximize control would create a conflicting layout state here. */
+  .panel-placeholder > header > .panel-maximize-button
+    display: none !important
+
+  /* Keep browser contents scrollable, but prevent page-level overscroll from
+     stealing timeline pinch/drag gestures. */
+  .panel-placeholder,
+  .panel-placeholder > *,
+  .panel-placeholder section
+    overscroll-behavior: contain

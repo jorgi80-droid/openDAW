@@ -29,7 +29,8 @@ export namespace PreferencesPageLabels {
             label: "Appearance",
             fields: {
                 "neutral-hue": "Neutral hue (0-360)",
-                "neutral-saturation": "Neutral saturation (%)"
+                "neutral-saturation": "Neutral saturation (%)",
+                "ui-scale": "UI Scale (75–150%)"
             }
         },
         "time-display": {
@@ -92,6 +93,12 @@ export namespace PreferencesPageLabels {
     }
 
     export const StudioSettingsOptions = {
+        "appearance": {
+            "ui-scale": [75, 80, 90, 100, 110, 120, 130, 140, 150].map(value => ({
+                value: value / 100,
+                label: `${value}%`
+            }))
+        },
         "time-display": {
             fps: FpsOptions.map(value => ({value, label: `${value}`}))
         },
