@@ -1,0 +1,36 @@
+name: NovaDAW UI prototype check
+
+on:
+  push:
+    branches: [novadaw-from-zero]
+  pull_request:
+    branches: [novadaw-from-zero]
+  workflow_dispatch:
+
+jobs:
+  check-ui:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate HTML structure and required screens
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("app-shell/index.html")
+          s = p.read_text()
+          required = [
+            'id="timelineScreen"', 'id="mixerScreen"', 'id="pianoScreen"',
+            'id="devicesScreen"', 'id="browserScreen"', 'id="play"',
+            'id="save"', 'id="export"', 'data-screen="timeline"',
+            'env(safe-area-inset-bottom)', 'function switchScreen'
+          ]
+          missing = [x for x in required if x not in s]
+          if missing:
+            raise SystemExit("Missing required UI contracts: " + ", ".join(missing))
+          # Structural checks for balanced script/style and screen IDs.
+          if s.count("<script>") != 1 or s.count("</script>") != 1:
+            raise SystemExit("Expected exactly one inline script block")
+          if s.count("<style>") != 1 or s.count("</style>") != 1:
+            raise SystemExit("Expected exactly one inline style block")
+          print("NovaDAW UI static checks passed.")
+          PY
