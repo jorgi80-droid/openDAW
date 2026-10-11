@@ -24,6 +24,13 @@ try {
     assert(dims.timeline.height > 160 && dims.timeline.width > 300, `timeline has usable dimensions at ${viewport.width}x${viewport.height}`);
     assert(dims.rowCount >= 6, `all six starter tracks rendered at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#timelineTools').isVisible(), `timeline edit rail is visible at ${viewport.width}x${viewport.height}`);
+    await page.locator('#timelineTools [data-timeline-tool="zoom-in"]').click();
+    assert(await page.locator('#zoomLabel').innerText() === '125%', `timeline zoom-in changes zoom state at ${viewport.width}x${viewport.height}`);
+    const zoomedWidth = await page.locator('#tracks .clip-canvas').first().evaluate(el=>el.getBoundingClientRect().width);
+    const viewportWidth = await page.locator('#tracks .cliparea').first().evaluate(el=>el.clientWidth);
+    assert(zoomedWidth > viewportWidth, `zoom expands clip canvas without resizing track label column at ${viewport.width}x${viewport.height}`);
+    await page.locator('#timelineTools [data-timeline-tool="zoom-out"]').click();
+    assert(await page.locator('#zoomLabel').innerText() === '100%', `timeline zoom-out restores baseline at ${viewport.width}x${viewport.height}`);
     const labelXBefore = await page.locator('#tracks .tracklabel').first().evaluate(el=>el.getBoundingClientRect().x);
     const clipScroll = page.locator('#tracks .cliparea').first();
     await clipScroll.evaluate(el=>{el.scrollLeft=100;el.dispatchEvent(new Event('scroll',{bubbles:true}));});
@@ -89,6 +96,13 @@ try {
     await page.waitForTimeout(80);
     const widthAfter = await page.locator('#tracks .clip').first().evaluate(el => el.style.width);
     assert(widthAfter !== widthBefore, `clip edge resizes duration at ${viewport.width}x${viewport.height}`);
+
+    const clipsBeforeSplit = await page.locator('#tracks .clip').count();
+    await page.locator('#timelineTools [data-timeline-tool="cut"]').click();
+    const splitTarget = page.locator('#tracks .clip').first();
+    const splitBox = await splitTarget.boundingBox();
+    await page.mouse.click(splitBox.x + splitBox.width*0.65, splitBox.y + splitBox.height/2);
+    assert(await page.locator('#tracks .clip').count() === clipsBeforeSplit + 1, `Split tool divides one clip at ${viewport.width}x${viewport.height}`);
 
     // FL Studio Mobile-style clip controls: one tap shows controls; a quick second tap enters the editor.
     const bassClip = page.locator('#tracks .clip[data-clip="c2"]');
