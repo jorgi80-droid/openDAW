@@ -17,7 +17,7 @@ const DevicesPanel = PanelState.create({
     icon: IconSymbol.Flask,
     panelType: PanelType.DevicePanel,
     notPopoutable: true,
-    constrains: {type: "flex", minSize: 72, maxSize: 320, flex: 0.25},
+    constrains: {type: "flex", minSize: 0, maxSize: 420, flex: 0.6},
     minimized: true
 })
 const NotepadPanel = PanelState.create({
