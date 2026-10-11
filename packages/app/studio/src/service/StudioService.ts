@@ -519,6 +519,8 @@ export class StudioService implements ProjectEnv {
                                 // where Timeline and Editor have their own active resizer.
                                 if (this.layout.screen.getValue() !== "piano") {
                                     this.switchScreen("piano")
+                                    requestAnimationFrame(() => requestAnimationFrame(() =>
+                                        this.panelLayout.showIfAvailable(PanelType.ContentEditor)))
                                 } else {
                                     this.panelLayout.showIfAvailable(PanelType.ContentEditor)
                                 }
