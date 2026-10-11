@@ -4,7 +4,6 @@ import {createElement, PageContext, PageFactory} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
 import {Html} from "@opendaw/lib-dom"
 import {WorkspaceBuilder} from "@/ui/workspace/WorkspaceBuilder"
-import {TouchDock} from "@/ui/TouchDock"
 
 const className = Html.adoptStyleSheet(css, "WorkspacePage")
 
@@ -17,5 +16,5 @@ export const WorkspacePage: PageFactory<StudioService> = ({lifecycle, service}: 
         screenLifeTime.terminate()
         WorkspaceBuilder.buildScreen(screenLifeTime, service.panelLayout, main, owner.getValue(), service.roomAwareness)
     }))
-    return <div className={className}>{main}<TouchDock service={service}/></div>
+    return <div className={className}>{main}</div>
 }
