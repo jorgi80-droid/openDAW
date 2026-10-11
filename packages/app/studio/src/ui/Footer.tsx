@@ -12,7 +12,6 @@ import {AudioData} from "@opendaw/lib-dsp"
 import {FooterItem} from "@/ui/FooterItem"
 import {EngineAddresses} from "@opendaw/studio-adapters"
 import {LatencyWarning} from "@/ui/LatencyWarning"
-import {TouchDock} from "@/ui/TouchDock"
 
 const className = Html.adoptStyleSheet(css, "footer")
 
@@ -21,9 +20,7 @@ type Construct = { lifecycle: Lifecycle, service: StudioService }
 export const Footer = ({lifecycle, service}: Construct) => {
     const {audioContext, buildInfo, engine, projectProfileService} = service
     return (
-        <>
-            <TouchDock service={service}/>
-            <footer className={className}>
+        <footer className={className}>
             <FooterItem title="Mode" onInit={({value}) => {
                 const offlineApp = location.hostname.endsWith("androidplatform.net")
                 const updateMode = () => value.textContent = offlineApp ? "Offline" : (navigator.onLine ? "Online" : "Offline")
@@ -202,7 +199,6 @@ export const Footer = ({lifecycle, service}: Construct) => {
             <div style={{color: Colors.cream.toString()}}>
                 <LocalLink href="/privacy">Privacy</LocalLink> · <LocalLink href="/imprint">Imprint</LocalLink>
             </div>
-            </footer>
-        </>
+        </footer>
     )
 }
