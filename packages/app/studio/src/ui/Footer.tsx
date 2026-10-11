@@ -13,9 +13,9 @@ import {FooterItem} from "@/ui/FooterItem"
 import {EngineAddresses} from "@opendaw/studio-adapters"
 import {LatencyWarning} from "@/ui/LatencyWarning"
 import {PanelType} from "@/ui/workspace/PanelType"
-import {toggleTouchPanel} from "@/ui/workspace/TouchPanelActions"
 import {Icon} from "@/ui/components/Icon"
 import {IconSymbol} from "@opendaw/studio-enums"
+import {createMobileStudioPort} from "@/service/MobileStudioPort"
 
 const className = Html.adoptStyleSheet(css, "footer")
 
@@ -23,10 +23,11 @@ type Construct = { lifecycle: Lifecycle, service: StudioService }
 
 export const Footer = ({lifecycle, service}: Construct) => {
     const {audioContext, buildInfo, engine, projectProfileService} = service
+    const mobileStudio = createMobileStudioPort(service)
     return (
         <footer className={className} onInit={element => {
             const sync = () => {
-                const activeScreen = service.layout.screen.getValue()
+                const activeScreen = mobileStudio.activeScreen.getValue()
                 const mapping: Record<string, string> = {
                     "timeline-shortcut": "default",
                     "browser-shortcut": "browser",
@@ -39,7 +40,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                     button.toggleAttribute("data-pressed", screen === activeScreen)
                 })
             }
-            lifecycle.own(service.layout.screen.subscribe(sync))
+            lifecycle.own(mobileStudio.activeScreen.subscribe(sync))
             requestAnimationFrame(sync)
         }}>
             <FooterItem title="Mode" onInit={({value}) => {
@@ -81,12 +82,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Open Timeline")
-                            const open = () => {
-                                service.switchScreen("default")
-                                requestAnimationFrame(() => {
-                                    component.setAttribute("aria-current", "page")
-                                })
-                            }
+                            const open = () => mobileStudio.navigate("timeline")
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", open),
                                 Events.subscribe(component, "keydown", event => {
@@ -102,10 +98,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Sample Browser")
-                            const toggle = () => {
-                                toggleTouchPanel(service, PanelType.BrowserPanel)
-                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "browser"))
-                            }
+                            const toggle = () => mobileStudio.navigate("browser")
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -121,10 +114,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Mixer")
-                            const toggle = () => {
-                                toggleTouchPanel(service, PanelType.Mixer)
-                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "mixer"))
-                            }
+                            const toggle = () => mobileStudio.navigate("mixer")
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -140,10 +130,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Editor / Piano Roll")
-                            const toggle = () => {
-                                toggleTouchPanel(service, PanelType.ContentEditor)
-                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "piano"))
-                            }
+                            const toggle = () => mobileStudio.navigate("editor")
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
@@ -159,10 +146,7 @@ export const Footer = ({lifecycle, service}: Construct) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
                             component.setAttribute("aria-label", "Toggle Devices / Effects")
-                            const toggle = () => {
-                                toggleTouchPanel(service, PanelType.DevicePanel)
-                                requestAnimationFrame(() => component.toggleAttribute("data-pressed", service.layout.screen.getValue() === "modulation"))
-                            }
+                            const toggle = () => mobileStudio.navigate("devices")
                             lifecycle.ownAll(
                                 Events.subscribe(component, "click", toggle),
                                 Events.subscribe(component, "keydown", event => {
