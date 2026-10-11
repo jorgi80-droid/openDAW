@@ -57,7 +57,7 @@ const DesktopMixerPanel = PanelState.create({
     icon: IconSymbol.Mixing,
     panelType: PanelType.Mixer,
     notMinimizable: true,
-    constrains: {type: "flex", minSize: 20, flex: 1}
+    constrains: {type: "flex", minSize: 0, flex: 1}
 })
 const MobileMixerPanel = PanelState.create({
     type: "panel",
