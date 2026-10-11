@@ -322,11 +322,12 @@ export const Footer = ({lifecycle, service}: Construct) => {
                 <button type="button" className="mobile-edge-handle" aria-label="Open workspace tabs"
                         aria-expanded="false"
                         onclick={event => {
-                            const dock = event.currentTarget.closest(".mobile-edge-dock") as HTMLElement | null
+                            const handle = event.currentTarget as HTMLButtonElement
+                            const dock = handle.closest(".mobile-edge-dock") as HTMLElement | null
                             if (dock === null) {return}
                             const open = !dock.classList.contains("open")
                             dock.classList.toggle("open", open)
-                            event.currentTarget.setAttribute("aria-expanded", String(open))
+                            handle.setAttribute("aria-expanded", String(open))
                         }}>
                     <Icon symbol={IconSymbol.Panel}/>
                 </button>
