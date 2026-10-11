@@ -46,8 +46,7 @@ export const App = (service: StudioService) => {
                     // rather than showing 404 or mutating browser history behind the Router's back.
                     if (context.path === "/index.html") {
                         history.replaceState(null, "", "/create")
-                        if (!service.hasProfile) {void service.newProject()}
-                        service.layout.screen.setValue("default")
+                        void service.prepareStartupWorkspace()
                         return WorkspacePage({...context, service})
                     }
                     return (
