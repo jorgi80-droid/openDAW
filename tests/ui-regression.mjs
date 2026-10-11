@@ -42,6 +42,15 @@ try {
       assert(await page.locator(`#${id}`).isVisible(), `${route} route is visible at ${viewport.width}x${viewport.height}`);
       assert(await page.locator('.screen:visible').count() === 1, `only ${route} is visible at ${viewport.width}x${viewport.height}`);
     }
+    // Compact UI preferences must be accessible and apply without route loss.
+    await page.locator('#menu').click();
+    assert(await page.locator('#settingsOverlay').isVisible(), `menu opens Settings at ${viewport.width}x${viewport.height}`);
+    await page.locator('#uiScale').fill('80');
+    assert(await page.locator('#uiScaleValue').innerText() === '80%', `UI Scale control updates its value at ${viewport.width}x${viewport.height}`);
+    await page.locator('#uiTheme').selectOption('midnight');
+    assert(await page.locator('html').getAttribute('data-theme') === 'midnight', `theme selection updates UI preference at ${viewport.width}x${viewport.height}`);
+    await page.locator('#closeSettingsDone').click();
+    assert(await page.locator('#settingsOverlay').isHidden(), `Settings closes cleanly at ${viewport.width}x${viewport.height}`);
     await page.locator('#browserTabs button[data-cat="Samples"]').click();
     assert(await page.locator('#samples .sample').count() === 10, `Browser Samples has 10 items at ${viewport.width}x${viewport.height}`);
     const sampleRowsClean = await page.locator('#samples .sample').evaluateAll(rows => rows.every(row => {
@@ -158,7 +167,7 @@ try {
     assert(noteLeftAfter !== noteLeftBefore && noteTopAfter !== noteTopBefore, `dragging a Piano Roll note changes pitch and time at ${viewport.width}x${viewport.height}`);
     const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
     assert(notesInside, `all Piano Roll notes remain inside note grid at ${viewport.width}x${viewport.height}`);
-    assert(await page.locator('#velocity span').count() === 16, `velocity bars remain in separate lane at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#velocity span').count() === 32, `velocity bars remain in separate lane at ${viewport.width}x${viewport.height}`);
     assert(pageErrors.length === 0, `no JavaScript exceptions at ${viewport.width}x${viewport.height}${pageErrors.length ? ': '+pageErrors.join('; ') : ''}`);
     for (const [route,id] of routes) {
       await page.locator('.dock button[data-screen="'+route+'"]').click();
