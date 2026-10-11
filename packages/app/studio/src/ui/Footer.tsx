@@ -24,7 +24,23 @@ type Construct = { lifecycle: Lifecycle, service: StudioService }
 export const Footer = ({lifecycle, service}: Construct) => {
     const {audioContext, buildInfo, engine, projectProfileService} = service
     return (
-        <footer className={className}>
+        <footer className={className} onInit={element => {
+            const sync = () => {
+                const activeScreen = service.layout.screen.getValue()
+                const mapping: Record<string, string> = {
+                    "timeline-shortcut": "default",
+                    "mixer-shortcut": "mixer",
+                    "editor-shortcut": "piano",
+                    "devices-shortcut": "modulation"
+                }
+                element.querySelectorAll<HTMLElement>(".mobile-panel-shortcut").forEach(button => {
+                    const screen = Object.entries(mapping).find(([key]) => button.classList.contains(key))?.[1]
+                    button.toggleAttribute("data-pressed", screen === activeScreen)
+                })
+            }
+            lifecycle.own(service.layout.screen.subscribe(sync))
+            requestAnimationFrame(sync)
+        }}>
             <FooterItem title="Mode" onInit={({value}) => {
                 const offlineApp = location.hostname.endsWith("androidplatform.net")
                 const updateMode = () => value.textContent = offlineApp ? "Offline" : (navigator.onLine ? "Online" : "Offline")
