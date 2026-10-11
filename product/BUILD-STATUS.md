@@ -16,6 +16,7 @@
 - [x] Independent Android wrapper source scaffolded under `android-wrapper-novadaw/` with package id `com.novadaw.mobile`.
 - [x] APK build script added at `scripts/build-novadaw-apk.sh`.
 - [ ] APK installed and audio-tested on device.
+- [ ] Android APK CI currently being rerun after fixing SDK setup; first attempt failed because the setup action requested obsolete SDK package name `tools`.
 
 The current shell is an interactive UI prototype. Playback and record buttons are deliberately labelled as UI demo and do not yet produce/record sound. Timeline clips and samples are demo data. The independent Android wrapper is source-only at this milestone; no APK is attached.
 
