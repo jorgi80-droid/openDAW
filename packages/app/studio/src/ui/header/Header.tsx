@@ -38,7 +38,6 @@ const ScreenShortcutKeys: Record<Workspace.ScreenKeys, keyof typeof GlobalShortc
     "mixer": "workspace-screen-mixer",
     "modulation": "workspace-screen-modulation",
     "piano": "workspace-screen-piano",
-    "project": "workspace-screen-project",
     "code": "workspace-screen-default",
     "tap": "workspace-screen-tap"
 }
