@@ -2,6 +2,15 @@
 
 component
   height: 14px
+  min-height: 14px
+  overflow: hidden
+
+@media (max-width: 900px), (pointer: coarse)
+  component
+    height: 0
+    min-height: 0
+    max-height: 0
+    overflow: hidden
   display: grid
   grid-template-columns: subgrid
   grid-column: 1 / -1
