@@ -109,6 +109,72 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
  .mixergrid{grid-template-columns:repeat(6,minmax(120px,1fr))}
 }
 
+
+/* Single-workspace contract: hidden routes must never participate in layout. */
+.app{height:100dvh;min-height:0;grid-template-rows:52px 42px minmax(0,1fr) 54px;padding:0;overflow:hidden}
+.top{min-height:0;padding:3px 8px}
+.subbar{min-height:0;padding:3px 8px}
+.workspace{height:100%;min-height:0;overflow:hidden;padding:6px}
+.screen{display:none!important;height:100%;min-height:0;width:100%;overflow:hidden}
+.screen:not([hidden]){display:block!important}
+#timelineScreen:not([hidden]){display:flex!important;flex-direction:column}
+#timelineScreen>.timeline{flex:1 1 0;height:auto;min-height:0}
+#timelineScreen>.addtrack{flex:0 0 34px;align-self:flex-start;width:auto;min-height:32px;margin-top:5px}
+#timelineScreen .tracks{min-height:0;overflow:auto;overscroll-behavior:contain}
+#timelineScreen .trackrow{min-height:54px}
+#timelineScreen .clip{height:38px;top:7px}
+#timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(110px,15vw,165px) minmax(520px,1fr)}
+#timelineScreen .ruler{overflow:hidden}
+#timelineScreen .bars{min-width:520px}
+#timelineScreen .cliparea{min-width:520px}
+#timelineScreen .tracklabel{padding:5px 7px;gap:4px}
+#timelineScreen .trackname{font-size:12px}
+#timelineScreen .trackbuttons button{min-height:22px}
+.dock{min-height:0;padding:4px 8px;gap:6px;overflow:hidden}
+.dock button{max-width:none;min-width:0;min-height:44px;height:100%;flex-direction:row;gap:6px;padding:4px 6px;font-size:12px}
+.workspace-dock-symbol{width:18px;height:18px;flex:0 0 18px}
+#timelineScreen[hidden],.screen[hidden]{display:none!important}
+#mixerScreen:not([hidden]),#devicesScreen:not([hidden]),#browserScreen:not([hidden]),#pianoScreen:not([hidden]){display:block!important}
+#mixerScreen>.panel{height:100%;overflow:auto}
+#mixerScreen .mixergrid{grid-template-columns:repeat(6,minmax(130px,1fr));gap:7px}
+#mixerScreen .channel{min-height:0;height:100%;max-height:190px;display:grid;grid-template-columns:minmax(62px,1fr) 12px minmax(64px,1fr);grid-template-rows:auto auto auto auto;align-items:center;gap:4px;padding:7px}
+#mixerScreen .channel>strong{grid-column:1/-1}
+#mixerScreen .channel .meter{grid-column:2;grid-row:2 / span 2;height:46px;width:12px}
+#mixerScreen .channel>label:nth-of-type(1){grid-column:1;grid-row:2}
+#mixerScreen .channel>input:nth-of-type(1){grid-column:1;grid-row:3;min-width:0}
+#mixerScreen .channel>label:nth-of-type(2){grid-column:3;grid-row:2}
+#mixerScreen .channel>input:nth-of-type(2){grid-column:3;grid-row:3;min-width:0}
+#mixerScreen .channel>div:last-child{grid-column:1/-1;justify-content:center}
+#pianoScreen>.panel{height:100%;display:flex;flex-direction:column;overflow:hidden}
+#pianoScreen .pianowrap{height:auto;flex:1;min-height:0;grid-template-rows:minmax(0,1fr) 54px;overflow:auto}
+#pianoScreen .pianogrid{grid-template-rows:repeat(12,minmax(16px,1fr))}
+#pianoScreen .velocity{min-height:54px}
+#devicesScreen:not([hidden])>.panel,#browserScreen:not([hidden])>.panel{height:100%;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+#devicesScreen .devicegrid{flex:1;min-height:0;overflow:auto;align-content:start;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+#browserScreen .browserlayout{height:auto;flex:1;min-height:0;overflow:hidden;grid-template-columns:clamp(90px,14vw,150px) minmax(0,1fr)}
+#browserScreen .categories,#browserScreen .samplelist{min-height:0;overflow:auto;overscroll-behavior:contain}
+#browserScreen .categories{padding-right:2px}
+#browserScreen .sample{min-height:48px}
+#browserScreen .paneltitle,#devicesScreen .paneltitle{flex:0 0 auto}
+#browserScreen .muted{flex:0 0 auto}
+@media(max-height:480px){
+ .app{grid-template-rows:43px 34px minmax(0,1fr) 48px}
+ .top{gap:5px}.subbar{gap:5px}
+ .clip{height:32px!important;top:5px!important;padding:3px 5px}
+ #timelineScreen .trackrow{min-height:45px}
+ #timelineScreen .trackbuttons button{min-height:19px;padding:0 4px}
+ .dock button{min-height:40px;font-size:11px;gap:4px}
+ #mixerScreen .channel{max-height:145px}
+ #mixerScreen .channel button{min-height:28px}
+ #devicesScreen .panel,#browserScreen .panel,#mixerScreen .panel,#pianoScreen>.panel{padding:7px}
+ #devicesScreen .devicegrid{grid-template-columns:repeat(auto-fit,minmax(175px,1fr))}
+ .knob{padding:4px}.dial{width:30px;height:30px;margin-bottom:3px}
+}
+@media(orientation:portrait){
+ body:before{content:"Putar perangkat ke Landscape untuk menggunakan NovaDAW";position:fixed;inset:0;z-index:999;background:#090d12;color:#eaf3fc;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;font:600 18px/1.5 system-ui}
+ .app{visibility:hidden}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -162,7 +228,7 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function notify(message){const el=$('toast');el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2600);}
 function snapshot(){undoStack.push(JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
-function switchScreen(name){if(!screens[name])return;currentScreen=name;Object.keys(screens).forEach(k=>$(screens[k]).hidden=k!==name);document.querySelectorAll('.dock button').forEach(b=>b.classList.toggle('active',b.dataset.screen===name));}
+function switchScreen(name){if(!screens[name])return;currentScreen=name;Object.keys(screens).forEach(k=>{const el=$(screens[k]);el.hidden=k!==name;el.setAttribute('aria-hidden',k!==name?'true':'false');});document.querySelectorAll('.dock button').forEach(b=>{const active=b.dataset.screen===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false');});}
 function renderTracks(){
  const root=$('tracks');root.innerHTML='';
  project.tracks.forEach((t,index)=>{
