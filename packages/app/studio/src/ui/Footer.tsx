@@ -60,46 +60,8 @@ export const Footer = ({lifecycle, service}: Construct) => {
                         }}/>
 
 
-                        <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
-            <FooterItem title="Latency" minWidth="6ch"
-                        onInit={({component, value}) => {
-                            const threshold = () =>
-                                StudioPreferences.settings.engine["latency-warning-threshold"] / 1000.0
-                            const state: { warning: Nullable<HTMLElement>, dismissed: boolean } =
-                                {warning: null, dismissed: false}
-                            const hide = () => {
-                                state.warning?.remove()
-                                state.warning = null
-                            }
-                            const show = () => {
-                                if (isNotNull(state.warning) || state.dismissed) {return}
-                                // Native Android is a touch DAW even when WebView reports a fine pointer.
-                                // Never place a floating latency warning over the Timeline or clip controls.
-                                if (location.hostname.endsWith("androidplatform.net") ||
-                                    window.matchMedia("(pointer: coarse)").matches) {return}
-                                const warning: HTMLElement = (
-                                    <LatencyWarning anchor={component} dismiss={() => {
-                                        state.dismissed = true
-                                        hide()
-                                    }}/>
-                                )
-                                state.warning = warning
-                                component.appendChild(warning)
-                            }
-                            lifecycle.ownAll(
-                                Runtime.scheduleInterval(() => {
-                                    const outputLatency = audioContext.outputLatency
-                                    if (outputLatency > 0.0) {
-                                        value.textContent = `${(outputLatency * 1000.0).toFixed(1)}ms`
-                                        value.style.color = outputLatency > threshold()
-                                            ? Colors.orange.toString() : ""
-                                    }
-                                    if (outputLatency > threshold()) {show()} else {hide()}
-                                }, 1000),
-                                {terminate: hide}
-                            )
-                        }}>N/A</FooterItem>
-            <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
+
+                        <FooterItem className="mobile-panel-shortcut browser-shortcut" title="Browser"
                         onInit={({component}) => {
                             component.setAttribute("role", "button")
                             component.setAttribute("tabindex", "0")
@@ -189,6 +151,45 @@ export const Footer = ({lifecycle, service}: Construct) => {
                                 })
                             )
                         }}><Icon symbol={IconSymbol.Flask}/></FooterItem>
+            <FooterItem title="SampleRate">{audioContext.sampleRate}</FooterItem>
+            <FooterItem title="Latency" minWidth="6ch"
+                        onInit={({component, value}) => {
+                            const threshold = () =>
+                                StudioPreferences.settings.engine["latency-warning-threshold"] / 1000.0
+                            const state: { warning: Nullable<HTMLElement>, dismissed: boolean } =
+                                {warning: null, dismissed: false}
+                            const hide = () => {
+                                state.warning?.remove()
+                                state.warning = null
+                            }
+                            const show = () => {
+                                if (isNotNull(state.warning) || state.dismissed) {return}
+                                // Native Android is a touch DAW even when WebView reports a fine pointer.
+                                // Never place a floating latency warning over the Timeline or clip controls.
+                                if (location.hostname.endsWith("androidplatform.net") ||
+                                    window.matchMedia("(pointer: coarse)").matches) {return}
+                                const warning: HTMLElement = (
+                                    <LatencyWarning anchor={component} dismiss={() => {
+                                        state.dismissed = true
+                                        hide()
+                                    }}/>
+                                )
+                                state.warning = warning
+                                component.appendChild(warning)
+                            }
+                            lifecycle.ownAll(
+                                Runtime.scheduleInterval(() => {
+                                    const outputLatency = audioContext.outputLatency
+                                    if (outputLatency > 0.0) {
+                                        value.textContent = `${(outputLatency * 1000.0).toFixed(1)}ms`
+                                        value.style.color = outputLatency > threshold()
+                                            ? Colors.orange.toString() : ""
+                                    }
+                                    if (outputLatency > threshold()) {show()} else {hide()}
+                                }, 1000),
+                                {terminate: hide}
+                            )
+                        }}>N/A</FooterItem>
 <FooterItem title="CPU Load" minWidth="4ch"
                         onInit={({component, value}) => {
                             lifecycle.own(engine.preferences.catchupAndSubscribe(enabled => {
