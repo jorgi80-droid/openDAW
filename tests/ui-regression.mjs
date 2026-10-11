@@ -171,7 +171,13 @@ try {
     await page.mouse.up();
     await page.waitForTimeout(80);
     const noteLeftAfter = await page.locator('#pianogrid .note').last().evaluate(el=>el.style.left), noteTopAfter=await page.locator('#pianogrid .note').last().evaluate(el=>el.style.top);
-    const dragDebug = await page.evaluate(()=>window.__pianoDragDebug||null);
+    const dragDebug = await page.evaluate(()=>{
+ const el=document.querySelector('#pianogrid .note-layer .note:last-child');
+ const box=el?.getBoundingClientRect();
+ const center=box?{x:box.left+box.width/2,y:box.top+box.height/2}:null;
+ const top=center?document.elementFromPoint(center.x,center.y):null;
+ return {trace:window.__pianoDragDebug||null,hidden:!el||!el.isConnected,box:center,topTag:top?.tagName,topClass:top?.className,topNote:!!top?.closest?.('.note'),pointerEvents:el?getComputedStyle(el).pointerEvents:null,zIndex:el?getComputedStyle(el).zIndex:null,layer:document.querySelector('#pianogrid .note-layer')?.getBoundingClientRect().toJSON()};
+});
     assert(noteLeftAfter !== noteLeftBefore && noteTopAfter !== noteTopBefore, `dragging a Piano Roll note changes pitch and time at ${viewport.width}x${viewport.height}; before=${noteLeftBefore}/${noteTopBefore}, after=${noteLeftAfter}/${noteTopAfter}, events=${JSON.stringify(dragDebug)}`);
     const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid .note-layer').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
     assert(notesInside, `all Piano Roll notes remain inside note grid at ${viewport.width}x${viewport.height}`);
