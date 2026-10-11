@@ -81,7 +81,9 @@ export const Header = ({lifecycle, service}: Construct) => {
                                 <h5>OpenDAW</h5>
                             </MenuButton>
                         </div>
+                        <div className="mobile-toolbar-spacer"/>
                         {transport}
+                        <div className="mobile-toolbar-spacer"/>
                         {timecodes}
                     </div>
                     <div className="mobile-toolbar-secondary">
