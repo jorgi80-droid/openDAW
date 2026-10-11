@@ -164,3 +164,100 @@ component
     color: var(--color-blue)
     border-color: var(--color-blue)
     background: rgba(66, 217, 232, 0.14)
+
+
+/* Mobile footer becomes an overlay layer only; navigation is opened from the
+   narrow handle at the right bezel instead of a permanent full-width dock. */
+html.midiable-mobile footer
+  position: static
+  flex: 0 0 0 !important
+  width: 0
+  height: 0
+  min-height: 0 !important
+  max-height: 0 !important
+  padding: 0 !important
+  margin: 0
+  border: 0
+  overflow: visible
+  background: transparent
+  pointer-events: none
+
+html.midiable-mobile footer > .mobile-panel-shortcut
+  display: none !important
+
+html.midiable-mobile .mobile-edge-dock
+  position: fixed
+  z-index: 90
+  top: 50%
+  right: 0
+  display: flex
+  align-items: center
+  transform: translateY(-50%)
+  pointer-events: auto
+
+html.midiable-mobile .mobile-edge-handle
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 22px
+  height: 68px
+  padding: 0
+  border: 1px solid rgba(255, 255, 255, 0.18)
+  border-right: 0
+  border-radius: 12px 0 0 12px
+  color: var(--color-bright)
+  background: rgba(25, 30, 33, 0.92)
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.28)
+  touch-action: manipulation
+
+html.midiable-mobile .mobile-edge-handle svg
+  width: 16px
+  height: 16px
+
+html.midiable-mobile .mobile-edge-panel
+  display: none
+  flex-direction: column
+  gap: 5px
+  margin-right: 7px
+  padding: 6px
+  border: 1px solid rgba(255, 255, 255, 0.14)
+  border-radius: 12px
+  background: rgba(20, 24, 27, 0.96)
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4)
+  backdrop-filter: blur(12px)
+
+html.midiable-mobile .mobile-edge-dock.open .mobile-edge-panel
+  display: flex
+
+html.midiable-mobile .mobile-edge-panel > button
+  display: flex
+  flex-direction: column
+  align-items: center
+  justify-content: center
+  gap: 3px
+  width: 70px
+  min-width: 70px
+  height: 48px
+  padding: 3px 2px
+  border: 1px solid rgba(255, 255, 255, 0.10)
+  border-radius: 8px
+  color: var(--color-bright)
+  background: rgba(255, 255, 255, 0.045)
+  font-size: 9px
+  line-height: 1.1
+  text-align: center
+  touch-action: manipulation
+
+html.midiable-mobile .mobile-edge-panel > button svg
+  width: 18px
+  height: 18px
+
+html.midiable-mobile .mobile-edge-panel > button[aria-pressed="true"]
+  color: var(--color-blue)
+  border-color: var(--color-blue)
+  background: rgba(66, 217, 232, 0.14)
+
+@media (orientation: portrait)
+  html.midiable-mobile .mobile-edge-panel > button
+    width: 58px
+    min-width: 58px
