@@ -42,3 +42,10 @@ component
 
     &.primary-tracks-visible
       grid-template-rows: auto auto minmax(0, 1fr) 0px
+
+    // The desktop clip-launch rack is a second column set, not the arrangement.
+    // On phones its controls otherwise overflow fixed 0px columns and sit on top
+    // of track names. Hide only the launcher header; keep the original grid
+    // columns and per-track clips/regions intact.
+    > div:nth-child(2)
+      display: none
