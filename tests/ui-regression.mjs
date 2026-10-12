@@ -82,6 +82,8 @@ try {
     await page.locator('#devTabs button[data-cat="Effect"]').click();
     assert(await page.locator('#devices .device-option').count() === 6, `Devices Effect tab lists 6 effects at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#devices .device-editor').isVisible(), `Devices has one focused editor at ${viewport.width}x${viewport.height}`);
+    const deviceKeyboardSeparated=await page.locator('#devices .device-editor').evaluate(el=>{const main=el.querySelector('.device-editor-main'),keyboard=el.querySelector('.mini-keyboard');if(!main||!keyboard)return true;return main.getBoundingClientRect().bottom<=keyboard.getBoundingClientRect().top+2;});
+    assert(deviceKeyboardSeparated, `Devices editor controls and keyboard do not overlap at ${viewport.width}x${viewport.height}`);
     const deviceLayout = await page.locator('#devices').evaluate(el => { const r=el.getBoundingClientRect(); const editor=el.querySelector('.device-editor')?.getBoundingClientRect(); const picker=el.querySelector('.device-picker')?.getBoundingClientRect(); return {height:r.height,editorHeight:editor?.height||0,pickerHeight:picker?.height||0}; });
     assert(deviceLayout.height > 130 && deviceLayout.editorHeight >= deviceLayout.height-4 && deviceLayout.pickerHeight >= deviceLayout.height-4, `Devices rack and editor fill the available panel at ${viewport.width}x${viewport.height}`);
     await page.locator('#devices .device-page-tabs button[data-device-page=\"TIME\"]').click();
