@@ -1526,7 +1526,11 @@ $('tracks').addEventListener('click',e=>{
     snapshot();
     const pasted={...JSON.parse(JSON.stringify(clipboardClip.clip)),id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start:target.start+target.duration,label:(clipboardClip.clip.label||'Clip')+' Copy'};
     if(pasted.start+pasted.duration>32)pasted.start=Math.max(0,32-pasted.duration);
-    targetTrack.clips.push(pasted);selectedTrack=ownerIndex;selectedClip=pasted.id;clipboardClip.pendingPaste=false;
+    if(clipboardClip.mode==='move'){
+     const source=project.tracks[clipboardClip.sourceTrack];
+     if(source)source.clips=source.clips.filter(c=>c.id!==clipboardClip.clip.id);
+    }
+    targetTrack.clips.push(pasted);selectedTrack=ownerIndex;selectedClip=pasted.id;clipboardClip.pendingPaste=false;clipboardClip.mode='copy';
     renderTracks();updateTimelineTools();hideClipContext();notify('Clip ditempel pada track '+targetTrack.name);return;
    }
   }
@@ -1780,8 +1784,8 @@ $('timelineTools').addEventListener('click',e=>{
  else if(tool==='cut-clip'){
   const found=project.tracks.flatMap((t,ti)=>t.clips.map(c=>({t,ti,c}))).find(x=>x.c.id===selectedClip);
   if(!found){notify('Pilih clip dulu');return}
-  clipboardClip={clip:JSON.parse(JSON.stringify(found.c)),sourceTrack:found.ti,pendingPaste:true};
-  snapshot();found.t.clips=found.t.clips.filter(c=>c.id!==selectedClip);selectedClip=null;renderTracks();notify('Clip dipotong. Ketuk clip tujuan untuk menempel');
+  clipboardClip={clip:JSON.parse(JSON.stringify(found.c)),sourceTrack:found.ti,pendingPaste:true,mode:'move'};
+  notify('Clip siap dipindahkan. Ketuk clip tujuan untuk menempel');
  }
  else if(tool==='paste'){
   if(!clipboardClip){notify('Clipboard clip kosong');return}
@@ -1819,8 +1823,8 @@ $('clipContextMenu').addEventListener('click',e=>{
   track.clips.push(copy);selectedClip=copy.id;clipboardClip={clip:JSON.parse(JSON.stringify(copy)),sourceTrack:trackIndex,pendingPaste:false};hideClipContext();renderTracks();updateTimelineTools();notify('Clip disalin; ketuk clip tujuan untuk menempel');return
  }
  if(action==='cut'){
-  clipboardClip={clip:JSON.parse(JSON.stringify(clip)),sourceTrack:trackIndex,pendingPaste:true};
-  snapshot();track.clips=track.clips.filter(c=>c.id!==id);selectedClip=null;hideClipContext();renderTracks();updateTimelineTools();notify('Clip dipotong; ketuk clip tujuan untuk menempel');return
+  clipboardClip={clip:JSON.parse(JSON.stringify(clip)),sourceTrack:trackIndex,pendingPaste:true,mode:'move'};
+  snapshot();hideClipContext();notify('Clip siap dipindahkan; ketuk clip tujuan untuk menempel');return
  }
  if(action==='paste'){
   if(!clipboardClip){notify('Clipboard clip kosong');return}
