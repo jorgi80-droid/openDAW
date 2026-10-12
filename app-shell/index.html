@@ -1618,8 +1618,15 @@ $('tracks').addEventListener('click',e=>{
   const found=project.tracks[selectedTrack]?.clips.find(c=>c.id===id);
   if(!found)return;
   const now=Date.now(),doubleTap=lastClipTap.id===id&&(now-lastClipTap.time)<650;
-  selectedClip=id;lastClipTap={id,time:now};updateTimelineTools();
-  if(doubleTap){lastClipTap={id:null,time:0};hideClipContext();openClipEditor(id);return}
+  selectedClip=id;
+  if(doubleTap){
+   lastClipTap={id:null,time:0};
+   hideClipContext();
+   openClipEditor(id);
+   return;
+  }
+  lastClipTap={id,time:now};
+  updateTimelineTools();
   showClipContext(clip,selectedTrack,found);
  }
 });
