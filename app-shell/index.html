@@ -2358,7 +2358,14 @@ document.addEventListener('pointerdown',e=>{
  }
  if(timelinePointers.size===1&&!e.target.closest('.clip,button,.tracklabel,.timeline-tool-rail')&&timelineTool!=='range'&&timelineTool!=='cut'){
   const viewport=e.target.closest('.cliparea,.bars-viewport');
-  if(viewport)timelinePan={pointerId:e.pointerId,viewport,startX:e.clientX,startY:e.clientY,startScroll:viewport.scrollLeft,axis:null};
+  const trackScroller=document.querySelector('#timelineScreen .tracks');
+  if(viewport)timelinePan={
+   pointerId:e.pointerId,viewport,trackScroller,
+   startX:e.clientX,startY:e.clientY,
+   startScrollX:viewport.scrollLeft||0,
+   startScrollY:trackScroller?.scrollTop||0,
+   axis:null
+  };
  }
 },{capture:true,passive:true});
 document.addEventListener('pointermove',e=>{
@@ -2375,10 +2382,14 @@ document.addEventListener('pointermove',e=>{
   const dx=e.clientX-timelinePan.startX,dy=e.clientY-timelinePan.startY;
   if(!timelinePan.axis&&Math.hypot(dx,dy)>7){
    if(Math.abs(dx)>Math.abs(dy)*1.15)timelinePan.axis='x';
-   else if(Math.abs(dy)>Math.abs(dx)*1.15){timelinePan=null;return}
+   else if(Math.abs(dy)>Math.abs(dx)*1.15)timelinePan.axis='y';
   }
   if(timelinePan?.axis==='x'){
-   timelinePan.viewport.scrollLeft=timelinePan.startScroll-dx;
+   timelinePan.viewport.scrollLeft=Math.max(0,timelinePan.startScrollX-dx);
+   syncTimelineScroll(timelinePan.viewport);
+   e.preventDefault();
+  }else if(timelinePan?.axis==='y'&&timelinePan.trackScroller){
+   timelinePan.trackScroller.scrollTop=Math.max(0,timelinePan.startScrollY-dy);
    e.preventDefault();
   }
  }
