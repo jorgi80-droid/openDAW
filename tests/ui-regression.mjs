@@ -113,6 +113,13 @@ try {
       deviceMainBounds.y>=devicePagesBounds.y+devicePagesBounds.height-1 &&
       deviceParamsBounds.x>=deviceMainBounds.x-1 && deviceParamsBounds.x+deviceParamsBounds.width<=deviceMainBounds.x+deviceMainBounds.width+1);
     assert(deviceGeometryOk, `Devices instrument/effect controls fit within the editor without horizontal clipping at ${viewport.width}x${viewport.height}; geometry=${JSON.stringify(deviceGeometry)}`);
+    await page.locator('#devices [data-device-select="Delay"]').click();
+    assert(await page.locator('#devices .effect-chain-item').count()===2, `Channel Rack effect selection adds a second processing module at ${viewport.width}x${viewport.height}`);
+    await page.locator('#devices [data-chain-up="1"]').click();
+    const effectChainOrder=await page.locator('#devices .effect-chain-select').allTextContents();
+    assert(effectChainOrder[0].includes('Delay'), `effect chain can reorder processing modules at ${viewport.width}x${viewport.height}`);
+    await page.locator('#devices [data-chain-remove="0"]').click();
+    assert(await page.locator('#devices .effect-chain-item').count()===1, `effect chain can remove a module without removing the rack at ${viewport.width}x${viewport.height}`);
     const deviceLayout = await page.locator('#devices').evaluate(el => { const r=el.getBoundingClientRect(); const editor=el.querySelector('.device-editor')?.getBoundingClientRect(); const picker=el.querySelector('.device-picker')?.getBoundingClientRect(); return {height:r.height,editorHeight:editor?.height||0,pickerHeight:picker?.height||0}; });
     assert(deviceLayout.height > 130 && deviceLayout.editorHeight >= deviceLayout.height-4 && deviceLayout.pickerHeight >= deviceLayout.height-4, `Devices rack and editor fill the available panel at ${viewport.width}x${viewport.height}`);
     await page.locator('#devices .device-page-tabs button[data-device-page=\"TIME\"]').click();
