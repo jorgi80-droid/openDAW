@@ -27,6 +27,9 @@ try {
     await page.locator('#gridSnap').selectOption('eighth');
     assert(await page.locator('#gridSnap').inputValue()==='eighth', `timeline snap subdivision is selectable at ${viewport.width}x${viewport.height}`);
     await page.locator('#closeSettingsDone').click();
+    const transportGeometry=await page.evaluate(()=>{const bar=document.querySelector('.transportbar').getBoundingClientRect(),controls=document.querySelector('.transportbar .transport').getBoundingClientRect();return {barCenter:bar.left+bar.width/2,controlsCenter:controls.left+controls.width/2,height:bar.height,play:document.querySelector('#play').getBoundingClientRect()};});
+    assert(Math.abs(transportGeometry.barCenter-transportGeometry.controlsCenter)<=2, `transport is centered in its own compact control strip at ${viewport.width}x${viewport.height}`);
+    assert(transportGeometry.height<=36 && transportGeometry.play.width>=30, `transport strip stays compact while Play remains touchable at ${viewport.width}x${viewport.height}`);
     const dims = await page.evaluate(() => {
       const box = s => { const r=document.querySelector(s).getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom,top:r.top,right:r.right}; };
       return {workspace:box('#workspace'),dock:box('.dock'),timeline:box('#timelineScreen .timeline'),rowCount:document.querySelectorAll('#tracks .trackrow').length,visibleScreenCount:[...document.querySelectorAll('.screen')].filter(el=>getComputedStyle(el).display!=='none').length};
@@ -236,6 +239,12 @@ try {
     await page.mouse.up();
     const velocityHeightAfter=await page.locator('#velocity span').last().evaluate(el=>el.style.height);
     assert(velocityHeightAfter!==velocityHeightBefore, `dragging a Piano Roll velocity bar changes note velocity at ${viewport.width}x${viewport.height}`);
+    const pianoVelocityAlignment=await page.locator('#pianogrid .note').last().evaluate(note=>{
+      const notes=[...document.querySelectorAll('#pianogrid .note')],bars=[...document.querySelectorAll('#velocity span')];
+      if(!notes.length||notes.length!==bars.length)return false;
+      return Math.abs(notes[notes.length-1].getBoundingClientRect().left-bars[bars.length-1].getBoundingClientRect().left)<2;
+    });
+    assert(pianoVelocityAlignment, `Piano Roll velocity bars align to note start positions at ${viewport.width}x${viewport.height}`);
     const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid .note-layer').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
     assert(notesInside, `all Piano Roll notes remain inside note grid at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#velocity span').count() === await page.locator('#pianogrid .note').count(), `velocity lane has one editable bar per MIDI note at ${viewport.width}x${viewport.height}`);
