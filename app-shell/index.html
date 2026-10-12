@@ -1534,8 +1534,8 @@ function applyRangeOperation(action){
  const canShift=()=>project.tracks.every(track=>track.clips.every(c=>c.start<end||c.start+c.duration+duration<=MAX_BARS));
  let changed=0;
  if(action==='duplicate'){
-  snapshot();
   if(!canShift()){notify('Tidak cukup ruang di akhir timeline untuk menggandakan rentang ini');return}
+  snapshot();
   project.tracks.forEach(track=>{
    const pieces=spanPieces(track);
    pieces.forEach(piece=>{
@@ -1905,15 +1905,18 @@ function applyTimelineGeometry(){
 function syncTimelineScroll(source){
  if(timelineScrollSync||!source)return;
  timelineScrollSync=true;
- const offset=Math.max(0,source.scrollLeft||0);
- timelineScrollPeers().forEach(el=>{
-  if(el===source)return;
-  const canvas=timelineCanvasFor(el);
-  const content=Math.max(el.clientWidth,canvas?.scrollWidth||canvas?.getBoundingClientRect().width||el.clientWidth);
-  const next=Math.max(0,Math.min(content-el.clientWidth,offset));
-  if(Math.abs((el.scrollLeft||0)-next)>.5)el.scrollLeft=next;
- });
- timelineScrollSync=false;
+ try{
+  const offset=Math.max(0,source.scrollLeft||0);
+  timelineScrollPeers().forEach(el=>{
+   if(el===source)return;
+   const canvas=timelineCanvasFor(el);
+   const content=Math.max(el.clientWidth,canvas?.scrollWidth||canvas?.getBoundingClientRect().width||el.clientWidth);
+   const next=Math.max(0,Math.min(content-el.clientWidth,offset));
+   if(Math.abs((el.scrollLeft||0)-next)>.5)el.scrollLeft=next;
+  });
+ }finally{
+  timelineScrollSync=false;
+ }
 }
 document.querySelector('.bars-viewport')?.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget),{passive:true});
 $('tracks').addEventListener('scroll',e=>{const area=e.target.closest('[data-timeline-scroll="clip"]');if(area)syncTimelineScroll(area)},{passive:true});
