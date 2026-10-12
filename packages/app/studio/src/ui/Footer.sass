@@ -16,8 +16,6 @@ component
         content: " > 80% ⚠️"
         color: var(--color-orange)
 
-
-// On phones, the transport remains in the top header; keep diagnostics out of the music workspace.
 @media (max-width: 900px), (max-height: 520px)
   component
     flex: 0 0 24px
@@ -44,4 +42,9 @@ component
   component [title="Memory"],
   component [title="FPS"],
   component [title="Samples (GC)"]
+    display: none !important
+
+@media (max-width: 900px), (pointer: coarse)
+  html.midiable-mobile body > footer,
+  html.midiable-mobile footer
     display: none !important
