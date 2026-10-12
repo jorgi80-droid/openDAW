@@ -1017,26 +1017,28 @@ html[data-theme="light"] .clip{color:#152130!important}
 }
 
 
-/* Reference layout: a single horizontal toolbar with a full-height timeline beneath. */
-.app{display:grid!important;grid-template-columns:minmax(120px,auto) minmax(96px,.55fr) minmax(172px,auto) minmax(0,1fr) auto!important;grid-template-rows:58px minmax(0,1fr)!important;height:100dvh!important;min-height:0!important;overflow:hidden!important;gap:0!important}
-.top{grid-column:1/-1!important;grid-row:1!important;display:grid!important;grid-template-columns:minmax(120px,auto) minmax(96px,.55fr) minmax(172px,auto) minmax(0,1fr) auto!important;grid-template-rows:58px!important;align-items:center!important;gap:6px!important;width:100%!important;height:58px!important;min-height:58px!important;max-height:58px!important;padding:3px 8px!important;position:relative!important;overflow:hidden!important;box-sizing:border-box!important;background:#0e141c!important;border-bottom:1px solid var(--line)!important;z-index:10!important}
-.top .brand{grid-column:1!important;grid-row:1!important;display:block!important;visibility:visible!important;font-size:clamp(11px,1.2vw,15px)!important;white-space:nowrap!important;min-width:0!important}
-.top .project{grid-column:2!important;grid-row:1!important;display:flex!important;align-items:center!important;gap:4px!important;width:100%!important;min-width:0!important;max-width:none!important;flex:none!important}
-.top .project button{flex:0 0 28px!important;width:28px!important;min-width:28px!important;height:29px!important;min-height:29px!important;padding:3px!important}
-.top .project input{min-width:0!important;max-width:none!important;width:100%!important;flex:1 1 auto!important;font-size:12px!important;padding:4px!important}
-.top-actions{grid-column:5!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important;margin:0!important;min-width:0!important}
-.top-actions button{width:29px!important;min-width:29px!important;height:29px!important;min-height:29px!important;padding:3px!important}
-.transportbar{grid-column:3!important;grid-row:1!important;grid-row:1!important;position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:center!important;min-width:0!important;width:100%!important;max-width:none!important;height:58px!important;min-height:58px!important;max-height:58px!important;margin:0!important;padding:3px 4px!important;overflow:hidden!important;box-sizing:border-box!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:18!important}
-.transportbar .transport{display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;position:static!important;inset:auto!important;transform:none!important;width:max-content!important;max-width:100%!important;height:auto!important;min-height:0!important;margin:0!important}
-.transportbar .transport button{position:static!important;inset:auto!important;transform:none!important;flex:0 0 auto!important;width:29px!important;min-width:29px!important;height:30px!important;min-height:30px!important;padding:2px 4px!important}
-.transportbar #play{width:42px!important;min-width:42px!important;height:36px!important;min-height:36px!important;background:#10ad77!important;border-color:#10ad77!important}
-.transportbar #position{width:62px!important;min-width:62px!important;font-size:10px!important}
-.subbar{grid-column:4!important;grid-row:1!important;position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;flex-wrap:nowrap!important;gap:4px!important;width:100%!important;max-width:none!important;height:58px!important;min-height:58px!important;max-height:58px!important;margin:0!important;padding:3px 5px!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:none!important;background:transparent!important;border:0!important;z-index:17!important}
-.subbar .chip{flex:0 0 auto!important;display:inline-flex!important;align-items:center!important;gap:3px!important;height:28px!important;min-height:28px!important;padding:3px 6px!important;font-size:10px!important;border-radius:7px!important;box-sizing:border-box!important}
-.subbar .chip input{flex:0 0 30px!important;width:30px!important;min-width:30px!important;max-width:30px!important;font-size:10px!important;padding:0!important}
+/* Compact mobile toolbar: wrap naturally to available width; no fixed grid columns that crop controls. */
+.app{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important;width:100%!important;height:100dvh!important;min-height:0!important;overflow:hidden!important;gap:0!important}
+.top{grid-column:1!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;gap:5px!important;width:100%!important;height:auto!important;min-height:44px!important;max-height:none!important;padding:5px 7px!important;position:relative!important;overflow:visible!important;box-sizing:border-box!important;background:#0e141c!important;border-bottom:1px solid var(--line)!important;z-index:25!important}
+.top .brand{display:block!important;visibility:visible!important;flex:0 0 auto!important;font-size:clamp(10px,1.3vw,15px)!important;white-space:nowrap!important;min-width:0!important}
+.top .project{display:flex!important;align-items:center!important;gap:4px!important;flex:1 1 118px!important;width:auto!important;min-width:100px!important;max-width:180px!important}
+.top .project button{flex:0 0 27px!important;width:27px!important;min-width:27px!important;height:29px!important;min-height:29px!important;padding:3px!important}
+.top .project input{min-width:0!important;max-width:none!important;width:100%!important;flex:1 1 auto!important;font-size:11px!important;padding:4px!important}
+.top-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important;margin:0!important;min-width:0!important;flex:0 0 auto!important}
+.top-actions button{width:28px!important;min-width:28px!important;height:29px!important;min-height:29px!important;padding:3px!important}
+.transportbar{grid-column:1!important;grid-row:1!important;position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:center!important;flex:1 1 155px!important;min-width:155px!important;width:auto!important;max-width:none!important;height:38px!important;min-height:34px!important;max-height:40px!important;margin:0!important;padding:1px 3px!important;overflow:visible!important;box-sizing:border-box!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:26!important}
+.transportbar .transport{display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;position:static!important;inset:auto!important;transform:none!important;width:max-content!important;max-width:100%!important;height:auto!important;min-height:0!important;margin:0!important}
+.transportbar .transport button{position:static!important;inset:auto!important;transform:none!important;flex:0 0 auto!important;width:28px!important;min-width:28px!important;height:29px!important;min-height:29px!important;padding:2px 3px!important}
+.transportbar #play{width:37px!important;min-width:37px!important;height:34px!important;min-height:34px!important;background:#10ad77!important;border-color:#10ad77!important}
+.transportbar #position{width:59px!important;min-width:59px!important;font-size:9px!important}
+.subbar{grid-column:1!important;grid-row:1!important;position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:nowrap!important;gap:4px!important;flex:1 1 240px!important;width:auto!important;min-width:0!important;max-width:none!important;height:38px!important;min-height:34px!important;max-height:40px!important;margin:0!important;padding:2px 3px!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:none!important;background:transparent!important;border:0!important;z-index:26!important}
+.subbar .chip{flex:0 0 auto!important;display:inline-flex!important;align-items:center!important;gap:3px!important;height:27px!important;min-height:27px!important;padding:3px 5px!important;font-size:9px!important;border-radius:7px!important;box-sizing:border-box!important}
+.subbar .chip input{flex:0 0 31px!important;width:31px!important;min-width:31px!important;max-width:31px!important;font-size:10px!important;padding:0!important}
 .subbar .chip select{font-size:10px!important;max-width:42px!important}
-.subbar .grow,.subbar #save,.subbar #open,.subbar #export,.subbar #file{display:none!important}
-.workspace{grid-column:1/-1!important;grid-row:2!important;position:relative!important;inset:auto!important;transform:none!important;width:auto!important;max-width:none!important;height:auto!important;min-height:0!important;min-width:0!important;flex:1 1 0!important;margin:0!important;padding:5px 47px 5px 6px!important;box-sizing:border-box!important;overflow:hidden!important}
+.subbar .grow{display:none!important}
+.subbar #save,.subbar #open,.subbar #export{display:inline-flex!important;flex:0 0 auto!important;min-height:27px!important;height:27px!important;padding:2px 6px!important;font-size:9px!important}
+.subbar #file{display:none!important}
+.workspace{grid-column:1!important;grid-row:2!important;position:relative!important;inset:auto!important;transform:none!important;width:100%!important;max-width:none!important;height:auto!important;min-height:0!important;min-width:0!important;flex:1 1 0!important;margin:0!important;padding:5px 47px 5px 6px!important;box-sizing:border-box!important;overflow:hidden!important}
 .screen{display:none!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
 .screen:not([hidden]){display:block!important}
 #timelineScreen:not([hidden]){display:flex!important;flex-direction:column!important}
@@ -1053,43 +1055,51 @@ html[data-theme="light"] .clip{color:#152130!important}
 #timelineScreen .trackbuttons{gap:3px!important}
 #timelineScreen .trackbuttons button{min-height:19px!important;padding:1px 4px!important;font-size:9px!important}
 #timelineScreen>.addtrack{flex:0 0 25px!important;align-self:flex-start!important;width:auto!important;max-width:100%!important;min-height:23px!important;margin-top:3px!important;padding:2px 8px!important;font-size:10px!important}
-#timelineScreen .timeline-tool-rail{display:flex!important;flex:0 0 30px!important;width:30px!important;min-width:30px!important;position:relative!important;align-items:center!important;gap:3px!important;padding:3px 1px!important;overflow-y:auto!important;overflow-x:hidden!important;z-index:3!important;background:#0d141d!important;border:1px solid #263747!important;border-radius:8px!important}
-#timelineScreen .timeline-tool-rail button{flex:0 0 26px!important;width:26px!important;min-width:26px!important;height:26px!important;min-height:26px!important;padding:3px!important}
-#timelineScreen .timeline-tool-rail svg{width:16px!important;height:16px!important}
-.dock{position:fixed!important;z-index:45!important;right:max(5px,env(safe-area-inset-right))!important;top:50%!important;bottom:auto!important;left:auto!important;transform:translateY(-50%)!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;gap:4px!important;width:38px!important;min-width:38px!important;max-width:38px!important;height:max-content!important;max-height:calc(100dvh - 90px)!important;margin:0!important;padding:4px!important;box-sizing:border-box!important;overflow-y:auto!important;overflow-x:hidden!important;border:1px solid #2b3b4d!important;border-radius:11px!important;background:rgba(9,15,23,.97)!important;box-shadow:0 6px 24px #0008!important}
-.dock button{display:flex!important;flex:0 0 32px!important;align-items:center!important;justify-content:center!important;width:28px!important;min-width:28px!important;max-width:28px!important;height:32px!important;min-height:32px!important;max-height:32px!important;padding:3px!important;border-radius:7px!important;overflow:hidden!important;font-size:0!important;gap:0!important;background:#131e29!important}
-.dock button .workspace-dock-symbol{width:17px!important;height:17px!important;flex:0 0 17px!important}
+#timelineScreen .timeline-tool-rail{display:flex!important;flex:0 0 38px!important;width:38px!important;min-width:38px!important;position:relative!important;align-items:center!important;gap:4px!important;padding:3px 2px!important;overflow-y:auto!important;overflow-x:hidden!important;z-index:3!important;background:#0d141d!important;border:1px solid #263747!important;border-radius:8px!important}
+#timelineScreen .timeline-tool-rail button{flex:0 0 31px!important;width:31px!important;min-width:31px!important;height:31px!important;min-height:31px!important;padding:3px!important}
+#timelineScreen .timeline-tool-rail svg{width:17px!important;height:17px!important}
+.dock{position:fixed!important;z-index:45!important;right:max(5px,env(safe-area-inset-right))!important;top:50%!important;bottom:auto!important;left:auto!important;transform:translateY(-50%)!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;gap:4px!important;width:41px!important;min-width:41px!important;max-width:41px!important;height:max-content!important;max-height:calc(100dvh - 90px)!important;margin:0!important;padding:4px!important;box-sizing:border-box!important;overflow-y:auto!important;overflow-x:hidden!important;border:1px solid #2b3b4d!important;border-radius:11px!important;background:rgba(9,15,23,.97)!important;box-shadow:0 6px 24px #0008!important}
+.dock button{display:flex!important;flex:0 0 32px!important;align-items:center!important;justify-content:center!important;width:31px!important;min-width:31px!important;max-width:31px!important;height:32px!important;min-height:32px!important;max-height:32px!important;padding:3px!important;border-radius:7px!important;overflow:hidden!important;font-size:0!important;gap:0!important;background:#131e29!important}
+.dock button .workspace-dock-symbol{width:18px!important;height:18px!important;flex:0 0 18px!important}
 .dock button.active{background:#102d4c!important;border-color:#1687ff!important;color:#7ac4ff!important}
-@media(max-width:980px){
- .app{grid-template-columns:minmax(108px,auto) minmax(82px,.5fr) minmax(158px,auto) minmax(0,1fr) auto!important}
- .top{grid-template-columns:minmax(108px,auto) minmax(82px,.5fr) minmax(158px,auto) minmax(0,1fr) auto!important;gap:3px!important;padding:3px 5px!important}
+@media(max-width:1100px){
+ .top{gap:4px!important;padding:4px 5px!important}
  .top .brand{font-size:10px!important}
- .top .project button,.top-actions button{width:25px!important;min-width:25px!important;height:26px!important;min-height:26px!important}
+ .top .project{flex:0 1 120px!important;min-width:98px!important}
+ .transportbar{flex:0 0 145px!important;min-width:145px!important}
+ .subbar{flex:1 1 220px!important}
+ .subbar .chip{padding:2px 4px!important;font-size:8px!important}
+ .subbar .chip input{width:25px!important;min-width:25px!important;max-width:25px!important;font-size:9px!important}
+ .subbar #save,.subbar #open,.subbar #export{padding:2px 4px!important;font-size:8px!important}
+}
+@media(max-width:760px){
+ .top .brand{display:none!important}
+ .top .project{flex:1 1 100px!important;min-width:85px!important}
+ .transportbar{flex:0 0 125px!important;min-width:125px!important}
  .transportbar .transport{gap:2px!important}
  .transportbar .transport button{width:24px!important;min-width:24px!important;height:26px!important;min-height:26px!important}
- .transportbar #play{width:33px!important;min-width:33px!important;height:29px!important;min-height:29px!important}
- .transportbar #position{width:48px!important;min-width:48px!important;font-size:8px!important}
- .subbar{gap:2px!important;padding:2px!important}
- .subbar .chip{height:24px!important;min-height:24px!important;padding:2px 4px!important;font-size:9px!important}
- .subbar .chip input{width:23px!important;min-width:23px!important;max-width:23px!important;font-size:9px!important}
- .subbar .chip select{max-width:32px!important;font-size:9px!important}
+ .transportbar #play{width:30px!important;min-width:30px!important;height:29px!important;min-height:29px!important}
+ .transportbar #position{width:42px!important;min-width:42px!important;font-size:8px!important}
+ .subbar{flex:1 1 180px!important;gap:2px!important}
+ .subbar .chip{height:24px!important;min-height:24px!important;padding:2px 3px!important;font-size:8px!important}
+ .subbar .chip input{width:20px!important;min-width:20px!important;max-width:20px!important;font-size:8px!important}
+ .subbar .chip select{max-width:29px!important;font-size:8px!important}
+ .subbar #save,.subbar #open,.subbar #export{display:none!important}
 }
 @media(orientation:landscape) and (max-height:520px){
- .app{grid-template-rows:44px minmax(0,1fr)!important}
- .top{grid-template-rows:44px!important;height:44px!important;min-height:44px!important;max-height:44px!important;padding:2px 4px!important;gap:2px!important}
+ .top{min-height:42px!important;padding:3px 5px!important;gap:3px!important;flex-wrap:nowrap!important}
  .top .brand{font-size:9px!important}
- .top .project button,.top-actions button{width:23px!important;min-width:23px!important;height:23px!important;min-height:23px!important}
- .top .project input{font-size:9px!important;padding:2px!important}
- .transportbar{height:44px!important;min-height:44px!important;max-height:44px!important;padding:1px!important}
+ .top .project{flex:0 1 113px!important;min-width:90px!important}
+ .transportbar{flex:0 0 116px!important;min-width:116px!important;height:35px!important;min-height:32px!important;max-height:37px!important}
  .transportbar .transport{gap:2px!important}
- .transportbar .transport button{width:22px!important;min-width:22px!important;height:22px!important;min-height:22px!important;padding:1px 2px!important}
- .transportbar #play{width:29px!important;min-width:29px!important;height:26px!important;min-height:26px!important}
- .transportbar #position{width:39px!important;min-width:39px!important;font-size:8px!important}
- .subbar{height:44px!important;min-height:44px!important;max-height:44px!important;padding:1px!important;gap:1px!important}
- .subbar .chip{height:20px!important;min-height:20px!important;padding:1px 2px!important;font-size:8px!important}
- .subbar .chip input{width:19px!important;min-width:19px!important;max-width:19px!important;font-size:8px!important}
+ .transportbar .transport button{width:22px!important;min-width:22px!important;height:23px!important;min-height:23px!important}
+ .transportbar #play{width:28px!important;min-width:28px!important;height:26px!important;min-height:26px!important}
+ .transportbar #position{width:36px!important;min-width:36px!important;font-size:7px!important}
+ .subbar{flex:1 1 auto!important;height:35px!important;min-height:32px!important;max-height:37px!important;gap:2px!important;padding:1px!important}
+ .subbar .chip{height:21px!important;min-height:21px!important;padding:1px 3px!important;font-size:8px!important}
+ .subbar .chip input{width:20px!important;min-width:20px!important;max-width:20px!important;font-size:8px!important}
  .subbar .chip select{max-width:28px!important;font-size:8px!important}
- .workspace{padding:3px 44px 3px 4px!important}
+ .workspace{padding:3px 48px 3px 4px!important}
  #timelineScreen .timeline{grid-template-rows:23px minmax(0,1fr)!important}
  #timelineScreen .trackrow{min-height:clamp(35px,7.1vh,48px)!important}
  #timelineScreen .clip{top:3px!important;height:calc(100% - 6px)!important;min-height:19px!important;padding:2px 4px!important;font-size:9px!important}
@@ -1097,11 +1107,11 @@ html[data-theme="light"] .clip{color:#152130!important}
  #timelineScreen .trackname{font-size:10px!important}
  #timelineScreen .trackbuttons button{min-height:16px!important;padding:0 3px!important;font-size:8px!important}
  #timelineScreen>.addtrack{flex-basis:21px!important;min-height:19px!important;margin-top:2px!important;padding:1px 6px!important;font-size:9px!important}
- #timelineScreen .timeline-tool-rail{flex-basis:27px!important;width:27px!important;min-width:27px!important;gap:2px!important;padding:2px 1px!important}
- #timelineScreen .timeline-tool-rail button{flex-basis:23px!important;width:23px!important;min-width:23px!important;height:23px!important;min-height:23px!important}
- .dock{width:35px!important;min-width:35px!important;max-width:35px!important;right:4px!important;gap:3px!important;padding:3px!important}
- .dock button{flex-basis:27px!important;width:27px!important;min-width:27px!important;max-width:27px!important;height:27px!important;min-height:27px!important}
- .dock button .workspace-dock-symbol{width:15px!important;height:15px!important;flex-basis:15px!important}
+ #timelineScreen .timeline-tool-rail{flex-basis:34px!important;width:34px!important;min-width:34px!important;gap:2px!important;padding:2px 1px!important}
+ #timelineScreen .timeline-tool-rail button{flex-basis:28px!important;width:28px!important;min-width:28px!important;height:28px!important;min-height:28px!important}
+ .dock{width:39px!important;min-width:39px!important;max-width:39px!important;right:4px!important;gap:3px!important;padding:3px!important}
+ .dock button{flex-basis:29px!important;width:29px!important;min-width:29px!important;max-width:29px!important;height:29px!important;min-height:29px!important}
+ .dock button .workspace-dock-symbol{width:16px!important;height:16px!important;flex-basis:16px!important}
 }
 </style>
 
@@ -1131,7 +1141,10 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
     </div>
     <aside class="timeline-tool-rail" id="timelineTools" aria-label="Timeline tools">
       <button class="active" data-timeline-tool="select" aria-label="Select and move clips" title="Select / Move"><svg viewBox="0 0 24 24"><path d="M5 3l13 10-6 1-3 6z" fill="currentColor"/></svg></button>
-      <button data-timeline-tool="cut" aria-label="Split clip" title="Split selected clip"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 7l12 10M8 17L20 7" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></button>
+      <button data-timeline-tool="copy" aria-label="Copy selected clip" title="Copy clip"><svg viewBox="0 0 24 24"><rect x="8" y="7" width="11" height="13" rx="2" stroke="currentColor" stroke-width="1.7" fill="none"/><path d="M15 7V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2" stroke="currentColor" stroke-width="1.7" fill="none"/></svg></button>
+      <button data-timeline-tool="cut-clip" aria-label="Cut selected clip" title="Cut clip" disabled><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 7l12 10M8 17L20 7" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></button>
+      <button data-timeline-tool="paste" aria-label="Paste copied clip" title="Paste clip" disabled><svg viewBox="0 0 24 24"><path d="M8 4H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2M9 3h6v4H9zM12 10v6m-3-3h6" stroke="currentColor" stroke-width="1.7" fill="none" stroke-linejoin="round"/></svg></button>
+      <button data-timeline-tool="cut" aria-label="Split clip" title="Split at tapped point"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 7l12 10M8 17L20 7" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></button>
       <button data-timeline-tool="delete" aria-label="Delete selected clip" title="Delete clip" disabled><svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3m-9 0 1 13h10l1-13M10 10v7m4-7v7" stroke="currentColor" stroke-width="1.7" fill="none"/></svg></button>
       <button data-timeline-tool="automation" aria-label="Add automation clip" title="Automation lane"><svg viewBox="0 0 24 24"><path d="M3 18l5-8 4 4 4-9 5 3" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="8" cy="10" r="1.4" fill="currentColor"/><circle cx="12" cy="14" r="1.4" fill="currentColor"/><circle cx="16" cy="5" r="1.4" fill="currentColor"/></svg></button>
       <button data-timeline-tool="snap" class="active" aria-label="Toggle snap to grid" title="Snap to grid"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4zM4 9h16M4 15h16M9 4v16M15 4v16" stroke="currentColor" stroke-width="1.5" fill="none"/></svg></button>
@@ -1198,6 +1211,8 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
   <div class="clip-context-actions">
     <button data-clip-action="edit">Edit</button>
     <button data-clip-action="copy">Copy</button>
+    <button data-clip-action="cut">Cut</button>
+    <button data-clip-action="paste" disabled>Paste</button>
     <button data-clip-action="split">Split</button>
     <button data-clip-action="snap">Snap</button>
     <button data-clip-action="mute">Mute</button>
@@ -1208,6 +1223,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 (function(){
 const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
 let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
+let clipboardClip=null;
 let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipId=null,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,snapStep=.0625,timelineZoom=1,pianoZoom=1,timelineScrollSync=false;
 let lastClipTap={id:null,time:0};
 let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset',deviceKeyboardVisible=false;
@@ -1480,6 +1496,7 @@ function showClipContext(element,trackIndex,clip){
  const pop=$('clipContextMenu');$('clipContextTitle').textContent=clip.label||'Clip';
  $('clipContextSubtitle').textContent=(project.tracks[trackIndex]?.name||'Track')+' · '+(clip.kind||project.tracks[trackIndex]?.type||'Clip');
  pop.dataset.clipId=clip.id;pop.dataset.trackIndex=String(trackIndex);
+ const pasteButton=pop.querySelector('[data-clip-action="paste"]');if(pasteButton)pasteButton.disabled=!clipboardClip;
  document.querySelectorAll('#tracks .clip').forEach(el=>el.classList.toggle('selected',el.dataset.clip===clip.id));
  const r=element.getBoundingClientRect(),width=Math.min(230,window.innerWidth-24),height=174;
  const left=Math.max(12,Math.min(window.innerWidth-width-12,r.left));
@@ -1502,6 +1519,17 @@ $('tracks').addEventListener('click',e=>{
  const label=e.target.closest('.tracklabel');if(label){const row=label.closest('.trackrow'),area=row?.querySelector('.cliparea'),idx=Number(area?.dataset.track);if(Number.isInteger(idx)&&idx>=0){selectedTrack=idx;renderTracks();syncRackView()}return}
  const clip=e.target.closest('[data-clip]');if(clip){
   const id=clip.dataset.clip;
+  if(clipboardClip?.pendingPaste){
+   const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===id));
+   const targetTrack=project.tracks[ownerIndex],target=targetTrack?.clips.find(c=>c.id===id);
+   if(targetTrack&&target){
+    snapshot();
+    const pasted={...JSON.parse(JSON.stringify(clipboardClip.clip)),id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start:target.start+target.duration,label:(clipboardClip.clip.label||'Clip')+' Copy'};
+    if(pasted.start+pasted.duration>32)pasted.start=Math.max(0,32-pasted.duration);
+    targetTrack.clips.push(pasted);selectedTrack=ownerIndex;selectedClip=pasted.id;clipboardClip.pendingPaste=false;
+    renderTracks();updateTimelineTools();hideClipContext();notify('Clip ditempel pada track '+targetTrack.name);return;
+   }
+  }
   // Ignore only the synthetic click that can follow a drag/resize in Select mode.
   // Tool actions such as Split must still receive the next deliberate tap on that clip.
   if(ignoreNextClipId===id&&timelineTool==='select'){ignoreNextClipId=null;return}
@@ -1700,7 +1728,8 @@ function updateTimelineTools(){
  document.querySelectorAll('[data-timeline-tool]').forEach(b=>{
   const tool=b.dataset.timelineTool;
   if(tool==='select'||tool==='cut'||tool==='snap')b.classList.toggle('active',tool===timelineTool||(tool==='snap'&&snapEnabled));
-  if(tool==='delete')b.disabled=!selectedClip;
+  if(tool==='delete'||tool==='copy'||tool==='cut-clip')b.disabled=!selectedClip;
+  if(tool==='paste')b.disabled=!clipboardClip;
  });
  $('zoomLabel').textContent=Math.round(timelineZoom*100)+'%';$('zoomLabel').title='Timeline zoom '+Math.round(timelineZoom*100)+'%';
 }
@@ -1741,10 +1770,24 @@ timelineArea?.addEventListener('touchend',e=>{if(e.touches.length<2)timelinePinc
 timelineArea?.addEventListener('touchcancel',()=>{timelinePinchStart=null},{passive:true});
 $('timelineTools').addEventListener('click',e=>{
  const b=e.target.closest('[data-timeline-tool]');if(!b)return;const tool=b.dataset.timelineTool;
- // A tool change starts a new gesture context; never let a prior tap be treated as a double tap.
  lastClipTap={id:null,time:0};
  if(tool==='select'){timelineTool='select'}
- else if(tool==='cut'){timelineTool='cut';notify('Mode Split: ketuk clip untuk memisahkannya')}
+ else if(tool==='copy'){
+  const found=project.tracks.flatMap((t,ti)=>t.clips.map(c=>({t,ti,c}))).find(x=>x.c.id===selectedClip);
+  if(!found){notify('Pilih clip dulu');return}
+  clipboardClip={clip:JSON.parse(JSON.stringify(found.c)),sourceTrack:found.ti,pendingPaste:true};hideClipContext();notify('Clip disalin. Ketuk clip tujuan untuk menempel');
+ }
+ else if(tool==='cut-clip'){
+  const found=project.tracks.flatMap((t,ti)=>t.clips.map(c=>({t,ti,c}))).find(x=>x.c.id===selectedClip);
+  if(!found){notify('Pilih clip dulu');return}
+  clipboardClip={clip:JSON.parse(JSON.stringify(found.c)),sourceTrack:found.ti,pendingPaste:true};
+  snapshot();found.t.clips=found.t.clips.filter(c=>c.id!==selectedClip);selectedClip=null;renderTracks();notify('Clip dipotong. Ketuk clip tujuan untuk menempel');
+ }
+ else if(tool==='paste'){
+  if(!clipboardClip){notify('Clipboard clip kosong');return}
+  clipboardClip.pendingPaste=true;notify('Ketuk clip tujuan untuk menempel');
+ }
+ else if(tool==='cut'){timelineTool='cut';notify('Mode Split: ketuk titik clip untuk memisahkannya')}
  else if(tool==='snap'){snapEnabled=!snapEnabled;notify(snapEnabled?'Snap grid aktif':'Snap grid nonaktif')}
  else if(tool==='zoom-in'){setTimelineZoom(timelineZoom+.25);return}
  else if(tool==='zoom-out'){setTimelineZoom(timelineZoom-.25);return}
@@ -1764,6 +1807,7 @@ $('clipContextMenu').addEventListener('click',e=>{
  const action=b.dataset.clipAction;
  if(action==='edit'){openClipEditor(id);return}
  if(action==='copy'){
+  clipboardClip={clip:JSON.parse(JSON.stringify(clip)),sourceTrack:trackIndex,pendingPaste:true};
   snapshot();
   const id='c'+Date.now()+Math.random().toString(16).slice(2,5);
   const occupied=track.clips.filter(c=>c.id!==clip.id).map(c=>[c.start,c.start+c.duration]).sort((a,b)=>a[0]-b[0]);
@@ -1772,7 +1816,15 @@ $('clipContextMenu').addEventListener('click',e=>{
   if(start+clip.duration>32){start=0;for(const [a,b] of occupied){if(start+clip.duration<=a)break;if(start<b)start=b}}
   if(start+clip.duration>32){hideClipContext();notify('Tidak ada ruang kosong untuk salinan clip');return}
   const copy={...clip,id,start,label:clip.label+' Copy'};
-  track.clips.push(copy);selectedClip=copy.id;hideClipContext();renderTracks();updateTimelineTools();notify('Clip disalin');return
+  track.clips.push(copy);selectedClip=copy.id;clipboardClip={clip:JSON.parse(JSON.stringify(copy)),sourceTrack:trackIndex,pendingPaste:false};hideClipContext();renderTracks();updateTimelineTools();notify('Clip disalin; ketuk clip tujuan untuk menempel');return
+ }
+ if(action==='cut'){
+  clipboardClip={clip:JSON.parse(JSON.stringify(clip)),sourceTrack:trackIndex,pendingPaste:true};
+  snapshot();track.clips=track.clips.filter(c=>c.id!==id);selectedClip=null;hideClipContext();renderTracks();updateTimelineTools();notify('Clip dipotong; ketuk clip tujuan untuk menempel');return
+ }
+ if(action==='paste'){
+  if(!clipboardClip){notify('Clipboard clip kosong');return}
+  clipboardClip.pendingPaste=true;hideClipContext();notify('Ketuk clip tujuan untuk menempel');return
  }
  if(action==='split'){selectedClip=id;hideClipContext();splitSelectedClipAtRatio(.5);return}
  if(action==='snap'){snapshot();clip.start=Math.max(0,Math.min(32-clip.duration,Math.round(clip.start/snapStep)*snapStep));hideClipContext();renderTracks();notify('Clip diselaraskan ke grid');return}
