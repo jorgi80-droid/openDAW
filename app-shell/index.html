@@ -862,6 +862,19 @@ html[data-theme="light"] .clip{color:#152130!important}
  #devicesScreen .knob-control input{height:13px}
 }
 
+
+/* Home panel groups song/project actions separately from display and editing preferences. */
+#settingsOverlay .home-project-section{display:flex;flex-direction:column;gap:7px;margin-top:10px;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--panel2)}
+#settingsOverlay .home-section-heading{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+#settingsOverlay .home-section-heading strong{font-size:10px;letter-spacing:.08em;color:#8dccff}
+#settingsOverlay .home-section-heading span{font-size:11px;color:var(--muted)}
+#settingsOverlay .home-project-actions{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+#settingsOverlay .home-project-actions button{min-width:0;min-height:36px;padding:5px 7px;font-size:11px;text-align:center;white-space:normal}
+#settingsOverlay .home-files-note{margin:0;color:var(--muted);font-size:10px;line-height:1.35}
+#settingsOverlay .home-files-note strong{color:var(--text);letter-spacing:.05em}
+@media(max-width:600px){#settingsOverlay .home-project-actions{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-height:480px){#settingsOverlay .home-project-section{gap:4px;padding:6px;margin-top:6px}#settingsOverlay .home-project-actions button{min-height:29px;padding:3px 4px;font-size:10px}}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -922,6 +935,17 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
    <div class="setting"><label for="compactMode">Kepadatan UI</label><select id="compactMode"><option value="compact">Compact</option><option value="comfortable">Comfortable</option></select><small>Atur jarak dan tinggi panel.</small></div>
    <div class="setting"><label for="gridSnap">Grid snap</label><select id="gridSnap"><option value="quarter">1/4 beat</option><option value="eighth">1/8 beat</option><option value="half">1/2 beat</option><option value="beat">1 beat</option><option value="bar">1 bar</option><option value="off">Bebas</option></select><small>Snap untuk perpindahan dan resize klip.</small></div>
   </div>
+  <section class="home-project-section" aria-label="Project dan lagu">
+   <div class="home-section-heading"><strong>SONGS / PROJECT</strong><span id="homeProjectSummary">My Song · 120 BPM · 6 track</span></div>
+   <div class="home-project-actions">
+    <button id="homeNewProject">＋ Proyek baru</button>
+    <button id="homeSaveProject">Simpan</button>
+    <button id="homeOpenProject">Buka proyek</button>
+    <button id="homeExportProject">Ekspor JSON</button>
+    <button id="homeImportProject">Impor JSON</button>
+   </div>
+   <p class="home-files-note"><strong>FILES</strong> · Proyek tersimpan di penyimpanan browser; gunakan Impor/Ekspor JSON untuk memindahkan file proyek.</p>
+  </section>
   <div class="menu-actions" style="margin-top:10px"><button id="resetUiSettings">Reset tampilan</button><button class="primary" id="closeSettingsDone">Selesai</button></div>
  </section>
 </div>
@@ -969,6 +993,7 @@ let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
 ],notes:[{row:7,col:0,len:1},{row:6,col:1,len:2},{row:5,col:2,len:1},{row:4,col:3,len:2},{row:5,col:4,len:1},{row:7,col:5,len:1},{row:8,col:6,len:2},{row:9,col:8,len:2},{row:10,col:10,len:2},{row:8,col:12,len:2},{row:7,col:14,len:2}]};
 function normalizePianoResolution(p){if(!p||!Array.isArray(p.notes))return p;if((Number(p.schemaVersion)||1)<2){p.notes=p.notes.map(n=>({...n,col:Math.max(0,Math.round((Number(n.col)||0)*4)),len:Math.max(1,Math.round((Number(n.len)||1)*4))}));p.schemaVersion=2}return p}
 normalizePianoResolution(project);
+const starterProject=JSON.parse(JSON.stringify(project));
 const trackRacks = Object.create(null);
 function getTrackRack(index=selectedTrack){
  const track=project.tracks[index]; if(!track)return null;
@@ -1401,9 +1426,20 @@ function applyUiPrefs(){
  Object.entries(themes[uiPrefs.theme]||themes.dark).forEach(([k,v])=>root.style.setProperty('--'+k,v));
  localStorage.setItem('novadaw-ui-prefs',JSON.stringify(uiPrefs));
 }
-function openSettings(){try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}applyUiPrefs();$('settingsOverlay').hidden=false}
+function renderHomeSummary(){const node=$('homeProjectSummary');if(node)node.textContent=(project.name||'Untitled')+' · '+(Number(project.tempo)||120)+' BPM · '+project.tracks.length+' track';}
+function openSettings(){try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}applyUiPrefs();renderHomeSummary();$('settingsOverlay').hidden=false}
 function closeSettings(){$('settingsOverlay').hidden=true}
 $('menu').addEventListener('click',openSettings);$('closeSettings').addEventListener('click',closeSettings);$('closeSettingsDone').addEventListener('click',closeSettings);
+$('homeSaveProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;$('save').click();});
+$('homeOpenProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;$('open').click();});
+$('homeExportProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;$('export').click();});
+$('homeImportProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;$('file').click();});
+$('homeNewProject').addEventListener('click',()=>{
+ if(!window.confirm('Buat proyek kosong? Perubahan yang belum disimpan akan diganti.'))return;
+ snapshot();project={...JSON.parse(JSON.stringify(starterProject)),name:'Untitled',tempo:120,notes:[],tracks:starterProject.tracks.map(t=>({...t,mute:false,solo:false,gain:0,pan:0,clips:[]}))};
+ Object.keys(trackRacks).forEach(key=>delete trackRacks[key]);selectedTrack=0;selectedClip=null;selectedNote=null;
+ closeSettings();renderAll();updateTimelineTools();notify('Proyek kosong dibuat');
+});
 $('settingsOverlay').addEventListener('click',e=>{if(e.target.id==='settingsOverlay')closeSettings()});
 $('uiScale').addEventListener('input',e=>{uiPrefs.scale=Number(e.target.value);applyUiPrefs()});
 $('uiTheme').addEventListener('change',e=>{uiPrefs.theme=e.target.value;applyUiPrefs()});
