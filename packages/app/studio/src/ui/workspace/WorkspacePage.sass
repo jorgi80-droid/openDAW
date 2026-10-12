@@ -134,7 +134,7 @@ html.midiable-mobile section.workspace.vertical > .panel-placeholder
    the actual editing surfaces, with one shared navigation dock at the bottom. */
 html.midiable-mobile
   --mobile-toolbar-height: 0px
-  --mobile-dock-height: 42px
+  --mobile-dock-height: calc(42px + env(safe-area-inset-bottom, 0px))
 
   body
     height: 100dvh
@@ -241,15 +241,17 @@ html.midiable-mobile
    only root native panels and deliberately leaves the desktop workspace unchanged. */
 html.midiable-mobile component > main > section.workspace,
 html.midiable-mobile component > main > .panel-placeholder
-  margin-bottom: var(--mobile-dock-height)
+  flex: 1 1 0 !important
+  min-width: 0
+  min-height: 0
+  margin-bottom: 0
   max-height: calc(100% - var(--mobile-dock-height))
   box-sizing: border-box
 
-html.midiable-mobile component > main > section.workspace > .panel-placeholder
-  min-height: 0
-
 @media (max-height: 480px)
+  html.midiable-mobile
+    --mobile-dock-height: calc(36px + env(safe-area-inset-bottom, 0px))
+
   html.midiable-mobile component > main > section.workspace,
   html.midiable-mobile component > main > .panel-placeholder
-    margin-bottom: 36px
-    max-height: calc(100% - 36px)
+    max-height: calc(100% - var(--mobile-dock-height))
