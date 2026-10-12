@@ -1499,6 +1499,13 @@ button:active{transform:scale(.975)}
 #timelineScreen .bars-viewport,#timelineScreen .cliparea{scroll-behavior:auto!important}
 #timelineScreen.timeline-pinch-preview .clip-canvas,#timelineScreen.timeline-pinch-preview .bars .timeline-ruler-canvas{backface-visibility:hidden!important}
 
+/* Keep the time labels independent from the compositor-scaled grid surface. */
+#timelineScreen .bars{position:relative!important;display:block!important;overflow:hidden!important}
+#timelineScreen .bars .timeline-ruler-grid-canvas,
+#timelineScreen .bars .timeline-ruler-label-canvas{position:absolute!important;left:0;top:0;display:block!important;pointer-events:none!important;max-width:none!important}
+#timelineScreen .bars .timeline-ruler-label-canvas{z-index:2!important}
+#timelineScreen.timeline-pinch-preview .timeline-ruler-label-canvas{visibility:hidden!important}
+
 /* Final ruler/track coordinate contract: identical label column, pixel origin and track canvas width. */
 #timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(110px,15vw,165px) minmax(0,1fr)!important}
 #timelineScreen .ruler{display:grid!important;overflow:hidden!important}
@@ -1829,7 +1836,7 @@ button:active{transform:scale(.975)}
 <section class="screen" id="timelineScreen">
   <div class="timeline-work-area">
     <div class="timeline">
-      <div class="ruler"><div class="trackhead">TRACK / CLIP</div><div class="bars-viewport" data-timeline-scroll="ruler"><div class="bars"><canvas class="timeline-ruler-canvas" aria-hidden="true"></canvas></div></div></div>
+      <div class="ruler"><div class="trackhead">TRACK / CLIP</div><div class="bars-viewport" data-timeline-scroll="ruler"><div class="bars"><canvas class="timeline-ruler-grid-canvas" aria-hidden="true"></canvas><canvas class="timeline-ruler-label-canvas" aria-hidden="true"></canvas></div></div></div>
       <div class="tracks" id="tracks"></div>
     </div>
     <aside class="timeline-tool-rail" id="timelineTools" aria-label="Clip editor actions" hidden>
@@ -2178,7 +2185,7 @@ function renderTracks(){
  const savedScrollLeft=rulerViewport?.scrollLeft||0,savedScrollTop=root.scrollTop||0;
  root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
  const barViewport=document.querySelector('#timelineScreen .bars');
- if(barViewport){const rulerCanvas=barViewport.querySelector('.timeline-ruler-canvas');if(rulerCanvas)rulerCanvas.dataset.ppb='';}
+ if(barViewport){barViewport.querySelectorAll('canvas').forEach(rulerCanvas=>{rulerCanvas.dataset.cache='';rulerCanvas.dataset.ppb='';});}
  project.tracks.forEach((t,index)=>{
   const row=document.createElement('div');row.className='trackrow';row.style.setProperty('--track',t.color);
   row.style.setProperty('--track-index',String(index));
@@ -2582,33 +2589,45 @@ function timelineContentBars(){
 function timelineContentWidth(){return Math.max(timelineBaseWidth(),Math.ceil(timelineContentBars()*timelinePixelsPerBar()))}
 function paintTimelineRuler(force=false){
  const viewport=document.querySelector('#timelineScreen .bars-viewport');
- const bars=viewport?.querySelector('.bars'),canvas=bars?.querySelector('.timeline-ruler-canvas');
- if(!viewport||!bars||!canvas)return;
+ const bars=viewport?.querySelector('.bars');
+ const gridCanvas=bars?.querySelector('.timeline-ruler-grid-canvas');
+ const labelCanvas=bars?.querySelector('.timeline-ruler-label-canvas');
+ if(!viewport||!bars||!gridCanvas||!labelCanvas)return;
  const ppb=Math.max(1,timelinePixelsPerBar()),width=timelineContentWidth();
- const x0=Math.max(0,Math.floor((viewport.scrollLeft||0)-viewport.clientWidth));
- const x1=Math.min(width,Math.ceil((viewport.scrollLeft||0)+viewport.clientWidth*2));
+ const scroll=Math.max(0,viewport.scrollLeft||0);
+ const x0=Math.max(0,Math.floor(scroll-viewport.clientWidth));
+ const x1=Math.min(width,Math.ceil(scroll+viewport.clientWidth*2));
  const w=Math.max(1,x1-x0),h=Math.max(1,viewport.clientHeight);
- if(!force&&canvas.dataset.ppb===String(ppb)&&canvas.dataset.x0===String(x0)&&canvas.dataset.x1===String(x1)&&canvas.dataset.h===String(h))return;
  const dpr=Math.min(window.devicePixelRatio||1,2),pw=Math.max(1,Math.round(w*dpr)),ph=Math.max(1,Math.round(h*dpr));
- if(canvas.width!==pw)canvas.width=pw;if(canvas.height!==ph)canvas.height=ph;
- Object.assign(canvas.style,{left:x0+'px',top:'0',width:w+'px',height:h+'px',transform:'',transformOrigin:'',willChange:''});
- const ctx=canvas.getContext('2d');if(!ctx)return;
- ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,pw,ph);ctx.setTransform(dpr,0,0,dpr,-x0*dpr,0);
- ctx.textBaseline='middle';ctx.font='500 11px Inter,Roboto,system-ui,sans-serif';
+ const cacheKey=[ppb,x0,x1,h].join(':');
+ if(!force&&gridCanvas.dataset.cache===cacheKey&&labelCanvas.dataset.cache===cacheKey)return;
+ for(const canvas of [gridCanvas,labelCanvas]){
+  if(canvas.width!==pw)canvas.width=pw;
+  if(canvas.height!==ph)canvas.height=ph;
+  Object.assign(canvas.style,{left:x0+'px',top:'0',width:w+'px',height:h+'px'});
+  const ctx=canvas.getContext('2d');if(!ctx)continue;
+  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,pw,ph);
+  ctx.setTransform(dpr,0,0,dpr,-x0*dpr,0);
+ }
+ const grid=gridCanvas.getContext('2d'),labels=labelCanvas.getContext('2d');
+ if(!grid||!labels)return;
  const first=Math.max(0,Math.floor(x0/ppb)-1),last=Math.min(MAX_BARS,Math.ceil(x1/ppb)+1);
- // Keep major bar lines at 4-bar intervals, but progressively thin the ruler labels
- // as bars get closer together. This avoids unreadable text when zoomed far out.
- const labelEvery=ppb<7?16:ppb<13?8:4;
  for(let bar=first;bar<=last;bar++){
   const x=Math.round(bar*ppb)+.5;
-  ctx.fillStyle=bar%TIMELINE_MAJOR_BARS===0?'#334454':'#273644';
-  ctx.fillRect(x,0,1,h);
-  if(bar%labelEvery===0&&bar<MAX_BARS){
-   ctx.fillStyle='#9cafc5';
-   ctx.fillText(String(bar+1),bar*ppb+5,h/2);
-  }
+  grid.fillStyle=bar%TIMELINE_MAJOR_BARS===0?'#334454':'#273644';
+  grid.fillRect(x,0,1,h);
  }
- canvas.dataset.ppb=String(ppb);canvas.dataset.x0=String(x0);canvas.dataset.x1=String(x1);canvas.dataset.h=String(h);
+ const labelEvery=ppb<7?16:ppb<13?8:4;
+ labels.textBaseline='middle';labels.font='500 11px Inter,Roboto,system-ui,sans-serif';labels.fillStyle='#9cafc5';
+ for(let bar=first;bar<=last;bar++){
+  if(bar%labelEvery!==0||bar>=MAX_BARS)continue;
+  labels.fillText(String(bar+1),bar*ppb+5,h/2);
+ }
+ const key=cacheKey;
+ gridCanvas.dataset.cache=key;labelCanvas.dataset.cache=key;
+ for(const canvas of [gridCanvas,labelCanvas]){
+  canvas.dataset.ppb=String(ppb);canvas.dataset.x0=String(x0);canvas.dataset.x1=String(x1);canvas.dataset.h=String(h);
+ }
 }
 let rulerPaintRaf=0,rulerPaintForce=false;
 function requestPaintTimelineRuler(force=false){
@@ -3147,7 +3166,7 @@ function queueTimelinePinch(distance,centerX){
   // Preview only the horizontal content planes. A canvas viewport must not
   // scale the canvas itself around its own origin; use the same focal transform
   // for all lanes and the ruler so bar x=0 remains a common coordinate.
-  const elements=[ruler.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+  const elements=[ruler.querySelector('.timeline-ruler-grid-canvas'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
   for(const el of elements){
    el.style.transformOrigin='0 0';
    el.style.transform='translate3d('+translate+'px,0,0) scaleX('+scale+')';
@@ -3164,7 +3183,7 @@ function clearTimelinePinch(){
  timelinePinchPending=null;
  if(timelinePinchFrame){cancelAnimationFrame(timelinePinchFrame);timelinePinchFrame=0}
  const ruler=timelineRuler();
- const elements=[ruler?.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+ const elements=[ruler?.querySelector('.timeline-ruler-grid-canvas'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
  // Drop compositor preview before changing canonical geometry, then commit in one frame.
  for(const el of elements){el.style.transform='';el.style.transformOrigin='';el.style.willChange=''}
  document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active','timeline-pinch-preview');
