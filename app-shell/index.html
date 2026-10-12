@@ -171,7 +171,7 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
  .knob{padding:4px}.dial{width:30px;height:30px;margin-bottom:3px}
 }
 @media(orientation:portrait){
- body:before{content:"Putar perangkat ke Landscape untuk menggunakan NovaDAW";position:fixed;inset:0;z-index:999;background:#090d12;color:#eaf3fc;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;font:600 18px/1.5 system-ui}
+ body:before{content:"Putar perangkat ke Landscape untuk menggunakan StudioWave";position:fixed;inset:0;z-index:999;background:#090d12;color:#eaf3fc;display:flex;align-items:center;justify-content:center;text-align:center;padding:32px;font:600 18px/1.5 system-ui}
  .app{visibility:hidden}
 }
 
@@ -2149,7 +2149,7 @@ function applyTrackZoom(){
  const zoom=Math.max(.5,Math.min(2.4,Number(timelineTrackZoom)||1));
  document.querySelector('#timelineScreen')?.style.setProperty('--timeline-track-zoom',String(zoom));
  const label=$('zoomVerticalLabel');if(label)label.textContent=Math.round(zoom*100)+'%';
- try{localStorage.setItem('novadaw-timeline-track-zoom',String(zoom))}catch(_){}
+ try{localStorage.setItem('studiowave-timeline-track-zoom',String(zoom))}catch(_){}
 }
 function setTimelineTrackZoom(next,anchorRatio=.5){
  const root=$('tracks');if(!root)return;
@@ -2948,10 +2948,10 @@ $('record').addEventListener('click',()=>{recording=!recording;$('record').class
 $('tempo').addEventListener('change',()=>{snapshot();project.tempo=Math.max(40,Math.min(240,+$('tempo').value||120));$('tempo').value=project.tempo;notify('Tempo proyek: '+project.tempo+' BPM')});
 $('meter').addEventListener('change',()=>{snapshot();project.meter=$('meter').value;notify('Meter proyek diubah ke '+project.meter)});
 $('projectName').addEventListener('change',()=>{snapshot();project.name=$('projectName').value.trim()||'Untitled';$('projectName').value=project.name});
-function saveProject(){try{localStorage.setItem('novadaw-project',JSON.stringify({...project,uiRackState:trackRacks}));notify('Proyek tersimpan di penyimpanan browser')}catch(e){notify('Penyimpanan tidak tersedia di mode ini')}}
-function openProject(){const stored=localStorage.getItem('novadaw-project');if(stored){try{snapshot();const loaded=normalizePianoResolution(JSON.parse(stored));project={...loaded};if(loaded.uiRackState&&typeof loaded.uiRackState==='object')Object.assign(trackRacks,loaded.uiRackState);selectedClip=null;renderAll();notify('Proyek dibuka')}catch(e){notify('Data proyek tidak valid')}}else $('file').click()}
+function saveProject(){try{localStorage.setItem('studiowave-project',JSON.stringify({...project,uiRackState:trackRacks}));notify('Proyek tersimpan di penyimpanan browser')}catch(e){notify('Penyimpanan tidak tersedia di mode ini')}}
+function openProject(){const stored=localStorage.getItem('studiowave-project');if(stored){try{snapshot();const loaded=normalizePianoResolution(JSON.parse(stored));project={...loaded};if(loaded.uiRackState&&typeof loaded.uiRackState==='object')Object.assign(trackRacks,loaded.uiRackState);selectedClip=null;renderAll();notify('Proyek dibuka')}catch(e){notify('Data proyek tidak valid')}}else $('file').click()}
 function importProject(){ $('file').click() }
-function exportProject(){const blob=new Blob([JSON.stringify({...project,uiRackState:trackRacks},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(project.name||'novadaw').replace(/[^a-z0-9-_]/gi,'_')+'.json';a.click();URL.revokeObjectURL(url);notify('Ekspor JSON dibuat')}
+function exportProject(){const blob=new Blob([JSON.stringify({...project,uiRackState:trackRacks},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(project.name||'studiowave').replace(/[^a-z0-9-_]/gi,'_')+'.json';a.click();URL.revokeObjectURL(url);notify('Ekspor JSON dibuat')}
 $('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const p=normalizePianoResolution(JSON.parse(await f.text()));if(!Array.isArray(p.tracks)||!Array.isArray(p.notes))throw Error('format');snapshot();if(p.uiRackState&&typeof p.uiRackState==='object')Object.assign(trackRacks,p.uiRackState);project={...p};renderAll();notify('Proyek JSON diimpor')}catch(_){notify('File proyek JSON tidak valid')}e.target.value=''});
 $('projectMenuButton').addEventListener('click',()=>{$('projectMenuOverlay').hidden=false});
 function closeProjectMenu(){$('projectMenuOverlay').hidden=true}
@@ -2972,11 +2972,11 @@ function applyUiPrefs(){
  document.body.classList.toggle('comfortable-ui',uiPrefs.density==='comfortable');
  const themes={dark:{bg:'#090d12',panel:'#101720',panel2:'#151e28',line:'#283747',text:'#eaf3fc',muted:'#91a3b7',blue:'#1687ff',cyan:'#31caff'},midnight:{bg:'#070b16',panel:'#0e1626',panel2:'#13213a',line:'#263a58',text:'#eaf2ff',muted:'#91a6c8',blue:'#4c91ff',cyan:'#50d7ff'},light:{bg:'#e7edf4',panel:'#f7f9fc',panel2:'#fff',line:'#bac7d5',text:'#142130',muted:'#5b6d80',blue:'#176bd1',cyan:'#009fbe'}};
  Object.entries(themes[uiPrefs.theme]||themes.dark).forEach(([k,v])=>root.style.setProperty('--'+k,v));
- localStorage.setItem('novadaw-ui-prefs',JSON.stringify(uiPrefs));
+ localStorage.setItem('studiowave-ui-prefs',JSON.stringify(uiPrefs));
 }
 function renderHomeSummary(){const node=$('homeProjectSummary');if(node)node.textContent=(project.name||'Untitled')+' · '+(Number(project.tempo)||120)+' BPM · '+project.tracks.length+' track';}
-function openSettings(){try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}
-try{timelineTrackZoom=Math.max(.5,Math.min(2.4,Number(localStorage.getItem('novadaw-timeline-track-zoom'))||1))}catch(_){}applyUiPrefs();renderHomeSummary();$('settingsOverlay').hidden=false}
+function openSettings(){try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('studiowave-ui-prefs')||'{}'))}catch(_){}
+try{timelineTrackZoom=Math.max(.5,Math.min(2.4,Number(localStorage.getItem('studiowave-timeline-track-zoom'))||1))}catch(_){}applyUiPrefs();renderHomeSummary();$('settingsOverlay').hidden=false}
 function closeSettings(){$('settingsOverlay').hidden=true}
 $('menu').addEventListener('click',openSettings);$('closeSettings').addEventListener('click',closeSettings);$('closeSettingsDone').addEventListener('click',closeSettings);
 $('homeSaveProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;saveProject();});
