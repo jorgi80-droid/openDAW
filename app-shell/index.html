@@ -1436,6 +1436,8 @@ function applyRangeOperation(action){
 }
 function renderTracks(){
  const root=$('tracks');root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas){rulerCanvas.style.width=(timelineZoom*100)+'%';rulerCanvas.style.minWidth='100%';}
+ const barViewport=document.querySelector('#timelineScreen .bars');
+ if(barViewport){barViewport.querySelectorAll('span:not(.ruler-end)').forEach((label,index)=>{label.textContent=String(index*4+1);label.style.flex='0 0 '+(100/8)+'%';});const end=barViewport.querySelector('.ruler-end');if(end)end.textContent=String(MAX_BARS+1)}
  project.tracks.forEach((t,index)=>{
   const row=document.createElement('div');row.className='trackrow';row.style.setProperty('--track',t.color);
   const label=document.createElement('div');label.className='tracklabel';
@@ -1448,6 +1450,7 @@ function renderTracks(){
   });
   area.appendChild(canvas);row.appendChild(area);root.appendChild(row);
  });
+ renderRangeSelection();
 }
 function renderMixer(){
  const root=$('mixer');root.innerHTML='';
@@ -2092,6 +2095,9 @@ $('timelineTools').addEventListener('click',e=>{
  else if(tool==='range'){timelineTool='range';notify('Rentang waktu: geser jari di ruler atas')}
  else if(tool==='duplicate-range'){applyRangeOperation('duplicate');return}
  else if(tool==='delete-range'){applyRangeOperation('delete');return}
+ else if(tool==='insert-space'){applyRangeOperation('insert');return}
+ else if(tool==='delete-space'){applyRangeOperation('delete-space');return}
+ else if(tool==='trim-selection'){applyRangeOperation('trim');return}
  else if(tool==='automation'){if(selectedTrack<0||selectedTrack>=project.tracks.length)selectedTrack=0;addClipToTrack(selectedTrack,'Automation');timelineTool='select'}
  updateTimelineTools();
 });
