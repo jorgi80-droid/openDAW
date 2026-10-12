@@ -25,7 +25,7 @@ jobs:
           required = [
             'id="timelineScreen"', 'id="mixerScreen"', 'id="pianoScreen"',
             'id="devicesScreen"', 'id="browserScreen"', 'id="play"',
-            'id="save"', 'id="export"', 'data-screen="timeline"',
+            'id="projectSave"', 'id="projectExport"', 'id="projectMenuButton"', 'id="projectMenuOverlay"', 'id="file"', 'data-screen="timeline"',
             'env(safe-area-inset-bottom)', 'function switchScreen',
             'id="floatingEditorButton"', 'id="floatingWorkspaceButton"', 'id="floatingBrowserButton"',
             'id="floatingEditorMenu"', 'id="floatingWorkspaceMenu"',
@@ -56,5 +56,11 @@ jobs:
               raise SystemExit("Immersive mode missing " + flag)
           if "flex:1 1 0;height:auto;min-height:0" not in s:
             raise SystemExit("Timeline must shrink inside the workspace instead of clipping")
-          print("NovaDAW UI static checks passed.")
+          if 'id="save"' in s or 'id="open"' in s or 'id="export"' in s:
+            raise SystemExit("Legacy Save/Open/Export buttons must stay out of the main toolbar")
+          if '#mainToolbar .subbar #save,#mainToolbar .subbar #open,#mainToolbar .subbar #export{display:none!important}' not in s:
+            raise SystemExit("Project actions must be hidden from the toolbar")
+          if "function saveProject()" not in s or "function openProject()" not in s or "function exportProject()" not in s:
+            raise SystemExit("Project menu actions are not wired to shared project handlers")
+                    print("NovaDAW UI static checks passed.")
           PY
