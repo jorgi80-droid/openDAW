@@ -34,7 +34,7 @@ jobs:
             ['landscape orientation is declared', fs.readFileSync('android-wrapper-novadaw/app/src/main/AndroidManifest.xml','utf8').includes('android:screenOrientation="landscape"')],
             ['immersive system UI configured', fs.readFileSync('android-wrapper-novadaw/app/src/main/java/com/novadaw/mobile/MainActivity.java','utf8').includes('SYSTEM_UI_FLAG_IMMERSIVE_STICKY')],
             ['timeline gets shrinkable workspace row', html.includes('flex:1 1 0;height:auto;min-height:0')],
-            ['Playlist zoom uses stable pixel-based timeline geometry', html.includes('function applyTimelineGeometry()') && html.includes("style.setProperty('width',contentWidth+'px','important')")],
+            ['Playlist zoom uses stable pixel-based timeline geometry', html.includes('function applyTimelineGeometry(options={})') && html.includes("style.setProperty('width',contentWidth+'px','important')")],
             ['pinch zoom no longer rebuilds clip DOM every move', !html.slice(html.indexOf('function setTimelineZoom(next,anchorX){'),html.indexOf("\n$('timelineScreen').addEventListener('wheel'")).includes('renderTracks();')],
             ['ruler and lanes share direct pixel scroll offsets', html.includes('const next=Math.max(0,Math.min(content-el.clientWidth,offset))')],
             ['ruler and lane scroll stays synchronized across clip rerenders', html.includes('const savedScrollLeft=rulerViewport?.scrollLeft||0') && html.includes("area.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget)") && html.includes('syncTimelineScroll(rulerViewport)')],
