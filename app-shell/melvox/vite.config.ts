@@ -3,7 +3,7 @@ import { execSync } from 'node:child_process';
 import { readdirSync, readFileSync, writeFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 
-const hash = (() => { try { return execSync('git rev-parse --short HEAD').toString().trim(); } catch { return 'dev'; } })();   // nomor versi build, tampil di panel Debug Audio
+const hash = 'studiowave-melvox';   // nomor versi build, tampil di panel Debug Audio
 const stamp = hash + ' ' + new Date().toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
 
 // PWA: setelah build, isi daftar semua file hasil build ke dist/sw.js supaya seluruh aplikasi
@@ -70,12 +70,14 @@ function demoBranding(): Plugin {
 }
 
 export default defineConfig(({ mode }) => ({
-  define: { __BUILD__: JSON.stringify(stamp), __DEMO__: JSON.stringify(mode === 'demo'), __FULL__: JSON.stringify(mode === 'full') },   // mode demo: vite build --mode demo -> dist-demo/ ; mode full: vite build --mode full -> dist-full/ (berlisensi, lewat gerbang login)
+  base: './',
+  define: { __BUILD__: JSON.stringify(stamp), __DEMO__: JSON.stringify(mode === 'demo'), __FULL__: 'false' },   // mode demo: vite build --mode demo -> dist-demo/ ; mode full: vite build --mode full -> dist-full/ (berlisensi, lewat gerbang login)
   plugins: [demoStubs(), demoBranding(), pwaPrecache()],
   build: {
-    outDir: mode === 'demo' ? 'dist-demo' : mode === 'full' ? 'dist-full' : 'dist',
+    outDir: 'dist',
     // build full memuat 2 halaman: aplikasi (index.html) dan halaman login (login.html)
-    rollupOptions: mode === 'full' ? { input: { main: resolve('index.html'), login: resolve('login.html'), admin: resolve('admin.html') } } : undefined,
+    rollupOptions: undefined,
+    emptyOutDir: true,
     // CSS dibiarkan apa adanya (tidak di-minify) supaya tampilan identik dengan versi HTML
     cssMinify: false,
   },
