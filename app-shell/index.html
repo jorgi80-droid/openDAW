@@ -2620,11 +2620,14 @@ function paintTimelineRuler(force=false){
   grid.fillStyle=bar%TIMELINE_MAJOR_BARS===0?'#334454':'#273644';
   grid.fillRect(x,0,1,h);
  }
- const labelEvery=ppb<7?16:ppb<13?8:4;
- labels.textBaseline='middle';labels.font='500 11px Inter,Roboto,system-ui,sans-serif';labels.fillStyle='#9cafc5';
+ const labelEvery=ppb<6?32:ppb<10?16:ppb<17?8:4;
+ labels.textBaseline='middle';labels.font='600 11px Inter,Roboto,system-ui,sans-serif';labels.fillStyle='#9cafc5';
  for(let bar=first;bar<=last;bar++){
   if(bar%labelEvery!==0||bar>=MAX_BARS)continue;
-  labels.fillText(String(bar+1),bar*ppb+5,h/2);
+  const text=String(bar+1);
+  const x=bar*ppb+5;
+  if(x+labels.measureText(text).width>=x1-2||x+labels.measureText(text).width<x0)continue;
+  labels.fillText(text,x,h/2);
  }
  const key=cacheKey;
  gridCanvas.dataset.cache=key;labelCanvas.dataset.cache=key;
@@ -3149,61 +3152,56 @@ function beginTimelinePinch(distance,centerX){
  document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-active');
 }
 function queueTimelinePinch(distance,centerX){
- const base=timelinePinchStart;
- if(!base||timelinePointers.size<2)return;
+ const base=timelinePinchStart;if(!base||timelinePointers.size<2)return;
  const ratio=Math.max(.0625,Math.min(16,Math.max(1,distance)/base.startDistance));
  timelinePinchPending={zoom:Math.max(.25,Math.min(16,base.startZoom*ratio)),centerX,epoch:base.epoch};
  if(timelinePinchFrame)return;
  timelinePinchFrame=requestAnimationFrame(()=>{
   timelinePinchFrame=0;
-  const pending=timelinePinchPending;timelinePinchPending=null;
-  const startState=timelinePinchStart;
-  if(!pending||!startState||pending.epoch!==startState.epoch||timelinePointers.size<2)return;
+  const p=timelinePinchPending;timelinePinchPending=null;
+  const state=timelinePinchStart;
+  if(!p||!state||p.epoch!==state.epoch||timelinePointers.size<2)return;
   const ruler=timelineRuler();if(!ruler)return;
-  const zoom=Math.max(.25,Math.min(16,pending.zoom));
-  const scale=zoom/Math.max(.0001,startState.startZoom);
-  const focusContentX=startState.anchorBar*startState.startPpb;
+  const zoom=Math.max(.25,Math.min(16,p.zoom)),scale=zoom/Math.max(.0001,state.startZoom);
+  const focusContentX=state.anchorBar*state.startPpb;
   const elements=[ruler.querySelector('.timeline-ruler-grid-canvas'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
   for(const canvas of elements){
    const viewport=canvas.classList.contains('timeline-ruler-grid-canvas')?ruler:canvas.closest('.cliparea');
    if(!viewport)continue;
    const rect=viewport.getBoundingClientRect();
-   const centerLocal=Math.max(0,Math.min(viewport.clientWidth,pending.centerX-rect.left));
+   // x coordinate relative to the viewport, then back into its scrollable content space.
+   const centerLocal=Math.max(0,Math.min(viewport.clientWidth,p.centerX-rect.left));
    const scroll=viewport.scrollLeft||0;
-   const translate=centerLocal+scroll-focusContentX*scale;
+   const tx=centerLocal+scroll-focusContentX*scale;
    canvas.style.transformOrigin='0 0';
-   canvas.style.transform='translate3d('+translate+'px,0,0) scaleX('+scale+')';
+   canvas.style.transform='translate3d('+tx+'px,0,0) scaleX('+scale+')';
    canvas.style.willChange='transform';
   }
   document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-preview');
-  startState.pendingZoom=zoom;
-  startState.pendingCenterX=pending.centerX;
+  state.pendingZoom=zoom;
+  state.pendingCenterX=p.centerX;
  });
 }
 function clearTimelinePinch(){
- const startState=timelinePinchStart;
- timelinePinchStart=null;timelinePinchPending=null;
+ const state=timelinePinchStart;timelinePinchStart=null;timelinePinchPending=null;
  if(timelinePinchFrame){cancelAnimationFrame(timelinePinchFrame);timelinePinchFrame=0}
  const ruler=timelineRuler();
  const elements=[ruler?.querySelector('.timeline-ruler-grid-canvas'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
  for(const canvas of elements){canvas.style.transform='';canvas.style.transformOrigin='';canvas.style.willChange=''}
  document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active','timeline-pinch-preview');
- if(startState&&Number.isFinite(startState.pendingZoom)){
-  const center=Number.isFinite(startState.pendingCenterX)&&ruler
-   ?Math.max(0,Math.min(ruler.clientWidth,startState.pendingCenterX-ruler.getBoundingClientRect().left))
-   :(ruler?.clientWidth||0)/2;
-  const focusBar=startState.anchorBar;
-  timelineZoom=startState.pendingZoom;
+ if(state&&Number.isFinite(state.pendingZoom)){
+  const centerX=Number.isFinite(state.pendingCenterX)?state.pendingCenterX:(ruler?.getBoundingClientRect().left||0)+(ruler?.clientWidth||0)/2;
+  timelineZoom=state.pendingZoom;
   $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
   $('timelineScreen').style.setProperty('--timeline-ppb',timelinePixelsPerBar()+'px');
-  const contentWidth=applyTimelineGeometry();
+  const width=applyTimelineGeometry();
   if(ruler){
-   const maxScroll=Math.max(0,contentWidth-ruler.clientWidth);
-   ruler.scrollLeft=Math.max(0,Math.min(maxScroll,focusBar*timelinePixelsPerBar()-center));
+   const local=Math.max(0,Math.min(ruler.clientWidth,centerX-ruler.getBoundingClientRect().left));
+   const maxScroll=Math.max(0,width-ruler.clientWidth);
+   ruler.scrollLeft=Math.max(0,Math.min(maxScroll,state.anchorBar*timelinePixelsPerBar()-local));
    syncTimelineScroll(ruler);
   }
-  requestPaintTimelineRuler(true);
-  updateTimelineTools();
+  requestPaintTimelineRuler(true);updateTimelineTools();
  }
  timelineLastPinchAt=Date.now();
 }
