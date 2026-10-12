@@ -2686,7 +2686,8 @@ function updateTimelineTools(){
   if(tool==='delete'||tool==='copy'||tool==='cut-clip')b.disabled=!selectedClip;
   if(tool==='paste')b.disabled=!clipboardClip;
  });
- renderRangeSelection();updateFloatingEditorMenu();$('zoomLabel').textContent=Math.round(timelineZoom*100)+'%';$('zoomLabel').title='Timeline zoom '+Math.round(timelineZoom*100)+'%';
+ renderRangeSelection();updateFloatingEditorMenu();$('zoomLabel')?.setAttribute('title','Timeline zoom '+Math.round(timelineZoom*100)+'%');
+ if($('zoomLabel'))$('zoomLabel').textContent=Math.round(timelineZoom*100)+'%';
 }
 function splitSelectedClipAtRatio(ratio=.5){
  const match=project.tracks.flatMap((t,ti)=>t.clips.map((c,ci)=>({t,ti,c,ci}))).find(x=>x.c.id===selectedClip);
