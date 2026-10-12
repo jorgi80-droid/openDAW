@@ -889,6 +889,59 @@ html[data-theme="light"] .clip{color:#152130!important}
 #devicesScreen .effect-chain-item button:disabled{opacity:.25}
 @media(max-height:480px){#devicesScreen .effect-chain{padding:3px;gap:2px}#devicesScreen .effect-chain-list{max-height:48px}#devicesScreen .effect-chain-item{grid-template-columns:minmax(0,1fr) 22px 22px 22px;gap:2px}#devicesScreen .effect-chain-item button{min-height:21px;height:21px;padding:1px 2px;font-size:9px}#devicesScreen .effect-chain>small{display:none}}
 
+
+/* Layout correction: the shell has five direct rows (header, transport, tempo/tools, workspace, dock). */
+.app{height:100dvh!important;min-height:0!important;grid-template-rows:42px 34px 34px minmax(0,1fr) 46px!important;grid-template-columns:minmax(0,1fr)!important;overflow:hidden!important}
+.top,.transportbar,.subbar,.workspace,.dock{min-width:0;min-height:0;box-sizing:border-box}
+.transportbar{display:flex!important;align-items:center;justify-content:center;min-height:0;padding:1px 6px!important}
+.transportbar .transport{display:flex;align-items:center;justify-content:center}
+.workspace{height:100%;min-height:0;overflow:hidden!important;padding:5px!important}
+.screen{height:100%;min-height:0!important;min-width:0;overflow:hidden}
+#devicesScreen:not([hidden]){display:block!important;height:100%;min-height:0!important}
+#devicesScreen>.panel{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important;gap:5px!important;padding:7px!important;box-sizing:border-box}
+#devicesScreen>.panel>.paneltitle{flex:0 0 auto;margin:0 0 2px!important}
+#devicesScreen .device-trackbar{flex:0 0 auto;min-height:30px;max-height:36px;overflow:auto}
+#devicesScreen .channel-step-rack{flex:0 0 auto;min-height:36px;max-height:48px;margin:0!important;padding:4px 6px!important;gap:6px}
+#devicesScreen .step-rack-heading{gap:3px}
+#devicesScreen .step-rack-buttons{min-width:0;flex:1 1 auto;grid-template-columns:repeat(16,minmax(12px,1fr));gap:2px}
+#devicesScreen .step-rack-buttons button{min-width:0;min-height:24px;padding:1px}
+#devicesScreen .tabs{flex:0 0 auto;margin:0!important;gap:4px}
+#devicesScreen .tabs button{min-height:30px;padding:3px 6px}
+#devicesScreen .devicegrid{flex:1 1 0;min-height:0!important;min-width:0;overflow:auto;align-content:start;grid-template-columns:minmax(135px,clamp(135px,18vw,190px)) minmax(0,1fr)!important;gap:6px!important}
+#devicesScreen .device-picker,#devicesScreen .device-editor{min-width:0;min-height:0}
+#devicesScreen .device-picker{overflow:auto}
+#devicesScreen .knobs{grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:5px}
+#devicesScreen .knob{min-width:0;padding:5px}
+#devicesScreen .dial{width:28px;height:28px;margin:2px auto}
+#devicesScreen .mini-keyboard{height:clamp(32px,6vh,48px)!important}
+#devicesScreen .mini-drum-pads{min-height:42px!important;grid-template-rows:repeat(2,minmax(18px,1fr))!important;gap:2px!important}
+#devicesScreen .drum-pad{min-height:18px!important;font-size:9px;padding:1px}
+.dock{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));overflow-x:auto}
+@media (orientation:landscape) and (max-height:480px){
+ .app{grid-template-rows:38px 30px 30px minmax(0,1fr) 40px!important}
+ .top{padding:2px 6px!important}
+ .top .brand{font-size:12px!important}
+ .top .project input{max-width:90px;font-size:11px}
+ .top-actions button,.top button{min-height:25px!important;min-width:25px!important;padding:2px 4px!important}
+ .transportbar .transport button{min-height:24px!important;min-width:26px!important;padding:1px 4px!important}
+ .subbar{gap:4px!important;padding:2px 5px!important;overflow-x:auto}
+ .subbar .chip{padding:3px 5px!important;font-size:10px!important}
+ .subbar .small{min-height:23px!important;padding:2px 4px!important;font-size:10px!important}
+ .workspace{padding:3px!important}
+ #devicesScreen>.panel{padding:4px!important;gap:3px!important}
+ #devicesScreen .devicegrid{grid-template-columns:clamp(112px,17vw,145px) minmax(0,1fr)!important;gap:4px!important}
+ #devicesScreen .channel-step-rack{min-height:30px;max-height:34px}
+ #devicesScreen .step-rack-heading strong{font-size:9px}
+ #devicesScreen .step-rack-heading small{display:none}
+ #devicesScreen .step-rack-buttons button{min-height:20px}
+ #devicesScreen .tabs button{min-height:25px;font-size:10px}
+ #devicesScreen .knobs{grid-template-columns:repeat(auto-fit,minmax(80px,1fr))}
+ #devicesScreen .knob{padding:3px}
+ #devicesScreen .mini-keyboard{height:30px!important}
+ .dock{padding:2px 4px!important;gap:3px!important}
+ .dock button{min-height:34px!important;font-size:10px!important}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
