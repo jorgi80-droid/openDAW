@@ -56,8 +56,13 @@ jobs:
           SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
           if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n 1)"; fi
           test -x "$SDKMANAGER"
+          set +o pipefail
           yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
+          set -o pipefail
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --channel=0 "platform-tools" "platforms;android-35" "build-tools;35.0.0"
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" --channel=0 "ndk;27.2.12479018" "cmake;3.22.1"
+          test -d "$SDK_ROOT/ndk/27.2.12479018"
+          test -d "$SDK_ROOT/cmake/3.22.1"
 
       - name: Package StudioWave UI and audio assets
         shell: bash
