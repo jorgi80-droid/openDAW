@@ -1917,6 +1917,15 @@ function syncTimelineScroll(source){
 }
 document.querySelector('.bars-viewport')?.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget),{passive:true});
 $('tracks').addEventListener('scroll',e=>{const area=e.target.closest('[data-timeline-scroll="clip"]');if(area)syncTimelineScroll(area)},{passive:true});
+function cancelClipGesture(pointerId){
+ const g=clipGesture;if(!g||(pointerId!==undefined&&g.pointerId!==pointerId))return;
+ if(g.moved){
+  project=JSON.parse(g.before);
+  selectedClip=g.clipId;selectedTrack=g.trackIndex;
+  renderTracks();updateTimelineTools();
+ }
+ clipGesture=null;
+}
 function finishClipGesture(e){
  const g=clipGesture;if(!g||e.pointerId!==g.pointerId)return;
  if(g.moved){
@@ -1932,7 +1941,7 @@ $('tracks').addEventListener('pointerup',e=>{
 });
 $('tracks').addEventListener('pointercancel',e=>{
  if(pendingLanePress&&pendingLanePress.pointerId===e.pointerId){clearTimeout(pendingLanePress.timer);pendingLanePress=null}
- finishClipGesture(e);
+ cancelClipGesture(e.pointerId);
 });
 function hideClipContext(){$('clipContextMenu').hidden=true}
 function openClipEditor(id){
@@ -2312,7 +2321,9 @@ function beginTimelinePinch(distance,centerX,mode){
   pointerMode:mode==='pointer'
  };
  timelinePinchPending=null;
- clipGesture=null;pendingLanePress=null;timelinePan=null;
+ cancelClipGesture();
+ if(pendingLanePress){clearTimeout(pendingLanePress.timer);pendingLanePress=null}
+ timelinePan=null;
  document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-active');
 }
 function moveTimelinePinch(distance,centerX){
