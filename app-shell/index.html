@@ -1671,6 +1671,46 @@ function applyRangeOperation(action){
   selectedClip=null;renderAll();renderRangeSelection();updateTimelineTools();
  }
 }
+let timelineTrackZoom=1;
+function applyTrackZoom(){
+ const root=$('tracks');if(!root)return;
+ const zoom=Math.max(.5,Math.min(2.4,Number(timelineTrackZoom)||1));
+ document.querySelector('#timelineScreen')?.style.setProperty('--timeline-track-zoom',String(zoom));
+ const label=$('zoomVerticalLabel');if(label)label.textContent=Math.round(zoom*100)+'%';
+}
+function setTimelineTrackZoom(next,anchorRatio=.5){
+ const root=$('tracks');if(!root)return;
+ const before=Math.max(.5,Math.min(2.4,Number(timelineTrackZoom)||1));
+ const after=Math.max(.5,Math.min(2.4,Number(next)||before));
+ if(Math.abs(after-before)<.001)return;
+ const ratio=Math.max(0,Math.min(1,Number(anchorRatio)||0));
+ const rowHeight=Math.max(1,40*before);
+ const anchorIndex=Math.max(0,Math.min(project.tracks.length-1,Math.floor((root.scrollTop+ratio*root.clientHeight)/rowHeight)));
+ const within=(root.scrollTop+ratio*root.clientHeight)-anchorIndex*rowHeight;
+ timelineTrackZoom=after;applyTrackZoom();
+ requestAnimationFrame(()=>{root.scrollTop=Math.max(0,anchorIndex*40*after+within*(after/before)-ratio*root.clientHeight)});
+}
+function fitTimelineTracks(){
+ const root=$('tracks');if(!root)return;
+ const count=Math.max(1,project.tracks.length);
+ timelineTrackZoom=Math.max(.5,Math.min(2.4,root.clientHeight/(count*40)));
+ applyTrackZoom();root.scrollTop=0;
+}
+let trackHeightGesture=null;
+function beginTrackHeightGesture(e){
+ if(e.button!==undefined&&e.button!==0)return;
+ trackHeightGesture={pointerId:e.pointerId,startY:e.clientY,startZoom:timelineTrackZoom};
+ try{e.currentTarget.setPointerCapture(e.pointerId)}catch(_){}
+ e.preventDefault();e.stopPropagation();
+}
+document.addEventListener('pointermove',e=>{
+ const g=trackHeightGesture;if(!g||g.pointerId!==e.pointerId)return;
+ setTimelineTrackZoom(g.startZoom*Math.exp((e.clientY-g.startY)/180),.5);
+},{passive:false});
+function endTrackHeightGesture(e){if(trackHeightGesture&&trackHeightGesture.pointerId===e.pointerId)trackHeightGesture=null}
+document.addEventListener('pointerup',endTrackHeightGesture);
+document.addEventListener('pointercancel',endTrackHeightGesture);
+document.addEventListener('lostpointercapture',endTrackHeightGesture);
 function renderTracks(){
  const root=$('tracks'),rulerViewport=document.querySelector('#timelineScreen .bars-viewport');
  const savedScrollLeft=rulerViewport?.scrollLeft||0,savedScrollTop=root.scrollTop||0;
