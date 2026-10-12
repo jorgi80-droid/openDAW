@@ -198,7 +198,7 @@ try {
     assert(noteLeftAfter !== noteLeftBefore && noteTopAfter !== noteTopBefore, `dragging a Piano Roll note changes pitch and time at ${viewport.width}x${viewport.height}; before=${noteLeftBefore}/${noteTopBefore}, after=${noteLeftAfter}/${noteTopAfter}, events=${JSON.stringify(dragDebug)}`);
     const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid .note-layer').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
     assert(notesInside, `all Piano Roll notes remain inside note grid at ${viewport.width}x${viewport.height}`);
-    assert(await page.locator('#velocity span').count() === 32, `velocity bars remain in separate lane at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#velocity span').count() === await page.locator('#pianogrid .note').count(), `velocity lane has one editable bar per MIDI note at ${viewport.width}x${viewport.height}`);
     const pianoWidthBefore=await page.locator('#pianogrid .note-layer').evaluate(el=>el.scrollWidth);
     await page.locator('#pianogrid').dispatchEvent('wheel',{deltaY:-100,ctrlKey:true,bubbles:true,cancelable:true,clientX:300});
     assert(await page.locator('#pianogrid .note-layer').evaluate(el=>el.scrollWidth)>pianoWidthBefore, `Ctrl-wheel Piano Roll zoom works at ${viewport.width}x${viewport.height}`);
