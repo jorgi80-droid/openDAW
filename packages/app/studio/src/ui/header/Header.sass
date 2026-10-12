@@ -51,3 +51,33 @@ component
   .panel-selector
     .no-project &
       opacity: 0.5
+
+@media (max-width: 900px), (pointer: coarse)
+  html.midiable-mobile .mobile-header
+    min-height: 36px
+    max-height: 36px
+    height: 36px
+    flex-basis: 36px
+    padding: 2px 5px
+    column-gap: 0.3em
+    overflow-x: auto
+    overflow-y: hidden
+    scrollbar-width: none
+    touch-action: pan-x
+
+  html.midiable-mobile .mobile-header .panel-selector
+    display: none !important
+
+  html.midiable-mobile .mobile-header > *
+    flex-shrink: 0
+
+  html.midiable-mobile .mobile-header > hr
+    margin: 0 1px
+    flex: 0 0 1px
+
+  html.midiable-mobile .mobile-header > div[style*="flex: 2"]
+    display: none
+
+  html.midiable-mobile .mobile-header > h5,
+  html.midiable-mobile .mobile-header > a.manuals
+    display: none
