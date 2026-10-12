@@ -37,12 +37,23 @@ jobs:
           set -o pipefail
           "$SDKMANAGER" --sdk_root="$SDK_ROOT" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
 
+      - name: Build offline Melvox suite
+        working-directory: app-shell/melvox
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run build
+          test -f dist/index.html
+          test -d dist/assets
+
       - name: Package StudioWave UI assets
         run: |
           set -euo pipefail
           ASSETS=android-wrapper-novadaw/app/src/main/assets/novadaw
           mkdir -p "$ASSETS/assets/opendaw/fonts" "$ASSETS/assets/opendaw/ui" "$ASSETS/assets/melvox/samples/piano"
           cp app-shell/index.html "$ASSETS/index.html"
+          mkdir -p "$ASSETS/melvox"
+          cp -R app-shell/melvox/dist/. "$ASSETS/melvox/"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/favicon.svg -o "$ASSETS/assets/opendaw/favicon.svg"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/fonts/rubik-400.woff2 -o "$ASSETS/assets/opendaw/fonts/rubik-400.woff2"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/fonts/rubik-300.woff2 -o "$ASSETS/assets/opendaw/fonts/rubik-300.woff2"
