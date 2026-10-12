@@ -441,6 +441,19 @@ body{font-size:calc(14px * var(--ui-scale))}
 #pianoScreen .velocity{grid-column:1/3;grid-row:2;min-height:0!important;height:100%;padding:3px 6px;gap:4px;align-items:stretch;overflow:hidden}
 #pianoScreen .velocity span{flex:1;width:auto;min-width:2px;align-self:end;max-height:100%;min-height:3px}
 #devicesScreen>.panel{gap:6px!important;padding:8px!important}
+/* Compact Channel Rack strip inside the existing Devices workspace. */
+#devicesScreen .channel-step-rack{display:flex;align-items:center;gap:10px;flex:0 0 auto;min-width:0;margin:0 0 8px;padding:6px 8px;border:1px solid var(--line);border-radius:9px;background:#0b1219}
+#devicesScreen .step-rack-heading{display:flex;flex:0 0 auto;flex-direction:column;gap:2px;min-width:94px}
+#devicesScreen .step-rack-heading strong{font-size:9px;letter-spacing:.08em;color:#8dccff}
+#devicesScreen .step-rack-heading span{max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+#devicesScreen .step-rack-heading small{font-size:9px;color:var(--muted)}
+#devicesScreen .step-rack-buttons{display:grid;grid-template-columns:repeat(16,minmax(20px,1fr));gap:3px;flex:1;min-width:320px}
+#devicesScreen .step-cell{min-width:0;min-height:30px;height:30px;padding:0;border-radius:5px;background:#18232e;border:1px solid #2c3c4c;color:#91a3b7;font-size:10px;font-variant-numeric:tabular-nums}
+#devicesScreen .step-cell:nth-child(4n+1){margin-left:2px}
+#devicesScreen .step-cell[aria-pressed="true"]{background:#1687ff;border-color:#57b8ff;color:white;box-shadow:inset 0 -3px 0 #0b5eb5}
+#devicesScreen .step-cell:focus-visible{outline:2px solid var(--cyan);outline-offset:1px}
+@media(max-width:720px){#devicesScreen .channel-step-rack{gap:6px;padding:5px}.step-rack-heading{min-width:76px!important}.step-rack-buttons{overflow-x:auto}}
+@media(max-height:480px){#devicesScreen .channel-step-rack{margin-bottom:5px;padding:4px 6px}.step-rack-heading{gap:1px}.step-rack-heading small{display:none}#devicesScreen .step-cell{min-height:25px;height:25px;font-size:9px}}
 #devicesScreen .device-trackbar{flex:0 0 auto;gap:6px;flex-wrap:nowrap;min-height:30px;margin:0;padding:4px 6px}
 #devicesScreen .device-trackbar strong{font-size:calc(11px * var(--ui-scale));min-width:0}
 #devicesScreen .device-trackbar .muted{font-size:10px}
@@ -840,7 +853,8 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 </section>
 <section class="screen" id="mixerScreen" hidden><div class="panel"><h2 class="paneltitle">Mixer <span class="muted" style="font-size:12px">· per track</span></h2><div class="mixergrid" id="mixer"></div></div></section>
 <section class="screen" id="pianoScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Piano Roll <span class="muted" style="font-size:12px">· ketuk grid untuk menambah nada</span></h2><div class="pianowrap"><div class="piano-corner" aria-hidden="true"></div><div class="piano-ruler" id="pianoRuler" aria-label="Piano Roll bar ruler"><div class="piano-ruler-canvas" id="pianoRulerCanvas"></div></div><div class="keys" id="keys"></div><div class="pianogrid" id="pianogrid" aria-label="Grid piano roll"></div><div class="velocity" id="velocity"></div></div></div></section>
-<section class="screen" id="devicesScreen" hidden><div class="panel"><h2 class="paneltitle">Devices & Instruments</h2><div class="device-trackbar"><strong id="deviceTrackLabel">Track 1 · Drums · Audio</strong><span class="muted">Rack per-track</span><select id="deviceTrackSelect" aria-label="Pilih track untuk rack"></select></div><div class="tabs" id="devTabs"><button class="active" data-cat="Instrument">Instrumen</button><button data-cat="Effect">Efek</button><button data-cat="Preset">Preset</button></div><div class="devicegrid" id="devices"></div><p class="muted" style="margin-bottom:0;font-size:12px">UI prototype: kontrol instrumen ini belum dirutekan ke engine OpenDAW.</p></div></section>
+<section class="screen" id="devicesScreen" hidden><div class="panel"><h2 class="paneltitle">Devices & Instruments</h2><div class="device-trackbar"><strong id="deviceTrackLabel">Track 1 · Drums · Audio</strong><span class="muted">Rack per-track</span><select id="deviceTrackSelect" aria-label="Pilih track untuk rack"></select></div>
+<div class="channel-step-rack" id="channelStepRack" aria-label="Channel Rack step sequencer"><div class="step-rack-heading"><strong>CHANNEL RACK</strong><span id="stepRackTrackName">Drums</span><small>16 steps · UI</small></div><div class="step-rack-buttons" id="stepRackButtons"></div></div><div class="tabs" id="devTabs"><button class="active" data-cat="Instrument">Instrumen</button><button data-cat="Effect">Efek</button><button data-cat="Preset">Preset</button></div><div class="devicegrid" id="devices"></div><p class="muted" style="margin-bottom:0;font-size:12px">UI prototype: kontrol instrumen ini belum dirutekan ke engine OpenDAW.</p></div></section>
 <section class="screen" id="browserScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Browser</h2><div class="tabs" id="browserTabs"><button class="active" data-cat="Samples">Samples</button><button data-cat="Instruments">Instrumen</button><button data-cat="Effects">Efek</button><button data-cat="Presets">Preset</button></div><div class="browserlayout"><div class="categories" id="categories"><button class="active" data-filter="All">Semua</button><button data-filter="Drums">Drums</button><button data-filter="Bass">Bass</button><button data-filter="Synth">Synth</button><button data-filter="Piano">Piano</button><button data-filter="Vocals">Vokal</button><button data-filter="User">Impor</button></div><div class="samplelist" id="samples"></div></div><p class="muted" style="font-size:12px;margin-bottom:0">Daftar ini memakai data demo UI; sampel, instrumen, dan efek belum terhubung ke mesin audio.</p></div></section>
 </main>
 <nav class="dock" aria-label="Workspace navigation">
@@ -907,7 +921,8 @@ normalizePianoResolution(project);
 const trackRacks = Object.create(null);
 function getTrackRack(index=selectedTrack){
  const track=project.tracks[index]; if(!track)return null;
- if(!trackRacks[track.id])trackRacks[track.id]={instrument:'Vaporisateur Synth',effect:'Revamp EQ',preset:'Warm Keys',instrumentParams:{},effectParams:{},bypassed:false};
+ if(!trackRacks[track.id])trackRacks[track.id]={instrument:'Vaporisateur Synth',effect:'Revamp EQ',preset:'Warm Keys',instrumentParams:{},effectParams:{},bypassed:false,steps:Array.from({length:16},(_,i)=>track.name==='Drums'&&i%4===0)};
+ if(!Array.isArray(trackRacks[track.id].steps))trackRacks[track.id].steps=Array(16).fill(false);
  return trackRacks[track.id];
 }
 function syncRackView(){
@@ -1014,6 +1029,19 @@ const effectPages={
  TIME:[['Time',35],['Feedback',28],['Damping',55],['Mix',24]],
  SPACE:[['Size',48],['Decay',38],['Width',72],['Mix',25]]
 };
+function renderChannelSteps(){
+ const root=$('stepRackButtons'),label=$('stepRackTrackName'),track=project.tracks[selectedTrack],rack=getTrackRack(selectedTrack);
+ if(!root)return;
+ root.innerHTML='';
+ if(!track||!rack){label.textContent='No track';return}
+ label.textContent=track.name;
+ rack.steps.forEach((active,index)=>{
+  const button=document.createElement('button');
+  button.type='button';button.className='step-cell'+(index%4===0?' beat-start':'');
+  button.dataset.stepIndex=String(index);button.setAttribute('aria-label','Step '+(index+1));button.setAttribute('aria-pressed',active?'true':'false');button.textContent=String(index+1);
+  root.appendChild(button);
+ });
+}
 function renderDevices(cat=selectedDeviceCategory){
  selectedDeviceCategory=cat;
  const root=$('devices');root.innerHTML='';
@@ -1024,7 +1052,7 @@ function renderDevices(cat=selectedDeviceCategory){
  if(!items.some(x=>x.name===rack[key]))rack[key]=items[0].name;
  selectedDevice=rack[key];
  document.querySelectorAll('#devTabs button').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
- syncRackView();
+ syncRackView();renderChannelSteps();
  const selected=items.find(x=>x.name===rack[key])||items[0];
  const picker=document.createElement('aside');picker.className='device-picker';picker.setAttribute('aria-label','Track Rack '+track.name);
  picker.innerHTML='<div class="device-picker-heading">TRACK RACK · '+esc(track.name.toUpperCase())+'</div><div class="device-options"></div>';
@@ -1275,6 +1303,8 @@ $('pianogrid').addEventListener('click',e=>{
 $('deviceTrackSelect').addEventListener('change',e=>{const index=Number(e.target.value);if(!Number.isInteger(index)||!project.tracks[index])return;selectedTrack=index;renderDevices();syncRackView();notify('Rack track: '+project.tracks[index].name)});
 $('devTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;selectedDeviceCategory=b.dataset.cat;selectedDeviceTab=b.dataset.cat==='Instrument'?'OSC':b.dataset.cat==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory)});
 $('devices').addEventListener('click',e=>{
+ const step=e.target.closest('[data-step-index]');
+ if(step){const rack=getTrackRack();const index=Number(step.dataset.stepIndex);if(Number.isInteger(index)&&index>=0&&index<16){rack.steps[index]=!rack.steps[index];step.setAttribute('aria-pressed',rack.steps[index]?'true':'false');step.classList.toggle('active',rack.steps[index]);notify('Step '+(index+1)+' '+(rack.steps[index]?'aktif':'nonaktif')+' pada '+project.tracks[selectedTrack].name+' · UI model');}return}
  const keyboard=e.target.closest('[data-device-keyboard]');if(keyboard){deviceKeyboardVisible=!deviceKeyboardVisible;renderDevices('Instrument');return}
  const key=e.target.closest('.mini-keyboard .white-key');if(key){key.classList.add('pressed');setTimeout(()=>key.classList.remove('pressed'),110);return}
  const option=e.target.closest('[data-device-select]');if(option){const rack=getTrackRack();if(selectedDeviceCategory==='Instrument')rack.instrument=option.dataset.deviceSelect;else if(selectedDeviceCategory==='Effect')rack.effect=option.dataset.deviceSelect;else rack.preset=option.dataset.deviceSelect;selectedDevice=option.dataset.deviceSelect;selectedDeviceTab=selectedDeviceCategory==='Instrument'?'OSC':selectedDeviceCategory==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory);return}
