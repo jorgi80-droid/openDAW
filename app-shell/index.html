@@ -607,6 +607,98 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
  #devicesScreen .knob-dial{width:22px;height:22px}
 }
 
+/* Compact FL-style transport centered in a dedicated short strip. */
+.app{grid-template-rows:42px 36px 32px minmax(0,1fr) 44px!important}
+.top{min-height:0;padding:2px 7px!important;gap:6px!important}
+.top .brand{font-size:14px!important}
+.top .project{gap:4px}
+.top .project input{font-size:12px!important;padding:3px 4px!important;max-width:150px}
+.top-actions{display:flex;align-items:center;gap:3px;margin-left:auto}
+.top-actions button,.transportbar button{min-width:28px!important;min-height:27px!important;padding:3px 5px!important;border-radius:7px}
+.top-actions .workspace-dock-symbol,.transportbar .workspace-dock-symbol{width:16px;height:16px;flex-basis:16px}
+.transportbar{display:flex;align-items:center;justify-content:center;position:relative;min-width:0;background:#0c1219;border-bottom:1px solid var(--line);padding:1px 6px}
+.transportbar .transport{display:flex;align-items:center;justify-content:center;gap:4px}
+.transportbar .play{min-width:34px!important;min-height:29px!important;background:#10ad77;border-color:#10ad77}
+.transportbar .meta{font-size:10px!important;min-width:58px!important}
+.subbar{padding:2px 7px!important;gap:4px!important;min-height:0}
+.subbar .chip{padding:3px 6px!important;font-size:11px!important;min-height:26px}
+.subbar .chip input{font-size:11px!important;width:34px!important}
+.subbar button{min-height:25px!important;padding:3px 6px!important;font-size:10px!important}
+.workspace{padding:4px!important;min-height:0;overflow:hidden}
+.dock{padding:3px 5px calc(3px + env(safe-area-inset-bottom))!important;gap:4px!important}
+.dock button{min-height:38px!important;padding:2px 3px!important;font-size:10px!important;gap:3px!important}
+.dock .workspace-dock-symbol{width:16px;height:16px;flex-basis:16px}
+.panel{padding:7px!important}
+.paneltitle{font-size:13px!important;margin-bottom:5px!important}
+#devicesScreen>.panel{display:flex;flex-direction:column;gap:5px;min-height:0;overflow:hidden}
+#devicesScreen .device-trackbar{flex:0 0 28px!important;min-height:28px!important;padding:2px 5px!important;gap:5px!important}
+#devicesScreen .device-trackbar strong{font-size:10px!important}
+#devicesScreen .device-trackbar .muted{font-size:9px!important}
+#devicesScreen .device-trackbar select{min-height:23px!important;font-size:9px!important;padding:2px 4px!important}
+#devicesScreen #devTabs{flex:0 0 30px!important;display:flex;gap:4px!important;margin:0!important}
+#devicesScreen #devTabs button{flex:1;min-width:0;min-height:28px!important;padding:3px 5px!important;font-size:10px!important}
+#devicesScreen .devicegrid{display:grid!important;grid-template-columns:clamp(108px,13vw,142px) minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr)!important;flex:1 1 0!important;height:auto!important;min-height:0!important;overflow:hidden!important;gap:5px!important}
+#devicesScreen .device-picker{height:100%!important;max-height:100%!important;min-height:0!important;overflow:auto!important;padding:4px!important;gap:3px!important}
+#devicesScreen .device-picker-heading{font-size:8px!important;line-height:1.15!important;padding:2px}
+#devicesScreen .device-options{display:flex;flex-direction:column;gap:3px!important;overflow:auto;min-height:0}
+#devicesScreen .device-option{min-height:28px!important;padding:4px!important;gap:1px!important;border-radius:6px!important}
+#devicesScreen .device-option-name{font-size:9px!important;line-height:1.1!important}
+#devicesScreen .device-option-type{font-size:8px!important;line-height:1.1!important}
+#devicesScreen .device-editor{height:100%!important;max-height:100%!important;min-width:0!important;min-height:0!important;display:flex!important;flex-direction:column!important;gap:4px!important;padding:5px!important;overflow:auto!important;overscroll-behavior:contain}
+#devicesScreen .device-editor-header{flex:0 0 auto!important;align-items:center!important;gap:4px!important}
+#devicesScreen .device-editor-header h3{font-size:12px!important;line-height:1.15!important;margin:0!important}
+#devicesScreen .device-editor-header p{font-size:8px!important;line-height:1.15!important;margin:2px 0 0!important}
+#devicesScreen .device-kicker{font-size:8px!important}
+#devicesScreen .device-editor-actions{gap:3px!important}
+#devicesScreen .device-editor-actions label{display:none!important}
+#devicesScreen .device-editor-actions select{width:72px!important;min-width:55px!important;min-height:23px!important;font-size:8px!important;padding:2px!important}
+#devicesScreen .device-editor-actions button{min-height:23px!important;padding:2px 5px!important;font-size:8px!important}
+#devicesScreen .device-page-tabs{flex:0 0 27px!important;gap:3px!important;overflow-x:auto}
+#devicesScreen .device-page-tabs button{min-height:24px!important;min-width:36px!important;padding:2px 4px!important;font-size:8px!important}
+#devicesScreen .device-editor-main{display:grid!important;grid-template-columns:minmax(70px,.32fr) minmax(0,1.68fr)!important;gap:4px!important;flex:1 0 auto!important;min-height:88px!important;align-content:start}
+#devicesScreen .device-scope{min-width:0!important;padding:4px!important;gap:2px!important}
+#devicesScreen .device-scope-label{font-size:7px!important;line-height:1.1!important}
+#devicesScreen .device-scope svg{height:clamp(26px,4.8vh,42px)!important;flex:0 0 auto}
+#devicesScreen .waveform-row{font-size:8px!important;gap:2px!important}
+#devicesScreen .waveform-row select{font-size:8px!important;max-width:65px!important;padding:2px!important;min-height:22px!important}
+#devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(28px,1fr))!important;gap:3px!important;align-content:start}
+#devicesScreen .knob-control{min-width:0!important;padding:3px!important;gap:2px!important}
+#devicesScreen .knob-head{display:flex;flex-direction:column;gap:1px!important;align-items:center}
+#devicesScreen .knob-head label{font-size:8px!important;line-height:1.05!important;text-align:center}
+#devicesScreen .knob-head output{font-size:8px!important}
+#devicesScreen .knob-dial{width:clamp(22px,2.8vw,31px)!important;height:clamp(22px,2.8vw,31px)!important;border-width:3px!important}
+#devicesScreen .knob-control input{height:12px!important;margin:0!important}
+#devicesScreen .mini-keyboard{flex:0 0 32px!important;height:32px!important;min-height:32px!important;margin-top:2px!important}
+#devicesScreen .preset-detail{grid-template-columns:minmax(0,1fr) minmax(75px,.6fr)!important;gap:4px!important;min-height:0!important}
+#devicesScreen .preset-art{min-height:50px!important;padding:4px!important}
+#devicesScreen .preset-meta{padding:4px!important;font-size:8px!important;gap:3px!important}
+#pianoScreen>.panel{display:flex!important;flex-direction:column!important;min-height:0!important;overflow:hidden!important;gap:3px!important}
+#pianoScreen .paneltitle{flex:0 0 auto}
+#pianoScreen .pianowrap{display:grid!important;grid-template-columns:42px minmax(0,1fr)!important;grid-template-rows:22px minmax(0,1fr) 34px!important;flex:1 1 0!important;height:auto!important;min-height:0!important;overflow:hidden!important}
+#pianoScreen .piano-corner{grid-column:1;grid-row:1}
+#pianoScreen .piano-ruler{grid-column:2;grid-row:1;min-width:0;overflow:hidden}
+#pianoScreen .piano-ruler-canvas{display:flex!important;min-width:0;height:100%}
+#pianoScreen .piano-ruler-canvas span{flex:0 0 calc(var(--piano-bar-width,80px));font-size:8px!important;padding:2px 3px!important}
+#pianoScreen .keys{grid-column:1;grid-row:2;display:grid!important;grid-template-rows:repeat(25,minmax(0,1fr))!important;overflow:hidden!important;min-height:0!important}
+#pianoScreen .keys span{display:flex;align-items:center;min-height:0!important;font-size:8px!important;line-height:1!important;padding:0 3px!important}
+#pianoScreen .pianogrid{grid-column:2;grid-row:2;display:block!important;min-width:0!important;min-height:0!important;overflow:auto!important;touch-action:pan-x pan-y!important}
+#pianoScreen .note-layer{position:relative!important;height:100%!important;min-height:0!important;display:block!important;background-image:repeating-linear-gradient(to right,transparent 0 calc(3.125% - 1px),#263543 calc(3.125% - 1px) 3.125%),repeating-linear-gradient(to bottom,transparent 0 calc(4% - 1px),#263543 calc(4% - 1px) 4%);background-size:100% 100%!important}
+#pianoScreen .note-layer .note{position:absolute!important;height:4%!important;min-height:4px!important;margin:0!important;padding:0!important}
+#pianoScreen .velocity{grid-column:1/3!important;grid-row:3!important;display:flex!important;align-items:stretch!important;justify-content:flex-start!important;overflow:auto!important;min-height:0!important;height:34px!important;padding:2px 4px!important;gap:3px!important;touch-action:none!important}
+#pianoScreen .velocity span{flex:0 0 16px!important;width:16px!important;min-width:8px!important;height:calc(var(--velocity-value, var(--h, 50%)))!important;align-self:end!important;min-height:2px!important;border-radius:2px 2px 0 0}
+@media(max-height:480px){
+ .app{grid-template-rows:38px 32px 28px minmax(0,1fr) 38px!important}
+ .top .brand{font-size:12px!important}
+ .top .project input{max-width:90px!important}
+ #devicesScreen .device-editor-main{min-height:75px!important;grid-template-columns:minmax(56px,.28fr) minmax(0,1.72fr)!important}
+ #devicesScreen .device-scope svg{height:22px!important}
+ #devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(24px,1fr))!important;gap:2px!important}
+ #devicesScreen .knob-dial{width:20px!important;height:20px!important}
+ #devicesScreen .mini-keyboard{height:26px!important;flex-basis:26px!important}
+ #pianoScreen .pianowrap{grid-template-rows:20px minmax(0,1fr) 28px!important}
+ #pianoScreen .velocity{height:28px!important}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -622,9 +714,9 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 <header class="top">
   <div class="brand">NovaDAW <span>Mobile</span></div>
   <div class="project"><button class="small" aria-label="Home and settings" id="menu" title="Home / Settings"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/></svg></button><input id="projectName" aria-label="Nama proyek" value="My Song"></div>
-  <div class="transport"><button class="small" id="rewind" aria-label="Kembali ke awal"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M19 5L7 12l12 7z" stroke="currentColor" stroke-width="1.6" fill="currentColor"/></svg></button><button class="small play" id="play" aria-label="Putar atau jeda"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg></button><button class="small" id="record" aria-label="Rekam"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6" fill="#ff5c69"/></svg></button><button class="small meta" id="position">1:1:000</button></div>
-  <button class="small" id="undo" aria-label="Undo" title="Undo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4 12l5 5M4 12h10a5 5 0 0 1 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button class="small" id="redo" aria-label="Redo" title="Redo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7l5 5-5 5M20 12H10a5 5 0 0 0-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
+  <div class="top-actions"><button class="small" id="undo" aria-label="Undo" title="Undo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4 12l5 5M4 12h10a5 5 0 0 1 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button class="small" id="redo" aria-label="Redo" title="Redo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7l5 5-5 5M20 12H10a5 5 0 0 0-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button></div>
 </header>
+<div class="transportbar"><div class="transport"><button class="small" id="rewind" aria-label="Kembali ke awal"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M19 5L7 12l12 7z" stroke="currentColor" stroke-width="1.6" fill="currentColor"/></svg></button><button class="small play" id="play" aria-label="Putar atau jeda"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg></button><button class="small" id="record" aria-label="Rekam"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6" fill="#ff5c69"/></svg></button><button class="small meta" id="position">1:1:000</button></div></div>
 <div class="subbar"><span class="chip">Tempo <b><input id="tempo" type="number" min="40" max="240" value="120" style="width:45px;background:transparent;border:0;color:#8bd2ff"></b> BPM</span><span class="chip">Meter <b><select id="meter" style="background:transparent;border:0;color:#8bd2ff"><option>4/4</option><option>3/4</option><option>6/8</option><option>5/4</option></select></b></span><span class="chip">Audio <b id="audioState">Demo</b></span><span class="grow"></span><button class="small" id="save">Simpan</button><button class="small" id="open">Buka</button><button class="small" id="export">Ekspor JSON</button><input hidden id="file" type="file" accept=".json,application/json"></div>
 <main class="workspace" id="workspace">
 <section class="screen" id="timelineScreen">
