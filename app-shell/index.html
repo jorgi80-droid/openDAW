@@ -1434,6 +1434,62 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 #timelineScreen.timeline-pinch-active * { user-select:none!important;-webkit-user-select:none!important; }
 #timelineScreen.timeline-pinch-active .clip { pointer-events:none!important; }
 
+
+/* NovaDAW touch-first polish v3: three purposeful floating controls, full-size Playlist. */
+:root{--motion-fast:120ms;--motion-ui:180ms;--motion-ease:cubic-bezier(.2,.75,.25,1)}
+button,.panel,.clip,.dock,.timeline-tool-rail,.floating-menu{
+ transition:background-color var(--motion-ui) var(--motion-ease),border-color var(--motion-ui) var(--motion-ease),box-shadow var(--motion-ui) var(--motion-ease),color var(--motion-ui) var(--motion-ease),transform var(--motion-fast) var(--motion-ease),opacity var(--motion-ui) var(--motion-ease);
+}
+button:active{transform:scale(.975)}
+#timelineScreen .timeline-work-area{position:relative!important;display:block!important;padding:0!important;gap:0!important;width:100%!important;min-width:0!important;min-height:0!important;overflow:hidden!important}
+#timelineScreen .timeline{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-width:0!important;min-height:0!important;border-radius:12px!important}
+#timelineScreen>.addtrack{position:fixed!important;z-index:48!important;left:12px!important;bottom:max(10px,env(safe-area-inset-bottom))!important;right:auto!important;top:auto!important;align-self:auto!important;width:auto!important;min-height:31px!important;height:31px!important;flex:0 0 auto!important;margin:0!important;padding:5px 12px!important;border-radius:18px!important;background:rgba(15,24,34,.96)!important;border:1px solid #35485a!important;box-shadow:0 5px 18px #0007!important;font-size:11px!important;backdrop-filter:blur(12px)!important}
+#timelineScreen .timeline-tool-rail{display:none!important}
+.workspace{padding:5px!important}
+.dock{position:fixed!important;z-index:80!important;right:max(10px,env(safe-area-inset-right))!important;top:50%!important;bottom:auto!important;left:auto!important;transform:translateY(-50%)!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:7px!important;width:48px!important;min-width:48px!important;max-width:48px!important;height:auto!important;max-height:calc(100dvh - 34px)!important;padding:6px!important;border:1px solid #34485b!important;border-radius:18px!important;background:rgba(12,19,28,.94)!important;box-shadow:0 8px 26px #0008!important;backdrop-filter:blur(16px)!important;overflow:visible!important}
+.dock button{position:relative!important;display:flex!important;flex:0 0 36px!important;align-items:center!important;justify-content:center!important;width:36px!important;min-width:36px!important;max-width:36px!important;height:36px!important;min-height:36px!important;max-height:36px!important;padding:5px!important;border-radius:11px!important;overflow:visible!important;font-size:0!important;line-height:0!important;gap:0!important;background:#121d28!important}
+.dock button .workspace-dock-symbol{display:block!important;width:20px!important;height:20px!important;flex:0 0 20px!important}
+.dock button.active{background:#123153!important;border-color:#258fff!important;color:#80c8ff!important;box-shadow:inset 0 0 0 1px #5eb5ff2d,0 3px 12px #007cff20!important}
+.dock button:active{transform:scale(.94)!important}
+#mainToolbar{display:flex!important;align-items:center!important;gap:8px!important;background:#0d141c!important;border-bottom:1px solid #263646!important}
+#mainToolbar .brand{font-size:15px!important;letter-spacing:-.45px!important}
+#mainToolbar .top-actions{display:flex!important;gap:4px!important;margin-left:auto!important}
+#mainToolbar .top-actions button{width:34px!important;min-width:34px!important;height:34px!important;min-height:34px!important;border-radius:10px!important}
+#mainToolbar .transportbar .transport button{height:34px!important;min-height:34px!important;border-radius:10px!important}
+#mainToolbar>.subbar{gap:5px!important}
+#mainToolbar .chip{border-radius:9px!important}
+#timelineScreen .track-height-grip{opacity:0!important}
+#timelineScreen .trackrow{border-bottom:1px solid #1c2834!important}
+#timelineScreen .tracklabel{border-right:1px solid #263646!important}
+#timelineScreen .clip-canvas{background-image:linear-gradient(to right,#2b3a49 1px,transparent 1px),linear-gradient(to right,#18232e 1px,transparent 1px)!important;background-repeat:repeat!important}
+#timelineScreen .clip-canvas{background-size:calc(var(--timeline-ppb, 24px) * 4) 100%,calc(var(--timeline-ppb, 24px)) 100%!important}
+#timelineScreen .clip{box-shadow:inset 0 0 0 1px #ffffff0a!important}
+#timelineScreen .clip:after{opacity:.22!important}
+#timelineScreen .bars span{border-left-color:#2b3a49!important}
+#timelineScreen .bars span:not(:first-child){box-shadow:none!important}
+.floating-menu[hidden]{display:none!important}
+.floating-menu{position:fixed;z-index:100;right:max(66px,calc(env(safe-area-inset-right) + 64px));top:50%;transform:translateY(-50%) scale(.98);width:min(210px,calc(100vw - 90px));padding:7px;display:flex;flex-direction:column;gap:5px;border:1px solid #35495d;border-radius:14px;background:rgba(13,21,31,.97);box-shadow:0 12px 34px #0009;backdrop-filter:blur(16px);transform-origin:right center;animation:floating-menu-in 150ms var(--motion-ease) both}
+.floating-menu button{display:flex;align-items:center;gap:9px;min-height:38px;padding:7px 10px;border-radius:9px;background:transparent;border-color:transparent;text-align:left;font-size:12px}
+.floating-menu button:disabled{opacity:.3}
+.floating-menu button:not(:disabled):active{background:#143252}
+.floating-menu .menu-divider{height:1px;background:#293a4b;margin:2px 4px}
+@keyframes floating-menu-in{from{opacity:0;transform:translateY(-50%) translateX(5px) scale(.97)}to{opacity:1;transform:translateY(-50%) translateX(0) scale(1)}}
+#floatingEditorMenu{top:calc(50% - 88px)}
+#floatingWorkspaceMenu{top:50%}
+#floatingBrowserMenu{top:calc(50% + 88px)}
+/* Keep musical beat/bar divisions but remove the former dense micro-grid. */
+@media(max-height:480px){
+ #timelineScreen>.addtrack{bottom:max(6px,env(safe-area-inset-bottom))!important;left:8px!important;height:26px!important;min-height:26px!important}
+ .dock{right:max(6px,env(safe-area-inset-right))!important;gap:5px!important;padding:5px!important;width:42px!important;min-width:42px!important;max-width:42px!important}
+ .dock button{flex-basis:32px!important;width:32px!important;min-width:32px!important;height:32px!important;min-height:32px!important}
+ .dock button .workspace-dock-symbol{width:18px!important;height:18px!important;flex-basis:18px!important}
+ .floating-menu{right:max(56px,calc(env(safe-area-inset-right) + 52px));gap:3px;padding:5px}
+ .floating-menu button{min-height:32px;padding:5px 8px}
+ #floatingEditorMenu{top:calc(50% - 75px)}
+ #floatingBrowserMenu{top:calc(50% + 75px)}
+}
+@media(prefers-reduced-motion:reduce){button,.panel,.clip,.dock,.floating-menu{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
 /* Final mobile polish: compact floating controls and precise zoom increments. */
 #timelineScreen .timeline-work-area{
   gap:8px!important;
