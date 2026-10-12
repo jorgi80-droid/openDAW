@@ -1400,11 +1400,17 @@ function applyRangeOperation(action){
  }else if(action==='delete'){
   snapshot();
   project.tracks.forEach(track=>{
-   const before=track.clips.length;
-   track.clips=track.clips.filter(c=>!(c.start>=start&&c.start+c.duration<=end));
-   changed+=before-track.clips.length;
+   const next=[];
+   track.clips.forEach(c=>{
+    const cs=c.start,ce=c.start+c.duration;
+    if(ce<=start||cs>=end){next.push(c);return}
+    if(cs<start){const left={...c,duration:start-cs};if(left.duration>=.0625)next.push(left)}
+    if(ce>end){const right={...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start:end,duration:ce-end,label:(c.label||'Clip')+' B'};if(right.duration>=.0625)next.push(right)}
+    changed++;
+   });
+   track.clips=next;
   });
-  notify(changed?changed+' clip di dalam rentang dihapus':'Tidak ada clip yang seluruhnya berada dalam rentang');
+  notify(changed?changed+' bagian clip dipotong/dihapus dari rentang':'Tidak ada clip di dalam rentang');
  }else if(action==='insert'){
   if(!canShift()){notify('Tidak cukup ruang di akhir timeline untuk menyisipkan rentang ini');return}
   snapshot();
