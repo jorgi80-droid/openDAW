@@ -1192,6 +1192,16 @@ html[data-theme="light"] .clip{color:#152130!important}
 #timelineScreen .bars{justify-content:flex-start!important;gap:0!important}
 #timelineScreen .clip{touch-action:none!important}
 #timelineScreen.timeline-pinch-active{user-select:none!important;-webkit-user-select:none!important}
+
+/* Timeline interaction contract: one Pointer Events gesture pipeline, stable horizontal scale, vertical track scrolling. */
+#timelineScreen .bars-viewport,
+#timelineScreen .cliparea{touch-action:pan-y!important;overscroll-behavior-x:contain!important}
+#timelineScreen .timeline-work-area{overscroll-behavior:contain}
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-fit"]{flex:0 0 32px;font-size:16px;background:#132a3c;border-color:#315a79}
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-in"],
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-out"],
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-fit"]{touch-action:manipulation}
+#timelineScreen .bars-viewport,#timelineScreen .cliparea{scroll-behavior:auto!important}
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -1348,6 +1358,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
       <button data-timeline-tool="zoom-in" aria-label="Zoom in" title="Zoom in">＋</button>
       <span id="zoomLabel" class="zoom-label">100%</span>
       <button data-timeline-tool="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
+      <button data-timeline-tool="zoom-fit" aria-label="Fit full timeline" title="Fit timeline (100%)">↔</button>
       <div class="tool-separator"></div>
       <button class="active" data-timeline-tool="select" aria-label="Select and move clips" title="Select / Move"><svg viewBox="0 0 24 24"><path d="M5 3l13 10-6 1-3 6z" fill="currentColor"/></svg></button>
       <button data-timeline-tool="cut" aria-label="Split clip" title="Split at tapped point"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 7l12 10M8 17L20 7" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></button>
@@ -2212,8 +2223,8 @@ document.addEventListener('keydown',e=>{
  if(key==='home'){e.preventDefault();$('rewind').click();return}
  if(key===' '){e.preventDefault();$('play').click();return}
  if(key==='g'){snapEnabled=!snapEnabled;updateTimelineTools();notify(snapEnabled?'Snap grid aktif':'Snap grid nonaktif');return}
- if(key==='+'||key==='='){setTimelineZoom(timelineZoom+.25);return}
- if(key==='-'){setTimelineZoom(timelineZoom-.25);return}
+ if(key==='+'||key==='='){setTimelineZoom(timelineZoom*1.25);return}
+ if(key==='-'){setTimelineZoom(timelineZoom/1.25);return}
 });
 try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}
 applyUiPrefs();
@@ -2299,20 +2310,7 @@ function clearTimelinePinch(){
  timelinePinchStart=null;
  document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active');
 }
-document.addEventListener('touchstart',e=>{
- if(!e.target.closest('#timelineScreen .timeline-work-area'))return;
- if(e.touches.length===2){
-  const m=pinchMetrics(e.touches);beginTimelinePinch(m.distance,m.centerX,'touch');
- }
-},{capture:true,passive:true});
-document.addEventListener('touchmove',e=>{
- if(!timelinePinchStart||timelinePinchStart.pointerMode||e.touches.length!==2)return;
- if(!e.target.closest('#timelineScreen .timeline-work-area'))return;
- e.preventDefault();
- const m=pinchMetrics(e.touches);moveTimelinePinch(m.distance,m.centerX);
-},{capture:true,passive:false});
-document.addEventListener('touchend',e=>{if(e.touches.length<2)clearTimelinePinch()},{capture:true,passive:true});
-document.addEventListener('touchcancel',clearTimelinePinch,{capture:true,passive:true});
+/* Touch Events intentionally not registered here. Timeline gestures use one Pointer Events path to prevent duplicate pinch handling. */
 document.addEventListener('pointerdown',e=>{
  const area=e.target.closest('#timelineScreen .timeline-work-area');
  if(!area||e.pointerType==='mouse')return;
@@ -2324,7 +2322,7 @@ document.addEventListener('pointerdown',e=>{
  }
  if(timelinePointers.size===1&&!e.target.closest('.clip,button,.tracklabel,.timeline-tool-rail')&&timelineTool!=='range'&&timelineTool!=='cut'){
   const viewport=e.target.closest('.cliparea,.bars-viewport');
-  if(viewport)timelinePan={pointerId:e.pointerId,viewport,startX:e.clientX,startScroll:viewport.scrollLeft};
+  if(viewport)timelinePan={pointerId:e.pointerId,viewport,startX:e.clientX,startY:e.clientY,startScroll:viewport.scrollLeft,axis:null};
  }
 },{capture:true,passive:true});
 document.addEventListener('pointermove',e=>{
@@ -2338,9 +2336,15 @@ document.addEventListener('pointermove',e=>{
   return;
  }
  if(timelinePan&&timelinePan.pointerId===e.pointerId){
-  const dx=e.clientX-timelinePan.startX;
-  timelinePan.viewport.scrollLeft=timelinePan.startScroll-dx;
-  e.preventDefault();
+  const dx=e.clientX-timelinePan.startX,dy=e.clientY-timelinePan.startY;
+  if(!timelinePan.axis&&Math.hypot(dx,dy)>7){
+   if(Math.abs(dx)>Math.abs(dy)*1.15)timelinePan.axis='x';
+   else if(Math.abs(dy)>Math.abs(dx)*1.15){timelinePan=null;return}
+  }
+  if(timelinePan?.axis==='x'){
+   timelinePan.viewport.scrollLeft=timelinePan.startScroll-dx;
+   e.preventDefault();
+  }
  }
 },{capture:true,passive:false});
 const endTimelinePointer=e=>{
@@ -2372,8 +2376,13 @@ $('timelineTools').addEventListener('click',e=>{
  }
  else if(tool==='cut'){timelineTool='cut';notify('Mode Split: ketuk titik clip untuk memisahkannya')}
  else if(tool==='snap'){snapEnabled=!snapEnabled;notify(snapEnabled?'Snap grid aktif':'Snap grid nonaktif')}
- else if(tool==='zoom-in'){setTimelineZoom(timelineZoom+.25);return}
- else if(tool==='zoom-out'){setTimelineZoom(timelineZoom-.25);return}
+ else if(tool==='zoom-in'){setTimelineZoom(timelineZoom*1.25);return}
+ else if(tool==='zoom-out'){setTimelineZoom(timelineZoom/1.25);return}
+ else if(tool==='zoom-fit'){
+  setTimelineZoom(1,0);
+  requestAnimationFrame(()=>{const r=document.querySelector('#timelineScreen .bars-viewport');if(r){r.scrollLeft=0;syncTimelineScroll(r)}});
+  return;
+ }
  else if(tool==='delete'){
   const idx=project.tracks.findIndex(t=>t.clips.some(c=>c.id===selectedClip));if(idx<0){notify('Pilih clip dulu');return}
   snapshot();project.tracks[idx].clips=project.tracks[idx].clips.filter(c=>c.id!==selectedClip);selectedClip=null;renderTracks();notify('Clip dihapus')
