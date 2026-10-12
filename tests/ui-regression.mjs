@@ -117,6 +117,9 @@ try {
     await page.locator('#renameTrackInput').fill('Drums');
     await page.locator('#saveTrackName').click();
 
+    // Start gestures from a deterministic, visible timeline position after the scroll-sync check.
+    await page.locator('.bars-viewport').evaluate(el=>{el.scrollLeft=0;el.dispatchEvent(new Event('scroll',{bubbles:true}))});
+    await page.locator('#tracks .cliparea').evaluateAll(els=>els.forEach(el=>{el.scrollLeft=0;el.dispatchEvent(new Event('scroll',{bubbles:true}))}));
     // Moving and resizing clips changes the project model and does not trigger an accidental editor open.
     const firstClip = page.locator('#tracks .clip').first();
     const leftBefore = await firstClip.evaluate(el => el.style.left);
