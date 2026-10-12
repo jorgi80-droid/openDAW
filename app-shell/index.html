@@ -3402,3 +3402,24 @@ window.addEventListener('resize',()=>{if(!$('timelineScreen').hidden){const r=do
 </script>
 </body>
 </html>
+/* Pro control styling adapted from OpenDAW's SVG arc knob/volume-slider components and Melvox's restrained touch sliders. */
+#devicesScreen .knob-control{border:1px solid #27394a!important;border-radius:10px!important;background:linear-gradient(180deg,#121d28,#0c141d)!important;padding:7px 6px!important;gap:6px!important;box-shadow:inset 0 1px #ffffff08!important}
+#devicesScreen .knob-head{align-items:center!important}
+#devicesScreen .knob-head label{font-size:10px!important;font-weight:600!important;letter-spacing:.02em!important;color:#b9ccdf!important}
+#devicesScreen .knob-head output{font-size:10px!important;font-variant-numeric:tabular-nums!important;color:#72c7ff!important}
+#devicesScreen .knob-dial{width:42px!important;height:42px!important;border:3px solid #2e4356!important;border-top-color:#36baff!important;border-right-color:#1597ff!important;background:radial-gradient(circle at 35% 25%,#314457 0,#182635 44%,#0b121a 75%)!important;box-shadow:inset 0 2px 3px #ffffff13,inset 0 -3px 5px #0008,0 2px 5px #0006!important;position:relative!important}
+#devicesScreen .knob-dial:before{content:"";position:absolute;inset:5px;border-radius:50%;border:1px solid #73869a35;box-shadow:inset 0 1px 2px #0008!important}
+#devicesScreen .knob-pointer{width:2px!important;height:35%!important;top:5%!important;left:calc(50% - 1px)!important;background:linear-gradient(#f5fbff,#73caff)!important;box-shadow:0 0 4px #56bbff65!important;transform-origin:50% 130%!important;border-radius:3px!important}
+#devicesScreen .knob-control input[type=range],#mixerScreen input[type=range]{appearance:none!important;-webkit-appearance:none!important;background:transparent!important;cursor:pointer!important;touch-action:pan-y!important}
+#devicesScreen .knob-control input[type=range]{height:18px!important}
+#devicesScreen .knob-control input[type=range]::-webkit-slider-runnable-track{height:3px!important;border-radius:3px!important;background:linear-gradient(90deg,#168dff,#43c9ff)!important;box-shadow:0 1px 2px #0007!important}
+#devicesScreen .knob-control input[type=range]::-webkit-slider-thumb{appearance:none!important;-webkit-appearance:none!important;width:11px!important;height:11px!important;margin-top:-4px!important;border-radius:50%!important;background:linear-gradient(145deg,#f2fbff,#71c5ff)!important;border:1px solid #168dff!important;box-shadow:0 1px 4px #0009,0 0 0 2px #1999ff18!important}
+#mixerScreen input[type=range]::-webkit-slider-runnable-track{height:4px!important;border-radius:4px!important;background:#233545!important;box-shadow:inset 0 1px 2px #0007!important}
+#mixerScreen input[type=range]::-webkit-slider-thumb{appearance:none!important;-webkit-appearance:none!important;width:13px!important;height:13px!important;margin-top:-4.5px!important;border-radius:4px!important;background:linear-gradient(180deg,#d9f0ff,#4aaeff)!important;border:1px solid #1687ff!important;box-shadow:0 2px 4px #0008!important}
+#mixerScreen .gain-control input[type=range]::-webkit-slider-runnable-track{width:4px!important;height:100%!important;background:linear-gradient(90deg,#1d3142,#36546a)!important;border-radius:4px!important}
+#mixerScreen .gain-control input[type=range]::-webkit-slider-thumb{width:18px!important;height:10px!important;margin-left:-7px!important;margin-top:0!important;border-radius:3px!important;background:linear-gradient(180deg,#e8f7ff,#6ebdff)!important}
+#mixerScreen .channel-actions button{font-size:10px!important;font-weight:700!important;letter-spacing:.04em!important;border-radius:7px!important;min-height:28px!important;background:linear-gradient(180deg,#172634,#101923)!important;border-color:#304457!important;box-shadow:inset 0 1px #ffffff0a!important;transition:background .12s,border-color .12s,box-shadow .12s!important}
+#mixerScreen .channel-actions button.on,#devicesScreen [data-device-bypass="true"][aria-pressed="true"]{background:linear-gradient(180deg,#124b75,#103351)!important;border-color:#249aff!important;color:#bde8ff!important;box-shadow:inset 0 1px #ffffff18,0 0 0 1px #178cff22!important}
+#devicesScreen [data-device-bypass="true"][aria-pressed="false"]{background:linear-gradient(180deg,#172634,#101923)!important;border-color:#304457!important;color:#9db2c7!important}
+#devicesScreen .device-editor-actions button:active,#mixerScreen .channel-actions button:active{transform:translateY(1px)!important}
+@media(max-width:900px){#devicesScreen .knob-bank{gap:5px!important}#devicesScreen .knob-control{padding:5px 4px!important}#devicesScreen .knob-dial{width:34px!important;height:34px!important}}
