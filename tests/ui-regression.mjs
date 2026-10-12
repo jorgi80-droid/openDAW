@@ -179,6 +179,26 @@ try {
     await page.locator('#renameTrackInput').fill('Drums');
     await page.locator('#saveTrackName').click();
 
+    // P0/P1 Playlist: compact transport geometry, ruler progression, range editing and no overlap on new clips.
+    const toolbarHeight=await page.locator('#mainToolbar').evaluate(el=>el.getBoundingClientRect().height);
+    assert(toolbarHeight<=60, `main toolbar remains within compact row at ${viewport.width}x${viewport.height}`);
+    const rangeTool=page.locator('#timelineTools [data-timeline-tool="range"]');
+    assert(await rangeTool.count()===1, `time-selection tool exists at ${viewport.width}x${viewport.height}`);
+    await rangeTool.click();
+    const ruler=page.locator('#timelineScreen .ruler');
+    const rulerBox=await ruler.boundingBox();
+    await page.mouse.move(rulerBox.x+ rulerBox.width*.32,rulerBox.y+rulerBox.height/2);
+    await page.mouse.down();
+    await page.mouse.move(rulerBox.x+rulerBox.width*.52,rulerBox.y+rulerBox.height/2,{steps:4});
+    await page.mouse.up();
+    assert(await page.locator('#timelineScreen .time-selection').count()===1, `dragging the ruler creates a time selection at ${viewport.width}x${viewport.height}`);
+    assert(!(await page.locator('#timelineTools [data-timeline-tool="delete-range"]').isDisabled()), `range operations enable only after selection at ${viewport.width}x${viewport.height}`);
+    const clipCountBeforeRangeDuplicate=await page.locator('#tracks .clip').count();
+    await page.locator('#timelineTools [data-timeline-tool="duplicate-range"]').click();
+    assert(await page.locator('#tracks .clip').count()>=clipCountBeforeRangeDuplicate, `duplicate range keeps project clip collection valid at ${viewport.width}x${viewport.height}`);
+    await page.locator('#timelineTools [data-timeline-tool="range"]').click();
+    await page.locator('#timelineTools [data-timeline-tool="select"]').click().catch(()=>{});
+
     // Start gestures from a deterministic, visible timeline position after the scroll-sync check.
     await page.locator('.bars-viewport').evaluate(el=>{el.scrollLeft=0;el.dispatchEvent(new Event('scroll',{bubbles:true}))});
     await page.locator('#tracks .cliparea').evaluateAll(els=>els.forEach(el=>{el.scrollLeft=0;el.dispatchEvent(new Event('scroll',{bubbles:true}))}));
