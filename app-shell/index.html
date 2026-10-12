@@ -1676,9 +1676,28 @@ button:active{transform:scale(.975)}
 <div class="channel-step-rack" id="channelStepRack" aria-label="Channel Rack step sequencer"><div class="step-rack-heading"><strong>CHANNEL RACK</strong><span id="stepRackTrackName">Drums</span><small>16 steps · UI</small></div><div class="step-rack-buttons" id="stepRackButtons"></div></div><div class="tabs" id="devTabs"><button class="active" data-cat="Instrument">Instrumen</button><button data-cat="Effect">Efek</button><button data-cat="Preset">Preset</button></div><div class="devicegrid" id="devices"></div><p class="muted" style="margin-bottom:0;font-size:12px">UI prototype: kontrol instrumen ini belum dirutekan ke engine OpenDAW.</p></div></section>
 <section class="screen" id="browserScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Browser</h2><div class="tabs" id="browserTabs"><button class="active" data-cat="Samples">Samples</button><button data-cat="Instruments">Instrumen</button><button data-cat="Effects">Efek</button><button data-cat="Presets">Preset</button></div><div class="browserlayout"><div class="categories" id="categories"><button class="active" data-filter="All">Semua</button><button data-filter="Drums">Drums</button><button data-filter="Bass">Bass</button><button data-filter="Synth">Synth</button><button data-filter="Piano">Piano</button><button data-filter="Vocals">Vokal</button><button data-filter="User">Impor</button></div><div class="samplelist" id="samples"></div></div><p class="muted" style="font-size:12px;margin-bottom:0">Daftar ini memakai data demo UI; sampel, instrumen, dan efek belum terhubung ke mesin audio.</p></div></section>
 </main>
-<nav class="dock" aria-label="Workspace navigation">
-<button class="active" data-screen="timeline"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h18M3 12h18M3 19h18M7 3v18M14 3v18" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>Timeline</button><button data-screen="mixer"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 3v18M12 3v18M19 3v18" stroke="currentColor" stroke-width="1.5"/><rect x="2" y="7" width="6" height="4" rx="1" fill="currentColor"/><rect x="9" y="14" width="6" height="4" rx="1" fill="currentColor"/><rect x="16" y="5" width="6" height="4" rx="1" fill="currentColor"/></svg>Mixer</button><button data-screen="piano"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 3h18v18H3zM3 8h18M3 13h18M3 18h18M8 3v18M13 3v18M18 3v18" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>Piano Roll</button><button data-screen="devices"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="14" y="3" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="3" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/><rect x="14" y="14" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.6" fill="none"/></svg>Devices</button><button data-screen="browser"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.6"/></svg>Browser</button>
+<nav class="dock" aria-label="Quick access">
+<button class="active" id="floatingEditorButton" aria-label="Editor clip" aria-haspopup="true" aria-expanded="false" title="Editor clip"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M7 7h.01M17 7h.01M7 17h.01M17 17h.01" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg></button>
+<button id="floatingWorkspaceButton" aria-label="Pilih workspace" aria-haspopup="true" aria-expanded="false" title="Timeline / Mixer / Device"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18M7 3v6M15 9v6M11 15v6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+<button id="floatingBrowserButton" aria-label="Buka Browser" title="Browser"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h7l2 2h9v11H3z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M3 9h18" stroke="currentColor" stroke-width="1.7"/></svg></button>
 </nav>
+<div id="floatingEditorMenu" class="floating-menu" hidden role="menu" aria-label="Editor clip">
+<button data-editor-action="copy" role="menuitem">⧉ <span>Salin clip</span></button>
+<button data-editor-action="cut" role="menuitem">✂ <span>Potong / pindahkan clip</span></button>
+<button data-editor-action="paste" role="menuitem">▣ <span>Tempel clip</span></button>
+<div class="menu-divider"></div>
+<button data-editor-action="split" role="menuitem">⌁ <span>Pisahkan clip</span></button>
+<button data-editor-action="delete" role="menuitem">× <span>Hapus clip</span></button>
+</div>
+<div id="floatingWorkspaceMenu" class="floating-menu" hidden role="menu" aria-label="Pilih workspace">
+<button data-screen="timeline" role="menuitem">▤ <span>Timeline</span></button>
+<button data-screen="mixer" role="menuitem">☷ <span>Mixer</span></button>
+<button data-screen="devices" role="menuitem">▦ <span>Device / Channel Rack</span></button>
+<button data-screen="piano" role="menuitem">▥ <span>Piano Roll</span></button>
+</div>
+<div id="floatingBrowserMenu" class="floating-menu" hidden role="menu" aria-label="Browser">
+<button data-screen="browser" role="menuitem">▱ <span>Samples, instrumen, efek</span></button>
+</div>
 </div>
 
 <div id="settingsOverlay" class="menu-overlay" hidden>
