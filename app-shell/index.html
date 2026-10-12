@@ -3040,7 +3040,7 @@ document.addEventListener('keydown',e=>{
  if(key==='+'||key==='='){setTimelineZoomSmooth(timelineZoom*1.15);return}
  if(key==='-'){setTimelineZoomSmooth(timelineZoom/1.15);return}
 });
-try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}
+try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('studiowave-ui-prefs')||'{}'))}catch(_){}
 applyUiPrefs();
 
 function updateTimelineTools(){
