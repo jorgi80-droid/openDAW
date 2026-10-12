@@ -24,6 +24,9 @@ public final class MainActivity extends Activity {
         @JavascriptInterface public void noteOn(double frequency, float velocity) {
             if (frequency >= 20.0 && frequency <= 20000.0) nativeNoteOn(frequency, Math.max(0f, Math.min(1f, velocity)));
         }
+        @JavascriptInterface public void noteOff(double frequency) {
+            if (frequency >= 20.0 && frequency <= 20000.0) nativeNoteOff(frequency);
+        }
         @JavascriptInterface public void allNotesOff() { nativeAllNotesOff(); }
         @JavascriptInterface public String engine() { return "Android Oboe 1.11 / low-latency callback"; }
     }
@@ -31,6 +34,7 @@ public final class MainActivity extends Activity {
     private native boolean nativeStartAudio();
     private native void nativeStopAudio();
     private native void nativeNoteOn(double frequency, float velocity);
+    private native void nativeNoteOff(double frequency);
     private native void nativeAllNotesOff();
 
     @Override protected void onCreate(Bundle savedInstanceState) {
