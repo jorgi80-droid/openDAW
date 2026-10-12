@@ -1786,8 +1786,20 @@ const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function notify(message){const el=$('toast');el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2600);}
 function snapshot(){undoStack.push(JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
-function switchScreen(name){if(!screens[name])return;if(name!=='timeline'&&$('clipContextMenu'))$('clipContextMenu').hidden=true;if(name==='timeline'){lastClipTap={id:null,time:0};ignoreNextClipId=null;clipGesture=null;}currentScreen=name;Object.keys(screens).forEach(k=>{const el=$(screens[k]),active=k===name;el.hidden=!active;el.setAttribute('aria-hidden',active?'false':'true');el.style.display=active?(name==='timeline'?'flex':'block'):'none';});document.querySelectorAll('.dock button').forEach(b=>{const active=b.dataset.screen===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false');});if(name==='devices'){renderDevices();syncRackView();}if(name==='timeline')renderTracks();if(name==='mixer')renderMixer();}
-
+function switchScreen(name){
+ if(!screens[name])return;
+ if(name!=='timeline'&&$('clipContextMenu'))$('clipContextMenu').hidden=true;
+ if(name==='timeline'){lastClipTap={id:null,time:0};ignoreNextClipId=null;clipGesture=null;}
+ hideFloatingMenus();currentScreen=name;
+ Object.keys(screens).forEach(k=>{const el=$(screens[k]),active=k===name;el.hidden=!active;el.setAttribute('aria-hidden',active?'false':'true');el.style.display=active?(name==='timeline'?'flex':'block'):'none';});
+ const workspaceActive=name==='timeline'?'timeline':name==='mixer'?'mixer':name==='devices'?'devices':name==='piano'?'piano':'browser';
+ $('floatingWorkspaceButton')?.classList.toggle('active',name!=='browser');
+ document.querySelectorAll('#floatingWorkspaceMenu [data-screen]').forEach(b=>{const active=b.dataset.screen===name;b.classList.toggle('active',active);b.setAttribute('aria-current',active?'page':'false')});
+ if(name==='devices'){renderDevices();syncRackView();}
+ if(name==='timeline')renderTracks();
+ if(name==='mixer')renderMixer();
+ updateFloatingEditorMenu();
+}
 let timeSelection=null,rangeGesture=null;
 const MAX_BARS=32;
 function clampBar(value){return Math.max(0,Math.min(MAX_BARS,Number(value)||0))}
