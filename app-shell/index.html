@@ -2597,28 +2597,6 @@ function paintTimelineRuler(force=false){
  }
  canvas.dataset.ppb=String(ppb);canvas.dataset.x0=String(x0);canvas.dataset.x1=String(x1);canvas.dataset.height=String(cssHeight);
 }
-function paintTimelineRuler(force=false){
- const viewport=document.querySelector('#timelineScreen .bars-viewport');
- const bars=viewport?.querySelector('.bars'),canvas=bars?.querySelector('.timeline-ruler-canvas');
- if(!viewport||!bars||!canvas)return;
- const ppb=Math.max(1,timelinePixelsPerBar()),contentWidth=Math.max(viewport.clientWidth,timelineContentWidth());
- const scroll=Math.max(0,viewport.scrollLeft||0),x0=Math.max(0,Math.floor(scroll-viewport.clientWidth));
- const x1=Math.min(contentWidth,Math.ceil(scroll+viewport.clientWidth*2));
- const cw=Math.max(1,x1-x0),ch=Math.max(1,viewport.clientHeight);
- if(!force&&canvas.dataset.ppb===String(ppb)&&canvas.dataset.x0===String(x0)&&canvas.dataset.x1===String(x1)&&canvas.dataset.height===String(ch))return;
- const dpr=Math.min(window.devicePixelRatio||1,2),bw=Math.max(1,Math.round(cw*dpr)),bh=Math.max(1,Math.round(ch*dpr));
- if(canvas.width!==bw)canvas.width=bw;if(canvas.height!==bh)canvas.height=bh;
- canvas.style.left=x0+'px';canvas.style.top='0';canvas.style.width=cw+'px';canvas.style.height=ch+'px';
- const g=canvas.getContext('2d');if(!g)return;
- g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,bw,bh);g.setTransform(dpr,0,0,dpr,-x0*dpr,0);
- g.textBaseline='middle';g.font='500 11px Inter,Roboto,system-ui,sans-serif';
- const first=Math.max(0,Math.floor(x0/ppb)-1),last=Math.min(MAX_BARS,Math.ceil(x1/ppb)+1);
- for(let bar=first;bar<=last;bar++){
-  const x=bar*ppb;g.fillStyle=bar%4===0?'#334454':'#273644';g.fillRect(Math.round(x)+.5,0,1,ch);
-  if(bar%4===0&&bar<MAX_BARS){g.fillStyle='#9cafc5';g.fillText(String(bar+1),x+7,ch/2)}
- }
- canvas.dataset.ppb=String(ppb);canvas.dataset.x0=String(x0);canvas.dataset.x1=String(x1);canvas.dataset.height=String(ch);
-}
 function applyTimelineGeometry(options={}){
  const ruler=document.querySelector('#timelineScreen .bars-viewport');if(!ruler)return;
  const contentWidth=timelineContentWidth(),ppb=timelinePixelsPerBar(),fast=!!options.fast;
