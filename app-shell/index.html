@@ -1136,6 +1136,50 @@ html[data-theme="light"] .clip{color:#152130!important}
  .dock button{flex-basis:29px!important;width:29px!important;min-width:29px!important;max-width:29px!important;height:29px!important;min-height:29px!important}
  .dock button .workspace-dock-symbol{width:16px!important;height:16px!important;flex-basis:16px!important}
 }
+
+/* P0/P1 consolidated final layout + Playlist selection surface. */
+.app{grid-template-rows:42px 30px 30px minmax(0,1fr) 42px!important;gap:0!important}
+#mainToolbar{display:grid!important;grid-template-columns:minmax(88px,1fr) auto minmax(0,1.2fr) auto!important;align-items:center!important;gap:6px!important;overflow:visible!important;min-width:0!important}
+#mainToolbar .brand{font-size:12px!important;min-width:0!important}
+#mainToolbar .project{min-width:0!important;max-width:180px!important;flex:1!important}
+#mainToolbar .project input{min-width:0!important;width:100%!important;max-width:none!important}
+#mainToolbar .transportbar{grid-column:2;grid-row:1;width:168px!important;min-width:158px!important;max-width:168px!important;border:0!important;background:transparent!important;padding:0!important}
+#mainToolbar .transportbar .transport{width:100%!important}
+#mainToolbar .top-actions{grid-column:4;grid-row:1;margin:0!important}
+#mainToolbar>.subbar{grid-column:3;grid-row:1;display:flex!important;min-width:0!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;border:0!important;background:transparent!important;padding:0!important}
+#mainToolbar>.subbar .chip{flex:0 0 auto!important}
+#mainToolbar>.subbar #export{display:none!important}
+@media(max-width:760px){
+ #mainToolbar{grid-template-columns:minmax(84px,.8fr) auto minmax(0,1.15fr) auto!important;gap:3px!important;padding-inline:5px!important}
+ #mainToolbar .brand{display:none!important}
+ #mainToolbar .project{grid-column:1;max-width:112px!important}
+ #mainToolbar .transportbar{width:126px!important;min-width:120px!important;max-width:126px!important}
+ #mainToolbar .transportbar #position{display:none!important}
+ #mainToolbar>.subbar{gap:3px!important}
+ #mainToolbar>.subbar .chip{font-size:9px!important;padding:2px 4px!important}
+ #mainToolbar>.subbar #save,#mainToolbar>.subbar #open{font-size:9px!important;padding:2px 4px!important}
+}
+#timelineScreen .timeline-work-area{gap:5px!important}
+#timelineScreen .timeline{min-width:0!important}
+#timelineScreen .ruler{grid-template-columns:clamp(98px,12vw,148px) minmax(0,1fr)!important}
+#timelineScreen .ruler .trackhead{display:flex;align-items:center;font-size:9px!important}
+#timelineScreen .bars-viewport{min-width:0!important;overflow-x:auto!important;overscroll-behavior-x:contain!important;touch-action:pan-x!important}
+#timelineScreen .bars{position:relative!important;width:calc(var(--timeline-zoom,1)*100%)!important;min-width:100%!important;justify-content:flex-start!important}
+#timelineScreen .bars span{position:relative!important;flex:0 0 calc(100% / 8)!important;width:calc(100% / 8)!important;min-width:0!important;padding-left:4px!important}
+#timelineScreen .bars span.ruler-end{position:absolute!important;right:0!important;left:auto!important;top:0!important;width:auto!important;min-width:0!important;z-index:2!important;background:#111b26!important;padding-inline:4px!important}
+#timelineScreen .trackrow{grid-template-columns:clamp(98px,12vw,148px) minmax(0,1fr)!important}
+#timelineScreen .clip-canvas{width:calc(var(--timeline-zoom,1)*100%)!important;min-width:100%!important}
+#timelineScreen .cliparea{touch-action:pan-x pan-y!important}
+#timelineScreen .clip{touch-action:none!important}
+#timelineScreen .selection-overlay{position:absolute;inset:0;pointer-events:none;z-index:8}
+#timelineScreen .time-selection{position:absolute;top:0;bottom:0;background:#1687ff22;border-left:1px solid #54b5ff;border-right:1px solid #54b5ff;pointer-events:none}
+#timelineTools button[data-timeline-tool="range"],#timelineTools button[data-timeline-tool="delete-range"],#timelineTools button[data-timeline-tool="duplicate-range"]{display:flex}
+#timelineTools button[data-timeline-tool="range"]{font-size:10px!important;font-weight:800}
+#timelineScreen .bars-viewport.range-select{cursor:crosshair!important}
+#timelineScreen .bars-viewport.range-select .bars{cursor:crosshair!important}
+#timelineTools .tool-separator{flex:0 0 1px}
+@media(max-height:480px){.app{grid-template-rows:38px 28px 27px minmax(0,1fr) 38px!important}}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
