@@ -2425,7 +2425,7 @@ function timelineContentBars(){
  let end=INITIAL_TIMELINE_BARS;
  for(const track of project.tracks||[])for(const clip of track.clips||[]){
   const clipEnd=Math.max(0,Number(clip.start)||0)+Math.max(.25,Number(clip.duration)||.25);
-  end=Math.max(end,Math.ceil(clipEnd+4));
+  end=Math.max(end,Math.ceil(clipEnd+32));
  }
  return Math.min(MAX_BARS,end);
 }
