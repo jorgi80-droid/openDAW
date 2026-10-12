@@ -1380,16 +1380,17 @@ function applyRangeOperation(action){
  const range=selectedRange();if(!range){notify('Pilih rentang waktu terlebih dahulu');return}
  const original=JSON.stringify(project);
  const start=range.start,end=range.end,duration=end-start;
+ const spanPieces=track=>track.clips.flatMap(c=>{const cs=Number(c.start)||0,ce=cs+(Number(c.duration)||0),left=Math.max(cs,start),right=Math.min(ce,end);return right>left?[{clip:c,left,right}]:[]});
+ const canShift=()=>project.tracks.every(track=>track.clips.every(c=>c.start<end||c.start+c.duration+duration<=MAX_BARS));
  let changed=0;
  if(action==='duplicate'){
   snapshot();
   project.tracks.forEach(track=>{
-   const inRange=track.clips.filter(c=>c.start<end&&c.start+c.duration>start);
-   inRange.forEach(c=>{
-    const sliceStart=Math.max(c.start,start),sliceEnd=Math.min(c.start+c.duration,end);
-    if(sliceEnd<=sliceStart)return;
+   const pieces=spanPieces(track);
+   pieces.forEach(piece=>{
+    const c=piece.clip;
     const duplicate={...JSON.parse(JSON.stringify(c)),id:'c'+Date.now()+Math.random().toString(16).slice(2,7),
-      start:sliceStart+duration,duration:sliceEnd-sliceStart,label:(c.label||'Clip')+' Copy'};
+      start:piece.left+duration,duration:piece.right-piece.left,label:(c.label||'Clip')+' Copy'};
     if(duplicate.start+duplicate.duration<=MAX_BARS){track.clips.push(duplicate);changed++}
    });
   });
@@ -1405,18 +1406,32 @@ function applyRangeOperation(action){
   });
   notify(changed?changed+' clip di dalam rentang dihapus':'Tidak ada clip yang seluruhnya berada dalam rentang');
  }else if(action==='insert'){
+  if(!canShift()){notify('Tidak cukup ruang di akhir timeline untuk menyisipkan rentang ini');return}
   snapshot();
-  project.tracks.forEach(track=>track.clips.forEach(c=>{if(c.start>=start){c.start=clampBar(c.start+duration);changed++}}));
-  notify('Ruang waktu disisipkan pada model timeline');
+  project.tracks.forEach(track=>{
+   const next=[];
+   track.clips.forEach(c=>{
+    const cs=c.start,ce=c.start+c.duration;
+    if(ce<=start){next.push(c);return}
+    if(cs>=start){c.start=cs+duration;next.push(c);changed++;return}
+    const left={...c,duration:start-cs};
+    const right={...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start:end,duration:ce-start,label:(c.label||'Clip')+' B'};
+    if(left.duration>.0625)next.push(left);
+    if(right.duration>.0625)next.push(right);
+    changed++;
+   });
+   track.clips=next;
+  });
+  notify('Ruang waktu disisipkan; clip yang melintasi titik masuk dipisah');
  }else if(action==='delete-space'){
   snapshot();
   project.tracks.forEach(track=>{
    const next=[];
    track.clips.forEach(c=>{
-    const ce=c.start+c.duration;
+    const cs=c.start,ce=c.start+c.duration;
     if(ce<=start){next.push(c);return}
-    if(c.start>=end){c.start=Math.max(0,c.start-duration);next.push(c);changed++;return}
-    if(c.start<start){const left={...c,duration:start-c.start};if(left.duration>=.0625)next.push(left);changed++}
+    if(cs>=end){c.start=cs-duration;next.push(c);changed++;return}
+    if(cs<start){const left={...c,duration:start-cs};if(left.duration>=.0625)next.push(left);changed++}
     if(ce>end){const right={...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start:start,duration:ce-end,label:(c.label||'Clip')+' B'};if(right.duration>=.0625)next.push(right);changed++}
    });
    track.clips=next;
@@ -1427,8 +1442,8 @@ function applyRangeOperation(action){
   project.tracks.forEach(track=>{
    const next=[];
    track.clips.forEach(c=>{
-    const ce=c.start+c.duration,s=Math.max(c.start,start),e=Math.min(ce,end);
-    if(e>s){next.push({...c,start:s,duration:e-s});changed++}
+    const ce=c.start+c.duration,cs=c.start,left=Math.max(cs,start),right=Math.min(ce,end);
+    if(right>left){next.push({...c,start:left-start,duration:right-left});changed++}
    });
    track.clips=next;
   });
