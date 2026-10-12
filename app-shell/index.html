@@ -1491,6 +1491,14 @@ button:active{transform:scale(.975)}
 #timelineScreen.timeline-pinch-preview>.addtrack{visibility:hidden!important}
 #timelineScreen .bars .timeline-ruler-canvas{image-rendering:auto!important}
 
+/* Fixed ruler coordinate plane and transient compositor preview. */
+#timelineScreen .bars{position:relative!important;display:block!important;flex:0 0 auto!important;overflow:hidden!important;padding:0!important;margin:0!important}
+#timelineScreen .bars .timeline-ruler-canvas{position:absolute!important;left:0;top:0;pointer-events:none!important;max-width:none!important}
+#timelineScreen .bars span{display:none!important}
+#timelineScreen .clip-canvas{transform-origin:0 0!important;background-origin:border-box!important;background-position:0 0!important;background-repeat:repeat!important}
+#timelineScreen .bars-viewport,#timelineScreen .cliparea{scroll-behavior:auto!important}
+#timelineScreen.timeline-pinch-preview .clip-canvas,#timelineScreen.timeline-pinch-preview .bars .timeline-ruler-canvas{backface-visibility:hidden!important}
+
 /* Final ruler/track coordinate contract: identical label column, pixel origin and track canvas width. */
 #timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(110px,15vw,165px) minmax(0,1fr)!important}
 #timelineScreen .ruler{display:grid!important;overflow:hidden!important}
@@ -2168,7 +2176,7 @@ document.addEventListener('lostpointercapture',endTrackHeightGesture);
 function renderTracks(){
  const root=$('tracks'),rulerViewport=document.querySelector('#timelineScreen .bars-viewport');
  const savedScrollLeft=rulerViewport?.scrollLeft||0,savedScrollTop=root.scrollTop||0;
- root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas){rulerCanvas.style.width=(timelineZoom*100)+'%';rulerCanvas.style.minWidth='100%';}
+ root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
  const barViewport=document.querySelector('#timelineScreen .bars');
  if(barViewport){const rulerCanvas=barViewport.querySelector('.timeline-ruler-canvas');if(rulerCanvas)rulerCanvas.dataset.ppb='';}
  project.tracks.forEach((t,index)=>{
@@ -2180,7 +2188,7 @@ function renderTracks(){
   const heightGrip=document.createElement('div');heightGrip.className='track-height-grip';heightGrip.dataset.trackHeight=String(index);heightGrip.setAttribute('role','separator');heightGrip.setAttribute('aria-orientation','horizontal');heightGrip.setAttribute('aria-label','Ubah tinggi track');heightGrip.tabIndex=0;heightGrip.addEventListener('pointerdown',beginTrackHeightGesture);heightGrip.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();setTimelineTrackZoom(timelineTrackZoom*(e.key==='ArrowUp'?1.08:1/1.08),.5)}});row.appendChild(heightGrip);
   const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;area.dataset.timelineScroll='clip';
   area.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget),{passive:true});
-  const canvas=document.createElement('div');canvas.className='clip-canvas';canvas.style.width=(timelineZoom*100)+'%';canvas.style.backgroundImage='linear-gradient(to right,#314355 1px,transparent 1px),linear-gradient(to right,#1c2936 1px,transparent 1px)';canvas.style.backgroundSize=(100/8)+'% 100%, '+(100/32)+'% 100%';
+  const canvas=document.createElement('div');canvas.className='clip-canvas';canvas.style.width=timelineContentWidth()+'px';canvas.style.backgroundImage='linear-gradient(to right,#334353 1px,transparent 1px),linear-gradient(to right,#1b2834 1px,transparent 1px)';canvas.style.backgroundSize=(timelinePixelsPerBar()*4)+'px 100%, '+timelinePixelsPerBar()+'px 100%';
   t.clips.forEach(c=>{
    const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'')+(c.muted?' is-muted':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start*timelinePixelsPerBar())+'px';clip.style.width=(Math.min(c.duration,MAX_BARS-c.start)*timelinePixelsPerBar())+'px';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Resize clip"><span class="resize-grip"></span></span>';clip.dataset.clip=c.id;clip.dataset.track=index;clip.title=c.label+' · tap for actions, double tap to edit, drag to move, drag right edge to resize';canvas.appendChild(clip);
   });
@@ -2559,89 +2567,78 @@ function timelineBaseWidth(){
  const viewport=document.querySelector('#timelineScreen .bars-viewport');
  return Math.max(1,viewport?.clientWidth||document.querySelector('#timelineScreen .timeline')?.clientWidth||1);
 }
-let timelineBasePpb=0,timelineBaseClientWidth=0;
+const TIMELINE_MAJOR_BARS=4;
+const TIMELINE_MINOR_BARS=1;
 function timelinePixelsPerBar(){
- const view=document.querySelector('#timelineScreen .bars-viewport');
- const width=Math.max(1,view?.clientWidth||document.querySelector('#timelineScreen .timeline')?.clientWidth||1);
- // baseline recalculates only on genuine viewport resize, not while zoom changes content width.
- if(!timelineBasePpb||Math.abs(width-timelineBaseClientWidth)>1){
-  timelineBaseClientWidth=width;
-  timelineBasePpb=width/INITIAL_TIMELINE_BARS;
- }
- return timelineBasePpb*Math.max(.25,Math.min(16,timelineZoom));
+ return timelineBaseWidth()/INITIAL_TIMELINE_BARS*Math.max(.25,Math.min(16,timelineZoom));
 }
 function timelineContentBars(){
  let end=INITIAL_TIMELINE_BARS;
  for(const track of project.tracks||[])for(const clip of track.clips||[]){
-  const clipEnd=Math.max(0,Number(clip.start)||0)+Math.max(.25,Number(clip.duration)||.25);
-  end=Math.max(end,Math.ceil(clipEnd+32));
+  end=Math.max(end,Math.ceil(Math.max(0,Number(clip.start)||0)+Math.max(.25,Number(clip.duration)||.25)+32));
  }
  return Math.min(MAX_BARS,end);
 }
-function timelineContentWidth(){
- const base=timelineBaseWidth(),ppb=timelinePixelsPerBar();
- return Math.max(base,Math.ceil(timelineContentBars()*ppb));
-}
-let rulerPaintRaf=0,rulerPaintForce=false;
-function requestPaintTimelineRuler(force=false){
- rulerPaintForce=rulerPaintForce||force;
- if(rulerPaintRaf)return;
- rulerPaintRaf=requestAnimationFrame(()=>{
-  rulerPaintRaf=0;
-  const forceNow=rulerPaintForce;rulerPaintForce=false;
-  paintTimelineRuler(forceNow);
- });
-}
+function timelineContentWidth(){return Math.max(timelineBaseWidth(),Math.ceil(timelineContentBars()*timelinePixelsPerBar()))}
 function paintTimelineRuler(force=false){
  const viewport=document.querySelector('#timelineScreen .bars-viewport');
  const bars=viewport?.querySelector('.bars'),canvas=bars?.querySelector('.timeline-ruler-canvas');
  if(!viewport||!bars||!canvas)return;
- const ppb=Math.max(1,timelinePixelsPerBar()),contentWidth=Math.max(viewport.clientWidth,timelineContentWidth());
- const scroll=Math.max(0,viewport.scrollLeft||0),x0=Math.max(0,Math.floor(scroll-viewport.clientWidth));
- const x1=Math.min(contentWidth,Math.ceil(scroll+viewport.clientWidth*2)),cw=Math.max(1,x1-x0),ch=Math.max(1,viewport.clientHeight);
- if(!force&&canvas.dataset.ppb===String(ppb)&&canvas.dataset.x0===String(x0)&&canvas.dataset.x1===String(x1)&&canvas.dataset.height===String(ch))return;
- const dpr=Math.min(window.devicePixelRatio||1,2),bw=Math.max(1,Math.round(cw*dpr)),bh=Math.max(1,Math.round(ch*dpr));
- if(canvas.width!==bw)canvas.width=bw;
- if(canvas.height!==bh)canvas.height=bh;
- canvas.style.left=x0+'px';canvas.style.top='0';canvas.style.width=cw+'px';canvas.style.height=ch+'px';
- const g=canvas.getContext('2d');if(!g)return;
- g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,bw,bh);g.setTransform(dpr,0,0,dpr,-x0*dpr,0);
- g.textBaseline='middle';g.font='500 11px Inter,Roboto,system-ui,sans-serif';
- // Major divisions: every 4 bars as requested; finer verticals are shared with clip-canvas CSS.
+ const ppb=Math.max(1,timelinePixelsPerBar()),width=timelineContentWidth();
+ const x0=Math.max(0,Math.floor((viewport.scrollLeft||0)-viewport.clientWidth));
+ const x1=Math.min(width,Math.ceil((viewport.scrollLeft||0)+viewport.clientWidth*2));
+ const w=Math.max(1,x1-x0),h=Math.max(1,viewport.clientHeight);
+ if(!force&&canvas.dataset.ppb===String(ppb)&&canvas.dataset.x0===String(x0)&&canvas.dataset.x1===String(x1)&&canvas.dataset.h===String(h))return;
+ const dpr=Math.min(window.devicePixelRatio||1,2),pw=Math.max(1,Math.round(w*dpr)),ph=Math.max(1,Math.round(h*dpr));
+ if(canvas.width!==pw)canvas.width=pw;if(canvas.height!==ph)canvas.height=ph;
+ Object.assign(canvas.style,{left:x0+'px',top:'0',width:w+'px',height:h+'px',transform:'',transformOrigin:'',willChange:''});
+ const ctx=canvas.getContext('2d');if(!ctx)return;
+ ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,pw,ph);ctx.setTransform(dpr,0,0,dpr,-x0*dpr,0);
+ ctx.textBaseline='middle';ctx.font='500 11px Inter,Roboto,system-ui,sans-serif';
  const first=Math.max(0,Math.floor(x0/ppb)-1),last=Math.min(MAX_BARS,Math.ceil(x1/ppb)+1);
  for(let bar=first;bar<=last;bar++){
-  const x=bar*ppb;
-  g.fillStyle=bar%4===0?'#334454':'#273644';
-  g.fillRect(Math.round(x)+.5,0,1,ch);
-  if(bar%4===0&&bar<MAX_BARS){g.fillStyle='#9cafc5';g.fillText(String(bar+1),x+7,ch/2)}
+  const x=Math.round(bar*ppb)+.5;
+  // Bar boundary strokes and bar numerals are tied to the same coordinate.
+  ctx.fillStyle=bar%TIMELINE_MAJOR_BARS===0?'#334454':'#273644';
+  ctx.fillRect(x,0,1,h);
+  if(bar%TIMELINE_MAJOR_BARS===0&&bar<MAX_BARS){
+   ctx.fillStyle='#9cafc5';ctx.fillText(String(bar+1),bar*ppb+7,h/2);
+  }
  }
- canvas.dataset.ppb=String(ppb);canvas.dataset.x0=String(x0);canvas.dataset.x1=String(x1);canvas.dataset.height=String(ch);
+ canvas.dataset.ppb=String(ppb);canvas.dataset.x0=String(x0);canvas.dataset.x1=String(x1);canvas.dataset.h=String(h);
+}
+let rulerPaintRaf=0,rulerPaintForce=false;
+function requestPaintTimelineRuler(force=false){
+ rulerPaintForce=rulerPaintForce||force;if(rulerPaintRaf)return;
+ rulerPaintRaf=requestAnimationFrame(()=>{rulerPaintRaf=0;const forceNow=rulerPaintForce;rulerPaintForce=false;paintTimelineRuler(forceNow)});
 }
 function applyTimelineGeometry(options={}){
- const ruler=document.querySelector('#timelineScreen .bars-viewport');if(!ruler)return;
- const contentWidth=timelineContentWidth(),ppb=timelinePixelsPerBar(),fast=!!options.fast;
+ const ruler=document.querySelector('#timelineScreen .bars-viewport');if(!ruler)return 0;
+ const width=timelineContentWidth(),ppb=timelinePixelsPerBar(),fast=!!options.fast;
  const bars=ruler.querySelector('.bars');
- [...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean).forEach(canvas=>{
-  if(canvas._timelineAppliedWidth!==contentWidth){
-   canvas.style.setProperty('width',contentWidth+'px','important');
-   canvas.style.setProperty('min-width',contentWidth+'px','important');
-   canvas.style.setProperty('max-width','none','important');
-   canvas.style.setProperty('box-sizing','border-box','important');
-   canvas._timelineAppliedWidth=contentWidth;
+ // Ruler and clip lanes share the exact same content width in logical pixels.
+ if(bars&&bars._appliedWidth!==width){bars.style.width=width+'px';bars.style.minWidth=width+'px';bars.style.maxWidth='none';bars._appliedWidth=width}
+ document.querySelectorAll('#timelineScreen .clip-canvas').forEach(canvas=>{
+  if(canvas._appliedWidth!==width){canvas.style.width=width+'px';canvas.style.minWidth=width+'px';canvas.style.maxWidth='none';canvas._appliedWidth=width}
+  const lane=canvas.closest('.cliparea'),index=Number(lane?.dataset.track),track=project.tracks[index];
+  if(track&&!fast){
+   track.clips.forEach(clip=>{
+    const el=canvas.querySelector('.clip[data-clip="'+CSS.escape(String(clip.id))+'"]');if(!el)return;
+    el.style.left=(Math.max(0,clip.start)*ppb)+'px';
+    el.style.width=(Math.max(.25,Math.min(clip.duration,MAX_BARS-clip.start))*ppb)+'px';
+   });
+  }
+  const major=(ppb*TIMELINE_MAJOR_BARS)+'px 100%, '+ppb+'px 100%';
+  if(canvas._gridSize!==major){
+   canvas.style.setProperty('background-size',major,'important');
+   canvas.style.setProperty('background-position','0 0','important');
+   canvas._gridSize=major;
   }
  });
- document.querySelectorAll('#timelineScreen .clip-canvas').forEach(canvas=>{
-  const lane=canvas.closest('.cliparea'),index=Number(lane?.dataset.track),track=project.tracks[index];if(!track)return;
-  if(!fast)canvas.querySelectorAll('.clip[data-clip]').forEach(el=>{
-   const clip=track.clips.find(x=>x.id===el.dataset.clip);if(!clip)return;
-   el.style.left=(clip.start*ppb)+'px';el.style.width=(Math.min(clip.duration,MAX_BARS-clip.start)*ppb)+'px';
-  });
-  const gridSize=(ppb*4)+'px 100%, '+ppb+'px 100%';
-  if(canvas._timelineGridSize!==gridSize){canvas.style.setProperty('background-size',gridSize,'important');canvas._timelineGridSize=gridSize}
- });
+ $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
  $('timelineScreen').style.setProperty('--timeline-ppb',ppb+'px');
  if(!fast)requestPaintTimelineRuler(true);
- return contentWidth;
+ return width;
 }
 function syncTimelineScroll(source){
  if(timelineScrollSync||!source)return;
@@ -3128,59 +3125,49 @@ function beginTimelinePinch(distance,centerX){
 }
 function queueTimelinePinch(distance,centerX){
  const start=timelinePinchStart;if(!start||timelinePointers.size<2)return;
- const ratio=Math.max(.02,Math.min(50,Math.max(1,distance)/start.startDistance));
+ const ratio=Math.max(.05,Math.min(20,Math.max(1,distance)/start.startDistance));
  timelinePinchPending={zoom:Math.max(.25,Math.min(16,start.startZoom*ratio)),centerX,epoch:start.epoch};
  if(timelinePinchFrame)return;
  timelinePinchFrame=requestAnimationFrame(()=>{
-  timelinePinchFrame=0;
-  const pending=timelinePinchPending;timelinePinchPending=null;
-  const base=timelinePinchStart;
-  if(!pending||!base||pending.epoch!==base.epoch||timelinePointers.size<2)return;
+  timelinePinchFrame=0;const pending=timelinePinchPending;timelinePinchPending=null;
+  const base=timelinePinchStart;if(!pending||!base||pending.epoch!==base.epoch||timelinePointers.size<2)return;
   const ruler=timelineRuler();if(!ruler)return;
-  const rect=ruler.getBoundingClientRect();
-  const centerLocal=Math.max(0,Math.min(ruler.clientWidth,pending.centerX-rect.left));
-  const liveZoom=Math.max(.25,Math.min(16,pending.zoom));
-  const focusBar=base.anchorBar;
-  // Melvox-style compositor preview: transform only the ruler/lane canvases, never the label column or toolbar.
-  // Each scroll viewport gets its own compensating offset so all grid planes remain aligned.
-  const ratio=liveZoom/Math.max(.0001,base.startZoom);
-  const previews=[{el:ruler,content:ruler.querySelector('.bars')}];
-  document.querySelectorAll('#timelineScreen .cliparea').forEach(el=>previews.push({el,content:el.querySelector('.clip-canvas')}));
-  previews.forEach(({el,content})=>{
-   if(!content)return;
-   const scroll=el.scrollLeft||0;
-   const translateX=centerLocal+scroll-focusBar*base.startPpb*ratio;
-   content.style.transformOrigin='0 0';
-   content.style.transform='translate3d('+translateX+'px,0,0) scaleX('+ratio+')';
-   content.style.willChange='transform';
+  const rect=ruler.getBoundingClientRect(),center=Math.max(0,Math.min(ruler.clientWidth,pending.centerX-rect.left));
+  const zoom=Math.max(.25,Math.min(16,pending.zoom)),scale=zoom/Math.max(.0001,base.startZoom);
+  const origin=base.anchorBar*base.startPpb;
+  // Freeze logical grid while pinching: only transform the ruler and clip canvas surfaces for preview.
+  // Do not re-run applyTimelineGeometry or repaint the ruler on each pointermove.
+  const elements=[ruler.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+  const translate=center-origin*scale;
+  elements.forEach(el=>{
+   if(!el.dataset.pinchTransformBase)el.dataset.pinchTransformBase='1';
+   el.style.transformOrigin='0 0';
+   el.style.transform='translate3d('+translate+'px,0,0) scaleX('+scale+')';
+   el.style.willChange='transform';
   });
   document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-preview');
-  base.pendingZoom=liveZoom;base.pendingCenter=centerLocal;
+  base.pendingZoom=zoom;base.pendingCenter=center;
  });
 }
 function clearTimelinePinch(){
- const base=timelinePinchStart;
- timelinePinchStart=null;timelinePinchPending=null;
+ const base=timelinePinchStart;timelinePinchStart=null;timelinePinchPending=null;
  if(timelinePinchFrame){cancelAnimationFrame(timelinePinchFrame);timelinePinchFrame=0}
- const workArea=document.querySelector('#timelineScreen .timeline-work-area');
+ const ruler=timelineRuler();
+ const elements=[ruler?.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+ elements.forEach(el=>{el.style.transform='';el.style.transformOrigin='';el.style.willChange='';delete el.dataset.pinchTransformBase});
+ document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active','timeline-pinch-preview');
  if(base&&Number.isFinite(base.pendingZoom)){
-  const ruler=timelineRuler(),center=Math.max(0,Math.min(ruler?.clientWidth||0,base.pendingCenter||0));
-  const contents=[ruler?.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
-  contents.forEach(el=>{el.style.transform='';el.style.transformOrigin='';el.style.willChange='';});
-  if(workArea){workArea.style.transform='';workArea.style.transformOrigin='';workArea.style.willChange='';}
-  document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-preview');
+  const center=Math.max(0,Math.min(ruler?.clientWidth||0,base.pendingCenter||0));
   timelineZoom=base.pendingZoom;
   $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
-  $('timelineScreen').style.setProperty('--timeline-ppb',timelinePixelsPerBar()+'px');
-  const contentWidth=applyTimelineGeometry()||timelineContentWidth();
+  const width=applyTimelineGeometry();
   if(ruler){
-   const maxScroll=Math.max(0,contentWidth-ruler.clientWidth);
+   const maxScroll=Math.max(0,width-ruler.clientWidth);
    ruler.scrollLeft=Math.max(0,Math.min(maxScroll,base.anchorBar*timelinePixelsPerBar()-center));
    syncTimelineScroll(ruler);
   }
   requestPaintTimelineRuler(true);updateTimelineTools();
- }else if(workArea){workArea.style.transform='';workArea.style.transformOrigin='';workArea.style.willChange='';}
- document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active','timeline-pinch-preview');
+ }
  timelineLastPinchAt=Date.now();
 }
 let timelineInertiaFrame=0;
