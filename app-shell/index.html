@@ -955,13 +955,20 @@ let velocityGesture=null;
 function updateVelocityFromPointer(e){
  const lane=$('velocity'),bars=[...lane.querySelectorAll('[data-velocity-index]')];
  if(!bars.length||!project.notes.length)return;
- const r=lane.getBoundingClientRect();
- const x=Math.max(0,Math.min(r.width-1,e.clientX-r.left));
- const idx=Math.max(0,Math.min(bars.length-1,Math.floor(x/Math.max(1,r.width)*bars.length)));
+ const r=lane.getBoundingClientRect(),x=e.clientX;
+ // Use each real bar's hitbox rather than dividing the lane width evenly:
+ // flex gaps/padding otherwise map a touch on the last bar to the previous note.
+ let idx=bars.findIndex(bar=>{const b=bar.getBoundingClientRect();return x>=b.left&&x<=b.right});
+ if(idx<0){
+  let nearest=Infinity;
+  bars.forEach((bar,i)=>{const b=bar.getBoundingClientRect(),d=x<b.left?b.left-x:x>b.right?x-b.right:0;if(d<nearest){nearest=d;idx=i}});
+ }
+ idx=Math.max(0,Math.min(bars.length-1,idx));
  const note=project.notes[idx];if(!note)return;
- const velocity=Math.max(1,Math.min(127,Math.round((r.bottom-e.clientY)/Math.max(1,r.height)*127)));
+ const y=Math.max(r.top,Math.min(r.bottom,e.clientY));
+ const velocity=Math.max(1,Math.min(127,Math.round((r.bottom-y)/Math.max(1,r.height)*127)));
  note.velocity=velocity;selectedNote=idx;
- const bar=bars[idx];if(bar){bar.style.height=(velocity/127*100)+'%';bar.title='Velocity '+velocity}
+ const bar=bars[idx];if(bar){bar.style.height=(velocity/127*100)+'%';bar.title='Velocity '+velocity;bar.dataset.velocity=String(velocity)}
 }
 $('velocity').addEventListener('pointerdown',e=>{
  if(e.button!==undefined&&e.button!==0)return;
