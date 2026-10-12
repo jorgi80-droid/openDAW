@@ -44,11 +44,19 @@ jobs:
 
       - name: Package StudioWave UI assets
         run: |
-          mkdir -p android-wrapper-novadaw/app/src/main/assets/novadaw/assets/opendaw/fonts
-          cp app-shell/index.html android-wrapper-novadaw/app/src/main/assets/novadaw/index.html
-          curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/favicon.svg -o android-wrapper-novadaw/app/src/main/assets/novadaw/assets/opendaw/favicon.svg
-          curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/fonts/rubik-400.woff2 -o android-wrapper-novadaw/app/src/main/assets/novadaw/assets/opendaw/fonts/rubik-400.woff2
-          curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/fonts/rubik-300.woff2 -o android-wrapper-novadaw/app/src/main/assets/novadaw/assets/opendaw/fonts/rubik-300.woff2
+          set -euo pipefail
+          ASSETS=android-wrapper-novadaw/app/src/main/assets/novadaw
+          mkdir -p "$ASSETS/assets/opendaw/fonts" "$ASSETS/assets/opendaw/ui" "$ASSETS/assets/melvox/samples/piano"
+          cp app-shell/index.html "$ASSETS/index.html"
+          curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/favicon.svg -o "$ASSETS/assets/opendaw/favicon.svg"
+          curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/fonts/rubik-400.woff2 -o "$ASSETS/assets/opendaw/fonts/rubik-400.woff2"
+          curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/fonts/rubik-300.woff2 -o "$ASSETS/assets/opendaw/fonts/rubik-300.woff2"
+          curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/empty.svg -o "$ASSETS/assets/opendaw/ui/empty.svg"
+          curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/favicon-live.svg -o "$ASSETS/assets/opendaw/ui/favicon-live.svg"
+          curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/grid16.svg -o "$ASSETS/assets/opendaw/ui/grid16.svg"
+          unzip -o Melvox.zip 'Melvox/public/samples/piano/*.mp3' 'Melvox/public/samples/piano/LICENSE.txt' -d /tmp/melvox-assets
+          cp /tmp/melvox-assets/Melvox/public/samples/piano/*.mp3 "$ASSETS/assets/melvox/samples/piano/"
+          cp /tmp/melvox-assets/Melvox/public/samples/piano/LICENSE.txt "$ASSETS/assets/melvox/samples/piano/LICENSE.txt"
 
       - name: Build debug APK
         working-directory: android-wrapper-novadaw
