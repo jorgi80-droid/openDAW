@@ -1478,6 +1478,50 @@ button:active{transform:scale(.975)}
 #floatingWorkspaceMenu{top:50%}
 #floatingBrowserMenu{top:calc(50% + 88px)}
 
+/* NovaDAW focused toolbar/menu and frame-coalesced Playlist interaction update. */
+#mainToolbar .subbar #save,#mainToolbar .subbar #open,#mainToolbar .subbar #export{display:none!important}
+#mainToolbar{grid-template-columns:minmax(122px,auto) minmax(86px,.7fr) auto minmax(0,1.4fr) auto!important;gap:7px!important}
+#mainToolbar .top-actions{gap:5px!important}
+#mainToolbar #projectMenuButton{display:flex!important;align-items:center!important;justify-content:center!important}
+#projectMenuOverlay[hidden]{display:none!important}
+#projectMenuOverlay{z-index:120!important}
+.project-menu-sheet{max-width:380px!important}
+.project-menu-actions{display:grid!important;grid-template-columns:1fr 1fr!important;gap:8px!important}
+.project-menu-actions button{min-height:42px!important;font-size:12px!important}
+#mainToolbar .transportbar .transport button{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;border-radius:10px!important;background:linear-gradient(180deg,#172331,#101923)!important;border:1px solid #324355!important;box-shadow:inset 0 1px #ffffff0b,0 2px 4px #0004!important;transition:background .12s ease,border-color .12s ease,transform .12s ease,box-shadow .12s ease!important}
+#mainToolbar .transportbar .transport #play{width:36px!important;min-width:36px!important;height:34px!important;min-height:34px!important;background:linear-gradient(180deg,#18c68e,#079c70)!important;color:#f1fff9!important;border-color:#20d59f!important;box-shadow:inset 0 1px #ffffff30,0 3px 9px #00ad7c30!important}
+#mainToolbar .transportbar .transport #play:active{transform:scale(.96)!important}
+#mainToolbar .transportbar .transport #record[aria-pressed="true"],#mainToolbar .transportbar .transport #record.recording{background:linear-gradient(180deg,#ff6472,#db3148)!important;border-color:#ff8590!important;box-shadow:0 0 0 2px #ff536522,0 0 12px #ff334433!important}
+#mainToolbar .transportbar .transport #record svg circle{stroke:#ff7b88;stroke-width:1.3}
+#mainToolbar .transportbar .transport #rewind{width:31px!important;min-width:31px!important}
+#mainToolbar .transportbar .transport #position{min-width:55px!important;width:55px!important;background:#121c27!important;color:#bed0e4!important;border-color:#2a3a4b!important}
+#mainToolbar .transportbar .transport button:focus-visible,#mainToolbar .top-actions button:focus-visible{outline:2px solid #54afff!important;outline-offset:2px!important}
+#timelineScreen .bars span:not(.ruler-end){font-variant-numeric:tabular-nums!important;padding-left:6px!important;border-left:1px solid #334455!important}
+#timelineScreen .clip-canvas{background-image:linear-gradient(to right,#324354 1px,transparent 1px),linear-gradient(to right,#1d2a37 1px,transparent 1px)!important;background-repeat:repeat!important}
+#timelineScreen .clip-canvas{background-size:calc(var(--timeline-ppb,24px)*4) 100%,var(--timeline-ppb,24px) 100%!important}
+#timelineScreen .clip{transition:filter 90ms linear,box-shadow 90ms linear!important;will-change:left,top,width,transform,filter!important}
+#timelineScreen .clip.dragging{transition:none!important;z-index:20!important}
+#timelineScreen .trackrow{contain:layout style}
+@media(max-width:900px){
+ #mainToolbar{grid-template-columns:minmax(82px,.75fr) minmax(72px,.6fr) auto minmax(0,1.3fr) auto!important;gap:4px!important}
+ #mainToolbar .brand{font-size:10px!important}
+ #mainToolbar .top-actions{gap:3px!important}
+ #mainToolbar .top-actions button{width:29px!important;min-width:29px!important;height:29px!important;min-height:29px!important}
+ #mainToolbar .transportbar .transport #position{display:none!important}
+ #mainToolbar .transportbar .transport button{width:27px!important;min-width:27px!important;height:28px!important;min-height:28px!important}
+ #mainToolbar .transportbar .transport #play{width:31px!important;min-width:31px!important;height:30px!important;min-height:30px!important}
+}
+@media(max-width:650px){
+ #mainToolbar{grid-template-columns:minmax(0,.8fr) auto minmax(0,1fr) auto!important}
+ #mainToolbar .brand{display:none!important}
+ #mainToolbar .project{grid-column:1!important}
+ #mainToolbar .transportbar{grid-column:2!important}
+ #mainToolbar>.subbar{grid-column:3!important;justify-content:flex-start!important}
+ #mainToolbar .top-actions{grid-column:4!important}
+ #mainToolbar>.subbar .chip{padding:3px 5px!important}
+ #mainToolbar .transportbar .transport #play{width:29px!important;min-width:29px!important}
+}
+
 /* NovaDAW P0 interaction polish: no overlay toast can obscure clip feedback. */
 #toast{display:none!important}
 #toast:not([hidden]){display:none!important}
@@ -1736,8 +1780,8 @@ button:active{transform:scale(.975)}
   <div class="brand">NovaDAW <span>Mobile</span></div>
   <div class="project"><button class="small" aria-label="Home and settings" id="menu" title="Home / Settings"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/></svg></button><input id="projectName" aria-label="Nama proyek" value="My Song"></div>
   <div class="transportbar"><div class="transport"><button class="small" id="rewind" aria-label="Kembali ke awal"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M19 5L7 12l12 7z" stroke="currentColor" stroke-width="1.6" fill="currentColor"/></svg></button><button class="small play" id="play" aria-label="Putar atau jeda"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg></button><button class="small" id="record" aria-label="Rekam"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6" fill="#ff5c69"/></svg></button><button class="small meta" id="position">1:1:000</button></div></div>
-  <div class="subbar"><span class="chip">Tempo <b><input id="tempo" type="number" min="40" max="240" value="120" aria-label="Tempo in BPM"></b> BPM</span><span class="chip">Meter <b><select id="meter" aria-label="Time signature"><option>4/4</option><option>3/4</option><option>6/8</option><option>5/4</option></select></b></span><span class="chip">Audio <b id="audioState">Demo</b></span><button class="small" id="save">Simpan</button><button class="small" id="open">Buka</button><button class="small" id="export">Ekspor JSON</button><input hidden id="file" type="file" accept=".json,application/json"></div>
-  <div class="top-actions"><button class="small" id="undo" aria-label="Undo" title="Undo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4 12l5 5M4 12h10a5 5 0 0 1 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button class="small" id="redo" aria-label="Redo" title="Redo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7l5 5-5 5M20 12H10a5 5 0 0 0-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button></div>
+  <div class="subbar"><span class="chip">Tempo <b><input id="tempo" type="number" min="40" max="240" value="120" aria-label="Tempo in BPM"></b> BPM</span><span class="chip">Meter <b><select id="meter" aria-label="Time signature"><option>4/4</option><option>3/4</option><option>6/8</option><option>5/4</option></select></b></span><span class="chip">Audio <b id="audioState">Demo</b></span><input hidden id="file" type="file" accept=".json,application/json"></div>
+  <div class="top-actions"><button class="small" id="projectMenuButton" aria-label="Project menu" title="Project menu"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><button class="small" id="undo" aria-label="Undo" title="Undo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4 12l5 5M4 12h10a5 5 0 0 1 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button class="small" id="redo" aria-label="Redo" title="Redo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7l5 5-5 5M20 12H10a5 5 0 0 0-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button></div>
 </header>
 <main class="workspace" id="workspace">
 <section class="screen" id="timelineScreen">
@@ -1811,6 +1855,20 @@ button:active{transform:scale(.975)}
    <p class="home-files-note"><strong>FILES</strong> · Proyek tersimpan di penyimpanan browser; gunakan Impor/Ekspor JSON untuk memindahkan file proyek.</p>
   </section>
   <div class="menu-actions" style="margin-top:10px"><button id="resetUiSettings">Reset tampilan</button><button class="primary" id="closeSettingsDone">Selesai</button></div>
+ </section>
+</div>
+<div id="projectMenuOverlay" class="menu-overlay" hidden>
+ <section class="menu-sheet project-menu-sheet" role="dialog" aria-modal="true" aria-labelledby="projectMenuTitle">
+  <div class="menu-sheet-header"><div><h2 id="projectMenuTitle">Project</h2><p class="muted">Penyimpanan dan riwayat proyek</p></div><button id="closeProjectMenu" aria-label="Tutup menu proyek">✕</button></div>
+  <div class="menu-actions project-menu-actions">
+   <button id="projectSave">Simpan proyek</button>
+   <button id="projectOpen">Buka / Impor proyek</button>
+   <button id="projectExport">Ekspor JSON</button>
+   <button id="projectImport">Impor JSON</button>
+   <button id="projectMenuUndo">Undo</button>
+   <button id="projectMenuRedo">Redo</button>
+  </div>
+  <div class="menu-actions"><button id="closeProjectMenuDone" class="primary">Selesai</button></div>
  </section>
 </div>
 <div id="toast" class="toast" role="status" hidden></div>
@@ -2798,10 +2856,21 @@ $('record').addEventListener('click',()=>{recording=!recording;$('record').style
 $('tempo').addEventListener('change',()=>{snapshot();project.tempo=Math.max(40,Math.min(240,+$('tempo').value||120));$('tempo').value=project.tempo;notify('Tempo proyek: '+project.tempo+' BPM')});
 $('meter').addEventListener('change',()=>{snapshot();project.meter=$('meter').value;notify('Meter proyek diubah ke '+project.meter)});
 $('projectName').addEventListener('change',()=>{snapshot();project.name=$('projectName').value.trim()||'Untitled';$('projectName').value=project.name});
-$('save').addEventListener('click',()=>{try{localStorage.setItem('novadaw-project',JSON.stringify({...project,uiRackState:trackRacks}));notify('Proyek tersimpan di penyimpanan browser')}catch(e){notify('Penyimpanan tidak tersedia di mode ini')}});
-$('open').addEventListener('click',()=>{const s=localStorage.getItem('novadaw-project');if(s){try{snapshot();const loaded=normalizePianoResolution(JSON.parse(s));project={...loaded};if(loaded.uiRackState&&typeof loaded.uiRackState==='object')Object.assign(trackRacks,loaded.uiRackState);selectedClip=null;renderAll();notify('Proyek dibuka')}catch(e){notify('Data proyek tidak valid')}}else{$('file').click()}});
+function saveProject(){try{localStorage.setItem('novadaw-project',JSON.stringify({...project,uiRackState:trackRacks}));notify('Proyek tersimpan di penyimpanan browser')}catch(e){notify('Penyimpanan tidak tersedia di mode ini')}}
+function openProject(){const stored=localStorage.getItem('novadaw-project');if(stored){try{snapshot();const loaded=normalizePianoResolution(JSON.parse(stored));project={...loaded};if(loaded.uiRackState&&typeof loaded.uiRackState==='object')Object.assign(trackRacks,loaded.uiRackState);selectedClip=null;renderAll();notify('Proyek dibuka')}catch(e){notify('Data proyek tidak valid')}}else $('file').click()}
+function importProject(){ $('file').click() }
+function exportProject(){const blob=new Blob([JSON.stringify({...project,uiRackState:trackRacks},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(project.name||'novadaw').replace(/[^a-z0-9-_]/gi,'_')+'.json';a.click();URL.revokeObjectURL(url);notify('Ekspor JSON dibuat')}
 $('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const p=normalizePianoResolution(JSON.parse(await f.text()));if(!Array.isArray(p.tracks)||!Array.isArray(p.notes))throw Error('format');snapshot();if(p.uiRackState&&typeof p.uiRackState==='object')Object.assign(trackRacks,p.uiRackState);project={...p};renderAll();notify('Proyek JSON diimpor')}catch(_){notify('File proyek JSON tidak valid')}e.target.value=''});
-$('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({...project,uiRackState:trackRacks},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(project.name||'novadaw').replace(/[^a-z0-9-_]/gi,'_')+'.json';a.click();URL.revokeObjectURL(url);notify('Ekspor JSON dibuat')});
+$('projectMenuButton').addEventListener('click',()=>{$('projectMenuOverlay').hidden=false});
+function closeProjectMenu(){$('projectMenuOverlay').hidden=true}
+$('closeProjectMenu').addEventListener('click',closeProjectMenu);$('closeProjectMenuDone').addEventListener('click',closeProjectMenu);
+$('projectMenuOverlay').addEventListener('click',e=>{if(e.target.id==='projectMenuOverlay')closeProjectMenu()});
+$('projectSave').addEventListener('click',()=>{saveProject();closeProjectMenu()});
+$('projectOpen').addEventListener('click',()=>{openProject();closeProjectMenu()});
+$('projectExport').addEventListener('click',()=>{exportProject();closeProjectMenu()});
+$('projectImport').addEventListener('click',()=>{importProject();closeProjectMenu()});
+$('projectMenuUndo').addEventListener('click',()=>{$('undo').click();closeProjectMenu()});
+$('projectMenuRedo').addEventListener('click',()=>{$('redo').click();closeProjectMenu()});
 $('undo').addEventListener('click',()=>{if(!undoStack.length){notify('Tidak ada aksi untuk undo');return}redoStack.push(JSON.stringify(project));project=JSON.parse(undoStack.pop());renderAll();notify('Undo selesai')});
 $('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada aksi untuk redo');return}undoStack.push(JSON.stringify(project));project=JSON.parse(redoStack.pop());renderAll();notify('Redo selesai')});
 const uiPrefs={scale:85,theme:'dark',density:'compact',snap:'quarter'};
@@ -2820,9 +2889,9 @@ function openSettings(){try{Object.assign(uiPrefs,JSON.parse(localStorage.getIte
 try{timelineTrackZoom=Math.max(.5,Math.min(2.4,Number(localStorage.getItem('novadaw-timeline-track-zoom'))||1))}catch(_){}applyUiPrefs();renderHomeSummary();$('settingsOverlay').hidden=false}
 function closeSettings(){$('settingsOverlay').hidden=true}
 $('menu').addEventListener('click',openSettings);$('closeSettings').addEventListener('click',closeSettings);$('closeSettingsDone').addEventListener('click',closeSettings);
-$('homeSaveProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;$('save').click();});
-$('homeOpenProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;$('open').click();});
-$('homeExportProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;$('export').click();});
+$('homeSaveProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;saveProject();});
+$('homeOpenProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;openProject();});
+$('homeExportProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;exportProject();});
 $('homeImportProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;$('file').click();});
 $('homeNewProject').addEventListener('click',()=>{
  if(!window.confirm('Buat proyek kosong? Perubahan yang belum disimpan akan diganti.'))return;
@@ -2926,6 +2995,7 @@ function setTimelineZoomSmooth(next,anchorX){
   if(p)setTimelineZoom(p.next,p.anchorX);
  });
 }
+let timelineGeometryRaf=0,timelineGeometryPending=null;
 function setTimelineZoom(next,anchorX){
  const ruler=document.querySelector('#timelineScreen .bars-viewport');
  if(!ruler)return;
@@ -2938,11 +3008,15 @@ function setTimelineZoom(next,anchorX){
  timelineZoom=zoom;
  $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
  $('timelineScreen').style.setProperty('--timeline-ppb',timelinePixelsPerBar()+'px');
- const newContentWidth=applyTimelineGeometry()||Math.max(1,ruler.clientWidth*timelineZoom);
- requestAnimationFrame(()=>{
-  const maxScroll=Math.max(0,newContentWidth-ruler.clientWidth);
-  ruler.scrollLeft=Math.max(0,Math.min(maxScroll,anchorBar*timelinePixelsPerBar()-anchor));
-  syncTimelineScroll(ruler);
+ timelineGeometryPending={ruler,anchor,anchorBar,zoom};
+ if(timelineGeometryRaf)return;
+ timelineGeometryRaf=requestAnimationFrame(()=>{
+  timelineGeometryRaf=0;
+  const p=timelineGeometryPending;timelineGeometryPending=null;if(!p)return;
+  const contentWidth=applyTimelineGeometry()||Math.max(1,p.ruler.clientWidth*p.zoom);
+  const maxScroll=Math.max(0,contentWidth-p.ruler.clientWidth);
+  p.ruler.scrollLeft=Math.max(0,Math.min(maxScroll,p.anchorBar*timelinePixelsPerBar()-p.anchor));
+  syncTimelineScroll(p.ruler);
   updateTimelineTools();
  });
 }
