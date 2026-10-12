@@ -1525,12 +1525,15 @@ $('tracks').addEventListener('click',e=>{
    const targetTrack=project.tracks[ownerIndex],target=targetTrack?.clips.find(c=>c.id===id);
    if(targetTrack&&target){
     snapshot();
-    const pasted={...JSON.parse(JSON.stringify(clipboardClip.clip)),id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start:target.start+target.duration,label:(clipboardClip.clip.label||'Clip')+' Copy'};
-    if(pasted.start+pasted.duration>32)pasted.start=Math.max(0,32-pasted.duration);
-    if(clipboardClip.mode==='move'){
-     const source=project.tracks[clipboardClip.sourceTrack];
-     if(source)source.clips=source.clips.filter(c=>c.id!==clipboardClip.clip.id);
+    const sourceTrack=project.tracks[clipboardClip.sourceTrack];
+    const source=sourceTrack?.clips.find(c=>c.id===clipboardClip.clip.id);
+    let start=target.start+target.duration;
+    if(clipboardClip.mode==='move'&&source){
+     start=source.start;
+     sourceTrack.clips=sourceTrack.clips.filter(c=>c.id!==source.id);
     }
+    const pasted={...JSON.parse(JSON.stringify(clipboardClip.clip)),id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start,label:(clipboardClip.clip.label||'Clip')+(clipboardClip.mode==='move'?'':' Copy')};
+    if(pasted.start+pasted.duration>32)pasted.start=Math.max(0,32-pasted.duration);
     targetTrack.clips.push(pasted);selectedTrack=ownerIndex;selectedClip=pasted.id;clipboardClip.pendingPaste=false;clipboardClip.mode='copy';
     renderTracks();updateTimelineTools();hideClipContext();notify('Clip ditempel pada track '+targetTrack.name);return;
    }
@@ -1812,20 +1815,15 @@ $('clipContextMenu').addEventListener('click',e=>{
  const action=b.dataset.clipAction;
  if(action==='edit'){openClipEditor(id);return}
  if(action==='copy'){
-  clipboardClip={clip:JSON.parse(JSON.stringify(clip)),sourceTrack:trackIndex,pendingPaste:true};
   snapshot();
-  const id='c'+Date.now()+Math.random().toString(16).slice(2,5);
-  const occupied=track.clips.filter(c=>c.id!==clip.id).map(c=>[c.start,c.start+c.duration]).sort((a,b)=>a[0]-b[0]);
-  let start=Math.min(32-clip.duration,clip.start+clip.duration);
-  for(const [a,b] of occupied){if(start+clip.duration<=a)break;if(start<b)start=b}
-  if(start+clip.duration>32){start=0;for(const [a,b] of occupied){if(start+clip.duration<=a)break;if(start<b)start=b}}
-  if(start+clip.duration>32){hideClipContext();notify('Tidak ada ruang kosong untuk salinan clip');return}
-  const copy={...clip,id,start,label:clip.label+' Copy'};
-  track.clips.push(copy);selectedClip=copy.id;clipboardClip={clip:JSON.parse(JSON.stringify(copy)),sourceTrack:trackIndex,pendingPaste:false};hideClipContext();renderTracks();updateTimelineTools();notify('Clip disalin; ketuk clip tujuan untuk menempel');return
+  const copy={...JSON.parse(JSON.stringify(clip)),id:'c'+Date.now()+Math.random().toString(16).slice(2,5),label:clip.label+' Copy'};
+  track.clips.push(copy);selectedClip=copy.id;selectedTrack=trackIndex;
+  clipboardClip={clip:JSON.parse(JSON.stringify(copy)),sourceTrack:trackIndex,pendingPaste:false,mode:'copy'};
+  hideClipContext();renderTracks();updateTimelineTools();notify('Clip disalin');return
  }
  if(action==='cut'){
   clipboardClip={clip:JSON.parse(JSON.stringify(clip)),sourceTrack:trackIndex,pendingPaste:true,mode:'move'};
-  snapshot();hideClipContext();notify('Clip siap dipindahkan; ketuk clip tujuan untuk menempel');return
+  hideClipContext();notify('Clip siap dipindahkan; ketuk clip tujuan untuk menempel');return
  }
  if(action==='paste'){
   if(!clipboardClip){notify('Clipboard clip kosong');return}
