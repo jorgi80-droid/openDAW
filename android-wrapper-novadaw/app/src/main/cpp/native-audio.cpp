@@ -53,6 +53,14 @@ public:
         selected->frequency.store(frequency, std::memory_order_relaxed);
         selected->velocity.store(std::clamp(velocity, 0.0f, 1.0f), std::memory_order_relaxed);
     }
+    void noteOff(float frequency) {
+        for (auto& voice : voices_) {
+            const float active = voice.frequency.load(std::memory_order_relaxed);
+            if (std::abs(active - frequency) < 0.05f) {
+                voice.velocity.store(0.0f, std::memory_order_relaxed);
+            }
+        }
+    }
     void allNotesOff() {
         for (auto& voice : voices_) voice.velocity.store(0.0f, std::memory_order_relaxed);
     }
@@ -117,6 +125,11 @@ extern "C" JNIEXPORT void JNICALL
 Java_com_novadaw_mobile_MainActivity_nativeNoteOn(JNIEnv*, jobject, jdouble frequency, jfloat velocity) {
     std::lock_guard<std::mutex> lock(gMutex);
     if (gAudio) gAudio->noteOn(static_cast<float>(frequency), velocity);
+}
+extern "C" JNIEXPORT void JNICALL
+Java_com_novadaw_mobile_MainActivity_nativeNoteOff(JNIEnv*, jobject, jdouble frequency) {
+    std::lock_guard<std::mutex> lock(gMutex);
+    if (gAudio) gAudio->noteOff(static_cast<float>(frequency));
 }
 extern "C" JNIEXPORT void JNICALL
 Java_com_novadaw_mobile_MainActivity_nativeAllNotesOff(JNIEnv*, jobject) {
