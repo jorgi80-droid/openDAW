@@ -26,7 +26,11 @@ jobs:
             'id="timelineScreen"', 'id="mixerScreen"', 'id="pianoScreen"',
             'id="devicesScreen"', 'id="browserScreen"', 'id="play"',
             'id="save"', 'id="export"', 'data-screen="timeline"',
-            'env(safe-area-inset-bottom)', 'function switchScreen'
+            'env(safe-area-inset-bottom)', 'function switchScreen',
+            'id="floatingEditorButton"', 'id="floatingWorkspaceButton"', 'id="floatingBrowserButton"',
+            'id="floatingEditorMenu"', 'id="floatingWorkspaceMenu"',
+            '#timelineScreen>.addtrack{position:fixed!important',
+            'function setTimelineZoomSmooth'
           ]
           missing = [x for x in required if x not in s]
           if missing:
