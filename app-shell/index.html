@@ -1385,6 +1385,7 @@ function applyRangeOperation(action){
  let changed=0;
  if(action==='duplicate'){
   snapshot();
+  if(!canShift()){notify('Tidak cukup ruang di akhir timeline untuk menggandakan rentang ini');return}
   project.tracks.forEach(track=>{
    const pieces=spanPieces(track);
    pieces.forEach(piece=>{
@@ -1414,6 +1415,7 @@ function applyRangeOperation(action){
  }else if(action==='insert'){
   if(!canShift()){notify('Tidak cukup ruang di akhir timeline untuk menyisipkan rentang ini');return}
   snapshot();
+  if(!canShift()){notify('Tidak cukup ruang di akhir timeline untuk menyisipkan rentang ini');return}
   project.tracks.forEach(track=>{
    const next=[];
    track.clips.forEach(c=>{
