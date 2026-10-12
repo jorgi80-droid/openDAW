@@ -1619,7 +1619,9 @@ function applyRangeOperation(action){
  }
 }
 function renderTracks(){
- const root=$('tracks');root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas){rulerCanvas.style.width=(timelineZoom*100)+'%';rulerCanvas.style.minWidth='100%';}
+ const root=$('tracks'),rulerViewport=document.querySelector('#timelineScreen .bars-viewport');
+ const savedScrollLeft=rulerViewport?.scrollLeft||0,savedScrollTop=root.scrollTop||0;
+ root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas){rulerCanvas.style.width=(timelineZoom*100)+'%';rulerCanvas.style.minWidth='100%';}
  const barViewport=document.querySelector('#timelineScreen .bars');
  if(barViewport){barViewport.querySelectorAll('span:not(.ruler-end)').forEach((label,index)=>{label.textContent=String(index*4+1);label.style.flex='0 0 '+(100/8)+'%';});const end=barViewport.querySelector('.ruler-end');if(end)end.textContent=String(MAX_BARS+1)}
  project.tracks.forEach((t,index)=>{
@@ -1628,6 +1630,7 @@ function renderTracks(){
   label.innerHTML='<div class="trackname"><span>'+ (index+1)+'. '+esc(t.name)+'</span><span style="color:var(--muted);font-size:10px">'+esc(t.type)+'</span></div><div class="trackbuttons"><button data-action="mute" data-i="'+index+'" class="'+(t.mute?'on':'')+'">M</button><button data-action="solo" data-i="'+index+'" class="'+(t.solo?'on':'')+'">S</button><button data-action="menu" data-i="'+index+'" class="'+(selectedTrack===index?'active':'')+'" aria-label="Track options">•••</button></div>';
   row.appendChild(label);
   const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;area.dataset.timelineScroll='clip';
+  area.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget),{passive:true});
   const canvas=document.createElement('div');canvas.className='clip-canvas';canvas.style.width=(timelineZoom*100)+'%';canvas.style.backgroundImage='linear-gradient(to right,#344657 1px,transparent 1px),linear-gradient(to right,#243341 1px,transparent 1px),linear-gradient(to right,#192631 1px,transparent 1px)';canvas.style.backgroundSize=(100/32)+'% 100%, '+(100/128)+'% 100%, '+(100/512)+'% 100%';
   t.clips.forEach(c=>{
    const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'')+(c.muted?' is-muted':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(Math.min(c.duration,32-c.start)/32*100)+'%';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Resize clip"><span class="resize-grip"></span></span>';clip.dataset.clip=c.id;clip.dataset.track=index;clip.title=c.label+' · tap for actions, double tap to edit, drag to move, drag right edge to resize';canvas.appendChild(clip);
@@ -1635,6 +1638,12 @@ function renderTracks(){
   area.appendChild(canvas);row.appendChild(area);root.appendChild(row);
  });
  applyTimelineGeometry();
+ if(rulerViewport){
+  const maxScroll=Math.max(0,(timelineCanvasFor(rulerViewport)?.scrollWidth||rulerViewport.clientWidth)-rulerViewport.clientWidth);
+  rulerViewport.scrollLeft=Math.max(0,Math.min(maxScroll,savedScrollLeft));
+  syncTimelineScroll(rulerViewport);
+ }
+ root.scrollTop=savedScrollTop;
  renderRangeSelection();
 }
 function renderMixer(){
