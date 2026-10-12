@@ -2978,7 +2978,7 @@ document.addEventListener('keydown',e=>{
  else if(key==='v'){timelineTool='select';updateTimelineTools()}
  else if(key==='c'){timelineTool='cut';updateTimelineTools();notify('Mode Split aktif')}
  else if(key==='g'){snapEnabled=!snapEnabled;updateTimelineTools();notify(snapEnabled?'Snap grid aktif':'Snap grid nonaktif')}
- else if(key==='delete'||key==='backspace'){const del=$('timelineTools').querySelector('[data-timeline-tool="delete"]');if(del&&!del.disabled){e.preventDefault();del.click()}}
+ else if(key==='delete'||key==='backspace'){if(selectedClip){e.preventDefault();document.querySelector('#clipContextMenu [data-clip-action="delete"]')?.click()}}
 });
 renderAll();updateTimelineTools();
 window.addEventListener('resize',()=>{if(!$('timelineScreen').hidden){const r=document.querySelector('#timelineScreen .bars-viewport');const x=r?.scrollLeft||0;$('timelineScreen').style.setProperty('--timeline-ppb',timelinePixelsPerBar()+'px');applyTimelineGeometry();if(r)r.scrollLeft=Math.min(x,Math.max(0,timelineContentWidth()-r.clientWidth));syncTimelineScroll(r)}},{passive:true});
