@@ -1014,6 +1014,54 @@ html[data-theme="light"] .clip{color:#152130!important}
  .dock button{flex-basis:28px!important;width:27px!important;min-width:27px!important;height:28px!important;min-height:28px!important}
  .dock button .workspace-dock-symbol{width:15px;height:15px;flex-basis:15px}
 }
+/* Final toolbar alignment pass: play is centered independently; controls are packed left/right without collision. */
+.app{grid-template-rows:40px 38px 34px minmax(0,1fr)!important}
+.top{grid-row:1!important;display:flex!important;flex-wrap:nowrap!important;width:100%;min-width:0;overflow:hidden!important;padding:3px 8px!important;gap:6px!important}
+.top .brand{display:block!important;flex:0 0 auto!important;max-width:none!important}
+.top .project{display:flex!important;flex:0 1 180px!important;min-width:0!important;max-width:180px!important}
+.top .project input{min-width:0!important;width:100%!important}
+.top-actions{margin-left:auto!important;flex:0 0 auto!important}
+.transportbar{grid-row:2!important;display:grid!important;grid-template-columns:1fr auto 1fr!important;align-items:center!important;position:relative!important;inset:auto!important;transform:none!important;width:100%!important;max-width:none!important;height:38px!important;min-height:38px!important;margin:0!important;padding:2px 7px!important;box-sizing:border-box;background:#0c1219!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;overflow:hidden!important}
+.transportbar .transport{grid-column:2;grid-row:1;display:flex!important;position:static!important;align-items:center;justify-content:center;gap:4px!important;width:max-content!important;max-width:100%;margin:0 auto!important}
+.transportbar .transport button{position:static!important;inset:auto!important;transform:none!important;flex:0 0 auto!important;width:31px;min-width:31px!important;height:29px!important;min-height:29px!important;padding:2px 4px!important}
+.transportbar #play{position:static!important;inset:auto!important;transform:none!important;width:39px!important;min-width:39px!important;height:30px!important;min-height:30px!important}
+.transportbar #position{width:65px;min-width:65px!important}
+.subbar{grid-row:3!important;display:flex!important;flex-wrap:nowrap!important;align-items:center!important;width:100%!important;min-width:0!important;height:34px!important;min-height:34px!important;overflow-x:auto!important;overflow-y:hidden!important;padding:2px 7px!important;gap:4px!important;position:relative!important;inset:auto!important;transform:none!important}
+.subbar .chip{display:inline-flex!important;flex:0 0 auto!important;height:27px!important;min-height:27px!important;padding:2px 5px!important;gap:3px!important}
+.subbar .chip input{width:28px!important;min-width:28px!important}
+.subbar .grow{display:block!important;flex:1 0 4px!important;min-width:4px!important}
+.subbar button{display:inline-flex!important;flex:0 0 auto!important;height:27px!important;min-height:27px!important;padding:2px 5px!important}
+#save,#open{display:inline-flex!important}
+#export{max-width:64px!important}
+.workspace{grid-row:4!important;min-width:0!important;min-height:0!important;overflow:hidden!important;padding-right:48px!important}
+#timelineScreen .timeline-work-area{min-width:0!important;min-height:0!important}
+#timelineScreen .timeline{min-width:0!important}
+#timelineScreen .tracks{min-width:0!important}
+.dock{z-index:100!important;right:max(5px,env(safe-area-inset-right))!important;width:38px!important;min-width:38px!important;max-height:calc(100dvh - 100px)!important;overflow-y:auto!important;overflow-x:hidden!important}
+.dock button{width:28px!important;min-width:28px!important;flex:0 0 32px!important}
+@media (orientation:landscape) and (max-height:520px){
+ .app{grid-template-rows:35px 29px 28px minmax(0,1fr)!important}
+ .top{padding:2px 5px!important;gap:4px!important}
+ .top .brand{font-size:11px!important}
+ .top .project{max-width:106px!important}
+ .top .project button,.top-actions button{width:24px!important;min-width:24px!important;height:24px!important;min-height:24px!important}
+ .transportbar{height:29px!important;min-height:29px!important;padding:1px 4px!important}
+ .transportbar .transport{gap:3px!important}
+ .transportbar .transport button{width:25px;min-width:25px!important;height:23px!important;min-height:23px!important;padding:1px 3px!important}
+ .transportbar #play{width:33px!important;min-width:33px!important;height:24px!important;min-height:24px!important}
+ .transportbar #position{width:47px;min-width:47px!important;font-size:9px}
+ .subbar{height:28px!important;min-height:28px!important;padding:1px 4px!important;gap:3px!important}
+ .subbar .chip{height:22px!important;min-height:22px!important;padding:1px 3px!important;font-size:9px!important}
+ .subbar .chip input{width:23px!important;min-width:23px!important;font-size:9px!important}
+ .subbar .chip select{max-width:34px!important;font-size:9px!important}
+ .subbar button{height:22px!important;min-height:22px!important;padding:1px 3px!important;font-size:9px!important}
+ #export{max-width:42px!important;font-size:8px!important}
+ .workspace{padding-right:44px!important}
+ #timelineScreen .timeline-tool-rail{flex-basis:26px!important;width:26px!important;min-width:26px!important}
+ #timelineScreen .timeline-tool-rail button{flex-basis:22px!important;width:22px!important;min-width:22px!important;height:22px!important;min-height:22px!important}
+ .dock{width:34px!important;min-width:34px!important;right:4px!important}
+ .dock button{width:26px!important;min-width:26px!important;flex-basis:27px!important;height:27px!important;min-height:27px!important}
+}
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
