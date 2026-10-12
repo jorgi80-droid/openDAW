@@ -1478,6 +1478,12 @@ button:active{transform:scale(.975)}
 #floatingWorkspaceMenu{top:50%}
 #floatingBrowserMenu{top:calc(50% + 88px)}
 
+/* Single pixel coordinate ruler: text and major/minor ticks are painted from pixel-per-bar. */
+#timelineScreen .bars{position:relative!important;display:block!important;justify-content:flex-start!important;align-items:stretch!important;gap:0!important;padding:0!important;margin:0!important;height:100%!important;overflow:hidden!important}
+#timelineScreen .bars .timeline-ruler-canvas{position:absolute!important;display:block!important;pointer-events:none!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important}
+#timelineScreen .bars span{display:none!important}
+#timelineScreen .bars-viewport{padding:0!important;margin:0!important}
+
 /* Final ruler/track coordinate contract: identical label column, pixel origin and track canvas width. */
 #timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(110px,15vw,165px) minmax(0,1fr)!important}
 #timelineScreen .ruler{display:grid!important;overflow:hidden!important}
@@ -1808,7 +1814,7 @@ button:active{transform:scale(.975)}
 <section class="screen" id="timelineScreen">
   <div class="timeline-work-area">
     <div class="timeline">
-      <div class="ruler"><div class="trackhead">TRACK / CLIP</div><div class="bars-viewport" data-timeline-scroll="ruler"><div class="bars"><span>1</span><span>5</span><span>9</span><span>13</span><span>17</span><span>21</span><span>25</span><span>29</span><span class="ruler-end">33</span></div></div></div>
+      <div class="ruler"><div class="trackhead">TRACK / CLIP</div><div class="bars-viewport" data-timeline-scroll="ruler"><div class="bars"><canvas class="timeline-ruler-canvas" aria-hidden="true"></canvas></div></div></div>
       <div class="tracks" id="tracks"></div>
     </div>
     <aside class="timeline-tool-rail" id="timelineTools" aria-label="Clip editor actions" hidden>
@@ -2157,7 +2163,7 @@ function renderTracks(){
  const savedScrollLeft=rulerViewport?.scrollLeft||0,savedScrollTop=root.scrollTop||0;
  root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas){rulerCanvas.style.width=(timelineZoom*100)+'%';rulerCanvas.style.minWidth='100%';}
  const barViewport=document.querySelector('#timelineScreen .bars');
- if(barViewport){barViewport.querySelectorAll('span:not(.ruler-end)').forEach((label,index)=>{label.textContent=String(index*4+1);label.style.flex='0 0 '+(100/8)+'%';});const end=barViewport.querySelector('.ruler-end');if(end)end.hidden=true}
+ if(barViewport){const rulerCanvas=barViewport.querySelector('.timeline-ruler-canvas');if(rulerCanvas){rulerCanvas.dataset.ppb='';}}
  project.tracks.forEach((t,index)=>{
   const row=document.createElement('div');row.className='trackrow';row.style.setProperty('--track',t.color);
   row.style.setProperty('--track-index',String(index));
@@ -2561,11 +2567,41 @@ function timelineContentWidth(){
  const base=timelineBaseWidth(),ppb=timelinePixelsPerBar();
  return Math.max(base,Math.ceil(timelineContentBars()*ppb));
 }
+function paintTimelineRuler(force=false){
+ const viewport=document.querySelector('#timelineScreen .bars-viewport');
+ const bars=viewport?.querySelector('.bars');
+ const canvas=bars?.querySelector('.timeline-ruler-canvas');
+ if(!viewport||!bars||!canvas)return;
+ const ppb=Math.max(1,timelinePixelsPerBar());
+ const contentWidth=Math.max(viewport.clientWidth,timelineContentWidth());
+ const scroll=Math.max(0,viewport.scrollLeft||0);
+ const x0=Math.max(0,Math.floor(scroll-viewport.clientWidth));
+ const x1=Math.min(contentWidth,Math.ceil(scroll+viewport.clientWidth*2));
+ const cssWidth=Math.max(1,x1-x0),cssHeight=Math.max(1,viewport.clientHeight);
+ if(!force&&canvas.dataset.ppb===String(ppb)&&canvas.dataset.x0===String(x0)&&canvas.dataset.x1===String(x1)&&canvas.dataset.height===String(cssHeight))return;
+ const dpr=Math.min(window.devicePixelRatio||1,2);
+ const bw=Math.max(1,Math.round(cssWidth*dpr)),bh=Math.max(1,Math.round(cssHeight*dpr));
+ if(canvas.width!==bw)canvas.width=bw;
+ if(canvas.height!==bh)canvas.height=bh;
+ canvas.style.left=x0+'px';canvas.style.top='0';canvas.style.width=cssWidth+'px';canvas.style.height=cssHeight+'px';
+ const g=canvas.getContext('2d');if(!g)return;
+ g.setTransform(1,0,0,1,0,0);g.clearRect(0,0,bw,bh);
+ g.setTransform(dpr,0,0,dpr,-x0*dpr,0);
+ g.textBaseline='middle';g.font='500 11px Inter,Roboto,system-ui,sans-serif';
+ const first=Math.max(0,Math.floor(x0/ppb)-1),last=Math.min(MAX_BARS,Math.ceil(x1/ppb)+1);
+ for(let bar=first;bar<=last;bar++){
+  const x=bar*ppb;
+  g.fillStyle=bar%4===0?'#334454':'#273644';
+  g.fillRect(Math.round(x)+.5,0,1,cssHeight);
+  if(bar%4===0&&bar<MAX_BARS){g.fillStyle='#9cafc5';g.fillText(String(bar+1),x+7,cssHeight/2)}
+ }
+ canvas.dataset.ppb=String(ppb);canvas.dataset.x0=String(x0);canvas.dataset.x1=String(x1);canvas.dataset.height=String(cssHeight);
+}
 function applyTimelineGeometry(options={}){
  const ruler=document.querySelector('#timelineScreen .bars-viewport');if(!ruler)return;
- const contentWidth=timelineContentWidth(),ppb=timelinePixelsPerBar();
- const fast=!!options.fast;
- const canvases=[ruler.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+ const contentWidth=timelineContentWidth(),ppb=timelinePixelsPerBar(),fast=!!options.fast;
+ const bars=ruler.querySelector('.bars');
+ const canvases=[bars,...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
  canvases.forEach(canvas=>{
   if(canvas._timelineAppliedWidth!==contentWidth){
    canvas.style.setProperty('width',contentWidth+'px','important');
@@ -2575,42 +2611,17 @@ function applyTimelineGeometry(options={}){
    canvas._timelineAppliedWidth=contentWidth;
   }
  });
- const bars=ruler.querySelector('.bars');
- if(bars&&!fast){
-  const visibleBars=Math.max(INITIAL_TIMELINE_BARS,Math.ceil(contentWidth/Math.max(1,ppb)));
-  const desiredLabels=Math.ceil(visibleBars/4);
-  let labels=[...bars.querySelectorAll('span:not(.ruler-end)')];
-  if(labels.length!==desiredLabels){
-   labels.forEach(el=>el.remove());
-   const fragment=document.createDocumentFragment();
-   for(let i=0;i<desiredLabels;i++){
-    const label=document.createElement('span');label.textContent=String(i*4+1);fragment.appendChild(label);
-   }
-   bars.insertBefore(fragment,bars.querySelector('.ruler-end'));
-   labels=[...bars.querySelectorAll('span:not(.ruler-end)')];
-  }
-  labels.forEach((label,index)=>{
-   label.hidden=false;label.textContent=String(index*4+1);
-   const width=(ppb*4)+'px';
-   label.style.setProperty('flex','0 0 '+width,'important');
-   label.style.setProperty('width',width,'important');
-   label.style.setProperty('min-width',width,'important');
-   label.style.setProperty('box-sizing','border-box','important');
-  });
-  const endLabel=bars.querySelector('.ruler-end');if(endLabel)endLabel.hidden=true;
- }
  document.querySelectorAll('#timelineScreen .clip-canvas').forEach(canvas=>{
   const lane=canvas.closest('.cliparea'),index=Number(lane?.dataset.track),track=project.tracks[index];if(!track)return;
-  if(!fast){
-   canvas.querySelectorAll('.clip[data-clip]').forEach(el=>{
-    const clip=track.clips.find(x=>x.id===el.dataset.clip);if(!clip)return;
-    el.style.left=(clip.start*ppb)+'px';el.style.width=(Math.min(clip.duration,MAX_BARS-clip.start)*ppb)+'px';
-   });
-  }
+  if(!fast)canvas.querySelectorAll('.clip[data-clip]').forEach(el=>{
+   const clip=track.clips.find(x=>x.id===el.dataset.clip);if(!clip)return;
+   el.style.left=(clip.start*ppb)+'px';el.style.width=(Math.min(clip.duration,MAX_BARS-clip.start)*ppb)+'px';
+  });
   const gridSize=(ppb*4)+'px 100%, '+ppb+'px 100%';
   if(canvas._timelineGridSize!==gridSize){canvas.style.setProperty('background-size',gridSize,'important');canvas._timelineGridSize=gridSize}
  });
  $('timelineScreen').style.setProperty('--timeline-ppb',ppb+'px');
+ if(!fast)paintTimelineRuler(true);
  return contentWidth;
 }
 function syncTimelineScroll(source){
@@ -2629,7 +2640,7 @@ function syncTimelineScroll(source){
   timelineScrollSync=false;
  }
 }
-document.querySelector('.bars-viewport')?.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget),{passive:true});
+document.querySelector('.bars-viewport')?.addEventListener('scroll',e=>{syncTimelineScroll(e.currentTarget);paintTimelineRuler()},{passive:true});
 $('tracks').addEventListener('scroll',e=>{const area=e.target.closest('[data-timeline-scroll="clip"]');if(area)syncTimelineScroll(area)},{passive:true});
 function cancelClipGesture(pointerId){
  const g=clipGesture;if(!g||(pointerId!==undefined&&g.pointerId!==pointerId))return;
@@ -3055,6 +3066,7 @@ function setTimelineZoom(next,anchorX){
   const maxScroll=Math.max(0,contentWidth-p.ruler.clientWidth);
   p.ruler.scrollLeft=Math.max(0,Math.min(maxScroll,p.anchorBar*timelinePixelsPerBar()-p.anchor));
   syncTimelineScroll(p.ruler);
+  paintTimelineRuler(true);
   updateTimelineTools();
  });
 }
@@ -3113,8 +3125,9 @@ function queueTimelinePinch(distance,centerX){
   $('timelineScreen').style.setProperty('--timeline-ppb',timelinePixelsPerBar()+'px');
   const contentWidth=applyTimelineGeometry({fast:true})||timelineContentWidth();
   const maxScroll=Math.max(0,contentWidth-ruler.clientWidth);
-  ruler.scrollLeft=Math.max(0,Math.min(maxScroll,base.anchorBar*timelinePixelsPerBar()-centerLocal));
-  syncTimelineScroll(ruler);updateTimelineTools();
+  const anchorBar=base.anchorBar;
+  ruler.scrollLeft=Math.max(0,Math.min(maxScroll,anchorBar*timelinePixelsPerBar()-centerLocal));
+  syncTimelineScroll(ruler);paintTimelineRuler();updateTimelineTools();
  });
 }
 function clearTimelinePinch(){
