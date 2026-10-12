@@ -167,6 +167,9 @@ try {
     await copiedClip.click();
     await page.locator('#clipContextMenu [data-clip-action="delete"]').click();
     assert(await page.locator('#tracks .clip').count() === clipsBeforeCopy, `clip Delete removes the copied clip at ${viewport.width}x${viewport.height}`);
+    const timelineZoomBeforeWheel=await page.locator('#zoomLabel').textContent();
+    await page.locator('#timelineScreen').dispatchEvent('wheel',{deltaY:-100,ctrlKey:true,bubbles:true,cancelable:true,clientX:300});
+    assert(await page.locator('#zoomLabel').textContent()!==timelineZoomBeforeWheel, `Ctrl-wheel timeline zoom works at ${viewport.width}x${viewport.height}`);
 
     await page.reload({waitUntil:'networkidle'});
 
