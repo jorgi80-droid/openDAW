@@ -1726,7 +1726,33 @@ $('uiTheme').addEventListener('change',e=>{uiPrefs.theme=e.target.value;applyUiP
 $('compactMode').addEventListener('change',e=>{uiPrefs.density=e.target.value;applyUiPrefs()});
 $('gridSnap').addEventListener('change',e=>{snapEnabled=e.target.value!=='off';snapStep=({quarter:.0625,eighth:.03125,half:.125,beat:.25,bar:1,off:0})[e.target.value]||.0625;uiPrefs.snap=e.target.value;document.documentElement.style.setProperty('--snap-step',String(snapStep));updateTimelineTools();applyUiPrefs()});
 $('resetUiSettings').addEventListener('click',()=>{Object.assign(uiPrefs,{scale:85,theme:'dark',density:'compact',snap:'quarter'});snapEnabled=true;snapStep=.0625;document.documentElement.style.setProperty('--snap-step',String(snapStep));applyUiPrefs();$('gridSnap').value='quarter';notify('Tampilan direset')});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSettings()});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'){hideClipContext();closeSettings();return}
+ const target=e.target;
+ if(target&&(target.matches('input,textarea,select')||target.isContentEditable))return;
+ const key=e.key.toLowerCase();
+ if((e.ctrlKey||e.metaKey)&&key==='z'){e.preventDefault();$('undo').click();return}
+ if((e.ctrlKey||e.metaKey)&&key==='y'){e.preventDefault();$('redo').click();return}
+ if((e.ctrlKey||e.metaKey)&&key==='c'){
+  if(selectedClip){e.preventDefault();const found=project.tracks.flatMap((t,ti)=>t.clips.map(c=>({c,ti}))).find(x=>x.c.id===selectedClip);if(found)clipboardClip={clip:JSON.parse(JSON.stringify(found.c)),sourceTrack:found.ti,pendingPaste:false,mode:'copy'};notify(found?'Clip disalin':'Pilih clip dulu')}
+  return
+ }
+ if((e.ctrlKey||e.metaKey)&&key==='x'){
+  if(selectedClip){e.preventDefault();const found=project.tracks.flatMap((t,ti)=>t.clips.map(c=>({c,ti,t}))).find(x=>x.c.id===selectedClip);if(found)clipboardClip={clip:JSON.parse(JSON.stringify(found.c)),sourceTrack:found.ti,pendingPaste:true,mode:'move'};notify(found?'Clip siap dipotong':'Pilih clip dulu')}
+  return
+ }
+ if((e.ctrlKey||e.metaKey)&&key==='v'){if(clipboardClip){e.preventDefault();clipboardClip.pendingPaste=true;notify('Pilih clip tujuan untuk menempel')}return}
+ if(key==='delete'||key==='backspace'){
+  if(!selectedClip)return;
+  e.preventDefault();const owner=project.tracks.find(t=>t.clips.some(c=>c.id===selectedClip));if(!owner)return;
+  snapshot();owner.clips=owner.clips.filter(c=>c.id!==selectedClip);selectedClip=null;hideClipContext();renderTracks();updateTimelineTools();notify('Clip dihapus');return
+ }
+ if(key==='home'){e.preventDefault();$('rewind').click();return}
+ if(key===' '){e.preventDefault();$('play').click();return}
+ if(key==='g'){snapEnabled=!snapEnabled;updateTimelineTools();notify(snapEnabled?'Snap grid aktif':'Snap grid nonaktif');return}
+ if(key==='+'||key==='='){setTimelineZoom(timelineZoom+.25);return}
+ if(key==='-'){setTimelineZoom(timelineZoom-.25);return}
+});
 try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}
 applyUiPrefs();
 
