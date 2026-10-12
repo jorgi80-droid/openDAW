@@ -1497,6 +1497,7 @@ function showClipContext(element,trackIndex,clip){
  $('clipContextSubtitle').textContent=(project.tracks[trackIndex]?.name||'Track')+' · '+(clip.kind||project.tracks[trackIndex]?.type||'Clip');
  pop.dataset.clipId=clip.id;pop.dataset.trackIndex=String(trackIndex);
  const pasteButton=pop.querySelector('[data-clip-action="paste"]');if(pasteButton)pasteButton.disabled=!clipboardClip;
+ const copyButton=pop.querySelector('[data-clip-action="copy"]');if(copyButton)copyButton.disabled=false;
  document.querySelectorAll('#tracks .clip').forEach(el=>el.classList.toggle('selected',el.dataset.clip===clip.id));
  const r=element.getBoundingClientRect(),width=Math.min(230,window.innerWidth-24),height=174;
  const left=Math.max(12,Math.min(window.innerWidth-width-12,r.left));
