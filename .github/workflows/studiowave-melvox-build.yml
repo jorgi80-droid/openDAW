@@ -1,4 +1,4 @@
-name: StudioWave Melvox Integration Build
+name: StudioWave Oboe + Melvox Audio Build
 
 on:
   workflow_dispatch:
@@ -13,40 +13,41 @@ jobs:
   build-debug-apk:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout StudioWave
         uses: actions/checkout@v4
+
+      - name: Checkout Melvox source (pinned)
+        uses: actions/checkout@v4
+        with:
+          repository: u4224253-dotcom/derizclone
+          ref: cc5fb98aa99c536aaf022d653db9f15dac623257
+          path: /tmp/melvox-source
+
+      - name: Prepare offline Melvox suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p app-shell/melvox
+          cp -R /tmp/melvox-source/. app-shell/melvox/
+          sed -i "/import { startLicenseGuard } from '.\/license';/d" app-shell/melvox/src/main.ts
+          sed -i "/startLicenseGuard();/d" app-shell/melvox/src/main.ts
+          npm --prefix app-shell/melvox ci
+          npm --prefix app-shell/melvox run build -- --base=./
+          test -f app-shell/melvox/dist/index.html
+          test -d app-shell/melvox/dist/assets
 
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
-
       - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+      - name: Install native toolchain
+        run: sdkmanager "platform-tools" "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
+
+      - name: Package StudioWave UI and audio assets
         shell: bash
-        run: |
-          set -euo pipefail
-          SDK_ROOT="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
-          echo "ANDROID_HOME=$SDK_ROOT" >> "$GITHUB_ENV"
-          echo "$SDK_ROOT/platform-tools" >> "$GITHUB_PATH"
-          SDKMANAGER="$SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
-          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(find "$SDK_ROOT/cmdline-tools" -type f -name sdkmanager | head -n 1)"; fi
-          test -x "$SDKMANAGER"
-          set +o pipefail
-          yes | "$SDKMANAGER" --sdk_root="$SDK_ROOT" --licenses
-          set -o pipefail
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" "platform-tools" "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Build offline Melvox suite
-        working-directory: app-shell/melvox
-        run: |
-          set -euo pipefail
-          npm ci
-          npm run build
-          test -f dist/index.html
-          test -d dist/assets
-
-      - name: Package StudioWave UI assets
         run: |
           set -euo pipefail
           ASSETS=android-wrapper-novadaw/app/src/main/assets/novadaw
@@ -60,23 +61,24 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/empty.svg -o "$ASSETS/assets/opendaw/ui/empty.svg"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/favicon-live.svg -o "$ASSETS/assets/opendaw/ui/favicon-live.svg"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/grid16.svg -o "$ASSETS/assets/opendaw/ui/grid16.svg"
-          for SAMPLE in A2 A3 A4 A5 A6 C2 C3 C4 C5 C6 C7 Ds2 Ds3 Ds4 Ds5 Ds6 Fs2 Fs3 Fs4 Fs5 Fs6; do
-            curl -fsSL "https://raw.githubusercontent.com/Tonejs/audio/master/salamander/$SAMPLE.mp3" -o "$ASSETS/assets/melvox/samples/piano/$SAMPLE.mp3"
-          done
-          cat > "$ASSETS/assets/melvox/samples/piano/LICENSE.txt" <<'LICENSE'
-          Salamander Grand Piano V3
-          Recorded and edited by Alexander Holm.
-          Licensed under Creative Commons Attribution 3.0 (CC BY 3.0): https://creativecommons.org/licenses/by/3.0/
-          Samples are distributed unmodified from https://github.com/Tonejs/audio, folder salamander.
-          LICENSE
+          cp /tmp/melvox-source/public/samples/piano/*.mp3 "$ASSETS/assets/melvox/samples/piano/"
+          cp /tmp/melvox-source/public/samples/piano/LICENSE.txt "$ASSETS/assets/melvox/samples/piano/LICENSE.txt"
 
-      - name: Build debug APK
+      - name: Build StudioWave APK
         working-directory: android-wrapper-novadaw
         run: gradle assembleDebug --no-daemon
+
+      - name: Verify packaged Oboe library
+        run: |
+          set -euo pipefail
+          APK=android-wrapper-novadaw/app/build/outputs/apk/debug/app-debug.apk
+          test -f "$APK"
+          unzip -l "$APK" | grep 'lib/arm64-v8a/libstudiowave_audio.so'
+          unzip -l "$APK" | grep 'assets/novadaw/melvox/index.html'
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: studiowave-melvox-integration-debug-apk
+          name: studiowave-oboe-melvox-debug-apk
           path: android-wrapper-novadaw/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
