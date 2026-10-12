@@ -951,7 +951,29 @@ $('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.le
 $('mixer').addEventListener('input',e=>{const el=e.target;if(!el.dataset.mix)return;const t=project.tracks[+el.dataset.i];t[el.dataset.mix]=+el.value;$(el.dataset.mix==='gain'?'gainv'+el.dataset.i:'panv'+el.dataset.i).textContent=el.dataset.mix==='gain'?Number(el.value).toFixed(1)+' dB':el.value;});
 $('mixer').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const t=project.tracks[+b.dataset.i];snapshot();t[b.dataset.action]=!t[b.dataset.action];renderAll()});
 $('pianogrid').addEventListener('scroll',()=>{const ruler=$('pianoRuler'),keys=$('keys'),grid=$('pianogrid');if(ruler)ruler.scrollLeft=grid.scrollLeft;if(keys)keys.scrollTop=grid.scrollTop;},{passive:true});
-$('velocity').addEventListener('pointerdown',e=>{const lane=$('velocity'),bars=[...lane.querySelectorAll('[data-velocity-index]')];if(!bars.length)return;const r=lane.getBoundingClientRect(),idx=Math.max(0,Math.min(bars.length-1,Math.floor((e.clientX-r.left)/Math.max(1,r.width)*bars.length))),note=project.notes[idx];if(!note)return;snapshot();selectedNote=idx;note.velocity=Math.max(1,Math.min(127,Math.round((r.bottom-e.clientY)/Math.max(1,r.height)*127)));renderPiano();notify('Velocity '+note.velocity);e.preventDefault()});
+let velocityGesture=null;
+function updateVelocityFromPointer(e){
+ const lane=$('velocity'),bars=[...lane.querySelectorAll('[data-velocity-index]')];
+ if(!bars.length||!project.notes.length)return;
+ const r=lane.getBoundingClientRect();
+ const x=Math.max(0,Math.min(r.width-1,e.clientX-r.left));
+ const idx=Math.max(0,Math.min(bars.length-1,Math.floor(x/Math.max(1,r.width)*bars.length)));
+ const note=project.notes[idx];if(!note)return;
+ const velocity=Math.max(1,Math.min(127,Math.round((r.bottom-e.clientY)/Math.max(1,r.height)*127)));
+ note.velocity=velocity;selectedNote=idx;
+ const bar=bars[idx];if(bar){bar.style.height=(velocity/127*100)+'%';bar.title='Velocity '+velocity}
+}
+$('velocity').addEventListener('pointerdown',e=>{
+ if(e.button!==undefined&&e.button!==0)return;
+ const lane=$('velocity'),bars=[...lane.querySelectorAll('[data-velocity-index]')];if(!bars.length)return;
+ snapshot();velocityGesture={pointerId:e.pointerId,before:JSON.stringify(project)};
+ try{lane.setPointerCapture(e.pointerId)}catch(_){}
+ updateVelocityFromPointer(e);e.preventDefault();
+});
+$('velocity').addEventListener('pointermove',e=>{if(!velocityGesture||velocityGesture.pointerId!==e.pointerId)return;updateVelocityFromPointer(e);e.preventDefault()});
+function endVelocityGesture(e){if(!velocityGesture||velocityGesture.pointerId!==e.pointerId)return;try{if($('velocity').hasPointerCapture(e.pointerId))$('velocity').releasePointerCapture(e.pointerId)}catch(_){}velocityGesture=null;renderPiano()}
+$('velocity').addEventListener('pointerup',endVelocityGesture);
+$('velocity').addEventListener('pointercancel',endVelocityGesture);
 function setPianoZoom(next,anchorX){const old=pianoZoom,grid=$('pianogrid'),ruler=$('pianoRuler'),scroll=grid.scrollLeft,anchor=Number.isFinite(anchorX)?anchorX:grid.clientWidth/2;pianoZoom=Math.max(.5,Math.min(4,next));renderPiano();grid.scrollLeft=Math.max(0,(scroll+anchor)*(pianoZoom/old)-anchor);ruler.scrollLeft=grid.scrollLeft;document.documentElement.style.setProperty('--piano-zoom',String(pianoZoom));}
 $('pianogrid').addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const r=$('pianogrid').getBoundingClientRect();setPianoZoom(pianoZoom*(e.deltaY<0?1.1:.9),e.clientX-r.left)},{passive:false});
 let pianoPinchStart=null;
