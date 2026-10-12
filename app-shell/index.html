@@ -1214,6 +1214,9 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 
       <button data-timeline-tool="duplicate-range" aria-label="Duplicate selected range" title="Duplicate range">D</button>
       <button data-timeline-tool="delete-range" aria-label="Delete selected range" title="Delete range">×R</button>
+      <button data-timeline-tool="insert-space" aria-label="Insert space at selected range" title="Insert space">+R</button>
+      <button data-timeline-tool="delete-space" aria-label="Delete selected space" title="Delete space">−R</button>
+      <button data-timeline-tool="trim-selection" aria-label="Trim to selected range" title="Trim selection">TR</button>
       <div class="tool-separator"></div>
       <button data-timeline-tool="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
       <span id="zoomLabel" class="zoom-label">100%</span>
@@ -2036,6 +2039,13 @@ function splitSelectedClipAtRatio(ratio=.5){
  const second={...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,5),start:c.start+split,duration:c.duration-split,label:c.label+' B'};
  c.duration=split;match.t.clips.splice(match.ci+1,0,second);
  selectedClip=second.id;renderTracks();updateTimelineTools();notify('Clip dipisah menjadi dua bagian');
+}
+
+/* Complete range operation aliases + transactional range trimming. */
+function runTimeSelectionCommand(command){
+ if(command==='insert-space'){applyRangeOperation('insert');return}
+ if(command==='delete-space'){applyRangeOperation('delete-space');return}
+ if(command==='trim-selection'){applyRangeOperation('trim');return}
 }
 function setTimelineZoom(next,anchorX){
  const old=timelineZoom;
