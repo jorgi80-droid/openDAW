@@ -677,7 +677,7 @@ let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null
 let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipId=null,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,snapStep=.0625,timelineZoom=1,pianoZoom=1,timelineScrollSync=false;
 let lastClipTap={id:null,time:0};
 let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset';
-let project={schemaVersion:2,name:'My Song',tempo:120,meter:'4/4',tracks:[
+let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
 {id:'t1',name:'Drums',type:'Audio',color:'#ff625e',mute:false,solo:false,gain:0,pan:0,clips:[{id:'c1',label:'Drum Loop',start:0,duration:18,color:'#ff625e'}]},
 {id:'t2',name:'Bass',type:'MIDI',color:'#168cff',mute:false,solo:false,gain:-6,pan:0,clips:[{id:'c2',label:'Bass Pattern',start:2,duration:16,color:'#168cff'}]},
 {id:'t3',name:'Piano',type:'MIDI',color:'#20cf8a',mute:false,solo:false,gain:-1.5,pan:0,clips:[{id:'c3',label:'Chord Progression',start:2,duration:14,color:'#20cf8a'},{id:'c4',label:'Variation',start:18,duration:12,color:'#20cf8a'}]},
