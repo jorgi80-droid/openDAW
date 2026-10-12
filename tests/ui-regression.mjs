@@ -214,6 +214,8 @@ try {
     const velocityHeightBefore=await velocityBar.evaluate(el=>el.style.height);
     const velocityBox=await velocityBar.boundingBox();
     const velocityLaneBox=await page.locator('#velocity').boundingBox();
+    const velocityContainer=await page.locator('#velocity').boundingBox();
+    assert(velocityBox && velocityContainer && velocityBox.x >= velocityContainer.x-1 && velocityBox.x+velocityBox.width <= velocityContainer.x+velocityContainer.width+1, `last velocity hit target is within visible lane at ${viewport.width}x${viewport.height}`);
     const velocityX=velocityBox.x+velocityBox.width/2;
     await page.mouse.move(velocityX,velocityBox.y+2);
     await page.mouse.down();
