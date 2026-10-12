@@ -9,9 +9,9 @@ export const TouchDock = ({service}: Construct) => {
         requestAnimationFrame(() => requestAnimationFrame(procedure))
     }
 
-    const openPanel = (screen: "default" | "mixer", type: PanelType) => {
-        if (service.layout.screen.getValue() !== screen) {
-            service.switchScreen(screen)
+    const openPanel = (type: PanelType) => {
+        if (service.layout.screen.getValue() !== "default") {
+            service.switchScreen("default")
             nextFrame(() => service.panelLayout.showIfAvailable(type))
         } else {
             service.panelLayout.showIfAvailable(type)
@@ -21,7 +21,7 @@ export const TouchDock = ({service}: Construct) => {
     const togglePanel = (type: PanelType) => {
         const panel = service.panelLayout.getByType(type)
         if (panel.isVisible) {panel.toggleMinimize()}
-        else {service.panelLayout.showIfAvailable(type)}
+        else {openPanel(type)}
     }
 
     const button = (label: string, title: string, action: () => void, extra = "") => (
@@ -29,26 +29,16 @@ export const TouchDock = ({service}: Construct) => {
     )
 
     return (
-        <nav className="touch-dock" aria-label="OpenDAW touch shortcuts">
-            {button("Timeline", "Kembali ke workspace Timeline / Arrangement", () => {
+        <nav className="touch-dock" aria-label="Editor navigation">
+            {button("TL", "Timeline / Arrangement", () => {
                 document.documentElement.classList.remove("opendaw-editor-maximized")
-                if (service.layout.screen.getValue() !== "default") {
-                    service.switchScreen("default")
-                }
+                if (service.layout.screen.getValue() !== "default") {service.switchScreen("default")}
                 nextFrame(() => service.panelLayout.showIfAvailable(PanelType.Timeline))
-            })}
-            {button("Piano Roll", "Buka atau pulihkan Editor pada workspace Timeline", () => {
-                openPanel("default", PanelType.ContentEditor)
-            }, "piano-roll-action")}
-            {button("Samples", "Buka Browser sample", () => openPanel("default", PanelType.BrowserPanel))}
-            {button("Devices", "Buka perangkat dan efek", () => openPanel("default", PanelType.DevicePanel))}
-            {button("Mixer", "Buka Mixer di workspace Timeline", () => {
-                if (service.layout.screen.getValue() !== "default") {
-                    service.switchScreen("default")
-                    nextFrame(() => service.panelLayout.showIfAvailable(PanelType.Mixer))
-                } else {togglePanel(PanelType.Mixer)}
-            })}
-            {button("FX", "Buka atau tutup panel Devices / efek", () => togglePanel(PanelType.DevicePanel))}
+            }, "active")}
+            {button("MX", "Mixer", () => togglePanel(PanelType.Mixer))}
+            {button("PR", "Piano Roll / Editor", () => togglePanel(PanelType.ContentEditor))}
+            {button("DV", "Devices and effects", () => togglePanel(PanelType.DevicePanel))}
+            {button("BR", "Browser / Samples", () => togglePanel(PanelType.BrowserPanel))}
         </nav>
     )
 }
