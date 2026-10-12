@@ -12,6 +12,11 @@
       native.noteOn(440 * Math.pow(2, (m - 69) / 12), Math.max(0, Math.min(1, Number(velocity) || 0)));
       return true;
     },
+    noteOff(midi) {
+      const m = Number(midi);
+      if (!Number.isFinite(m) || m < 0 || m > 127) return;
+      try { native.noteOff(440 * Math.pow(2, (m - 69) / 12)); } catch (_) {}
+    },
     stop() { try { native.allNotesOff(); native.stop(); } catch (_) {} this.ready = false; },
     engine() { try { return native.engine(); } catch (_) { return 'Native audio unavailable'; } }
   };
@@ -27,6 +32,7 @@
   window.addEventListener('message',e=>{
     if(!e.data||e.data.source!=='studiowave-melvox-audio')return;
     if(e.data.type==='note')api.noteOn(e.data.midi,e.data.velocity);
+    if(e.data.type==='noteOff')api.noteOff(e.data.midi);
     if(e.data.type==='stop')api.stop();
   });
 })();
