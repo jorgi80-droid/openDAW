@@ -1477,6 +1477,46 @@ button:active{transform:scale(.975)}
 #floatingEditorMenu{top:calc(50% - 88px)}
 #floatingWorkspaceMenu{top:50%}
 #floatingBrowserMenu{top:calc(50% + 88px)}
+
+/* NovaDAW P0 interaction polish: no overlay toast can obscure clip feedback. */
+#toast{display:none!important}
+#toast:not([hidden]){display:none!important}
+/* Compact, symmetric toolbar: consistent typography and a centered transport row. */
+#mainToolbar{grid-template-columns:minmax(110px,auto) minmax(92px,.75fr) auto minmax(0,1.5fr) auto!important;gap:8px!important}
+#mainToolbar .brand,
+#mainToolbar .project input,
+#mainToolbar .transportbar .transport button,
+#mainToolbar>.subbar,
+#mainToolbar>.subbar .chip,
+#mainToolbar>.subbar button,
+#mainToolbar .top-actions button{font-family:Inter,Roboto,"Segoe UI",system-ui,sans-serif!important;font-size:11px!important;font-weight:500!important;line-height:1!important;font-variant-numeric:tabular-nums!important}
+#mainToolbar .brand{font-size:12px!important;font-weight:650!important;letter-spacing:-.25px!important}
+#mainToolbar .project input{height:30px!important;font-size:11px!important}
+#mainToolbar .transportbar .transport{gap:4px!important}
+#mainToolbar .transportbar .transport button{height:31px!important;min-height:31px!important;border-radius:9px!important}
+#mainToolbar .transportbar .transport #play{height:32px!important;min-height:32px!important}
+#mainToolbar .transportbar .transport #position{font-size:10px!important;font-weight:500!important}
+#mainToolbar>.subbar{gap:5px!important;justify-content:center!important}
+#mainToolbar>.subbar .chip{font-size:11px!important;font-weight:500!important;height:29px!important;min-height:29px!important;padding:4px 8px!important}
+#mainToolbar>.subbar button{font-size:11px!important;font-weight:500!important;height:29px!important;min-height:29px!important;padding:4px 8px!important}
+#mainToolbar>.subbar .chip input,#mainToolbar>.subbar .chip select{font-size:11px!important;font-weight:600!important}
+#mainToolbar .top-actions{gap:5px!important}
+#mainToolbar .top-actions button{width:32px!important;min-width:32px!important;height:32px!important;min-height:32px!important}
+@media(max-width:900px){
+ #mainToolbar{grid-template-columns:minmax(0,.8fr) minmax(82px,.7fr) auto minmax(0,1.4fr) auto!important;gap:4px!important}
+ #mainToolbar .brand{font-size:10px!important}
+ #mainToolbar .transportbar .transport #position{display:none!important}
+ #mainToolbar>.subbar .chip,#mainToolbar>.subbar button,#mainToolbar>.subbar .chip input,#mainToolbar>.subbar .chip select{font-size:10px!important}
+}
+@media(max-width:650px){
+ #mainToolbar{grid-template-columns:minmax(0,.8fr) auto minmax(0,1fr) auto!important}
+ #mainToolbar .brand{display:none!important}
+ #mainToolbar .project{grid-column:1!important}
+ #mainToolbar .transportbar{grid-column:2!important}
+ #mainToolbar>.subbar{grid-column:3!important;justify-content:flex-start!important}
+ #mainToolbar .top-actions{grid-column:4!important}
+}
+
 /* Keep musical beat/bar divisions but remove the former dense micro-grid. */
 @media(max-height:480px){
  #timelineScreen>.addtrack{bottom:max(6px,env(safe-area-inset-bottom))!important;left:8px!important;height:26px!important;min-height:26px!important}
@@ -1841,7 +1881,8 @@ function syncRackView(){
 
 const $=id=>document.getElementById(id);
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function notify(message){const el=$('toast');el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2600);}
+function notify(message){const el=$('toast');if(!el)return;el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2600);}
+// Playlist clip moves are acknowledged visually by the clip itself; never place a toast over the arrangement.
 function snapshot(){undoStack.push(JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
 function switchScreen(name){
  if(!screens[name])return;
@@ -2519,7 +2560,7 @@ function finishClipGesture(e){
     const kind=clipCategory(clip,source),targetKind=clipCategory(null,target);
     project=JSON.parse(g.before);selectedClip=g.clipId;selectedTrack=sourceIndex;
     clipGesture=null;renderTracks();updateTimelineTools();
-    notify('Tidak bisa memindahkan clip '+kind+' ke track '+targetKind+'. Jenis track harus sama.');
+    /* Incompatible track drops are rejected silently to keep the arrangement unobstructed. */
     return;
    }
    source.clips=source.clips.filter(c=>c.id!==clip.id);
@@ -2532,7 +2573,7 @@ function finishClipGesture(e){
   pushUndoSnapshot(g.before);selectedClip=g.clipId;
   ignoreNextClipId=g.clipId;setTimeout(()=>{if(ignoreNextClipId===g.clipId)ignoreNextClipId=null},400);
   clipGesture=null;renderTracks();updateTimelineTools();hideClipContext();
-  notify(g.mode==='resize'?'Panjang clip diubah':targetIndex!==sourceIndex?'Clip dipindahkan ke track '+target.name:'Clip dipindahkan');
+  /* Successful clip move/resize is already represented by the committed clip position and length. */
  }else{
   if(g.target){g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow=''}
   clipGesture=null;
