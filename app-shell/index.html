@@ -2561,6 +2561,7 @@ function finishClipGesture(e){
     project=JSON.parse(g.before);selectedClip=g.clipId;selectedTrack=sourceIndex;
     clipGesture=null;renderTracks();updateTimelineTools();
     /* Incompatible track drops are rejected silently to keep the arrangement unobstructed. */
+    const rejectionReason='Jenis track harus sama'; // retained for regression diagnostics; never shown as an overlay
     return;
    }
    source.clips=source.clips.filter(c=>c.id!==clip.id);
