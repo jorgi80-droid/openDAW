@@ -1097,7 +1097,121 @@ html[data-theme="light"] .clip{color:#152130!important}
  .dock button{flex-basis:27px!important;width:27px!important;min-width:27px!important;max-width:27px!important;height:27px!important;min-height:27px!important}
  .dock button .workspace-dock-symbol{width:15px!important;height:15px!important;flex-basis:15px!important}
 }
-</style>
+
+ /* Toolbar layout contract — single row per function, no absolute-position controls.
+    Keep transport centered and project actions on their own horizontally scrollable strip. */
+ .app{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:40px 36px 34px minmax(0,1fr)!important;
+  width:100%!important;height:100dvh!important;min-height:0!important;max-width:none!important;
+  margin:0!important;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;
+  overflow:hidden!important;position:relative!important;
+ }
+ .top{
+  grid-row:1!important;grid-column:1!important;position:relative!important;inset:auto!important;transform:none!important;
+  display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:7px!important;
+  width:100%!important;height:40px!important;min-height:40px!important;max-height:40px!important;
+  padding:3px 8px!important;box-sizing:border-box!important;overflow:hidden!important;z-index:20!important;
+ }
+ .top .brand{display:block!important;flex:0 0 auto!important;max-width:none!important;white-space:nowrap!important;font-size:clamp(11px,1.4vw,15px)!important}
+ .top .project{display:flex!important;flex:0 1 180px!important;min-width:0!important;max-width:180px!important;align-items:center!important;gap:5px!important}
+ .top .project button{flex:0 0 29px!important;width:29px!important;min-width:29px!important;max-width:29px!important;height:29px!important;min-height:29px!important;padding:3px!important}
+ .top .project input{display:block!important;flex:1 1 auto!important;width:100%!important;min-width:0!important;max-width:none!important;padding:3px 4px!important;font-size:12px!important}
+ .top-actions{display:flex!important;flex:0 0 auto!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important;margin-left:auto!important}
+ .top-actions button{flex:0 0 29px!important;width:29px!important;min-width:29px!important;max-width:29px!important;height:29px!important;min-height:29px!important;padding:3px!important}
+ .transportbar{
+  grid-row:2!important;grid-column:1!important;position:relative!important;inset:auto!important;transform:none!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr)!important;align-items:center!important;
+  justify-content:stretch!important;width:100%!important;max-width:none!important;height:36px!important;min-height:36px!important;max-height:36px!important;
+  margin:0!important;padding:2px 6px!important;box-sizing:border-box!important;overflow:hidden!important;
+  border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:#0c1219!important;box-shadow:none!important;z-index:15!important;
+ }
+ .transportbar .transport{grid-column:2!important;grid-row:1!important;position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:4px!important;width:max-content!important;max-width:100%!important;height:100%!important;margin:0!important}
+ .transportbar .transport button{position:static!important;inset:auto!important;transform:none!important;flex:0 0 auto!important;width:31px!important;min-width:31px!important;height:29px!important;min-height:29px!important;padding:2px 4px!important}
+ .transportbar #play{width:40px!important;min-width:40px!important;height:30px!important;min-height:30px!important}
+ .transportbar #position{width:65px!important;min-width:65px!important}
+ .subbar{
+  grid-row:3!important;grid-column:1!important;position:relative!important;inset:auto!important;transform:none!important;
+  display:flex!important;flex-wrap:nowrap!important;align-items:center!important;gap:4px!important;width:100%!important;min-width:0!important;
+  height:34px!important;min-height:34px!important;max-height:34px!important;margin:0!important;padding:2px 7px!important;
+  box-sizing:border-box!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:none!important;
+  border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:#0d131a!important;z-index:14!important;
+ }
+ .subbar .chip{display:inline-flex!important;align-items:center!important;gap:3px!important;flex:0 0 auto!important;height:27px!important;min-height:27px!important;padding:2px 5px!important;box-sizing:border-box!important;border-radius:6px!important;font-size:10px!important}
+ .subbar .chip input{flex:0 0 28px!important;width:28px!important;min-width:28px!important;max-width:28px!important;padding:0!important;font-size:10px!important}
+ .subbar .chip select{max-width:40px!important;font-size:10px!important}
+ .subbar .grow{display:block!important;flex:1 0 5px!important;min-width:5px!important}
+ .subbar button{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;height:27px!important;min-height:27px!important;max-height:27px!important;min-width:0!important;padding:2px 5px!important;white-space:nowrap!important;font-size:10px!important}
+ #save,#open{display:inline-flex!important}
+ #export{max-width:66px!important;font-size:9px!important;overflow:hidden!important;text-overflow:ellipsis!important}
+ .workspace{
+  grid-row:4!important;grid-column:1!important;position:relative!important;inset:auto!important;transform:none!important;
+  min-width:0!important;min-height:0!important;height:auto!important;flex:1 1 0!important;margin:0!important;
+  padding:4px 47px 4px 5px!important;box-sizing:border-box!important;overflow:hidden!important;z-index:1!important;
+ }
+ .screen{height:100%!important;min-height:0!important;min-width:0!important;overflow:hidden!important}
+ .screen[hidden]{display:none!important}
+ #timelineScreen:not([hidden]){display:flex!important;flex-direction:column!important}
+ #timelineScreen .timeline-work-area{display:flex!important;flex:1 1 0!important;min-width:0!important;min-height:0!important;gap:4px!important;overflow:hidden!important}
+ #timelineScreen .timeline{flex:1 1 0!important;min-width:0!important;min-height:0!important;height:auto!important;grid-template-rows:26px minmax(0,1fr)!important}
+ #timelineScreen .tracks{min-width:0!important;min-height:0!important;overflow:auto!important}
+ #timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(86px,11vw,132px) minmax(0,1fr)!important}
+ #timelineScreen .bars-viewport,#timelineScreen .cliparea{min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important}
+ #timelineScreen .bars{min-width:420px!important;justify-content:space-between;padding:0 7px}
+ #timelineScreen .cliparea{min-width:420px!important}
+ #timelineScreen .trackrow{min-height:clamp(43px,8.4vh,68px)!important}
+ #timelineScreen .clip{top:4px!important;height:calc(100% - 8px)!important;min-height:22px!important;padding:3px 5px!important;font-size:10px!important}
+ #timelineScreen .tracklabel{padding:3px 5px!important;gap:3px!important}
+ #timelineScreen .trackname{font-size:10px!important;gap:3px!important}
+ #timelineScreen .trackbuttons{gap:3px!important}
+ #timelineScreen .trackbuttons button{min-height:19px!important;padding:1px 4px!important;font-size:9px!important}
+ #timelineScreen>.addtrack{flex:0 0 25px!important;align-self:flex-start!important;width:auto!important;min-height:23px!important;margin-top:3px!important;padding:2px 8px!important;font-size:10px!important}
+ #timelineScreen .timeline-tool-rail{display:flex!important;flex:0 0 30px!important;width:30px!important;min-width:30px!important;position:relative!important;inset:auto!important;transform:none!important;align-items:center!important;gap:3px!important;padding:3px 1px!important;overflow-y:auto!important;overflow-x:hidden!important;z-index:3!important;background:#0d141d!important;border:1px solid #263747!important;border-radius:8px!important}
+ #timelineScreen .timeline-tool-rail button{flex:0 0 26px!important;width:26px!important;min-width:26px!important;height:26px!important;min-height:26px!important;padding:3px!important}
+ #timelineScreen .timeline-tool-rail svg{width:16px!important;height:16px!important}
+ .dock{position:fixed!important;z-index:45!important;right:max(5px,env(safe-area-inset-right))!important;top:50%!important;bottom:auto!important;left:auto!important;transform:translateY(-50%)!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:center!important;gap:4px!important;width:38px!important;min-width:38px!important;max-width:38px!important;height:max-content!important;max-height:calc(100dvh - 100px)!important;margin:0!important;padding:4px!important;box-sizing:border-box!important;overflow-y:auto!important;overflow-x:hidden!important;border:1px solid #2b3b4d!important;border-radius:11px!important;background:rgba(9,15,23,.97)!important;box-shadow:0 6px 24px #0008!important}
+ .dock button{display:flex!important;flex:0 0 32px!important;align-items:center!important;justify-content:center!important;width:28px!important;min-width:28px!important;max-width:28px!important;height:32px!important;min-height:32px!important;max-height:32px!important;padding:3px!important;border-radius:7px!important;overflow:hidden!important;font-size:0!important;gap:0!important;background:#131e29!important}
+ .dock button .workspace-dock-symbol{width:17px!important;height:17px!important;flex:0 0 17px!important}
+ .dock button.active{background:#102d4c!important;border-color:#1687ff!important;color:#7ac4ff!important}
+ .menu-overlay[hidden]{display:none!important}
+ .menu-overlay:not([hidden]){position:fixed!important;inset:0!important;z-index:1000!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:12px!important;background:#02060bc7!important;backdrop-filter:blur(5px)}
+ .menu-sheet{position:relative!important;z-index:1001!important;max-height:calc(100dvh - 24px)!important;overflow:auto!important}
+ @media (orientation:landscape) and (max-height:520px){
+  .app{grid-template-rows:35px 29px 28px minmax(0,1fr)!important}
+  .top{height:35px!important;min-height:35px!important;max-height:35px!important;padding:2px 5px!important;gap:4px!important}
+  .top .brand{font-size:11px!important;letter-spacing:-.2px!important}
+  .top .project{max-width:108px!important;flex:0 1 108px!important;gap:4px!important}
+  .top .project button,.top-actions button{width:24px!important;min-width:24px!important;height:24px!important;min-height:24px!important}
+  .top .project input{font-size:10px!important;padding:2px!important}
+  .top-actions{gap:2px!important}
+  .top-actions button{padding:1px 3px!important}
+  .transportbar{height:29px!important;min-height:29px!important;max-height:29px!important;padding:1px 4px!important}
+  .transportbar .transport{gap:3px!important}
+  .transportbar .transport button{width:25px!important;min-width:25px!important;height:23px!important;min-height:23px!important;padding:1px 3px!important}
+  .transportbar #play{width:33px!important;min-width:33px!important;height:24px!important;min-height:24px!important}
+  .transportbar #position{width:47px!important;min-width:47px!important;font-size:9px!important}
+  .subbar{height:28px!important;min-height:28px!important;max-height:28px!important;padding:1px 4px!important;gap:3px!important}
+  .subbar .chip{height:22px!important;min-height:22px!important;padding:1px 3px!important;font-size:9px!important}
+  .subbar .chip input{width:23px!important;min-width:23px!important;font-size:9px!important}
+  .subbar .chip select{max-width:34px!important;font-size:9px!important}
+  .subbar button{height:22px!important;min-height:22px!important;max-height:22px!important;padding:1px 3px!important;font-size:9px!important}
+  #export{max-width:42px!important;font-size:8px!important}
+  .workspace{padding:3px 44px 3px 4px!important}
+  #timelineScreen .timeline{grid-template-rows:23px minmax(0,1fr)!important}
+  #timelineScreen .trackrow{min-height:clamp(35px,7.7vh,49px)!important}
+  #timelineScreen .clip{top:3px!important;height:calc(100% - 6px)!important;min-height:19px!important;padding:2px 4px!important;font-size:9px!important}
+  #timelineScreen .tracklabel{padding:2px 4px!important;gap:2px!important}
+  #timelineScreen .trackbuttons button{min-height:16px!important;padding:0 3px!important;font-size:8px!important}
+  #timelineScreen>.addtrack{flex-basis:21px!important;min-height:19px!important;margin-top:2px!important;padding:1px 6px!important;font-size:9px!important}
+  #timelineScreen .bars,#timelineScreen .cliparea{min-width:390px!important}
+  #timelineScreen .timeline-tool-rail{flex-basis:27px!important;width:27px!important;min-width:27px!important;gap:2px!important;padding:2px 1px!important}
+  #timelineScreen .timeline-tool-rail button{flex-basis:23px!important;width:23px!important;min-width:23px!important;height:23px!important;min-height:23px!important}
+  .dock{width:35px!important;min-width:35px!important;max-width:35px!important;right:4px!important;gap:3px!important;padding:3px!important}
+  .dock button{flex-basis:27px!important;width:27px!important;min-width:27px!important;max-width:27px!important;height:27px!important;min-height:27px!important}
+  .dock button .workspace-dock-symbol{width:15px!important;height:15px!important;flex-basis:15px!important}
+ }
+ </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
 <style>
