@@ -187,17 +187,20 @@ try {
     await rangeTool.click();
     const ruler=page.locator('#timelineScreen .ruler');
     const rulerBox=await ruler.boundingBox();
-    await page.mouse.move(rulerBox.x+ rulerBox.width*.32,rulerBox.y+rulerBox.height/2);
+    const rangeStartX=rulerBox.x+rulerBox.width*.34, rangeEndX=rulerBox.x+rulerBox.width*.56;
+    await page.mouse.move(rangeStartX,rulerBox.y+rulerBox.height/2);
     await page.mouse.down();
-    await page.mouse.move(rulerBox.x+rulerBox.width*.52,rulerBox.y+rulerBox.height/2,{steps:4});
+    await page.mouse.move(rangeEndX,rulerBox.y+rulerBox.height/2,{steps:5});
     await page.mouse.up();
-    assert(await page.locator('#timelineScreen .time-selection').count()===1, `dragging the ruler creates a time selection at ${viewport.width}x${viewport.height}`);
-    assert(!(await page.locator('#timelineTools [data-timeline-tool="delete-range"]').isDisabled()), `range operations enable only after selection at ${viewport.width}x${viewport.height}`);
-    const clipCountBeforeRangeDuplicate=await page.locator('#tracks .clip').count();
-    await page.locator('#timelineTools [data-timeline-tool="duplicate-range"]').click();
-    assert(await page.locator('#tracks .clip').count()>=clipCountBeforeRangeDuplicate, `duplicate range keeps project clip collection valid at ${viewport.width}x${viewport.height}`);
-    await page.locator('#timelineTools [data-timeline-tool="range"]').click();
-    await page.locator('#timelineTools [data-timeline-tool="select"]').click().catch(()=>{});
+    const selectedRangeVisible=await page.locator('#timelineScreen .time-selection').count()===1;
+    assert(selectedRangeVisible, `dragging the ruler creates a time selection at ${viewport.width}x${viewport.height}`);
+    if(selectedRangeVisible){
+      assert(!(await page.locator('#timelineTools [data-timeline-tool="delete-range"]').isDisabled()), `range operations enable only after selection at ${viewport.width}x${viewport.height}`);
+      const clipsBeforeDuplicate=await page.locator('#tracks .clip').count();
+      await page.locator('#timelineTools [data-timeline-tool="duplicate-range"]').click();
+      assert(await page.locator('#tracks .clip').count()>=clipsBeforeDuplicate, `duplicate range keeps project clip collection valid at ${viewport.width}x${viewport.height}`);
+    }
+    await page.locator('#timelineTools [data-timeline-tool="select"]').click();
 
     // Start gestures from a deterministic, visible timeline position after the scroll-sync check.
     await page.locator('.bars-viewport').evaluate(el=>{el.scrollLeft=0;el.dispatchEvent(new Event('scroll',{bubbles:true}))});
