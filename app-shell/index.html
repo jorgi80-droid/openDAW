@@ -742,6 +742,36 @@ html[data-theme="light"] .clip{color:#152130!important}
 .transportbar #record{position:absolute!important;left:calc(50% + 24px)!important;top:50%!important;transform:translateY(-50%)!important}
 .transportbar #position{position:absolute!important;left:calc(50% + 55px)!important;top:50%!important;transform:translateY(-50%)!important}
 
+
+/* Final geometry fixes found by browser regression on both supported landscape sizes. */
+.transportbar .transport{height:30px!important;min-height:30px!important}
+.transportbar{height:30px!important;min-height:30px!important}
+.transportbar #play{width:34px!important;height:30px!important;min-width:34px!important;min-height:30px!important;padding:2px!important}
+.transportbar #rewind,.transportbar #record{width:28px!important;height:27px!important;min-width:28px!important;min-height:27px!important}
+.transportbar #position{width:54px!important;height:27px!important;min-width:54px!important;min-height:27px!important}
+#devicesScreen .devicegrid{grid-template-columns:clamp(84px,11vw,128px) minmax(0,1fr)!important}
+#devicesScreen .device-editor{min-width:0!important;overflow-x:hidden!important}
+#devicesScreen .device-editor-main{grid-template-columns:minmax(55px,.27fr) minmax(0,1.73fr)!important;width:100%;min-width:0!important}
+#devicesScreen .device-scope{min-width:0!important;overflow:hidden!important}
+#devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(0,1fr))!important;min-width:0!important;width:100%}
+#devicesScreen .knob-control{min-width:0!important;overflow:hidden}
+#devicesScreen .knob-head label{white-space:normal!important;overflow-wrap:anywhere}
+#devicesScreen .knob-dial{flex-shrink:0}
+#devicesScreen .device-editor-header>div:first-child{min-width:0;overflow:hidden}
+#devicesScreen .device-editor-header h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pianoScreen .velocity{scrollbar-width:none!important}
+#pianoScreen .velocity::-webkit-scrollbar{display:none}
+#pianoScreen .velocity-layer{box-sizing:border-box!important}
+#pianoScreen .velocity span{transform:translateX(-50%)}
+@media(max-width:900px){
+ #devicesScreen .devicegrid{grid-template-columns:84px minmax(0,1fr)!important}
+ #devicesScreen .device-editor-main{grid-template-columns:minmax(48px,.23fr) minmax(0,1.77fr)!important}
+ #devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ #devicesScreen .knob-head label{font-size:7px!important}
+ #devicesScreen .knob-dial{width:20px!important;height:20px!important}
+ #devicesScreen .device-editor-actions select{width:58px!important;min-width:48px!important}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
