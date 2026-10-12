@@ -1478,6 +1478,25 @@ button:active{transform:scale(.975)}
 #floatingWorkspaceMenu{top:50%}
 #floatingBrowserMenu{top:calc(50% + 88px)}
 
+/* Final ruler/track coordinate contract: identical label column, pixel origin and track canvas width. */
+#timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(110px,15vw,165px) minmax(0,1fr)!important}
+#timelineScreen .ruler{display:grid!important;overflow:hidden!important}
+#timelineScreen .trackhead{grid-column:1!important}
+#timelineScreen .bars-viewport{grid-column:2!important;min-width:0!important;overflow-x:auto!important;overflow-y:hidden!important;padding:0!important;margin:0!important}
+#timelineScreen .tracks{overflow:auto!important}
+#timelineScreen .trackrow .tracklabel{grid-column:1!important;box-sizing:border-box!important}
+#timelineScreen .trackrow .cliparea{grid-column:2!important;min-width:0!important;width:100%!important;padding:0!important;margin:0!important;border-left:0!important}
+#timelineScreen .clip-canvas{margin:0!important;padding:0!important;left:0!important;transform:none}
+#timelineScreen .bars-viewport .bars{display:flex!important;justify-content:flex-start!important;align-items:stretch!important;padding:0!important;margin:0!important;gap:0!important}
+#timelineScreen .bars-viewport .bars>span:not(.ruler-end){display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-shrink:0!important;margin:0!important;padding:0 0 0 6px!important;border-left:1px solid #334454!important;box-sizing:border-box!important}
+#timelineScreen .bars-viewport .bars>span.ruler-end{display:none!important}
+#timelineScreen .clip-canvas{background-origin:border-box!important;background-position:0 0!important;background-repeat:repeat!important}
+#timelineScreen .clip{transform-origin:top left!important}
+#timelineScreen .clip.dragging{transition:none!important;z-index:40!important;pointer-events:none!important}
+#timelineScreen .clip.drag-valid{filter:brightness(1.08)!important;box-shadow:0 0 0 2px #70c2ff,0 8px 18px #0005!important}
+#timelineScreen .clip.drag-invalid{filter:grayscale(.75)!important;box-shadow:0 0 0 2px #ff6472,0 8px 18px #0005!important}
+#timelineScreen .clip:not(.dragging){transform:none!important;filter:none!important}
+
 /* NovaDAW focused toolbar/menu and frame-coalesced Playlist interaction update. */
 #mainToolbar .subbar #save,#mainToolbar .subbar #open,#mainToolbar .subbar #export{display:none!important}
 #mainToolbar{grid-template-columns:minmax(122px,auto) minmax(86px,.7fr) auto minmax(0,1.4fr) auto!important;gap:7px!important}
@@ -2430,7 +2449,7 @@ $('tracks').addEventListener('pointerdown',e=>{
  const mode=resizeHandle?'resize':'move';
  // The full clip surface supports moving; the narrow end handle is reserved for resizing.
  if(e.button!==undefined&&e.button!==0)return;
- clipGesture={pointerId:e.pointerId,target:clip,trackIndex,clipId,mode,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,originStart:item.start,originDuration:item.duration,originTrackIndex:trackIndex,targetTrackIndex:trackIndex,viewport:clip.closest('.cliparea'),startScrollLeft:clip.closest('.cliparea')?.scrollLeft||0,edgeDirection:0,edgeDistance:0,before:JSON.stringify(project),moved:false};
+ clipGesture={pointerId:e.pointerId,target:clip,trackIndex,clipId,mode,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,originStart:item.start,originDuration:item.duration,originTrackIndex:trackIndex,targetTrackIndex:trackIndex,viewport:clip.closest('.cliparea'),startScrollLeft:clip.closest('.cliparea')?.scrollLeft||0,edgeDirection:0,edgeDistance:0,before:JSON.stringify(project),moved:false,sourceTop:clip.getBoundingClientRect().top,sourceLeft:clip.getBoundingClientRect().left};
  try{clip.setPointerCapture(e.pointerId)}catch(_){}
 });
 function applyActiveClipGestureFrame(){
@@ -2454,14 +2473,15 @@ function applyActiveClipGestureFrame(){
  const targetIndex=lane?rows.indexOf(lane):g.originTrackIndex;
  g.targetTrackIndex=Number.isInteger(targetIndex)&&targetIndex>=0&&targetIndex<project.tracks.length?targetIndex:g.originTrackIndex;
  const sourceRow=g.target.closest('.trackrow'),targetRow=document.querySelector('#tracks .trackrow:nth-child('+(g.targetTrackIndex+1)+')');
+ g.target.classList.add('dragging');
  if(sourceRow&&targetRow&&g.targetTrackIndex!==g.originTrackIndex){
   const offset=targetRow.getBoundingClientRect().top-sourceRow.getBoundingClientRect().top;
-  g.target.style.transform='translateY('+offset+'px) scale(1.015)';
+  g.target.style.transform='translate3d(0,'+offset+'px,0) scale(1.012)';
   const valid=canMoveClipToTrack(item,sourceTrack,project.tracks[g.targetTrackIndex]);
-  g.target.style.filter=valid?'brightness(1.12)':'grayscale(.85)';
-  g.target.style.boxShadow=valid?'0 0 0 2px #70c2ff,0 8px 22px #0007':'0 0 0 2px #ff6a73,0 8px 22px #0007';
+  g.target.classList.toggle('drag-valid',valid);g.target.classList.toggle('drag-invalid',!valid);
  }else{
-  g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow='';
+  g.target.style.transform='translate3d(0,0,0) scale(1.012)';
+  g.target.classList.remove('drag-valid','drag-invalid');
  }
  g.target.style.left=(item.start*scale)+'px';g.target.style.width=(item.duration*scale)+'px';
  const desired=timelineContentWidth();
@@ -2587,7 +2607,8 @@ function applyTimelineGeometry(options={}){
     el.style.left=(clip.start*ppb)+'px';el.style.width=(Math.min(clip.duration,MAX_BARS-clip.start)*ppb)+'px';
    });
   }
-  canvas.style.setProperty('background-size',(ppb*4)+'px 100%, '+ppb+'px 100%','important');
+  const gridSize=(ppb*4)+'px 100%, '+ppb+'px 100%';
+  if(canvas._timelineGridSize!==gridSize){canvas.style.setProperty('background-size',gridSize,'important');canvas._timelineGridSize=gridSize}
  });
  $('timelineScreen').style.setProperty('--timeline-ppb',ppb+'px');
  return contentWidth;
@@ -2616,7 +2637,7 @@ function cancelClipGesture(pointerId){
  if(g.moved){
   project=JSON.parse(g.before);
   selectedClip=g.clipId;selectedTrack=g.originTrackIndex;
-  g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow='';
+  g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow='';g.target.classList.remove('dragging','drag-valid','drag-invalid');
   renderTracks();updateTimelineTools();
  }
  clipGesture=null;
@@ -2653,7 +2674,7 @@ function finishClipGesture(e){
   clipGesture=null;renderTracks();updateTimelineTools();hideClipContext();
   /* Successful clip move/resize is already represented by the committed clip position and length. */
  }else{
-  if(g.target){g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow=''}
+  if(g.target){g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow='';g.target.classList.remove('dragging','drag-valid','drag-invalid')}
   clipGesture=null;
  }
 }
