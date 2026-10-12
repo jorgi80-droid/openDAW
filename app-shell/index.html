@@ -816,6 +816,16 @@ html[data-theme="light"] .clip{color:#152130!important}
  #timelineScreen .trackrow{flex-basis:clamp(44px,calc((100dvh - 160px)/6),75px)!important;min-height:clamp(44px,calc((100dvh - 160px)/6),75px)!important}
 }
 
+
+/* Reference-aligned compact rack: keep picker and editor side-by-side on short landscape screens. */
+@media(max-height:480px){
+ #devicesScreen .devicegrid{grid-template-columns:clamp(125px,19vw,160px) minmax(0,1fr)!important;grid-auto-rows:minmax(0,1fr);align-items:stretch;overflow:hidden}
+ #devicesScreen .device-picker,#devicesScreen .device-editor{height:100%;min-height:0;min-width:0}
+ #devicesScreen .device-editor{overflow:auto}
+ #devicesScreen .paneltitle{display:none}
+ #devicesScreen .panel>p.muted{display:none}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
