@@ -55,6 +55,7 @@ jobs:
             ['clip drag includes vertical targeting and preserves original track', html.includes('originTrackIndex:trackIndex') && html.includes('targetTrackIndex:trackIndex') && html.includes('function canMoveClipToTrack')],
             ['incompatible Audio and MIDI clip drops are rejected', html.includes('return kind===target') && html.includes('Jenis track harus sama')],
             ['clip drag supports continuous edge auto-scroll', html.includes('function runClipAutoScroll()') && html.includes('startScrollLeft') && html.includes('applyActiveClipGestureFrame()')],
+            ['timeline pan decelerates naturally after touch release', html.includes('function startTimelinePanInertia(pan)') && html.includes('Math.exp(-dt/185)') && html.includes("e.type==='pointerup'")],
             ['top toolbar uses aligned single-row controls', html.includes('grid-template-rows:36px!important') && html.includes('#mainToolbar>.subbar{grid-column:4!important')],
             ['ruler end marker does not overlap bar labels', html.includes('#timelineScreen .bars span.ruler-end{display:none!important}')],
             ['piano roll uses grid and velocity layout', html.includes('id="pianogrid"') && html.includes('id="velocity"')],
