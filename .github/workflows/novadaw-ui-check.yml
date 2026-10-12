@@ -1,6 +1,6 @@
-name: NovaDAW UI prototype check
+name: StudioWave UI prototype check
 concurrency:
-  group: novadaw-ui-check-${{ github.ref }}
+  group: studiowave-ui-check-${{ github.ref }}
   cancel-in-progress: true
 
 
