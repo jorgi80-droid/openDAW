@@ -1185,7 +1185,7 @@ $('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada 
 const uiPrefs={scale:85,theme:'dark',density:'compact',snap:'quarter'};
 function applyUiPrefs(){
  const scale=Math.max(70,Math.min(110,Number(uiPrefs.scale)||85));
- document.documentElement.style.setProperty('--ui-scale',String(scale/100));document.documentElement.style.setProperty('--ui-scale-inverse',String(100/scale));document.documentElement.style.zoom=String(scale/100);
+ document.documentElement.style.setProperty('--ui-scale',String(scale/100));document.documentElement.style.setProperty('--ui-scale-inverse',String(100/scale));
  const root=document.documentElement;root.dataset.theme=uiPrefs.theme||'dark';root.dataset.density=uiPrefs.density||'compact';if(typeof uiPrefs.snap==='boolean')uiPrefs.snap=uiPrefs.snap?'quarter':'off';
  $('uiScale').value=String(scale);$('uiScaleValue').textContent=scale+'%';$('uiTheme').value=uiPrefs.theme;$('compactMode').value=uiPrefs.density;$('gridSnap').value=uiPrefs.snap||'quarter';snapEnabled=$('gridSnap').value!=='off';snapStep=({quarter:.0625,eighth:.03125,half:.125,beat:.25,bar:1,off:0})[$('gridSnap').value]||.0625;root.style.setProperty('--snap-step',String(snapStep));
  document.body.classList.toggle('comfortable-ui',uiPrefs.density==='comfortable');
