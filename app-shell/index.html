@@ -581,6 +581,32 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
  #pianoScreen .note-layer{min-height:250px}
 }
 
+
+/* Keep the instrument editor fully usable: keyboard is opt-in, not an overlay. */
+#devicesScreen .device-editor{display:flex;flex-direction:column;min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain}
+#devicesScreen .device-editor-header{display:flex;align-items:center;justify-content:space-between;gap:6px;flex:0 0 auto;min-width:0}
+#devicesScreen .device-editor-actions{display:flex;align-items:center;justify-content:flex-end;gap:4px;flex-wrap:wrap;min-width:0}
+#devicesScreen .device-editor-actions button,#devicesScreen .device-editor-actions select{min-height:25px;padding:3px 6px;font-size:10px}
+#devicesScreen .device-editor-main{min-height:110px;min-width:0;flex:1 0 auto;grid-template-columns:minmax(74px,.38fr) minmax(0,1.62fr)!important}
+#devicesScreen .device-scope{min-width:0}
+#devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(30px,1fr));gap:3px}
+#devicesScreen .knob-control{min-width:0;padding:3px;gap:2px}
+#devicesScreen .knob-dial{width:clamp(24px,3vw,34px);height:clamp(24px,3vw,34px)}
+#devicesScreen .mini-keyboard{position:relative;z-index:1;flex:0 0 30px;height:30px;min-height:30px;margin-top:2px}
+#devicesScreen .mini-keyboard .white-key{appearance:none;border-radius:0;background:linear-gradient(180deg,#fff,#cbd5df);padding:0;min-width:0}
+#devicesScreen .mini-keyboard .white-key.pressed{background:linear-gradient(180deg,#84d8ff,#4ca9ff)}
+#devicesScreen .mini-keyboard .black-key{pointer-events:none}
+@media(max-height:480px){
+ #devicesScreen .device-editor-header h3{font-size:12px}
+ #devicesScreen .device-editor-header p{display:none}
+ #devicesScreen .device-page-tabs button{min-height:24px;padding:2px 4px}
+ #devicesScreen .device-editor-main{min-height:98px;grid-template-columns:minmax(64px,.32fr) minmax(0,1.68fr)!important}
+ #devicesScreen .device-scope{padding:3px}
+ #devicesScreen .device-scope svg{height:28px}
+ #devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(26px,1fr));gap:2px}
+ #devicesScreen .knob-dial{width:22px;height:22px}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -676,7 +702,7 @@ const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen'
 let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
 let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipId=null,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,snapStep=.0625,timelineZoom=1,pianoZoom=1,timelineScrollSync=false;
 let lastClipTap={id:null,time:0};
-let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset';
+let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset',deviceKeyboardVisible=false;
 let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
 {id:'t1',name:'Drums',type:'Audio',color:'#ff625e',mute:false,solo:false,gain:0,pan:0,clips:[{id:'c1',label:'Drum Loop',start:0,duration:18,color:'#ff625e'}]},
 {id:'t2',name:'Bass',type:'MIDI',color:'#168cff',mute:false,solo:false,gain:-6,pan:0,clips:[{id:'c2',label:'Bass Pattern',start:2,duration:16,color:'#168cff'}]},
@@ -811,7 +837,7 @@ function renderDevices(cat=selectedDeviceCategory){
   const defs=(cat==='Instrument'?instrumentPages:effectPages)[selectedDeviceTab]||[];
   const saved=cat==='Instrument'?rack.instrumentParams:rack.effectParams;
   const controls=defs.map(([label,initial],i)=>{const value=Number.isFinite(saved[label])?saved[label]:initial;return '<div class="knob-control"><div class="knob-head"><label for="device-param-'+i+'">'+esc(label)+'</label><output id="device-value-'+i+'">'+value+'%</output></div><div class="knob-dial" aria-hidden="true"><div class="knob-pointer" style="transform:rotate('+(value*2.7-135)+'deg)"></div></div><input id="device-param-'+i+'" type="range" min="0" max="100" value="'+value+'" data-device-param="'+esc(label)+'" aria-label="'+esc(label)+'"/></div>'}).join('');
-  editor.innerHTML='<div class="device-editor-header"><div><div class="device-kicker">'+esc(selected.type)+' · '+esc(track.name)+'</div><h3>'+esc(selected.name)+'</h3><p>'+esc(selected.detail)+'</p></div><div class="device-editor-actions"><label class="value" for="devicePresetSelect">Preset</label><select id="devicePresetSelect"><option>Init Preset</option><option>Warm Keys</option><option>Deep Bass</option><option>Airy Pad</option></select><button data-device-bypass="true" aria-pressed="'+String(!!rack.bypassed)+'" class="'+(rack.bypassed?'active':'')+'">Bypass</button></div></div><div class="device-page-tabs">'+pages.map(p=>'<button data-device-page="'+p+'" class="'+(p===selectedDeviceTab?'active':'')+'">'+p+'</button>').join('')+'</div><div class="device-editor-main"><div class="device-scope"><div class="device-scope-label">'+(cat==='Instrument'?'OSCILLATOR / SIGNAL':'EFFECT RESPONSE')+'</div><svg viewBox="0 0 360 110" preserveAspectRatio="none" aria-label="Demo signal"><path d="'+(selectedDeviceTab==='FILTER'?'M0 88 C30 88 50 85 75 80 S110 40 145 35 S180 38 205 66 S250 85 280 90 S330 94 360 96':'M0 55 C18 20 36 20 54 55 S90 90 108 55 S144 20 162 55 S198 90 216 55 S252 20 270 55 S306 90 324 55 S342 35 360 55')+'" fill="none" stroke="#38c7ff" stroke-width="3"/><path d="M0 100 H360" stroke="#304352" stroke-width="1"/></svg><div class="waveform-row"><span>Waveform</span><select id="waveformSelect"><option>Saw</option><option>Sine</option><option>Square</option><option>Triangle</option><option>Noise</option></select></div></div><div class="knob-bank">'+controls+'</div></div>'+(cat==='Instrument'?'<div class="mini-keyboard" aria-label="Demo piano keyboard">'+Array.from({length:14},()=>'<span class="white-key" aria-hidden="true"></span>').join('')+['1','3','4','6','8','9','11','13'].map(n=>'<span class="black-key" style="left:calc('+((Number(n)-.5)/14*100)+'% - 6px)" aria-hidden="true"></span>').join('')+'</div>':'');
+  editor.innerHTML='<div class="device-editor-header"><div><div class="device-kicker">'+esc(selected.type)+' · '+esc(track.name)+'</div><h3>'+esc(selected.name)+'</h3><p>'+esc(selected.detail)+'</p></div><div class="device-editor-actions"><label class="value" for="devicePresetSelect">Preset</label><select id="devicePresetSelect"><option>Init Preset</option><option>Warm Keys</option><option>Deep Bass</option><option>Airy Pad</option></select>'+(cat==='Instrument'?'<button type="button" data-device-keyboard aria-pressed="'+String(deviceKeyboardVisible)+'">'+(deviceKeyboardVisible?'Sembunyikan keys':'Keyboard')+'</button>':'')+'<button data-device-bypass="true" aria-pressed="'+String(!!rack.bypassed)+'" class="'+(rack.bypassed?'active':'')+'">Bypass</button></div></div><div class="device-page-tabs">'+pages.map(p=>'<button data-device-page="'+p+'" class="'+(p===selectedDeviceTab?'active':'')+'">'+p+'</button>').join('')+'</div><div class="device-editor-main"><div class="device-scope"><div class="device-scope-label">'+(cat==='Instrument'?'OSCILLATOR / SIGNAL':'EFFECT RESPONSE')+'</div><svg viewBox="0 0 360 110" preserveAspectRatio="none" aria-label="Demo signal"><path d="'+(selectedDeviceTab==='FILTER'?'M0 88 C30 88 50 85 75 80 S110 40 145 35 S180 38 205 66 S250 85 280 90 S330 94 360 96':'M0 55 C18 20 36 20 54 55 S90 90 108 55 S144 20 162 55 S198 90 216 55 S252 20 270 55 S306 90 324 55 S342 35 360 55')+'" fill="none" stroke="#38c7ff" stroke-width="3"/><path d="M0 100 H360" stroke="#304352" stroke-width="1"/></svg><div class="waveform-row"><span>Waveform</span><select id="waveformSelect"><option>Saw</option><option>Sine</option><option>Square</option><option>Triangle</option><option>Noise</option></select></div></div><div class="knob-bank">'+controls+'</div></div>'+(cat==='Instrument'&&deviceKeyboardVisible?'<div class="mini-keyboard" aria-label="Demo piano keyboard">'+Array.from({length:14},()=>'<button type="button" class="white-key" aria-label="Piano key"></button>').join('')+['1','3','4','6','8','9','11','13'].map(n=>'<span class="black-key" style="left:calc('+((Number(n)-.5)/14*100)+'% - 6px)" aria-hidden="true"></span>').join('')+'</div>':'');
  }
  root.appendChild(picker);root.appendChild(editor);
 }
@@ -1039,6 +1065,8 @@ $('pianogrid').addEventListener('click',e=>{
 $('deviceTrackSelect').addEventListener('change',e=>{const index=Number(e.target.value);if(!Number.isInteger(index)||!project.tracks[index])return;selectedTrack=index;renderDevices();syncRackView();notify('Rack track: '+project.tracks[index].name)});
 $('devTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;selectedDeviceCategory=b.dataset.cat;selectedDeviceTab=b.dataset.cat==='Instrument'?'OSC':b.dataset.cat==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory)});
 $('devices').addEventListener('click',e=>{
+ const keyboard=e.target.closest('[data-device-keyboard]');if(keyboard){deviceKeyboardVisible=!deviceKeyboardVisible;renderDevices('Instrument');return}
+ const key=e.target.closest('.mini-keyboard .white-key');if(key){key.classList.add('pressed');setTimeout(()=>key.classList.remove('pressed'),110);return}
  const option=e.target.closest('[data-device-select]');if(option){const rack=getTrackRack();if(selectedDeviceCategory==='Instrument')rack.instrument=option.dataset.deviceSelect;else if(selectedDeviceCategory==='Effect')rack.effect=option.dataset.deviceSelect;else rack.preset=option.dataset.deviceSelect;selectedDevice=option.dataset.deviceSelect;selectedDeviceTab=selectedDeviceCategory==='Instrument'?'OSC':selectedDeviceCategory==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory);return}
  const page=e.target.closest('[data-device-page]');if(page){selectedDeviceTab=page.dataset.devicePage;renderDevices(selectedDeviceCategory);return}
  const apply=e.target.closest('[data-apply-preset]');if(apply){const rack=getTrackRack();rack.preset=apply.dataset.applyPreset;devicePreset=rack.preset;notify(apply.dataset.applyPreset+' disimpan pada rack '+project.tracks[selectedTrack].name+' • audio engine belum tersambung');return}
