@@ -1613,11 +1613,17 @@ function openTrackMenu(i){
 function closeTrackMenu(){$('trackMenuOverlay').hidden=true;trackMenuIndex=-1}
 function addClipToTrack(i,kind){
  const t=project.tracks[i];if(!t)return;
- snapshot();
- const start=Math.min(28,Math.max(0,0));
  const label=kind==='MIDI'?'MIDI Clip':kind==='Audio'?'Audio Clip':'Automation Clip';
- t.clips.push({id:'c'+Date.now()+Math.random().toString(16).slice(2,5),label,start,duration:4,color:t.color,kind});
- selectedClip=t.clips[t.clips.length-1].id;selectedTrack=i;renderAll();updateTimelineTools();notify(label+' ditambahkan (model UI)');
+ const duration=4;
+ const occupied=t.clips.map(c=>({start:Math.max(0,Number(c.start)||0),end:Math.max(0,Number(c.start)||0)+Math.max(.25,Number(c.duration)||.25)})).sort((a,b)=>a.start-b.start);
+ let start=0;
+ for(const range of occupied){if(range.start-start>=duration)break;start=Math.max(start,range.end)}
+ start=snapEnabled?Math.round(start/snapStep)*snapStep:start;
+ start=Math.max(0,Math.min(MAX_BARS-duration,start));
+ if(t.clips.some(c=>c.start<start+duration&&c.start+c.duration>start))start=Math.max(0,Math.min(MAX_BARS-duration,Math.max(...t.clips.map(c=>c.start+c.duration),0)));
+ snapshot();
+ t.clips.push({id:'c'+Date.now()+Math.random().toString(16).slice(2,5),label,start,duration,color:t.color,kind});
+ selectedClip=t.clips[t.clips.length-1].id;selectedTrack=i;renderAll();updateTimelineTools();notify(label+' ditambahkan pada bar '+(start+1).toFixed(2)+' (model UI)');
 }
 let pendingLanePress=null;
 $('tracks').addEventListener('pointerdown',e=>{
@@ -1769,6 +1775,7 @@ $('tracks').addEventListener('click',e=>{
   // Ignore only the synthetic click that can follow a drag/resize in Select mode.
   // Tool actions such as Split must still receive the next deliberate tap on that clip.
   if(ignoreNextClipId===id&&timelineTool==='select'){ignoreNextClipId=null;return}
+  if(timelineTool==='range'){notify('Rentang dipilih dari ruler di atas');return}
   const ownerIndex=project.tracks.findIndex(t=>t.clips.some(c=>c.id===id));if(ownerIndex>=0)selectedTrack=ownerIndex;
   if(timelineTool==='cut'){selectedClip=id;const rect=clip.getBoundingClientRect();splitSelectedClipAtRatio(Math.max(.05,Math.min(.95,(e.clientX-rect.left)/Math.max(1,rect.width))));timelineTool='select';updateTimelineTools();hideClipContext();return}
   const found=project.tracks[selectedTrack]?.clips.find(c=>c.id===id);
