@@ -1404,6 +1404,21 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 #timelineScreen .timeline,#timelineScreen .timeline-work-area{min-width:0!important;width:100%!important}
 @media(max-height:480px){#timelineScreen .track-height-grip{bottom:-3px;height:7px}#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-in"],#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-out"],#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-fit"]{flex-basis:24px!important;min-height:24px!important}}
 
+
+/* Authoritative Playlist fixes: separate vertical zoom, adjustable track dividers, no phantom min-width. */
+#timelineScreen .timeline,#timelineScreen .timeline-work-area{min-width:0!important;width:100%!important}
+#timelineScreen .cliparea{min-width:0!important;width:100%!important;max-width:100%!important}
+#timelineScreen .tracks{align-content:start!important;flex:1 1 0!important;min-height:0!important;min-width:0!important;overflow:auto!important}
+#timelineScreen .trackrow{flex:0 0 calc(40px * var(--timeline-track-zoom,1))!important;height:calc(40px * var(--timeline-track-zoom,1))!important;min-height:calc(40px * var(--timeline-track-zoom,1))!important;max-height:none!important;position:relative!important;box-sizing:border-box!important}
+#timelineScreen .tracklabel,#timelineScreen .cliparea{height:100%!important;min-height:0!important;box-sizing:border-box!important}
+#timelineScreen .clip{top:4px!important;height:calc(100% - 8px)!important;min-height:15px!important;max-height:none!important}
+#timelineScreen .track-height-grip{position:absolute;z-index:12;left:0;right:0;bottom:-4px;height:9px;cursor:ns-resize;touch-action:none;background:transparent}
+#timelineScreen .track-height-grip:after{content:"";position:absolute;left:36%;right:36%;top:3px;height:2px;border-radius:2px;background:#8ba8c3;opacity:.22}
+#timelineScreen .track-height-grip:active:after{opacity:1;background:#54b5ff}
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-in"],#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-out"],#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-fit"]{flex:0 0 28px!important;min-height:28px!important;font-size:12px!important;touch-action:manipulation!important}
+#timelineScreen .timeline-tool-rail .zoom-label-vertical{display:block;flex:0 0 auto;font-size:9px;line-height:1.1;text-align:center;max-width:34px;color:#9fb5c9}
+@media(max-height:480px){#timelineScreen .track-height-grip{height:7px;bottom:-3px}#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-in"],#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-out"],#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-fit"]{flex-basis:24px!important;min-height:24px!important}}
+
 </style>
 </head>
 <body>
@@ -1511,7 +1526,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
 let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
 let clipboardClip=null;
-let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipId=null,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,snapStep=.0625,timelineZoom=1,pianoZoom=1,timelineScrollSync=false;
+let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipId=null,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,snapStep=.0625,timelineZoom=1,timelineTrackZoom=1,pianoZoom=1,timelineScrollSync=false;
 let lastClipTap={id:null,time:0};
 let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset',deviceKeyboardVisible=false;
 let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
@@ -1686,7 +1701,7 @@ function applyRangeOperation(action){
   selectedClip=null;renderAll();renderRangeSelection();updateTimelineTools();
  }
 }
-let timelineTrackZoom=1;
+let trackHeightGesture=null;
 function applyTrackZoom(){
  const root=$('tracks');if(!root)return;
  const zoom=Math.max(.5,Math.min(2.4,Number(timelineTrackZoom)||1));
@@ -1696,22 +1711,20 @@ function applyTrackZoom(){
 function setTimelineTrackZoom(next,anchorRatio=.5){
  const root=$('tracks');if(!root)return;
  const before=Math.max(.5,Math.min(2.4,Number(timelineTrackZoom)||1));
- const after=Math.max(.5,Math.min(2.4,Number(next)||before));
+ const n=Number(next),after=Math.max(.5,Math.min(2.4,Number.isFinite(n)&&n>0?n:before));
  if(Math.abs(after-before)<.001)return;
  const ratio=Math.max(0,Math.min(1,Number(anchorRatio)||0));
- const rowHeight=Math.max(1,40*before);
- const anchorIndex=Math.max(0,Math.min(project.tracks.length-1,Math.floor((root.scrollTop+ratio*root.clientHeight)/rowHeight)));
- const within=(root.scrollTop+ratio*root.clientHeight)-anchorIndex*rowHeight;
+ const base=Math.max(1,40*before),point=root.scrollTop+ratio*root.clientHeight;
+ const idx=Math.max(0,Math.min(project.tracks.length-1,Math.floor(point/base)));
+ const within=point-idx*base;
  timelineTrackZoom=after;applyTrackZoom();
- requestAnimationFrame(()=>{root.scrollTop=Math.max(0,anchorIndex*40*after+within*(after/before)-ratio*root.clientHeight)});
+ requestAnimationFrame(()=>{root.scrollTop=Math.max(0,idx*40*after+within*(after/before)-ratio*root.clientHeight)});
 }
 function fitTimelineTracks(){
  const root=$('tracks');if(!root)return;
- const count=Math.max(1,project.tracks.length);
- timelineTrackZoom=Math.max(.5,Math.min(2.4,root.clientHeight/(count*40)));
+ timelineTrackZoom=Math.max(.5,Math.min(2.4,root.clientHeight/Math.max(1,project.tracks.length*40)));
  applyTrackZoom();root.scrollTop=0;
 }
-let trackHeightGesture=null;
 function beginTrackHeightGesture(e){
  if(e.button!==undefined&&e.button!==0)return;
  trackHeightGesture={pointerId:e.pointerId,startY:e.clientY,startZoom:timelineTrackZoom};
@@ -1726,6 +1739,7 @@ function endTrackHeightGesture(e){if(trackHeightGesture&&trackHeightGesture.poin
 document.addEventListener('pointerup',endTrackHeightGesture);
 document.addEventListener('pointercancel',endTrackHeightGesture);
 document.addEventListener('lostpointercapture',endTrackHeightGesture);
+
 function renderTracks(){
  const root=$('tracks'),rulerViewport=document.querySelector('#timelineScreen .bars-viewport');
  const savedScrollLeft=rulerViewport?.scrollLeft||0,savedScrollTop=root.scrollTop||0;
@@ -1734,9 +1748,11 @@ function renderTracks(){
  if(barViewport){barViewport.querySelectorAll('span:not(.ruler-end)').forEach((label,index)=>{label.textContent=String(index*4+1);label.style.flex='0 0 '+(100/8)+'%';});const end=barViewport.querySelector('.ruler-end');if(end)end.textContent=String(MAX_BARS+1)}
  project.tracks.forEach((t,index)=>{
   const row=document.createElement('div');row.className='trackrow';row.style.setProperty('--track',t.color);
+  row.style.setProperty('--track-index',String(index));
   const label=document.createElement('div');label.className='tracklabel';
   label.innerHTML='<div class="trackname"><span>'+ (index+1)+'. '+esc(t.name)+'</span><span style="color:var(--muted);font-size:10px">'+esc(t.type)+'</span></div><div class="trackbuttons"><button data-action="mute" data-i="'+index+'" class="'+(t.mute?'on':'')+'">M</button><button data-action="solo" data-i="'+index+'" class="'+(t.solo?'on':'')+'">S</button><button data-action="menu" data-i="'+index+'" class="'+(selectedTrack===index?'active':'')+'" aria-label="Track options">•••</button></div>';
   row.appendChild(label);
+  const heightGrip=document.createElement('div');heightGrip.className='track-height-grip';heightGrip.dataset.trackHeight=String(index);heightGrip.setAttribute('role','separator');heightGrip.setAttribute('aria-orientation','horizontal');heightGrip.setAttribute('aria-label','Ubah tinggi track');heightGrip.tabIndex=0;heightGrip.addEventListener('pointerdown',beginTrackHeightGesture);heightGrip.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();setTimelineTrackZoom(timelineTrackZoom*(e.key==='ArrowUp'?1.08:1/1.08),.5)}});row.appendChild(heightGrip);
   const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;area.dataset.timelineScroll='clip';
   area.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget),{passive:true});
   const canvas=document.createElement('div');canvas.className='clip-canvas';canvas.style.width=(timelineZoom*100)+'%';canvas.style.backgroundImage='linear-gradient(to right,#344657 1px,transparent 1px),linear-gradient(to right,#243341 1px,transparent 1px),linear-gradient(to right,#192631 1px,transparent 1px)';canvas.style.backgroundSize=(100/32)+'% 100%, '+(100/128)+'% 100%, '+(100/512)+'% 100%';
@@ -2505,6 +2521,14 @@ document.addEventListener('pointercancel',endTimelinePointer,{capture:true,passi
 document.addEventListener('lostpointercapture',endTimelinePointer,{capture:true,passive:true});
 
 $('timelineTools').addEventListener('click',e=>{
+ const vb=e.target.closest('[data-timeline-tool]');
+ if(vb){
+  const vt=vb.dataset.timelineTool;
+  if(vt==='zoom-vertical-in'){setTimelineTrackZoom(timelineTrackZoom*1.2,.5);return}
+  if(vt==='zoom-vertical-out'){setTimelineTrackZoom(timelineTrackZoom/1.2,.5);return}
+  if(vt==='zoom-vertical-fit'){fitTimelineTracks();return}
+ }
+
  const b=e.target.closest('[data-timeline-tool]');if(!b)return;const tool=b.dataset.timelineTool;
  lastClipTap={id:null,time:0};
  if(tool==='select'){timelineTool='select'}
