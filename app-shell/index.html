@@ -1017,21 +1017,21 @@ html[data-theme="light"] .clip{color:#152130!important}
 }
 
 
-/* Compact mobile toolbar: wrap naturally to available width; no fixed grid columns that crop controls. */
+/* Compact mobile toolbar: all controls share one real flex container and wrap without overlap. */
 .app{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto minmax(0,1fr)!important;width:100%!important;height:100dvh!important;min-height:0!important;overflow:hidden!important;gap:0!important}
 .top{grid-column:1!important;grid-row:1!important;display:flex!important;align-items:center!important;justify-content:space-between!important;flex-wrap:wrap!important;gap:5px!important;width:100%!important;height:auto!important;min-height:44px!important;max-height:none!important;padding:5px 7px!important;position:relative!important;overflow:visible!important;box-sizing:border-box!important;background:#0e141c!important;border-bottom:1px solid var(--line)!important;z-index:25!important}
 .top .brand{display:block!important;visibility:visible!important;flex:0 0 auto!important;font-size:clamp(10px,1.3vw,15px)!important;white-space:nowrap!important;min-width:0!important}
-.top .project{display:flex!important;align-items:center!important;gap:4px!important;flex:1 1 118px!important;width:auto!important;min-width:100px!important;max-width:180px!important}
+.top .project{display:flex!important;align-items:center!important;gap:4px!important;flex:0 1 155px!important;width:auto!important;min-width:100px!important;max-width:180px!important}
 .top .project button{flex:0 0 27px!important;width:27px!important;min-width:27px!important;height:29px!important;min-height:29px!important;padding:3px!important}
 .top .project input{min-width:0!important;max-width:none!important;width:100%!important;flex:1 1 auto!important;font-size:11px!important;padding:4px!important}
-.top-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important;margin:0!important;min-width:0!important;flex:0 0 auto!important}
+.top-actions{display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:4px!important;margin:0!important;min-width:0!important;flex:0 0 auto!important;order:5!important}
 .top-actions button{width:28px!important;min-width:28px!important;height:29px!important;min-height:29px!important;padding:3px!important}
-.transportbar{grid-column:1!important;grid-row:1!important;position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:center!important;flex:1 1 155px!important;min-width:155px!important;width:auto!important;max-width:none!important;height:38px!important;min-height:34px!important;max-height:40px!important;margin:0!important;padding:1px 3px!important;overflow:visible!important;box-sizing:border-box!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:26!important}
+.transportbar{position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;width:auto!important;min-width:0!important;max-width:none!important;height:38px!important;min-height:34px!important;max-height:40px!important;margin:0!important;padding:1px 3px!important;overflow:visible!important;box-sizing:border-box!important;background:transparent!important;border:0!important;box-shadow:none!important;z-index:26!important;order:3!important}
 .transportbar .transport{display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;position:static!important;inset:auto!important;transform:none!important;width:max-content!important;max-width:100%!important;height:auto!important;min-height:0!important;margin:0!important}
 .transportbar .transport button{position:static!important;inset:auto!important;transform:none!important;flex:0 0 auto!important;width:28px!important;min-width:28px!important;height:29px!important;min-height:29px!important;padding:2px 3px!important}
 .transportbar #play{width:37px!important;min-width:37px!important;height:34px!important;min-height:34px!important;background:#10ad77!important;border-color:#10ad77!important}
 .transportbar #position{width:59px!important;min-width:59px!important;font-size:9px!important}
-.subbar{grid-column:1!important;grid-row:1!important;position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:nowrap!important;gap:4px!important;flex:1 1 240px!important;width:auto!important;min-width:0!important;max-width:none!important;height:38px!important;min-height:34px!important;max-height:40px!important;margin:0!important;padding:2px 3px!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:none!important;background:transparent!important;border:0!important;z-index:26!important}
+.subbar{position:relative!important;inset:auto!important;transform:none!important;display:flex!important;align-items:center!important;justify-content:flex-start!important;flex-wrap:nowrap!important;gap:4px!important;flex:1 1 350px!important;width:auto!important;min-width:0!important;max-width:none!important;height:38px!important;min-height:34px!important;max-height:40px!important;margin:0!important;padding:2px 3px!important;box-sizing:border-box!important;overflow-x:auto!important;overflow-y:hidden!important;white-space:nowrap!important;scrollbar-width:none!important;background:transparent!important;border:0!important;z-index:26!important;order:4!important}
 .subbar .chip{flex:0 0 auto!important;display:inline-flex!important;align-items:center!important;gap:3px!important;height:27px!important;min-height:27px!important;padding:3px 5px!important;font-size:9px!important;border-radius:7px!important;box-sizing:border-box!important}
 .subbar .chip input{flex:0 0 31px!important;width:31px!important;min-width:31px!important;max-width:31px!important;font-size:10px!important;padding:0!important}
 .subbar .chip select{font-size:10px!important;max-width:42px!important}
@@ -1066,8 +1066,8 @@ html[data-theme="light"] .clip{color:#152130!important}
  .top{gap:4px!important;padding:4px 5px!important}
  .top .brand{font-size:10px!important}
  .top .project{flex:0 1 120px!important;min-width:98px!important}
- .transportbar{flex:0 0 145px!important;min-width:145px!important}
- .subbar{flex:1 1 220px!important}
+ .transportbar{flex:0 0 auto!important;min-width:0!important}
+ .subbar{flex:1 1 280px!important}
  .subbar .chip{padding:2px 4px!important;font-size:8px!important}
  .subbar .chip input{width:25px!important;min-width:25px!important;max-width:25px!important;font-size:9px!important}
  .subbar #save,.subbar #open,.subbar #export{padding:2px 4px!important;font-size:8px!important}
@@ -1075,7 +1075,7 @@ html[data-theme="light"] .clip{color:#152130!important}
 @media(max-width:760px){
  .top .brand{display:none!important}
  .top .project{flex:1 1 100px!important;min-width:85px!important}
- .transportbar{flex:0 0 125px!important;min-width:125px!important}
+ .transportbar{flex:0 0 auto!important;min-width:0!important}
  .transportbar .transport{gap:2px!important}
  .transportbar .transport button{width:24px!important;min-width:24px!important;height:26px!important;min-height:26px!important}
  .transportbar #play{width:30px!important;min-width:30px!important;height:29px!important;min-height:29px!important}
@@ -1090,7 +1090,7 @@ html[data-theme="light"] .clip{color:#152130!important}
  .top{min-height:42px!important;padding:3px 5px!important;gap:3px!important;flex-wrap:nowrap!important}
  .top .brand{font-size:9px!important}
  .top .project{flex:0 1 113px!important;min-width:90px!important}
- .transportbar{flex:0 0 116px!important;min-width:116px!important;height:35px!important;min-height:32px!important;max-height:37px!important}
+ .transportbar{flex:0 0 auto!important;min-width:0!important;height:35px!important;min-height:32px!important;max-height:37px!important}
  .transportbar .transport{gap:2px!important}
  .transportbar .transport button{width:22px!important;min-width:22px!important;height:23px!important;min-height:23px!important}
  .transportbar #play{width:28px!important;min-width:28px!important;height:26px!important;min-height:26px!important}
@@ -1129,9 +1129,9 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
   <div class="brand">NovaDAW <span>Mobile</span></div>
   <div class="project"><button class="small" aria-label="Home and settings" id="menu" title="Home / Settings"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/></svg></button><input id="projectName" aria-label="Nama proyek" value="My Song"></div>
   <div class="top-actions"><button class="small" id="undo" aria-label="Undo" title="Undo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4 12l5 5M4 12h10a5 5 0 0 1 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button class="small" id="redo" aria-label="Redo" title="Redo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7l5 5-5 5M20 12H10a5 5 0 0 0-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button></div>
-</header>
 <div class="transportbar"><div class="transport"><button class="small" id="rewind" aria-label="Kembali ke awal"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M19 5L7 12l12 7z" stroke="currentColor" stroke-width="1.6" fill="currentColor"/></svg></button><button class="small play" id="play" aria-label="Putar atau jeda"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg></button><button class="small" id="record" aria-label="Rekam"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6" fill="#ff5c69"/></svg></button><button class="small meta" id="position">1:1:000</button></div></div>
 <div class="subbar"><span class="chip">Tempo <b><input id="tempo" type="number" min="40" max="240" value="120" style="width:45px;background:transparent;border:0;color:#8bd2ff"></b> BPM</span><span class="chip">Meter <b><select id="meter" style="background:transparent;border:0;color:#8bd2ff"><option>4/4</option><option>3/4</option><option>6/8</option><option>5/4</option></select></b></span><span class="chip">Audio <b id="audioState">Demo</b></span><span class="grow"></span><button class="small" id="save">Simpan</button><button class="small" id="open">Buka</button><button class="small" id="export">Ekspor JSON</button><input hidden id="file" type="file" accept=".json,application/json"></div>
+</header>
 <main class="workspace" id="workspace">
 <section class="screen" id="timelineScreen">
   <div class="timeline-work-area">
