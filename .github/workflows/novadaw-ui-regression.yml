@@ -51,6 +51,7 @@ jobs:
             ['zoom requests are coalesced into animation frames', html.includes('function setTimelineZoomSmooth')],
             ['ruler and grid share a single 32-bar base scale', html.includes('const INITIAL_TIMELINE_BARS=32;') && html.includes('function timelinePixelsPerBar()') && html.includes('function timelineContentBars()')],
             ['Playlist timeline can grow past the first 32 bars', html.includes('const MAX_BARS=512;') && html.includes('Math.ceil(clipEnd+4)')],
+            ['clipboard paste no longer clamps clips at bar 33', !html.includes('if(pasted.start+pasted.duration>32)') && !html.includes('Math.min(32-pasted.duration,start)')],
             ['clip drag includes vertical targeting and preserves original track', html.includes('originTrackIndex:trackIndex') && html.includes('targetTrackIndex:trackIndex') && html.includes('function canMoveClipToTrack')],
             ['incompatible Audio and MIDI clip drops are rejected', html.includes('return kind===target') && html.includes('Jenis track harus sama')],
             ['clip drag supports continuous edge auto-scroll', html.includes('function runClipAutoScroll()') && html.includes('startScrollLeft') && html.includes('applyActiveClipGestureFrame()')],
