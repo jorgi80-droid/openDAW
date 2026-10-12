@@ -971,7 +971,7 @@ function renderPiano(){
  grid.appendChild(layer);
  // Velocity lane shares the same horizontal time scale as the note grid.
  const velocityLayer=document.createElement('div');velocityLayer.className='velocity-layer';
- const keyWidth=keys.getBoundingClientRect().width||42;
+ const keyWidth=keys.offsetWidth||42;
  velocityLayer.style.width=(keyWidth+rulerWidth)+'px';velocityLayer.style.minWidth=(keyWidth+rulerWidth)+'px';velocityLayer.style.height='100%';
  project.notes.forEach((n,i)=>{
   const s=document.createElement('span'),velocity=Math.max(1,Math.min(127,Number(n.velocity)||80));
