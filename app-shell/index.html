@@ -2450,9 +2450,8 @@ function setTimelineZoom(next,anchorX){
  const ruler=document.querySelector('#timelineScreen .bars-viewport');
  if(!ruler)return;
  const oldZoom=timelineZoom;
- const oldContentWidth=Math.max(1,timelineCanvasFor(ruler)?.scrollWidth||ruler.clientWidth);
  const anchor=Number.isFinite(anchorX)?Math.max(0,Math.min(ruler.clientWidth,anchorX)):ruler.clientWidth/2;
- const anchorTime=Math.max(0,Math.min(1,((ruler.scrollLeft||0)+anchor)/oldContentWidth));
+ const anchorBar=Math.max(0,((ruler.scrollLeft||0)+anchor)/Math.max(1,timelinePixelsPerBar()));
  const requested=Number(next);
  const zoom=Math.max(.25,Math.min(16,Number.isFinite(requested)&&requested>0?requested:oldZoom));
  if(Math.abs(zoom-oldZoom)<.001)return;
@@ -2461,7 +2460,7 @@ function setTimelineZoom(next,anchorX){
  const newContentWidth=applyTimelineGeometry()||Math.max(1,ruler.clientWidth*timelineZoom);
  requestAnimationFrame(()=>{
   const maxScroll=Math.max(0,newContentWidth-ruler.clientWidth);
-  ruler.scrollLeft=Math.max(0,Math.min(maxScroll,anchorTime*newContentWidth-anchor));
+  ruler.scrollLeft=Math.max(0,Math.min(maxScroll,anchorBar*timelinePixelsPerBar()-anchor));
   syncTimelineScroll(ruler);
   updateTimelineTools();
  });
@@ -2483,7 +2482,7 @@ function beginTimelinePinch(distance,centerX){
  const rect=ruler?.getBoundingClientRect();
  const localX=rect?Math.max(0,Math.min(ruler.clientWidth,centerX-rect.left)):0;
  const contentWidth=Math.max(1,timelineCanvasFor(ruler)?.scrollWidth||ruler?.clientWidth||1);
- timelinePinchStart={distance:Math.max(1,distance),zoom:timelineZoom,anchorTime:Math.max(0,Math.min(1,((ruler?.scrollLeft||0)+localX)/contentWidth))};
+ timelinePinchStart={distance:Math.max(1,distance),zoom:timelineZoom,anchorBar:Math.max(0,((ruler?.scrollLeft||0)+localX)/Math.max(1,timelinePixelsPerBar()))};
  timelinePinchPending=null;
  cancelClipGesture();
  if(pendingLanePress){clearTimeout(pendingLanePress.timer);pendingLanePress=null}
@@ -2506,7 +2505,7 @@ function moveTimelinePinch(distance,centerX){
   const contentWidth=applyTimelineGeometry()||Math.max(1,ruler.clientWidth*timelineZoom);
   const rect=ruler.getBoundingClientRect();
   const currentCenterX=Math.max(0,Math.min(ruler.clientWidth,pending.centerX-rect.left));
-  ruler.scrollLeft=Math.max(0,Math.min(Math.max(0,contentWidth-ruler.clientWidth),start.anchorTime*contentWidth-currentCenterX));
+  ruler.scrollLeft=Math.max(0,Math.min(Math.max(0,contentWidth-ruler.clientWidth),start.anchorBar*timelinePixelsPerBar()-currentCenterX));
   syncTimelineScroll(ruler);
   updateTimelineTools();
  });
