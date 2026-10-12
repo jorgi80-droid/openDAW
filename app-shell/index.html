@@ -2496,6 +2496,7 @@ document.querySelector('.bars-viewport')?.addEventListener('scroll',e=>syncTimel
 $('tracks').addEventListener('scroll',e=>{const area=e.target.closest('[data-timeline-scroll="clip"]');if(area)syncTimelineScroll(area)},{passive:true});
 function cancelClipGesture(pointerId){
  const g=clipGesture;if(!g||(pointerId!==undefined&&g.pointerId!==pointerId))return;
+ endClipAutoScroll();
  if(g.moved){
   project=JSON.parse(g.before);
   selectedClip=g.clipId;selectedTrack=g.originTrackIndex;
@@ -2506,15 +2507,18 @@ function cancelClipGesture(pointerId){
 }
 function finishClipGesture(e){
  const g=clipGesture;if(!g||e.pointerId!==g.pointerId)return;
+ endClipAutoScroll();
  const sourceIndex=g.originTrackIndex,targetIndex=g.mode==='move'?g.targetTrackIndex:sourceIndex;
  const source=project.tracks[sourceIndex],target=project.tracks[targetIndex];
  const clip=source?.clips.find(c=>c.id===g.clipId);
  if(g.moved&&clip){
   if(g.mode==='move'&&targetIndex!==sourceIndex){
    if(!canMoveClipToTrack(clip,source,target)){
+    const kind=clipCategory(clip,source),targetKind=clipCategory(null,target);
     project=JSON.parse(g.before);selectedClip=g.clipId;selectedTrack=sourceIndex;
-    renderTracks();updateTimelineTools();notify('Tidak bisa memindahkan clip '+clipCategory(clip,source)+' ke track '+clipCategory(null,target)+'. Jenis track harus sama.');
-    clipGesture=null;return;
+    clipGesture=null;renderTracks();updateTimelineTools();
+    notify('Tidak bisa memindahkan clip '+kind+' ke track '+targetKind+'. Jenis track harus sama.');
+    return;
    }
    source.clips=source.clips.filter(c=>c.id!==clip.id);
    target.clips.push(clip);selectedTrack=targetIndex;
@@ -2525,10 +2529,12 @@ function finishClipGesture(e){
   }
   pushUndoSnapshot(g.before);selectedClip=g.clipId;
   ignoreNextClipId=g.clipId;setTimeout(()=>{if(ignoreNextClipId===g.clipId)ignoreNextClipId=null},400);
-  renderTracks();updateTimelineTools();hideClipContext();
+  clipGesture=null;renderTracks();updateTimelineTools();hideClipContext();
   notify(g.mode==='resize'?'Panjang clip diubah':targetIndex!==sourceIndex?'Clip dipindahkan ke track '+target.name:'Clip dipindahkan');
- }else if(g.target){g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow=''}
- clipGesture=null;
+ }else{
+  if(g.target){g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow=''}
+  clipGesture=null;
+ }
 }
 $('tracks').addEventListener('pointerup',e=>{
  if(pendingLanePress&&pendingLanePress.pointerId===e.pointerId){clearTimeout(pendingLanePress.timer);pendingLanePress=null}
