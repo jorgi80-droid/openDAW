@@ -1,6 +1,6 @@
-name: NovaDAW UI regression tests
+name: StudioWave UI regression tests
 concurrency:
-  group: novadaw-ui-regression-${{ github.ref }}
+  group: studiowave-ui-regression-${{ github.ref }}
   cancel-in-progress: true
 
 
