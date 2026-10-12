@@ -29,10 +29,24 @@ try {
     await page.locator('#gridSnap').selectOption('eighth');
     assert(await page.locator('#gridSnap').inputValue()==='eighth', `timeline snap subdivision is selectable at ${viewport.width}x${viewport.height}`);
     await page.locator('#closeSettingsDone').click();
-    const transportGeometry=await page.evaluate(()=>{const bar=document.querySelector('.transportbar').getBoundingClientRect(),controls=document.querySelector('.transportbar .transport').getBoundingClientRect(),play=document.querySelector('#play').getBoundingClientRect();return {barCenter:bar.left+bar.width/2,controlsCenter:controls.left+controls.width/2,playCenter:play.left+play.width/2,height:bar.height,play};});
-    assert(Math.abs(transportGeometry.barCenter-transportGeometry.controlsCenter)<=2, `transport layout is centered in its compact control strip at ${viewport.width}x${viewport.height}`);
-    assert(Math.abs(transportGeometry.barCenter-transportGeometry.playCenter)<=2, `Play/Pause button itself is exactly centered at ${viewport.width}x${viewport.height}`);
-    assert(transportGeometry.height<=36 && transportGeometry.play.width>=30, `transport strip stays compact while Play remains touchable at ${viewport.width}x${viewport.height}`);
+    const transportGeometry=await page.evaluate(()=>{const app=document.querySelector('.app').getBoundingClientRect(),top=document.querySelector('.top').getBoundingClientRect(),controls=document.querySelector('.transportbar .transport').getBoundingClientRect(),play=document.querySelector('#play').getBoundingClientRect(),sub=document.querySelector('.subbar').getBoundingClientRect();return {app,top,controls,play,sub,topBottom:top.bottom,controlsCenter:controls.left+controls.width/2,playCenter:play.left+play.width/2,subCenter:sub.left+sub.width/2};});
+    assert(transportGeometry.top.height<=60 && transportGeometry.top.height>=44, `toolbar uses one compact shared row at ${viewport.width}x${viewport.height}`);
+    assert(Math.abs(transportGeometry.topBottom-transportGeometry.controls.top)<=(transportGeometry.top.height+4), `transport is anchored into the shared header row at ${viewport.width}x${viewport.height}`);
+    assert(transportGeometry.play.width>=28 && transportGeometry.controls.height<=60, `transport controls remain touchable inside the shared row at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('.subbar #tempo').isVisible() && await page.locator('.subbar #meter').isVisible(), `tempo and meter remain visible in the shared row at ${viewport.width}x${viewport.height}`);
+    // User-visible keyboard shortcuts must call existing model/actions without hijacking text entry.
+    const wasPlaying=await page.locator('#audioState').innerText();
+    await page.keyboard.press('Space');
+    assert((await page.locator('#audioState').innerText())!==wasPlaying, `Space toggles transport playback state at ${viewport.width}x${viewport.height}`);
+    await page.keyboard.press('Home');
+    assert((await page.locator('#position').innerText()).includes('1:1'), `Home rewinds transport at ${viewport.width}x${viewport.height}`);
+    await page.keyboard.press('g');
+    assert((await page.locator('#timelineTools [data-timeline-tool="snap"]').getAttribute('class')||'').includes('active')===false, `G toggles timeline snap state at ${viewport.width}x${viewport.height}`);
+    await page.keyboard.press('g');
+    await page.keyboard.press('+');
+    assert((await page.locator('#zoomLabel').innerText())==='125%', `plus shortcut increases timeline zoom at ${viewport.width}x${viewport.height}`);
+    await page.keyboard.press('-');
+    assert((await page.locator('#zoomLabel').innerText())==='100%', `minus shortcut decreases timeline zoom at ${viewport.width}x${viewport.height}`);
     const dims = await page.evaluate(() => {
       const box = s => { const r=document.querySelector(s).getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom,top:r.top,right:r.right}; };
       return {workspace:box('#workspace'),dock:box('.dock'),timeline:box('#timelineScreen .timeline'),rowCount:document.querySelectorAll('#tracks .trackrow').length,visibleScreenCount:[...document.querySelectorAll('.screen')].filter(el=>getComputedStyle(el).display!=='none').length};
