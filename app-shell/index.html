@@ -1268,6 +1268,22 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 #timelineScreen .cliparea,
 #timelineScreen .clip { -webkit-tap-highlight-color: transparent; }
 
+
+/* P0 touch gestures: keep one-finger lane pan available, reserve clip drag for clips,
+   and let our two-pointer handlers own pinch zoom rather than the WebView viewport. */
+#timelineScreen .timeline-work-area,
+#timelineScreen .bars-viewport,
+#timelineScreen .cliparea {
+  touch-action: pan-x pan-y pinch-zoom !important;
+}
+#timelineScreen .clip,
+#timelineScreen .clip-resize-handle {
+  touch-action: none !important;
+}
+#timelineScreen .bars-viewport .bars {
+  min-width: 100%;
+  box-sizing: border-box;
+}
 </style>
 </head>
 <body>
@@ -1794,16 +1810,27 @@ $('tracks').addEventListener('pointermove',e=>{
  else {const proposed=g.originDuration+delta;item.duration=Math.max(.25,Math.min(32-item.start,snapEnabled?Math.round(proposed/snapStep)*snapStep:proposed))}
  g.target.style.left=(item.start/32*100)+'%';g.target.style.width=(item.duration/32*100)+'%';
 });
+function timelineScrollPeers(){
+ const peers=[...document.querySelectorAll('#timelineScreen [data-timeline-scroll]')];
+ return peers;
+}
 function syncTimelineScroll(source){
- if(timelineScrollSync)return;
+ if(timelineScrollSync||!source)return;
  timelineScrollSync=true;
- const range=source.scrollWidth-source.clientWidth;
- const ratio=range>0?source.scrollLeft/range:0;
- document.querySelectorAll('[data-timeline-scroll]').forEach(el=>{
+ const timeCanvas=source.matches('.bars-viewport')
+  ? source.querySelector('.bars')
+  : source.querySelector('.clip-canvas');
+ const contentWidth=Math.max(1,timeCanvas?.scrollWidth||timeCanvas?.getBoundingClientRect().width||source.scrollWidth);
+ const visibleWidth=Math.max(1,source.clientWidth);
+ const timeOffset=Math.max(0,source.scrollLeft);
+ const fraction=Math.max(0,Math.min(1,timeOffset/Math.max(1,contentWidth-visibleWidth)));
+ timelineScrollPeers().forEach(el=>{
   if(el===source)return;
-  const max=Math.max(0,el.scrollWidth-el.clientWidth);
-  const next=max*ratio;
-  if(Math.abs(el.scrollLeft-next)>1)el.scrollLeft=next;
+  const targetCanvas=el.matches('.bars-viewport')?el.querySelector('.bars'):el.querySelector('.clip-canvas');
+  const targetContent=Math.max(1,targetCanvas?.scrollWidth||targetCanvas?.getBoundingClientRect().width||el.scrollWidth);
+  const targetMax=Math.max(0,targetContent-el.clientWidth);
+  const next=targetMax*fraction;
+  if(Math.abs(el.scrollLeft-next)>0.5)el.scrollLeft=next;
  });
  timelineScrollSync=false;
 }
@@ -2153,33 +2180,94 @@ function runTimeSelectionCommand(command){
 }
 function setTimelineZoom(next,anchorX){
  const old=timelineZoom;
- const viewport=document.querySelector('.bars-viewport');
- const scroll=viewport?.scrollLeft||0;
- const oldWidth=viewport?Math.max(1,viewport.querySelector('.bars')?.getBoundingClientRect().width||viewport.scrollWidth):1;
- const anchor=Number.isFinite(anchorX)?Math.max(0,Math.min(viewport?.clientWidth||0,anchorX)):(viewport?.clientWidth||0)/2;
- const anchorTime=Math.max(0,Math.min(1,(scroll+anchor)/oldWidth));
- timelineZoom=Math.max(.25,Math.min(16,Number(next)||1));
- if(Math.abs(timelineZoom-old)<.0001)return;
+ const ruler=document.querySelector('#timelineScreen .bars-viewport');
+ const rulerCanvas=ruler?.querySelector('.bars');
+ const oldContentWidth=Math.max(1,rulerCanvas?.scrollWidth||rulerCanvas?.getBoundingClientRect().width||ruler?.scrollWidth||1);
+ const anchor=Number.isFinite(anchorX)?Math.max(0,Math.min(ruler?.clientWidth||0,anchorX)):(ruler?.clientWidth||0)/2;
+ const anchorTime=Math.max(0,Math.min(1,((ruler?.scrollLeft||0)+anchor)/oldContentWidth));
+ const zoom=Math.max(.25,Math.min(16,Number(next)||1));
+ if(Math.abs(zoom-old)<.0001)return;
+ timelineZoom=zoom;
  $('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);
- const rulerCanvas=document.querySelector('#timelineScreen .bars');
- if(rulerCanvas){rulerCanvas.style.width=(timelineZoom*100)+'%';rulerCanvas.style.minWidth='100%';}
  renderTracks();
- const ruler=document.querySelector('.bars-viewport');
- if(ruler){
-  const newWidth=Math.max(1,ruler.querySelector('.bars')?.getBoundingClientRect().width||ruler.scrollWidth);
-  const newRange=Math.max(0,ruler.scrollWidth-ruler.clientWidth);
-  ruler.scrollLeft=Math.max(0,Math.min(newRange,anchorTime*newWidth-anchor));
-  syncTimelineScroll(ruler);
- }
- updateTimelineTools();
+ requestAnimationFrame(()=>{
+  const newCanvas=ruler?.querySelector('.bars');
+  if(ruler&&newCanvas){
+   const newContentWidth=Math.max(1,newCanvas.scrollWidth,newCanvas.getBoundingClientRect().width);
+   const maxScroll=Math.max(0,ruler.scrollWidth-ruler.clientWidth);
+   ruler.scrollLeft=Math.max(0,Math.min(maxScroll,anchorTime*newContentWidth-anchor));
+   syncTimelineScroll(ruler);
+  }
+  updateTimelineTools();
+ });
 }
-$('timelineScreen').addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const r=document.querySelector('.bars-viewport')?.getBoundingClientRect();setTimelineZoom(timelineZoom*(e.deltaY<0?1.1:.9),r?e.clientX-r.left:undefined)},{passive:false});
+$('timelineScreen').addEventListener('wheel',e=>{
+ if(e.ctrlKey||e.metaKey){
+  e.preventDefault();
+  const r=document.querySelector('.bars-viewport')?.getBoundingClientRect();
+  setTimelineZoom(timelineZoom*(e.deltaY<0?1.1:.9),r?e.clientX-r.left:undefined);
+ }
+},{passive:false});
 let timelinePinchStart=null;
 const timelineArea=document.querySelector('#timelineScreen .timeline-work-area');
-timelineArea?.addEventListener('touchstart',e=>{if(e.touches.length!==2){timelinePinchStart=null;return}const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;clipGesture=null;timelinePinchStart={distance:Math.max(1,Math.hypot(dx,dy)),zoom:timelineZoom,anchorX:(e.touches[0].clientX+e.touches[1].clientX)/2}},{passive:true});
-timelineArea?.addEventListener('touchmove',e=>{if(e.touches.length!==2||!timelinePinchStart)return;e.preventDefault();const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY,dist=Math.max(1,Math.hypot(dx,dy)),r=document.querySelector('.bars-viewport')?.getBoundingClientRect(),center=(e.touches[0].clientX+e.touches[1].clientX)/2;setTimelineZoom(timelinePinchStart.zoom*dist/timelinePinchStart.distance,r?center-r.left:undefined)},{passive:false});
-timelineArea?.addEventListener('touchend',e=>{if(e.touches.length<2)timelinePinchStart=null},{passive:true});
-timelineArea?.addEventListener('touchcancel',()=>{timelinePinchStart=null},{passive:true});
+function pinchMetrics(touches){
+ const dx=touches[0].clientX-touches[1].clientX;
+ const dy=touches[0].clientY-touches[1].clientY;
+ return {distance:Math.max(1,Math.hypot(dx,dy)),centerX:(touches[0].clientX+touches[1].clientX)/2};
+}
+// Use a document-level capture listener: Android WebView can retarget TouchEvents
+// to a child clip/button, which meant a listener on timeline-work-area missed the pinch.
+document.addEventListener('touchstart',e=>{
+ if(!e.target.closest('#timelineScreen .timeline-work-area')||e.touches.length!==2){
+  if(e.touches.length<2)timelinePinchStart=null;
+  return;
+ }
+ const m=pinchMetrics(e.touches);
+ timelinePinchStart={distance:m.distance,zoom:timelineZoom,centerX:m.centerX};
+ clipGesture=null;
+ pendingLanePress=null;
+},{capture:true,passive:true});
+document.addEventListener('touchmove',e=>{
+ if(!timelinePinchStart||e.touches.length!==2)return;
+ if(!e.target.closest('#timelineScreen .timeline-work-area'))return;
+ e.preventDefault();
+ const m=pinchMetrics(e.touches);
+ const ruler=document.querySelector('#timelineScreen .bars-viewport');
+ const rect=ruler?.getBoundingClientRect();
+ const anchorX=rect?m.centerX-rect.left:undefined;
+ setTimelineZoom(timelinePinchStart.zoom*m.distance/timelinePinchStart.distance,anchorX);
+},{capture:true,passive:false});
+const clearTimelinePinch=()=>{timelinePinchStart=null};
+document.addEventListener('touchend',e=>{if(e.touches.length<2)clearTimelinePinch()},{capture:true,passive:true});
+document.addEventListener('touchcancel',clearTimelinePinch,{capture:true,passive:true});
+// Native Android/WebView pinch can emit pointer events without stable TouchEvents.
+// Track two active pointers and prevent default browser zoom only on the Playlist.
+const timelinePointers=new Map();
+document.addEventListener('pointerdown',e=>{
+ if(!e.target.closest('#timelineScreen .timeline-work-area'))return;
+ timelinePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(timelinePointers.size===2){
+  const p=[...timelinePointers.values()];
+  const dx=p[0].x-p[1].x,dy=p[0].y-p[1].y;
+  timelinePinchStart={distance:Math.max(1,Math.hypot(dx,dy)),zoom:timelineZoom,centerX:(p[0].x+p[1].x)/2,pointerMode:true};
+  clipGesture=null;
+  pendingLanePress=null;
+ }
+},{capture:true,passive:true});
+document.addEventListener('pointermove',e=>{
+ if(!timelinePointers.has(e.pointerId))return;
+ timelinePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(timelinePointers.size!==2||!timelinePinchStart?.pointerMode)return;
+ e.preventDefault();
+ const p=[...timelinePointers.values()];
+ const dx=p[0].x-p[1].x,dy=p[0].y-p[1].y,dist=Math.max(1,Math.hypot(dx,dy));
+ const center=(p[0].x+p[1].x)/2,rect=document.querySelector('.bars-viewport')?.getBoundingClientRect();
+ setTimelineZoom(timelinePinchStart.zoom*dist/timelinePinchStart.distance,rect?center-rect.left:undefined);
+},{capture:true,passive:false});
+const clearTimelinePointer=e=>{timelinePointers.delete(e.pointerId);if(timelinePointers.size<2)clearTimelinePinch()};
+document.addEventListener('pointerup',clearTimelinePointer,{capture:true,passive:true});
+document.addEventListener('pointercancel',clearTimelinePointer,{capture:true,passive:true});
+document.addEventListener('lostpointercapture',clearTimelinePointer,{capture:true,passive:true});
 $('timelineTools').addEventListener('click',e=>{
  const b=e.target.closest('[data-timeline-tool]');if(!b)return;const tool=b.dataset.timelineTool;
  lastClipTap={id:null,time:0};
