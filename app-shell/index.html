@@ -2338,19 +2338,21 @@ function applyActiveClipGestureFrame(){
  const g=clipGesture;if(!g||!g.moved)return;
  const scale=Math.max(1,timelinePixelsPerBar());
  const scrollDelta=(g.viewport?.scrollLeft||0)-(g.startScrollLeft||0);
- const rawDelta=((g.lastX-g.startX)+(g.mode==='move'?scrollDelta:0))/scale;
+ const rawDelta=((g.lastX-g.startX)+((g.mode==='move'||g.mode==='resize')?scrollDelta:0))/scale;
  const sourceTrack=project.tracks[g.originTrackIndex],item=sourceTrack?.clips.find(c=>c.id===g.clipId);if(!item)return;
  if(g.mode==='resize'){
   const proposed=g.originDuration+rawDelta;
   item.duration=Math.max(.25,Math.min(MAX_BARS-item.start,snapEnabled&&!g.altKey?Math.round(proposed/snapStep)*snapStep:proposed));
   g.target.style.left=(item.start*scale)+'px';g.target.style.width=(item.duration*scale)+'px';
+  const desired=timelineContentWidth();
+  if(g.viewport&&desired>g.viewport.scrollWidth+1){const anchor=g.viewport.scrollLeft;applyTimelineGeometry();g.viewport.scrollLeft=anchor;syncTimelineScroll(g.viewport)}
   return;
  }
  const proposed=g.originStart+rawDelta;
  item.start=Math.max(0,Math.min(MAX_BARS-item.duration,snapEnabled&&!g.altKey?Math.round(proposed/snapStep)*snapStep:proposed));
- const hit=document.elementFromPoint(g.lastX,g.lastY);
- const lane=hit?.closest('#timelineScreen .trackrow');
- const targetIndex=lane?Number(lane.querySelector('.cliparea')?.dataset.track):g.originTrackIndex;
+ const rows=[...document.querySelectorAll('#tracks .trackrow')];
+ const lane=rows.find(row=>{const rect=row.getBoundingClientRect();return g.lastY>=rect.top&&g.lastY<rect.bottom});
+ const targetIndex=lane?rows.indexOf(lane):g.originTrackIndex;
  g.targetTrackIndex=Number.isInteger(targetIndex)&&targetIndex>=0&&targetIndex<project.tracks.length?targetIndex:g.originTrackIndex;
  const sourceRow=g.target.closest('.trackrow'),targetRow=document.querySelector('#tracks .trackrow:nth-child('+(g.targetTrackIndex+1)+')');
  if(sourceRow&&targetRow&&g.targetTrackIndex!==g.originTrackIndex){
@@ -2373,7 +2375,7 @@ function applyActiveClipGestureFrame(){
 let clipAutoScrollFrame=0;
 function runClipAutoScroll(){
  const g=clipGesture;
- if(!g||!g.moved||g.mode!=='move'||!g.edgeDirection){clipAutoScrollFrame=0;return}
+ if(!g||!g.moved||(g.mode!=='move'&&g.mode!=='resize')||!g.edgeDirection{clipAutoScrollFrame=0;return}
  const viewport=g.viewport;if(!viewport){clipAutoScrollFrame=0;return}
  const delta=g.edgeDirection*Math.max(2,Math.min(16,2+g.edgeDistance*.2));
  const before=viewport.scrollLeft;
@@ -2396,7 +2398,7 @@ $('tracks').addEventListener('pointermove',e=>{
  if(Math.hypot(e.clientX-g.startX,e.clientY-g.startY)<5&&!g.moved)return;
  g.moved=true;e.preventDefault();
  const viewport=g.viewport,rect=viewport?.getBoundingClientRect();
- if(rect&&g.mode==='move'){
+ if(rect&&(g.mode==='move'||g.mode==='resize')){
   if(e.clientX>rect.right-80){g.edgeDirection=1;g.edgeDistance=Math.max(0,e.clientX-(rect.right-80))}
   else if(e.clientX<rect.left+24){g.edgeDirection=-1;g.edgeDistance=Math.max(0,(rect.left+24)-e.clientX)}
   else {g.edgeDirection=0;g.edgeDistance=0}
