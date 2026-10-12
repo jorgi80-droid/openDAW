@@ -1212,6 +1212,22 @@ html[data-theme="light"] .clip{color:#152130!important}
   .dock button{flex-basis:27px!important;width:27px!important;min-width:27px!important;max-width:27px!important;height:27px!important;min-height:27px!important}
   .dock button .workspace-dock-symbol{width:15px!important;height:15px!important;flex-basis:15px!important}
  }
+
+ /* Keep the actual workspace bounds outside the fixed right-side workspace dock.
+    Padding alone leaves the workspace's bounding box underneath the dock. */
+ #workspace{
+  width:calc(100% - 43px)!important;
+  margin-right:43px!important;
+  padding-right:4px!important;
+  box-sizing:border-box!important;
+ }
+ @media (orientation:landscape) and (max-height:520px){
+  #workspace{
+   width:calc(100% - 39px)!important;
+   margin-right:39px!important;
+   padding-right:4px!important;
+  }
+ }
  </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
