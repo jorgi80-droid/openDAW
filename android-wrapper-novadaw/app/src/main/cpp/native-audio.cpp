@@ -87,7 +87,7 @@ public:
         __android_log_print(ANDROID_LOG_WARN, "StudioWaveOboe", "Audio stream error: %d", static_cast<int>(error));
     }
 private:
-    oboe::ManagedStream stream_;
+    std::shared_ptr<oboe::AudioStream> stream_;
     std::mutex streamMutex_;
     std::array<Voice, kVoices> voices_{};
 };
