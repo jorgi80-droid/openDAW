@@ -1577,14 +1577,14 @@ function renderRangeSelection(){
  const overlay=document.createElement('div');overlay.className='selection-overlay';
  overlay.style.position='absolute';overlay.style.left='0';overlay.style.right='0';overlay.style.top='0';overlay.style.bottom='0';overlay.style.pointerEvents='none';overlay.style.zIndex='8';
  const marker=document.createElement('div');marker.className='time-selection';
- marker.style.left=(range.start/MAX_BARS*100)+'%';marker.style.width=((range.end-range.start)/MAX_BARS*100)+'%';
+ marker.style.left=(range.start*timelinePixelsPerBar())+'px';marker.style.width=((range.end-range.start)*timelinePixelsPerBar())+'px';
  overlay.appendChild(marker);ruler.style.position='relative';ruler.appendChild(overlay);
 }
 function barAtClientX(clientX,viewport){
  const rect=viewport.getBoundingClientRect();
  const zoomWidth=Math.max(1,viewport.querySelector('.bars')?.getBoundingClientRect().width||viewport.scrollWidth);
  const x=Math.max(0,Math.min(zoomWidth,viewport.scrollLeft+clientX-rect.left));
- return clampBar(x/zoomWidth*MAX_BARS);
+ return Math.max(0,Math.min(MAX_BARS,x/Math.max(1,timelinePixelsPerBar())));
 }
 function beginRangeSelection(event){
  if(timelineTool!=='range'||event.button!==0)return;
@@ -1758,7 +1758,7 @@ function renderTracks(){
   area.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget),{passive:true});
   const canvas=document.createElement('div');canvas.className='clip-canvas';canvas.style.width=(timelineZoom*100)+'%';canvas.style.backgroundImage='linear-gradient(to right,#344657 1px,transparent 1px),linear-gradient(to right,#243341 1px,transparent 1px),linear-gradient(to right,#192631 1px,transparent 1px)';canvas.style.backgroundSize=(100/32)+'% 100%, '+(100/128)+'% 100%, '+(100/512)+'% 100%';
   t.clips.forEach(c=>{
-   const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'')+(c.muted?' is-muted':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start/32*100)+'%';clip.style.width=(Math.min(c.duration,32-c.start)/32*100)+'%';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Resize clip"><span class="resize-grip"></span></span>';clip.dataset.clip=c.id;clip.dataset.track=index;clip.title=c.label+' · tap for actions, double tap to edit, drag to move, drag right edge to resize';canvas.appendChild(clip);
+   const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'')+(c.muted?' is-muted':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start*timelinePixelsPerBar())+'px';clip.style.width=(Math.min(c.duration,MAX_BARS-c.start)*timelinePixelsPerBar())+'px';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Resize clip"><span class="resize-grip"></span></span>';clip.dataset.clip=c.id;clip.dataset.track=index;clip.title=c.label+' · tap for actions, double tap to edit, drag to move, drag right edge to resize';canvas.appendChild(clip);
   });
   area.appendChild(canvas);row.appendChild(area);root.appendChild(row);
  });
@@ -2013,15 +2013,20 @@ function timelineScrollPeers(){
 function timelineCanvasFor(viewport){
  return viewport?.matches('.bars-viewport')?viewport.querySelector('.bars'):viewport?.querySelector('.clip-canvas');
 }
-function timelineContentWidth(){
+function timelineBaseWidth(){
  const viewport=document.querySelector('#timelineScreen .bars-viewport');
- const width=Math.max(1,viewport?.clientWidth||document.querySelector('#timelineScreen .timeline')?.clientWidth||1);
- return Math.max(1,Math.round(width*Math.max(.25,Math.min(16,timelineZoom))));
+ return Math.max(1,viewport?.clientWidth||document.querySelector('#timelineScreen .timeline')?.clientWidth||1);
+}
+function timelinePixelsPerBar(){
+ return timelineBaseWidth()/MAX_BARS*Math.max(.25,Math.min(16,timelineZoom));
+}
+function timelineContentWidth(){
+ const base=timelineBaseWidth(),zoom=Math.max(.25,Math.min(16,timelineZoom));
+ return Math.max(base,Math.round(base*zoom));
 }
 function applyTimelineGeometry(){
- const ruler=document.querySelector('#timelineScreen .bars-viewport');
- if(!ruler)return;
- const contentWidth=timelineContentWidth();
+ const ruler=document.querySelector('#timelineScreen .bars-viewport');if(!ruler)return;
+ const contentWidth=timelineContentWidth(),ppb=timelinePixelsPerBar();
  const canvases=[ruler.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
  canvases.forEach(canvas=>{
   canvas.style.setProperty('width',contentWidth+'px','important');
@@ -2031,16 +2036,33 @@ function applyTimelineGeometry(){
  });
  const bars=ruler.querySelector('.bars');
  if(bars){
+  const count=Math.max(MAX_BARS+1,Math.ceil(contentWidth/Math.max(1,ppb*4))*4+1);
   bars.style.setProperty('display','flex','important');
   bars.style.setProperty('justify-content','flex-start','important');
   bars.style.setProperty('gap','0','important');
-  const labels=[...bars.querySelectorAll('span:not(.ruler-end)')];
-  labels.forEach(label=>{
-   label.style.setProperty('flex','0 0 '+(contentWidth/8)+'px','important');
-   label.style.setProperty('width',(contentWidth/8)+'px','important');
-   label.style.setProperty('min-width',(contentWidth/8)+'px','important');
-  });
+  bars.querySelectorAll('span:not(.ruler-end)').forEach(el=>el.remove());
+  const fragment=document.createDocumentFragment();
+  for(let bar=0;bar<count;bar+=4){
+   const label=document.createElement('span');label.textContent=String(bar+1);
+   label.style.setProperty('flex','0 0 '+(ppb*4)+'px','important');
+   label.style.setProperty('width',(ppb*4)+'px','important');
+   label.style.setProperty('min-width',(ppb*4)+'px','important');
+   fragment.appendChild(label);
+  }
+  bars.insertBefore(fragment,bars.querySelector('.ruler-end'));
+  const end=bars.querySelector('.ruler-end');
+  if(end){end.textContent=String(count+1);end.style.setProperty('left','auto','important');end.style.setProperty('right','0','important')}
  }
+ document.querySelectorAll('#timelineScreen .clip-canvas').forEach(canvas=>{
+  const lane=canvas.closest('.cliparea'),index=Number(lane?.dataset.track),track=project.tracks[index];
+  if(!track)return;
+  canvas.querySelectorAll('.clip[data-clip]').forEach(el=>{
+   const clip=track.clips.find(c=>c.id===el.dataset.clip);if(!clip)return;
+   el.style.left=(clip.start*ppb)+'px';
+   el.style.width=(Math.min(clip.duration,MAX_BARS-clip.start)*ppb)+'px';
+  });
+  canvas.style.backgroundSize=(ppb*4)+'px 100%, '+ppb+'px 100%, '+(ppb/4)+'px 100%';
+ });
  return contentWidth;
 }
 function syncTimelineScroll(source){
