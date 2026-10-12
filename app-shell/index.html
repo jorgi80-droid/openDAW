@@ -1433,6 +1433,148 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 #timelineScreen.timeline-pinch-active,
 #timelineScreen.timeline-pinch-active * { user-select:none!important;-webkit-user-select:none!important; }
 #timelineScreen.timeline-pinch-active .clip { pointer-events:none!important; }
+
+/* Final mobile polish: compact floating controls and precise zoom increments. */
+#timelineScreen .timeline-work-area{
+  gap:8px!important;
+  padding-right:2px!important;
+}
+#timelineScreen .timeline-tool-rail{
+  flex:0 0 42px!important;
+  width:42px!important;
+  min-width:42px!important;
+  max-width:42px!important;
+  height:fit-content!important;
+  max-height:calc(100% - 18px)!important;
+  align-self:center!important;
+  justify-content:flex-start!important;
+  gap:5px!important;
+  padding:6px 4px!important;
+  border:1px solid #304355!important;
+  border-radius:14px!important;
+  background:rgba(13,22,32,.96)!important;
+  box-shadow:0 6px 20px rgba(0,0,0,.32)!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  scrollbar-width:none!important;
+  z-index:12!important;
+}
+#timelineScreen .timeline-tool-rail button{
+  flex:0 0 32px!important;
+  width:32px!important;
+  min-width:32px!important;
+  max-width:32px!important;
+  height:32px!important;
+  min-height:32px!important;
+  max-height:32px!important;
+  padding:4px!important;
+  border-radius:9px!important;
+}
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-in"],
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-out"],
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-fit"]{
+  flex-basis:34px!important;
+  min-height:34px!important;
+  height:34px!important;
+}
+#timelineScreen .timeline-tool-rail .zoom-label{
+  flex:0 0 auto!important;
+  width:100%!important;
+  max-width:none!important;
+  min-height:12px!important;
+  padding:0!important;
+  font-size:10px!important;
+  line-height:1.1!important;
+  text-align:center!important;
+  color:#b8cbe0!important;
+}
+#timelineScreen .timeline-tool-rail .tool-separator{
+  width:24px!important;
+  margin:1px 0!important;
+  flex:0 0 1px!important;
+}
+#timelineScreen .timeline-tool-rail svg{
+  width:18px!important;
+  height:18px!important;
+}
+#timelineScreen .timeline-tool-rail button.active{
+  box-shadow:0 0 0 1px rgba(57,157,255,.15),0 3px 10px rgba(0,0,0,.18)!important;
+}
+#timelineScreen .timeline-tool-rail button:active,
+.dock button:active{
+  transform:scale(.96);
+}
+.dock{
+  position:fixed!important;
+  z-index:45!important;
+  top:50%!important;
+  right:max(8px,env(safe-area-inset-right))!important;
+  bottom:auto!important;
+  left:auto!important;
+  transform:translateY(-50%)!important;
+  width:48px!important;
+  min-width:48px!important;
+  max-width:48px!important;
+  max-height:calc(100dvh - 28px)!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:5px!important;
+  padding:6px!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  border:1px solid #304355!important;
+  border-radius:15px!important;
+  background:rgba(13,20,29,.97)!important;
+  box-shadow:0 8px 24px rgba(0,0,0,.34)!important;
+  scrollbar-width:none!important;
+}
+.dock::-webkit-scrollbar{display:none!important}
+.dock button{
+  flex:0 0 36px!important;
+  width:36px!important;
+  min-width:36px!important;
+  max-width:36px!important;
+  height:36px!important;
+  min-height:36px!important;
+  max-height:36px!important;
+  padding:4px!important;
+  gap:0!important;
+  border-radius:10px!important;
+  font-size:0!important;
+  line-height:0!important;
+  overflow:hidden!important;
+}
+.dock button .workspace-dock-symbol{
+  display:block!important;
+  flex:0 0 20px!important;
+  width:20px!important;
+  height:20px!important;
+}
+.dock button.active{
+  background:#123153!important;
+  border-color:#1687ff!important;
+  color:#7ac4ff!important;
+  box-shadow:inset 0 0 0 1px rgba(80,175,255,.16)!important;
+}
+#timelineScreen .trackrow{
+  width:100%!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+#timelineScreen .cliparea{
+  min-width:0!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+@media(max-height:480px){
+  #timelineScreen .timeline-tool-rail{max-height:calc(100% - 8px)!important;gap:3px!important;padding:4px 3px!important}
+  #timelineScreen .timeline-tool-rail button{flex-basis:28px!important;height:28px!important;min-height:28px!important}
+  .dock{max-height:calc(100dvh - 12px)!important;gap:3px!important;padding:4px!important}
+  .dock button{flex-basis:31px!important;height:31px!important;min-height:31px!important}
+}
+
 </style>
 </head>
 <body>
@@ -2623,8 +2765,8 @@ $('timelineTools').addEventListener('click',e=>{
  }
  else if(tool==='cut'){timelineTool='cut';notify('Mode Split: ketuk titik clip untuk memisahkannya')}
  else if(tool==='snap'){snapEnabled=!snapEnabled;notify(snapEnabled?'Snap grid aktif':'Snap grid nonaktif')}
- else if(tool==='zoom-in'){setTimelineZoom(timelineZoom*1.25);return}
- else if(tool==='zoom-out'){setTimelineZoom(timelineZoom/1.25);return}
+ else if(tool==='zoom-in'){setTimelineZoom(timelineZoom*1.15);return}
+ else if(tool==='zoom-out'){setTimelineZoom(timelineZoom/1.15);return}
  else if(tool==='zoom-fit'){
   setTimelineZoom(1,0);
   requestAnimationFrame(()=>{const r=document.querySelector('#timelineScreen .bars-viewport');if(r){r.scrollLeft=0;syncTimelineScroll(r)}});
