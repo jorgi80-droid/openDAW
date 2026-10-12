@@ -36,6 +36,26 @@ jobs:
           cp -R melvox-source/. app-shell/melvox/
           sed -i "/import { startLicenseGuard } from '.\/license';/d" app-shell/melvox/src/main.ts
           sed -i "/startLicenseGuard();/d" app-shell/melvox/src/main.ts
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("app-shell/melvox/src/main.ts")
+          text = p.read_text()
+          start = text.index("setPianoRollPreviewHandler({")
+          end = text.index("\\n});", start) + 4
+          block = text[start:end]
+          block = block.replace(
+              "  on(m) {\\n",
+              "  on(m) {\\n    if (window.parent !== window) { window.parent.postMessage({source: 'studiowave-melvox-audio', type: 'note', midi: m, velocity: 0.72}, '*'); return; }\\n",
+              1
+          )
+          block = block.replace(
+              "  off(m) {\\n",
+              "  off(m) {\\n    if (window.parent !== window) { window.parent.postMessage({source: 'studiowave-melvox-audio', type: 'noteOff', midi: m}, '*'); return; }\\n",
+              1
+          )
+          text = text[:start] + block + text[end:]
+          p.write_text(text)
+          PY
           npm --prefix app-shell/melvox ci
           npm --prefix app-shell/melvox run build -- --base=./
           test -f app-shell/melvox/dist/index.html
