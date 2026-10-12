@@ -858,7 +858,7 @@ function renderPiano(){
  const names=['C6','B5','A#5','A5','G#5','G5','F#5','F5','E5','D#5','D5','C#5','C5','B4','A#4','A4','G#4','G4','F#4','F4','E4','D#4','D4','C#4','C4'];
  const rows=names.length;keys.style.gridTemplateRows='repeat('+rows+',minmax(0,1fr))';
  names.forEach((name,i)=>{const span=document.createElement('span');span.textContent=name;span.dataset.pianoRow=i;if(name.includes('#'))span.classList.add('black-note-name');keys.appendChild(span)});
- const rulerWidth=Math.max(480,Math.max(grid.clientWidth,window.innerWidth-80)*pianoZoom);ruler.style.width=rulerWidth+'px';for(let bar=1;bar<=8;bar++){const label=document.createElement('span');label.textContent=String(bar);ruler.appendChild(label)}
+ const rulerWidth=Math.max(480,Math.max(grid.clientWidth,window.innerWidth-80)*pianoZoom);ruler.style.width=rulerWidth+'px';const barWidth=Math.max(60,Math.round(rulerWidth/8));ruler.style.setProperty('--piano-bar-width',barWidth+'px');for(let bar=1;bar<=Math.max(8,Math.ceil(rulerWidth/barWidth));bar++){const label=document.createElement('span');label.textContent=String(bar);label.style.flex='0 0 '+barWidth+'px';label.style.minWidth=barWidth+'px';ruler.appendChild(label)}
  const layer=document.createElement('div');layer.className='note-layer';layer.setAttribute('aria-label','MIDI note lane');layer.style.width=rulerWidth+'px';layer.style.minWidth='480px';
  project.notes.forEach((n,i)=>{
   const row=Math.max(0,Math.min(rows-1,Number(n.row)||0));
@@ -870,7 +870,7 @@ function renderPiano(){
   layer.appendChild(note);
  });
  grid.appendChild(layer);
- project.notes.forEach((n,i)=>{const s=document.createElement('span');s.style.height=Math.max(4,Math.min(127,Number(n.velocity)||80))/127*100+'%';s.title='Velocity '+(n.velocity||80);s.dataset.velocityIndex=i;vel.appendChild(s)})
+ project.notes.forEach((n,i)=>{const s=document.createElement('span');const velocity=Math.max(1,Math.min(127,Number(n.velocity)||80));s.style.height=(velocity/127*100)+'%';s.style.setProperty('--velocity-value',(velocity/127*100)+'%');s.title='Velocity '+velocity;s.dataset.velocityIndex=i;vel.appendChild(s)})
 }
 const deviceCatalog={
  Instrument:[
@@ -916,7 +916,7 @@ function renderDevices(cat=selectedDeviceCategory){
  document.querySelectorAll('#devTabs button').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat));
  syncRackView();
  const selected=items.find(x=>x.name===rack[key])||items[0];
- const picker=document.createElement('aside');picker.className='device-picker';
+ const picker=document.createElement('aside');picker.className='device-picker';picker.setAttribute('aria-label','Track Rack '+track.name);
  picker.innerHTML='<div class="device-picker-heading">TRACK RACK · '+esc(track.name.toUpperCase())+'</div><div class="device-options"></div>';
  const options=picker.querySelector('.device-options');
  items.forEach(item=>{const b=document.createElement('button');b.className='device-option'+(item.name===selected.name?' active':'');b.dataset.deviceSelect=item.name;b.innerHTML='<span class="device-option-name">'+esc(item.name)+'</span><span class="device-option-type">'+esc(item.type)+'</span>';options.appendChild(b)});
@@ -1086,7 +1086,7 @@ function updateVelocityFromPointer(e){
  const y=Math.max(r.top,Math.min(r.bottom,e.clientY));
  const velocity=Math.max(1,Math.min(127,Math.round((r.bottom-y)/Math.max(1,r.height)*127)));
  note.velocity=velocity;selectedNote=idx;
- const bar=bars[idx];if(bar){bar.style.height=(velocity/127*100)+'%';bar.title='Velocity '+velocity;bar.dataset.velocity=String(velocity)}
+ const bar=bars[idx];if(bar){bar.style.height=(velocity/127*100)+'%';bar.style.setProperty('--velocity-value',(velocity/127*100)+'%');bar.title='Velocity '+velocity;bar.dataset.velocity=String(velocity)}
 }
 $('velocity').addEventListener('pointerdown',e=>{
  if(e.button!==undefined&&e.button!==0)return;
