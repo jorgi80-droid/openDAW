@@ -1180,6 +1180,15 @@ html[data-theme="light"] .clip{color:#152130!important}
 #timelineTools .tool-separator{flex:0 0 1px}
 @media(max-height:480px){.app{grid-template-rows:38px 28px 27px minmax(0,1fr) 38px!important}}
 
+
+/* One pixel-based time scale shared by the ruler and every Playlist lane. */
+#timelineScreen .timeline-work-area{touch-action:none!important;overscroll-behavior:contain!important}
+#timelineScreen .bars-viewport,#timelineScreen .cliparea{min-width:0!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;overscroll-behavior-x:contain!important;scrollbar-width:none!important}
+#timelineScreen .bars-viewport::-webkit-scrollbar,#timelineScreen .cliparea::-webkit-scrollbar{display:none!important}
+#timelineScreen .bars,#timelineScreen .clip-canvas{min-width:0!important;max-width:none!important;box-sizing:border-box!important}
+#timelineScreen .bars{justify-content:flex-start!important;gap:0!important}
+#timelineScreen .clip{touch-action:none!important}
+#timelineScreen.timeline-pinch-active{user-select:none!important;-webkit-user-select:none!important}
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -1573,6 +1582,7 @@ function renderTracks(){
   });
   area.appendChild(canvas);row.appendChild(area);root.appendChild(row);
  });
+ applyTimelineGeometry();
  renderRangeSelection();
 }
 function renderMixer(){
@@ -1814,23 +1824,49 @@ function timelineScrollPeers(){
  const peers=[...document.querySelectorAll('#timelineScreen [data-timeline-scroll]')];
  return peers;
 }
+function timelineCanvasFor(viewport){
+ return viewport?.matches('.bars-viewport')?viewport.querySelector('.bars'):viewport?.querySelector('.clip-canvas');
+}
+function timelineContentWidth(){
+ const viewport=document.querySelector('#timelineScreen .bars-viewport');
+ const width=Math.max(1,viewport?.clientWidth||document.querySelector('#timelineScreen .timeline')?.clientWidth||1);
+ return Math.max(1,Math.round(width*Math.max(.25,Math.min(16,timelineZoom))));
+}
+function applyTimelineGeometry(){
+ const ruler=document.querySelector('#timelineScreen .bars-viewport');
+ if(!ruler)return;
+ const contentWidth=timelineContentWidth();
+ const canvases=[ruler.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+ canvases.forEach(canvas=>{
+  canvas.style.setProperty('width',contentWidth+'px','important');
+  canvas.style.setProperty('min-width',contentWidth+'px','important');
+  canvas.style.setProperty('max-width','none','important');
+  canvas.style.setProperty('box-sizing','border-box','important');
+ });
+ const bars=ruler.querySelector('.bars');
+ if(bars){
+  bars.style.setProperty('display','flex','important');
+  bars.style.setProperty('justify-content','flex-start','important');
+  bars.style.setProperty('gap','0','important');
+  const labels=[...bars.querySelectorAll('span:not(.ruler-end)')];
+  labels.forEach(label=>{
+   label.style.setProperty('flex','0 0 '+(contentWidth/8)+'px','important');
+   label.style.setProperty('width',(contentWidth/8)+'px','important');
+   label.style.setProperty('min-width',(contentWidth/8)+'px','important');
+  });
+ }
+ return contentWidth;
+}
 function syncTimelineScroll(source){
  if(timelineScrollSync||!source)return;
  timelineScrollSync=true;
- const timeCanvas=source.matches('.bars-viewport')
-  ? source.querySelector('.bars')
-  : source.querySelector('.clip-canvas');
- const contentWidth=Math.max(1,timeCanvas?.scrollWidth||timeCanvas?.getBoundingClientRect().width||source.scrollWidth);
- const visibleWidth=Math.max(1,source.clientWidth);
- const timeOffset=Math.max(0,source.scrollLeft);
- const fraction=Math.max(0,Math.min(1,timeOffset/Math.max(1,contentWidth-visibleWidth)));
+ const offset=Math.max(0,source.scrollLeft||0);
  timelineScrollPeers().forEach(el=>{
   if(el===source)return;
-  const targetCanvas=el.matches('.bars-viewport')?el.querySelector('.bars'):el.querySelector('.clip-canvas');
-  const targetContent=Math.max(1,targetCanvas?.scrollWidth||targetCanvas?.getBoundingClientRect().width||el.scrollWidth);
-  const targetMax=Math.max(0,targetContent-el.clientWidth);
-  const next=targetMax*fraction;
-  if(Math.abs(el.scrollLeft-next)>0.5)el.scrollLeft=next;
+  const canvas=timelineCanvasFor(el);
+  const content=Math.max(el.clientWidth,canvas?.scrollWidth||canvas?.getBoundingClientRect().width||el.clientWidth);
+  const next=Math.max(0,Math.min(content-el.clientWidth,offset));
+  if(Math.abs((el.scrollLeft||0)-next)>.5)el.scrollLeft=next;
  });
  timelineScrollSync=false;
 }
@@ -2179,25 +2215,21 @@ function runTimeSelectionCommand(command){
  if(command==='trim-selection'){applyRangeOperation('trim');return}
 }
 function setTimelineZoom(next,anchorX){
- const old=timelineZoom;
  const ruler=document.querySelector('#timelineScreen .bars-viewport');
- const rulerCanvas=ruler?.querySelector('.bars');
- const oldContentWidth=Math.max(1,rulerCanvas?.scrollWidth||rulerCanvas?.getBoundingClientRect().width||ruler?.scrollWidth||1);
- const anchor=Number.isFinite(anchorX)?Math.max(0,Math.min(ruler?.clientWidth||0,anchorX)):(ruler?.clientWidth||0)/2;
- const anchorTime=Math.max(0,Math.min(1,((ruler?.scrollLeft||0)+anchor)/oldContentWidth));
- const zoom=Math.max(.25,Math.min(16,Number(next)||1));
- if(Math.abs(zoom-old)<.0001)return;
+ if(!ruler)return;
+ const oldZoom=timelineZoom;
+ const oldContentWidth=Math.max(1,timelineCanvasFor(ruler)?.scrollWidth||ruler.clientWidth);
+ const anchor=Number.isFinite(anchorX)?Math.max(0,Math.min(ruler.clientWidth,anchorX)):ruler.clientWidth/2;
+ const anchorTime=Math.max(0,Math.min(1,((ruler.scrollLeft||0)+anchor)/oldContentWidth));
+ const zoom=Math.max(.25,Math.min(16,Number(next)||oldZoom));
+ if(Math.abs(zoom-oldZoom)<.001)return;
  timelineZoom=zoom;
- $('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);
- renderTracks();
+ $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
+ const newContentWidth=applyTimelineGeometry()||Math.max(1,ruler.clientWidth*timelineZoom);
  requestAnimationFrame(()=>{
-  const newCanvas=ruler?.querySelector('.bars');
-  if(ruler&&newCanvas){
-   const newContentWidth=Math.max(1,newCanvas.scrollWidth,newCanvas.getBoundingClientRect().width);
-   const maxScroll=Math.max(0,ruler.scrollWidth-ruler.clientWidth);
-   ruler.scrollLeft=Math.max(0,Math.min(maxScroll,anchorTime*newContentWidth-anchor));
-   syncTimelineScroll(ruler);
-  }
+  const maxScroll=Math.max(0,newContentWidth-ruler.clientWidth);
+  ruler.scrollLeft=Math.max(0,Math.min(maxScroll,anchorTime*newContentWidth-anchor));
+  syncTimelineScroll(ruler);
   updateTimelineTools();
  });
 }
@@ -2209,65 +2241,82 @@ $('timelineScreen').addEventListener('wheel',e=>{
  }
 },{passive:false});
 let timelinePinchStart=null;
-const timelineArea=document.querySelector('#timelineScreen .timeline-work-area');
+const timelinePointers=new Map();
+let timelinePan=null;
 function pinchMetrics(touches){
- const dx=touches[0].clientX-touches[1].clientX;
- const dy=touches[0].clientY-touches[1].clientY;
+ const dx=touches[0].clientX-touches[1].clientX,dy=touches[0].clientY-touches[1].clientY;
  return {distance:Math.max(1,Math.hypot(dx,dy)),centerX:(touches[0].clientX+touches[1].clientX)/2};
 }
-// Use a document-level capture listener: Android WebView can retarget TouchEvents
-// to a child clip/button, which meant a listener on timeline-work-area missed the pinch.
-document.addEventListener('touchstart',e=>{
- if(!e.target.closest('#timelineScreen .timeline-work-area')||e.touches.length!==2){
-  if(e.touches.length<2)timelinePinchStart=null;
-  return;
- }
- const m=pinchMetrics(e.touches);
- timelinePinchStart={distance:m.distance,zoom:timelineZoom,centerX:m.centerX};
- clipGesture=null;
- pendingLanePress=null;
-},{capture:true,passive:true});
-document.addEventListener('touchmove',e=>{
- if(!timelinePinchStart||e.touches.length!==2)return;
- if(!e.target.closest('#timelineScreen .timeline-work-area'))return;
- e.preventDefault();
- const m=pinchMetrics(e.touches);
+function timelineAnchorX(centerX){
  const ruler=document.querySelector('#timelineScreen .bars-viewport');
  const rect=ruler?.getBoundingClientRect();
- const anchorX=rect?m.centerX-rect.left:undefined;
- setTimelineZoom(timelinePinchStart.zoom*m.distance/timelinePinchStart.distance,anchorX);
+ return rect?Math.max(0,Math.min(ruler.clientWidth,centerX-rect.left)):undefined;
+}
+function beginTimelinePinch(distance,centerX,mode){
+ timelinePinchStart={distance:Math.max(1,distance),zoom:timelineZoom,centerX,pointerMode:mode==='pointer'};
+ clipGesture=null;pendingLanePress=null;timelinePan=null;
+ document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-active');
+}
+function moveTimelinePinch(distance,centerX){
+ if(!timelinePinchStart)return;
+ setTimelineZoom(timelinePinchStart.zoom*Math.max(1,distance)/timelinePinchStart.distance,timelineAnchorX(centerX));
+}
+function clearTimelinePinch(){
+ timelinePinchStart=null;
+ document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active');
+}
+document.addEventListener('touchstart',e=>{
+ if(!e.target.closest('#timelineScreen .timeline-work-area'))return;
+ if(e.touches.length===2){
+  const m=pinchMetrics(e.touches);beginTimelinePinch(m.distance,m.centerX,'touch');
+ }
+},{capture:true,passive:true});
+document.addEventListener('touchmove',e=>{
+ if(!timelinePinchStart||timelinePinchStart.pointerMode||e.touches.length!==2)return;
+ if(!e.target.closest('#timelineScreen .timeline-work-area'))return;
+ e.preventDefault();
+ const m=pinchMetrics(e.touches);moveTimelinePinch(m.distance,m.centerX);
 },{capture:true,passive:false});
-const clearTimelinePinch=()=>{timelinePinchStart=null};
 document.addEventListener('touchend',e=>{if(e.touches.length<2)clearTimelinePinch()},{capture:true,passive:true});
 document.addEventListener('touchcancel',clearTimelinePinch,{capture:true,passive:true});
-// Native Android/WebView pinch can emit pointer events without stable TouchEvents.
-// Track two active pointers and prevent default browser zoom only on the Playlist.
-const timelinePointers=new Map();
 document.addEventListener('pointerdown',e=>{
- if(!e.target.closest('#timelineScreen .timeline-work-area'))return;
- timelinePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ const area=e.target.closest('#timelineScreen .timeline-work-area');
+ if(!area||e.pointerType==='mouse')return;
+ timelinePointers.set(e.pointerId,{x:e.clientX,y:e.clientY,target:e.target});
  if(timelinePointers.size===2){
   const p=[...timelinePointers.values()];
-  const dx=p[0].x-p[1].x,dy=p[0].y-p[1].y;
-  timelinePinchStart={distance:Math.max(1,Math.hypot(dx,dy)),zoom:timelineZoom,centerX:(p[0].x+p[1].x)/2,pointerMode:true};
-  clipGesture=null;
-  pendingLanePress=null;
+  beginTimelinePinch(Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),(p[0].x+p[1].x)/2,'pointer');
+  return;
+ }
+ if(timelinePointers.size===1&&!e.target.closest('.clip,button,.tracklabel,.timeline-tool-rail')&&timelineTool!=='range'&&timelineTool!=='cut'){
+  const viewport=e.target.closest('.cliparea,.bars-viewport');
+  if(viewport)timelinePan={pointerId:e.pointerId,viewport,startX:e.clientX,startScroll:viewport.scrollLeft};
  }
 },{capture:true,passive:true});
 document.addEventListener('pointermove',e=>{
- if(!timelinePointers.has(e.pointerId))return;
- timelinePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
- if(timelinePointers.size!==2||!timelinePinchStart?.pointerMode)return;
- e.preventDefault();
- const p=[...timelinePointers.values()];
- const dx=p[0].x-p[1].x,dy=p[0].y-p[1].y,dist=Math.max(1,Math.hypot(dx,dy));
- const center=(p[0].x+p[1].x)/2,rect=document.querySelector('.bars-viewport')?.getBoundingClientRect();
- setTimelineZoom(timelinePinchStart.zoom*dist/timelinePinchStart.distance,rect?center-rect.left:undefined);
+ if(timelinePointers.has(e.pointerId))timelinePointers.set(e.pointerId,{x:e.clientX,y:e.clientY,target:e.target});
+ if(timelinePointers.size===2){
+  const p=[...timelinePointers.values()];
+  if(timelinePinchStart?.pointerMode){
+   e.preventDefault();
+   moveTimelinePinch(Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y),(p[0].x+p[1].x)/2);
+  }
+  return;
+ }
+ if(timelinePan&&timelinePan.pointerId===e.pointerId){
+  const dx=e.clientX-timelinePan.startX;
+  timelinePan.viewport.scrollLeft=timelinePan.startScroll-dx;
+  e.preventDefault();
+ }
 },{capture:true,passive:false});
-const clearTimelinePointer=e=>{timelinePointers.delete(e.pointerId);if(timelinePointers.size<2)clearTimelinePinch()};
-document.addEventListener('pointerup',clearTimelinePointer,{capture:true,passive:true});
-document.addEventListener('pointercancel',clearTimelinePointer,{capture:true,passive:true});
-document.addEventListener('lostpointercapture',clearTimelinePointer,{capture:true,passive:true});
+const endTimelinePointer=e=>{
+ timelinePointers.delete(e.pointerId);
+ if(timelinePointers.size<2)clearTimelinePinch();
+ if(timelinePan?.pointerId===e.pointerId)timelinePan=null;
+};
+document.addEventListener('pointerup',endTimelinePointer,{capture:true,passive:true});
+document.addEventListener('pointercancel',endTimelinePointer,{capture:true,passive:true});
+document.addEventListener('lostpointercapture',endTimelinePointer,{capture:true,passive:true});
 $('timelineTools').addEventListener('click',e=>{
  const b=e.target.closest('[data-timeline-tool]');if(!b)return;const tool=b.dataset.timelineTool;
  lastClipTap={id:null,time:0};
@@ -2381,6 +2430,7 @@ document.addEventListener('keydown',e=>{
  else if(key==='delete'||key==='backspace'){const del=$('timelineTools').querySelector('[data-timeline-tool="delete"]');if(del&&!del.disabled){e.preventDefault();del.click()}}
 });
 renderAll();updateTimelineTools();
+window.addEventListener('resize',()=>{if(!$('timelineScreen').hidden){const r=document.querySelector('#timelineScreen .bars-viewport');const x=r?.scrollLeft||0;applyTimelineGeometry();if(r)r.scrollLeft=Math.min(x,Math.max(0,timelineContentWidth()-r.clientWidth));syncTimelineScroll(r)}},{passive:true});
 })();
 </script>
 </body>
