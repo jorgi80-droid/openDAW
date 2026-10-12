@@ -2997,7 +2997,21 @@ $('devices').addEventListener('change',e=>{if(e.target.id==='devicePresetSelect'
 let browseCat='Samples',browseFilter='All';
 $('browserTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;browseCat=b.dataset.cat;browseFilter='All';document.querySelectorAll('#browserTabs button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('#categories button').forEach(x=>x.classList.toggle('active',x.dataset.filter==='All'));renderSamples(browseCat,browseFilter)});
 $('categories').addEventListener('click',e=>{const b=e.target.closest('[data-filter]');if(!b)return;browseFilter=b.dataset.filter;document.querySelectorAll('#categories button').forEach(x=>x.classList.toggle('active',x===b));renderSamples(browseCat,browseFilter)});
-$('samples').addEventListener('click',e=>{const p=e.target.closest('[data-preview]'),a=e.target.closest('[data-addsample]');if(p){notify('Preview tidak tersedia: file audio belum dikemas')}if(a){snapshot();project.tracks[selectedTrack].clips.push({id:'c'+Date.now(),label:a.dataset.addsample,start:0,duration:8,color:project.tracks[selectedTrack].color,sourceType:browseCat});switchScreen('timeline');renderTracks();notify('Clip metadata demo ditambahkan ke '+project.tracks[selectedTrack].name+' • tidak ada suara asli')}});
+$('samples').addEventListener('click',e=>{
+ const preview=e.target.closest('[data-preview]'),add=e.target.closest('[data-addsample]');
+ if(preview){
+  const item=(browserItems[browseCat]||[]).find(x=>x.name===preview.dataset.preview);
+  if(item?.url)previewMelvoxAsset(item);else notify('Sample ini belum punya file audio');
+ }
+ if(add){
+  const item=(browserItems[browseCat]||[]).find(x=>x.name===add.dataset.addsample);
+  if(!item?.url){notify('Aset sample belum tersedia');return}
+  if(browseCat==='Samples'){
+   previewMelvoxAsset(item);
+   notify('Preview diputar: '+item.name+' · file tetap tersedia di Browser');
+  }else notify('Pilih track dan gunakan sample pada instrument rack');
+ }
+});
 $('play').addEventListener('click',()=>{playing=!playing;$('play').innerHTML=playing?'<svg class=\"workspace-dock-symbol\" viewBox=\"0 0 24 24\"><path d=\"M7 4h4v16H7zM15 4h4v16h-4z\" fill=\"currentColor\"/></svg>':'<svg class=\"workspace-dock-symbol\" viewBox=\"0 0 24 24\"><path d=\"M7 4l13 8-13 8z\" fill=\"currentColor\"/></svg>';$('audioState').textContent=playing?'Preview UI':'Demo';notify(playing?'Mode play UI aktif — engine audio belum terhubung':'Playback UI berhenti')});
 $('rewind').addEventListener('click',()=>{$('position').textContent='1:1:000';tick=0;notify('Posisi kembali ke awal')});
 $('record').addEventListener('click',()=>{recording=!recording;$('record').classList.toggle('recording',recording);$('record').setAttribute('aria-pressed',recording?'true':'false');notify(recording?'Status rekam demo aktif — input belum direkam':'Rekam dihentikan')});
