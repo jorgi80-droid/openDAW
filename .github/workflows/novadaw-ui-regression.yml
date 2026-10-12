@@ -34,6 +34,11 @@ jobs:
             ['landscape orientation is declared', fs.readFileSync('android-wrapper-novadaw/app/src/main/AndroidManifest.xml','utf8').includes('android:screenOrientation="landscape"')],
             ['immersive system UI configured', fs.readFileSync('android-wrapper-novadaw/app/src/main/java/com/novadaw/mobile/MainActivity.java','utf8').includes('SYSTEM_UI_FLAG_IMMERSIVE_STICKY')],
             ['timeline gets shrinkable workspace row', html.includes('flex:1 1 0;height:auto;min-height:0')],
+            ['Playlist zoom uses stable pixel-based timeline geometry', html.includes('function applyTimelineGeometry()') && html.includes("style.setProperty('width',contentWidth+'px','important')")],
+            ['pinch zoom no longer rebuilds clip DOM every move', !html.slice(html.indexOf('function setTimelineZoom(next,anchorX){'),html.indexOf("\\n$('timelineScreen').addEventListener('wheel'")).includes('renderTracks();')],
+            ['ruler and lanes share direct pixel scroll offsets', html.includes('const next=Math.max(0,Math.min(content-el.clientWidth,offset))')],
+            ['touch pinch prevents browser-default gesture during move', html.includes("document.addEventListener('touchmove',e=>") && html.includes("{capture:true,passive:false}")],
+            ['two-pointer pinch has fallback and pointer cleanup', html.includes('const timelinePointers=new Map();') && html.includes("document.addEventListener('pointercancel',endTimelinePointer")],
             ['browser list has independent scrolling', html.includes('#browserScreen .categories,#browserScreen .samplelist{min-height:0;overflow:auto')],
             ['piano roll uses grid and velocity layout', html.includes('id="pianogrid"') && html.includes('id="velocity"')],
           ];
