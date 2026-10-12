@@ -213,9 +213,14 @@ try {
     const velocityBar=page.locator('#velocity span').last();
     const velocityHeightBefore=await velocityBar.evaluate(el=>el.style.height);
     const velocityBox=await velocityBar.boundingBox();
-    await page.mouse.click(velocityBox.x+velocityBox.width/2,velocityBox.y+2);
+    const velocityLaneBox=await page.locator('#velocity').boundingBox();
+    const velocityX=velocityBox.x+velocityBox.width/2;
+    await page.mouse.move(velocityX,velocityBox.y+2);
+    await page.mouse.down();
+    await page.mouse.move(velocityX,velocityLaneBox.y+2,{steps:4});
+    await page.mouse.up();
     const velocityHeightAfter=await page.locator('#velocity span').last().evaluate(el=>el.style.height);
-    assert(velocityHeightAfter!==velocityHeightBefore, `Piano Roll velocity lane edits note velocity at ${viewport.width}x${viewport.height}`);
+    assert(velocityHeightAfter!==velocityHeightBefore, `dragging a Piano Roll velocity bar changes note velocity at ${viewport.width}x${viewport.height}`);
     const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid .note-layer').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
     assert(notesInside, `all Piano Roll notes remain inside note grid at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#velocity span').count() === await page.locator('#pianogrid .note').count(), `velocity lane has one editable bar per MIDI note at ${viewport.width}x${viewport.height}`);
