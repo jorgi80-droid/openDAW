@@ -38,7 +38,7 @@ try {
       return {workspace:box('#workspace'),dock:box('.dock'),timeline:box('#timelineScreen .timeline'),rowCount:document.querySelectorAll('#tracks .trackrow').length,visibleScreenCount:[...document.querySelectorAll('.screen')].filter(el=>getComputedStyle(el).display!=='none').length};
     });
     assert(dims.visibleScreenCount === 1, `one active workspace at ${viewport.width}x${viewport.height}`);
-    assert(dims.workspace.right <= dims.dock.left + 1, `workspace and right-side dock do not overlap at ${viewport.width}x${viewport.height}; workspace=${JSON.stringify(dims.workspace)}, dock=${JSON.stringify(dims.dock)}`);
+    assert(dims.workspace.right <= dims.dock.x + 1, `workspace and right-side dock do not overlap at ${viewport.width}x${viewport.height}; workspace=${JSON.stringify(dims.workspace)}, dock=${JSON.stringify(dims.dock)}`);
     assert(dims.timeline.height > 160 && dims.timeline.width > 300, `timeline has usable dimensions at ${viewport.width}x${viewport.height}`);
     assert(dims.rowCount >= 6, `all six starter tracks rendered at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#timelineTools').isVisible(), `timeline edit rail is visible at ${viewport.width}x${viewport.height}`);
