@@ -84,6 +84,17 @@ try {
     assert(await page.locator('#devices .device-editor').isVisible(), `Devices has one focused editor at ${viewport.width}x${viewport.height}`);
     const deviceKeyboardSeparated=await page.locator('#devices .device-editor').evaluate(el=>{const main=el.querySelector('.device-editor-main'),keyboard=el.querySelector('.mini-keyboard');if(!main||!keyboard)return true;return main.getBoundingClientRect().bottom<=keyboard.getBoundingClientRect().top+2;});
     assert(deviceKeyboardSeparated, `Devices editor controls and keyboard do not overlap at ${viewport.width}x${viewport.height}`);
+    const deviceEditorBounds=await page.locator('#devices .device-editor').boundingBox();
+    const deviceHeaderBounds=await page.locator('#devices .device-editor-header').boundingBox();
+    const devicePagesBounds=await page.locator('#devices .device-page-tabs').boundingBox();
+    const deviceMainBounds=await page.locator('#devices .device-editor-main').boundingBox();
+    const deviceParamsBounds=await page.locator('#devices .knob-bank').boundingBox();
+    assert(deviceEditorBounds && deviceHeaderBounds && devicePagesBounds && deviceMainBounds && deviceParamsBounds &&
+      deviceHeaderBounds.x>=deviceEditorBounds.x-1 && deviceHeaderBounds.right<=deviceEditorBounds.x+deviceEditorBounds.width+1 &&
+      devicePagesBounds.y>=deviceHeaderBounds.y+deviceHeaderBounds.height-1 &&
+      deviceMainBounds.y>=devicePagesBounds.y+devicePagesBounds.height-1 &&
+      deviceParamsBounds.x>=deviceMainBounds.x-1 && deviceParamsBounds.x+deviceParamsBounds.width<=deviceMainBounds.x+deviceMainBounds.width+1,
+      `Devices instrument/effect controls fit within the editor without horizontal clipping at ${viewport.width}x${viewport.height}`);
     const deviceLayout = await page.locator('#devices').evaluate(el => { const r=el.getBoundingClientRect(); const editor=el.querySelector('.device-editor')?.getBoundingClientRect(); const picker=el.querySelector('.device-picker')?.getBoundingClientRect(); return {height:r.height,editorHeight:editor?.height||0,pickerHeight:picker?.height||0}; });
     assert(deviceLayout.height > 130 && deviceLayout.editorHeight >= deviceLayout.height-4 && deviceLayout.pickerHeight >= deviceLayout.height-4, `Devices rack and editor fill the available panel at ${viewport.width}x${viewport.height}`);
     await page.locator('#devices .device-page-tabs button[data-device-page=\"TIME\"]').click();
