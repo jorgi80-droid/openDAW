@@ -1707,6 +1707,7 @@ function applyTrackZoom(){
  const zoom=Math.max(.5,Math.min(2.4,Number(timelineTrackZoom)||1));
  document.querySelector('#timelineScreen')?.style.setProperty('--timeline-track-zoom',String(zoom));
  const label=$('zoomVerticalLabel');if(label)label.textContent=Math.round(zoom*100)+'%';
+ try{localStorage.setItem('novadaw-timeline-track-zoom',String(zoom))}catch(_){}
 }
 function setTimelineTrackZoom(next,anchorRatio=.5){
  const root=$('tracks');if(!root)return;
@@ -2314,7 +2315,8 @@ function applyUiPrefs(){
  localStorage.setItem('novadaw-ui-prefs',JSON.stringify(uiPrefs));
 }
 function renderHomeSummary(){const node=$('homeProjectSummary');if(node)node.textContent=(project.name||'Untitled')+' · '+(Number(project.tempo)||120)+' BPM · '+project.tracks.length+' track';}
-function openSettings(){try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}applyUiPrefs();renderHomeSummary();$('settingsOverlay').hidden=false}
+function openSettings(){try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}
+try{timelineTrackZoom=Math.max(.5,Math.min(2.4,Number(localStorage.getItem('novadaw-timeline-track-zoom'))||1))}catch(_){}applyUiPrefs();renderHomeSummary();$('settingsOverlay').hidden=false}
 function closeSettings(){$('settingsOverlay').hidden=true}
 $('menu').addEventListener('click',openSettings);$('closeSettings').addEventListener('click',closeSettings);$('closeSettingsDone').addEventListener('click',closeSettings);
 $('homeSaveProject').addEventListener('click',()=>{$('settingsOverlay').hidden=true;$('save').click();});
