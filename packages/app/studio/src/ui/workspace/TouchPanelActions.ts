@@ -64,9 +64,8 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
         return
     }
 
-    // The UI renders one focused native PanelState per mobile destination.
-    // Let the shared workspace lifecycle unbind/rebind the existing panel; don't
-    // call showIfAvailable after the view has switched to a different screen.
+    // On touch devices, each tool is its own native full-screen workspace.
+    // Desktop keeps the normal split-panel show/minimize behavior above.
     const token = beginTransition(service)
     const current = service.layout.screen.getValue()
 
@@ -102,8 +101,6 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
     clearMaximized()
     const selectDestination = (): void => {
         if (!isCurrentTransition(service, token)) {return}
-        const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
-        if (browser.isVisible) {browser.toggleMinimize()}
         service.switchScreen(destination)
     }
 
