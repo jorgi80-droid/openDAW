@@ -388,10 +388,10 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 .device-track-picker{position:fixed;z-index:30;right:12px;top:72px;width:min(310px,calc(100vw - 24px));max-height:calc(100dvh - 100px);overflow:auto;background:#101720;border:1px solid #3a5268;border-radius:12px;box-shadow:0 18px 60px #000c;padding:9px}.device-track-picker-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 2px 9px}.device-track-picker-head strong{font-size:13px}.device-track-picker-head button{min-height:30px;padding:4px 9px}.device-track-picker-list{display:flex;flex-direction:column;gap:5px}.device-track-picker-list button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;min-height:40px}.device-track-picker-list button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.device-track-picker-list button small{color:var(--muted);white-space:nowrap}.device-track-picker-list button.active{border-color:var(--blue);background:#102d4c}
 
 /* Compact landscape DAW UI, adjustable scale/theme, usable piano grid. */
-:root{--ui-scale:1}
+:root{--ui-scale:1;--piano-zoom:1;--snap-step:.0625}
 html{font-size:calc(14px * var(--ui-scale))}
 body{font-size:calc(14px * var(--ui-scale))}
-.app{grid-template-rows:clamp(38px,6.2vh,48px) clamp(32px,5vh,39px) minmax(0,1fr) clamp(42px,7vh,52px)!important}
+.app{grid-template-rows:clamp(38px,6.2vh,48px) clamp(32px,5vh,39px) minmax(0,1fr) clamp(42px,7vh,52px)!important;zoom:var(--ui-scale);width:calc(100% / var(--ui-scale));height:calc(100dvh / var(--ui-scale))}
 .top{gap:5px!important;padding:3px 7px!important;min-height:0}
 .top .brand{font-size:calc(15px * var(--ui-scale));letter-spacing:-.5px}
 .top .project{gap:3px}
@@ -426,7 +426,7 @@ body{font-size:calc(14px * var(--ui-scale))}
 #timelineScreen .bars-viewport{overflow-x:auto;min-width:0}
 #timelineScreen .bars{min-width:100%;width:100%;justify-content:space-between;padding:0 12px}
 #timelineScreen .cliparea{min-width:0!important;width:100%;overflow-x:auto}
-#timelineScreen .clip-canvas{min-width:100%;width:calc(100% * var(--timeline-zoom,1));background-repeat:repeat;background-position:left top}
+#timelineScreen .clip-canvas{min-width:100%;width:calc(100% * var(--timeline-zoom,1));background-repeat:repeat;background-position:left top;background-image:linear-gradient(to right,#344657 1px,transparent 1px),linear-gradient(to right,#1b2936 1px,transparent 1px);background-size:calc(100% / 32) 100%,calc(100% / 128) 100%}
 #timelineScreen .clip{top:5px!important;height:calc(100% - 10px)!important;min-height:25px;font-size:calc(10px * var(--ui-scale));padding:3px 5px}
 #timelineScreen .clip:after{inset:15px 3px 5px}
 #timelineScreen>.addtrack{min-height:27px!important;flex-basis:29px!important;margin-top:3px!important;padding:3px 9px!important;font-size:calc(11px * var(--ui-scale))}
@@ -463,7 +463,7 @@ body{font-size:calc(14px * var(--ui-scale))}
 #devicesScreen .device-editor-actions button{min-height:26px;padding:3px 6px;font-size:10px}
 #devicesScreen .device-page-tabs{gap:3px}
 #devicesScreen .device-page-tabs button{min-height:27px;min-width:38px;padding:3px 5px;font-size:9px}
-#devicesScreen .device-editor-main{grid-template-columns:minmax(85px,.45fr) minmax(0,1.55fr);gap:5px;flex:1 0 auto}
+#devicesScreen .device-editor-main{grid-template-columns:minmax(85px,.45fr) minmax(0,1.55fr);gap:5px;flex:1 1 auto;min-height:0}
 #devicesScreen .device-scope{padding:5px;gap:3px}
 #devicesScreen .device-scope-label{font-size:8px}
 #devicesScreen .device-scope svg{height:clamp(35px,6vh,58px);flex:0 0 auto}
@@ -476,7 +476,7 @@ body{font-size:calc(14px * var(--ui-scale))}
 #devicesScreen .knob-head output{font-size:10px}
 #devicesScreen .knob-dial{width:clamp(27px,3.7vw,38px);height:clamp(27px,3.7vw,38px);border-width:4px}
 #devicesScreen .knob-control input{height:14px;touch-action:pan-x}
-#devicesScreen .mini-keyboard{height:clamp(26px,4.4vh,36px)}
+#devicesScreen .mini-keyboard{height:clamp(26px,4.4vh,36px);flex:0 0 clamp(26px,4.4vh,36px);position:relative;z-index:0;isolation:isolate}
 #devicesScreen .preset-detail{grid-template-columns:minmax(0,1fr) minmax(90px,.65fr);gap:6px}
 #devicesScreen .preset-meta{padding:6px;gap:5px;font-size:10px}
 #devicesScreen .preset-art{padding:5px;min-height:40px}
@@ -571,7 +571,7 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
 #pianoScreen .keys span.black-note-name{background:#182432;color:#88a0b8}
 #pianoScreen .pianogrid{grid-column:2;grid-row:2;overflow:auto!important;overscroll-behavior:contain;scrollbar-width:none;touch-action:pan-x pan-y}
 #pianoScreen .pianogrid::-webkit-scrollbar,#pianoScreen .piano-ruler::-webkit-scrollbar,#pianoScreen .keys::-webkit-scrollbar{display:none}
-#pianoScreen .note-layer{min-width:960px;width:100%;min-height:300px;background-color:#0b1219;background-image:repeating-linear-gradient(to right,transparent 0 calc(3.125% - 1px),#344353 calc(3.125% - 1px) 3.125%),repeating-linear-gradient(to bottom,transparent 0 calc(4% - 1px),#263543 calc(4% - 1px) 4%);background-size:100% 100%}
+#pianoScreen .note-layer{min-width:480px;width:100%;min-height:300px;background-color:#0b1219;background-image:repeating-linear-gradient(to right,transparent 0 calc(3.125% - 1px),#263543 calc(3.125% - 1px) 3.125%),repeating-linear-gradient(to right,transparent 0 calc(12.5% - 2px),#51677c calc(12.5% - 2px) 12.5%),repeating-linear-gradient(to bottom,transparent 0 calc(4% - 1px),#263543 calc(4% - 1px) 4%);background-size:100% 100%}
 #pianoScreen .note-layer .note{background:#35df79;border:1px solid #83f5a7;color:#06140b;box-shadow:none;border-radius:1px;touch-action:none}
 #pianoScreen .velocity{grid-column:1/3;grid-row:3;min-height:0!important;height:100%;padding:3px 6px;gap:4px;align-items:stretch;overflow:hidden;border-top:1px solid #344353;background:#0d151e}
 #pianoScreen .velocity span{background:#35df79;border-radius:3px 3px 0 0;flex:1;width:auto;min-width:2px;align-self:end;max-height:100%;min-height:3px}
@@ -638,7 +638,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
    <div class="setting"><label for="uiScale">UI Scale <output id="uiScaleValue">85%</output></label><input id="uiScale" type="range" min="70" max="110" step="5" value="85"><small>Skala teks dan kontrol; layout tetap ringkas.</small></div>
    <div class="setting"><label for="uiTheme">Tema</label><select id="uiTheme"><option value="dark">Dark / FL-like</option><option value="midnight">Midnight Blue</option><option value="light">Light</option></select><small>Terapkan warna ke seluruh workspace.</small></div>
    <div class="setting"><label for="compactMode">Kepadatan UI</label><select id="compactMode"><option value="compact">Compact</option><option value="comfortable">Comfortable</option></select><small>Atur jarak dan tinggi panel.</small></div>
-   <div class="setting"><label for="gridSnap">Grid snap</label><select id="gridSnap"><option value="on">1/4 beat</option><option value="off">Bebas</option></select><small>Snap untuk perpindahan dan resize klip.</small></div>
+   <div class="setting"><label for="gridSnap">Grid snap</label><select id="gridSnap"><option value="quarter">1/4 beat</option><option value="eighth">1/8 beat</option><option value="half">1/2 beat</option><option value="beat">1 beat</option><option value="bar">1 bar</option><option value="off">Bebas</option></select><small>Snap untuk perpindahan dan resize klip.</small></div>
   </div>
   <div class="menu-actions" style="margin-top:10px"><button id="resetUiSettings">Reset tampilan</button><button class="primary" id="closeSettingsDone">Selesai</button></div>
  </section>
@@ -674,7 +674,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 (function(){
 const screens={timeline:'timelineScreen',mixer:'mixerScreen',piano:'pianoScreen',devices:'devicesScreen',browser:'browserScreen'};
 let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null,playing=false,recording=false,tick=0,toastTimer=null,undoStack=[],redoStack=[];
-let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipId=null,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,timelineZoom=1,timelineScrollSync=false;
+let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipId=null,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,snapStep=.0625,timelineZoom=1,pianoZoom=1,timelineScrollSync=false;
 let lastClipTap={id:null,time:0};
 let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset';
 let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
@@ -738,8 +738,8 @@ function renderPiano(){
  const names=['C6','B5','A#5','A5','G#5','G5','F#5','F5','E5','D#5','D5','C#5','C5','B4','A#4','A4','G#4','G4','F#4','F4','E4','D#4','D4','C#4','C4'];
  const rows=names.length;keys.style.gridTemplateRows='repeat('+rows+',minmax(0,1fr))';
  names.forEach((name,i)=>{const span=document.createElement('span');span.textContent=name;span.dataset.pianoRow=i;if(name.includes('#'))span.classList.add('black-note-name');keys.appendChild(span)});
- const rulerWidth= Math.max(960,grid.clientWidth);ruler.style.width=rulerWidth+'px';for(let bar=1;bar<=8;bar++){const label=document.createElement('span');label.textContent=String(bar);ruler.appendChild(label)}
- const layer=document.createElement('div');layer.className='note-layer';layer.setAttribute('aria-label','MIDI note lane');layer.style.width=rulerWidth+'px';layer.style.minWidth='960px';
+ const rulerWidth=Math.max(480,Math.max(grid.clientWidth,window.innerWidth-80)*pianoZoom);ruler.style.width=rulerWidth+'px';for(let bar=1;bar<=8;bar++){const label=document.createElement('span');label.textContent=String(bar);ruler.appendChild(label)}
+ const layer=document.createElement('div');layer.className='note-layer';layer.setAttribute('aria-label','MIDI note lane');layer.style.width=rulerWidth+'px';layer.style.minWidth='480px';
  project.notes.forEach((n,i)=>{
   const row=Math.max(0,Math.min(rows-1,Number(n.row)||0));
   const note=document.createElement('button');note.className='note';
@@ -882,10 +882,10 @@ $('tracks').addEventListener('pointerdown',e=>{
 $('tracks').addEventListener('pointermove',e=>{
  const g=clipGesture;if(!g||g.pointerId!==e.pointerId)return;
  const dx=e.clientX-g.startX;if(Math.abs(dx)<4&&!g.moved)return;g.moved=true;e.preventDefault();
- const area=g.target.closest('.cliparea'),canvas=area.querySelector('.clip-canvas');const scale=Math.max(1,canvas.clientWidth)/32;const rawDelta=dx/scale;const delta=snapEnabled?Math.round(rawDelta*4)/4:rawDelta;
+ const area=g.target.closest('.cliparea'),canvas=area.querySelector('.clip-canvas');const scale=Math.max(1,canvas.clientWidth)/32;const rawDelta=dx/scale;const delta=snapEnabled?Math.round(rawDelta/snapStep)*snapStep:rawDelta;
  const item=project.tracks[g.trackIndex]?.clips.find(c=>c.id===g.clipId);if(!item)return;
- if(g.mode==='move'){const proposed=g.originStart+delta;item.start=Math.max(0,Math.min(32-item.duration,snapEnabled?Math.round(proposed*4)/4:proposed))}
- else {const proposed=g.originDuration+delta;item.duration=Math.max(.25,Math.min(32-item.start,snapEnabled?Math.round(proposed*4)/4:proposed))}
+ if(g.mode==='move'){const proposed=g.originStart+delta;item.start=Math.max(0,Math.min(32-item.duration,snapEnabled?Math.round(proposed/snapStep)*snapStep:proposed))}
+ else {const proposed=g.originDuration+delta;item.duration=Math.max(.25,Math.min(32-item.start,snapEnabled?Math.round(proposed/snapStep)*snapStep:proposed))}
  g.target.style.left=(item.start/32*100)+'%';g.target.style.width=(item.duration/32*100)+'%';
 });
 function syncTimelineScroll(source){
@@ -949,6 +949,8 @@ $('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.le
 $('mixer').addEventListener('input',e=>{const el=e.target;if(!el.dataset.mix)return;const t=project.tracks[+el.dataset.i];t[el.dataset.mix]=+el.value;$(el.dataset.mix==='gain'?'gainv'+el.dataset.i:'panv'+el.dataset.i).textContent=el.dataset.mix==='gain'?Number(el.value).toFixed(1)+' dB':el.value;});
 $('mixer').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const t=project.tracks[+b.dataset.i];snapshot();t[b.dataset.action]=!t[b.dataset.action];renderAll()});
 $('pianogrid').addEventListener('scroll',()=>{const ruler=$('pianoRuler'),keys=$('keys'),grid=$('pianogrid');if(ruler)ruler.scrollLeft=grid.scrollLeft;if(keys)keys.scrollTop=grid.scrollTop;},{passive:true});
+function setPianoZoom(next,anchorX){const old=pianoZoom,grid=$('pianogrid'),ruler=$('pianoRuler'),scroll=grid.scrollLeft,anchor=Number.isFinite(anchorX)?anchorX:grid.clientWidth/2;pianoZoom=Math.max(.5,Math.min(4,next));renderPiano();grid.scrollLeft=Math.max(0,(scroll+anchor)*(pianoZoom/old)-anchor);ruler.scrollLeft=grid.scrollLeft;document.documentElement.style.setProperty('--piano-zoom',String(pianoZoom));}
+$('pianogrid').addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const r=$('pianogrid').getBoundingClientRect();setPianoZoom(pianoZoom*(e.deltaY<0?1.1:.9),e.clientX-r.left)},{passive:false});
  $('pianoRuler').addEventListener('scroll',()=>{const grid=$('pianogrid');if(grid&&Math.abs(grid.scrollLeft-$('pianoRuler').scrollLeft)>1)grid.scrollLeft=$('pianoRuler').scrollLeft;},{passive:true});
  function beginNoteGesture(e,note){
  if(e.button!==undefined&&e.button!==0)return;
@@ -992,8 +994,8 @@ $('pianogrid').addEventListener('click',e=>{
  if(ignoreNextNoteClick){ignoreNextNoteClick=false;return}
  const note=e.target.closest('.note');
  if(note){selectedNote=Number(note.dataset.noteIndex);notify('Nada dipilih');return}
- const rect=e.currentTarget.getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(rect.width,layer?.scrollWidth||0)/32;
- const row=Math.floor((e.clientY-rect.top+(e.currentTarget.scrollTop||0))/(Math.max(1,layer?.clientHeight||rect.height)/25));
+ const rect=e.currentTarget.getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(1,layer?.scrollWidth||rect.width)/32;
+ const row=Math.floor((e.clientY-rect.top+(e.currentTarget.scrollTop||0))/(Math.max(1,layer?.scrollHeight||layer?.clientHeight||rect.height)/25));
  const col=Math.floor((e.clientX-rect.left+(e.currentTarget.scrollLeft||0))/stepWidth);
  snapshot();project.notes.push({row:Math.max(0,Math.min(24,row)),col:Math.max(0,Math.min(31,col)),len:1,velocity:80});
  renderPiano();notify('Nada MIDI ditambahkan (model demo)')
@@ -1024,12 +1026,12 @@ $('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)re
 $('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({...project,uiRackState:trackRacks},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(project.name||'novadaw').replace(/[^a-z0-9-_]/gi,'_')+'.json';a.click();URL.revokeObjectURL(url);notify('Ekspor JSON dibuat')});
 $('undo').addEventListener('click',()=>{if(!undoStack.length){notify('Tidak ada aksi untuk undo');return}redoStack.push(JSON.stringify(project));project=JSON.parse(undoStack.pop());renderAll();notify('Undo selesai')});
 $('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada aksi untuk redo');return}undoStack.push(JSON.stringify(project));project=JSON.parse(redoStack.pop());renderAll();notify('Redo selesai')});
-const uiPrefs={scale:85,theme:'dark',density:'compact'};
+const uiPrefs={scale:85,theme:'dark',density:'compact',snap:'quarter'};
 function applyUiPrefs(){
  const scale=Math.max(70,Math.min(110,Number(uiPrefs.scale)||85));
  document.documentElement.style.setProperty('--ui-scale',String(scale/100));
  const root=document.documentElement;root.dataset.theme=uiPrefs.theme||'dark';root.dataset.density=uiPrefs.density||'compact';
- $('uiScale').value=String(scale);$('uiScaleValue').textContent=scale+'%';$('uiTheme').value=uiPrefs.theme;$('compactMode').value=uiPrefs.density;
+ $('uiScale').value=String(scale);$('uiScaleValue').textContent=scale+'%';$('uiTheme').value=uiPrefs.theme;$('compactMode').value=uiPrefs.density;$('gridSnap').value=uiPrefs.snap||'quarter';snapEnabled=$('gridSnap').value!=='off';snapStep=({quarter:.0625,eighth:.03125,half:.125,beat:.25,bar:1,off:0})[$('gridSnap').value]||.0625;root.style.setProperty('--snap-step',String(snapStep));
  document.body.classList.toggle('comfortable-ui',uiPrefs.density==='comfortable');
  const themes={dark:{bg:'#090d12',panel:'#101720',panel2:'#151e28',line:'#283747',text:'#eaf3fc',muted:'#91a3b7',blue:'#1687ff',cyan:'#31caff'},midnight:{bg:'#070b16',panel:'#0e1626',panel2:'#13213a',line:'#263a58',text:'#eaf2ff',muted:'#91a6c8',blue:'#4c91ff',cyan:'#50d7ff'},light:{bg:'#e7edf4',panel:'#f7f9fc',panel2:'#fff',line:'#bac7d5',text:'#142130',muted:'#5b6d80',blue:'#176bd1',cyan:'#009fbe'}};
  Object.entries(themes[uiPrefs.theme]||themes.dark).forEach(([k,v])=>root.style.setProperty('--'+k,v));
@@ -1042,8 +1044,8 @@ $('settingsOverlay').addEventListener('click',e=>{if(e.target.id==='settingsOver
 $('uiScale').addEventListener('input',e=>{uiPrefs.scale=Number(e.target.value);applyUiPrefs()});
 $('uiTheme').addEventListener('change',e=>{uiPrefs.theme=e.target.value;applyUiPrefs()});
 $('compactMode').addEventListener('change',e=>{uiPrefs.density=e.target.value;applyUiPrefs()});
-$('gridSnap').addEventListener('change',e=>{snapEnabled=e.target.value==='on';uiPrefs.snap=snapEnabled;updateTimelineTools();applyUiPrefs()});
-$('resetUiSettings').addEventListener('click',()=>{Object.assign(uiPrefs,{scale:85,theme:'dark',density:'compact'});snapEnabled=true;applyUiPrefs();$('gridSnap').value='on';notify('Tampilan direset')});
+$('gridSnap').addEventListener('change',e=>{snapEnabled=e.target.value!=='off';snapStep=({quarter:.0625,eighth:.03125,half:.125,beat:.25,bar:1,off:0})[e.target.value]||.0625;uiPrefs.snap=e.target.value;document.documentElement.style.setProperty('--snap-step',String(snapStep));updateTimelineTools();applyUiPrefs()});
+$('resetUiSettings').addEventListener('click',()=>{Object.assign(uiPrefs,{scale:85,theme:'dark',density:'compact',snap:'quarter'});snapEnabled=true;snapStep=.0625;document.documentElement.style.setProperty('--snap-step',String(snapStep));applyUiPrefs();$('gridSnap').value='quarter';notify('Tampilan direset')});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSettings()});
 try{Object.assign(uiPrefs,JSON.parse(localStorage.getItem('novadaw-ui-prefs')||'{}'))}catch(_){}
 applyUiPrefs();
@@ -1054,7 +1056,7 @@ function updateTimelineTools(){
   if(tool==='select'||tool==='cut'||tool==='snap')b.classList.toggle('active',tool===timelineTool||(tool==='snap'&&snapEnabled));
   if(tool==='delete')b.disabled=!selectedClip;
  });
- $('zoomLabel').textContent=Math.round(timelineZoom*100)+'%';
+ $('zoomLabel').textContent=Math.round(timelineZoom*100)+'%';$('zoomLabel').title='Timeline zoom '+Math.round(timelineZoom*100)+'%';
 }
 function splitSelectedClipAtRatio(ratio=.5){
  const match=project.tracks.flatMap((t,ti)=>t.clips.map((c,ci)=>({t,ti,c,ci}))).find(x=>x.c.id===selectedClip);
@@ -1062,17 +1064,17 @@ function splitSelectedClipAtRatio(ratio=.5){
  const c=match.c;if(c.duration<.5){notify('Clip terlalu pendek untuk dipisah');return}
  const fraction=Math.max(.05,Math.min(.95,Number(ratio)||.5));
  const rawSplit=c.duration*fraction;
- const split=snapEnabled?Math.round(rawSplit*4)/4:rawSplit;
+ const split=snapEnabled?Math.round(rawSplit/snapStep)*snapStep:rawSplit;
  if(split<.25||c.duration-split<.25){notify('Titik split terlalu dekat dengan tepi clip');return}
  snapshot();
  const second={...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,5),start:c.start+split,duration:c.duration-split,label:c.label+' B'};
  c.duration=split;match.t.clips.splice(match.ci+1,0,second);
  selectedClip=second.id;renderTracks();updateTimelineTools();notify('Clip dipisah menjadi dua bagian');
 }
-function setTimelineZoom(next){
- const old=timelineZoom,scroll=document.querySelector('.bars-viewport')?.scrollLeft||0;
- timelineZoom=Math.max(1,Math.min(2.5,next));$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas)rulerCanvas.style.width=(timelineZoom*100)+'%';
- renderTracks();const ruler=document.querySelector('.bars-viewport');if(ruler)ruler.scrollLeft=scroll*(timelineZoom/old);updateTimelineTools();
+function setTimelineZoom(next,anchorX){
+ const old=timelineZoom,viewport=document.querySelector('.bars-viewport'),scroll=viewport?.scrollLeft||0,anchor=Number.isFinite(anchorX)?anchorX:(viewport?.clientWidth||0)/2;
+ timelineZoom=Math.max(.5,Math.min(4,next));$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas)rulerCanvas.style.width=(timelineZoom*100)+'%';
+ renderTracks();const ruler=document.querySelector('.bars-viewport');if(ruler)ruler.scrollLeft=Math.max(0,(scroll+anchor)*(timelineZoom/old)-anchor);updateTimelineTools();
 }
 $('timelineTools').addEventListener('click',e=>{
  const b=e.target.closest('[data-timeline-tool]');if(!b)return;const tool=b.dataset.timelineTool;
@@ -1110,7 +1112,7 @@ $('clipContextMenu').addEventListener('click',e=>{
   track.clips.push(copy);selectedClip=copy.id;hideClipContext();renderTracks();updateTimelineTools();notify('Clip disalin');return
  }
  if(action==='split'){selectedClip=id;hideClipContext();splitSelectedClipAtRatio(.5);return}
- if(action==='snap'){snapshot();clip.start=Math.max(0,Math.min(32-clip.duration,Math.round(clip.start*4)/4));hideClipContext();renderTracks();notify('Clip diselaraskan ke grid');return}
+ if(action==='snap'){snapshot();clip.start=Math.max(0,Math.min(32-clip.duration,Math.round(clip.start/snapStep)*snapStep));hideClipContext();renderTracks();notify('Clip diselaraskan ke grid');return}
  if(action==='mute'){snapshot();clip.muted=!clip.muted;renderTracks();showClipContext(document.querySelector('#tracks .clip[data-clip="'+id+'"]'),trackIndex,clip);notify(clip.muted?'Clip dibisukan (model UI)':'Clip diaktifkan (model UI)');return}
  if(action==='delete'){snapshot();track.clips=track.clips.filter(c=>c.id!==id);selectedClip=null;hideClipContext();renderTracks();updateTimelineTools();notify('Clip dihapus');return}
 });
