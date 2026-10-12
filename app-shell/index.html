@@ -826,6 +826,42 @@ html[data-theme="light"] .clip{color:#152130!important}
  #devicesScreen .panel>p.muted{display:none}
 }
 
+
+/* FL Mobile-inspired compact landscape: the device rack must own the workspace height. */
+#devicesScreen>.panel{height:100%;display:flex;flex-direction:column;gap:7px;min-height:0;overflow:hidden}
+#devicesScreen .devicegrid{display:grid;align-content:stretch;grid-auto-rows:minmax(0,1fr);min-height:0;min-width:0;flex:1;overflow:hidden}
+#devicesScreen .device-picker,#devicesScreen .device-editor{height:100%;min-height:0;min-width:0}
+#devicesScreen .device-options{overscroll-behavior:contain}
+@media(max-height:480px){
+ #devicesScreen>.panel{gap:4px}
+ #devicesScreen .paneltitle{display:none}
+ #devicesScreen .device-trackbar{min-height:25px;padding:3px 6px;margin:0}
+ #devicesScreen .channel-step-rack{min-height:29px;margin:0;padding:3px 5px}
+ #devicesScreen .step-rack-heading{min-width:70px!important}
+ #devicesScreen .step-rack-heading span{font-size:9px}
+ #devicesScreen .step-rack-buttons{min-width:0;gap:2px}
+ #devicesScreen .step-cell{height:23px;min-height:23px;padding:0;font-size:8px}
+ #devicesScreen .tabs{margin:0;gap:4px}
+ #devicesScreen .tabs button{min-height:26px;padding:3px 6px;font-size:10px}
+ #devicesScreen .panel>p{display:none}
+ #devicesScreen .devicegrid{grid-template-columns:clamp(112px,18vw,145px) minmax(0,1fr);gap:5px}
+ #devicesScreen .device-picker{padding:4px}
+ #devicesScreen .device-editor{padding:5px;gap:4px}
+ #devicesScreen .device-editor-main{grid-template-columns:minmax(58px,.35fr) minmax(0,1.65fr);gap:4px}
+ #devicesScreen .device-editor-header{gap:4px}
+ #devicesScreen .device-editor-header h3{font-size:12px}
+ #devicesScreen .device-editor-actions{gap:3px}
+ #devicesScreen .device-editor-actions button{min-height:25px;padding:3px 5px;font-size:9px}
+ #devicesScreen .device-page-tabs button{min-height:25px;padding:3px 5px}
+ #devicesScreen .device-scope svg{height:24px}
+ #devicesScreen .knob-bank{grid-template-columns:repeat(4,minmax(28px,1fr));gap:2px}
+ #devicesScreen .knob-control{padding:2px;gap:1px}
+ #devicesScreen .knob-head label{font-size:8px}
+ #devicesScreen .knob-head output{font-size:9px}
+ #devicesScreen .knob-dial{width:21px;height:21px;border-width:3px}
+ #devicesScreen .knob-control input{height:13px}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
