@@ -1336,6 +1336,59 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
   line-height:1.1!important;
   text-align:center!important;
 }
+
+/* Playlist vertical zoom + compact content-fit: authoritative final overrides. */
+#timelineScreen { --timeline-track-zoom: 1; --timeline-track-min: 40px; }
+#timelineScreen .tracks {
+  align-content: start !important;
+  flex: 1 1 0 !important;
+  min-height: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior-y: contain !important;
+}
+#timelineScreen .trackrow {
+  flex: 0 0 calc(var(--timeline-track-min) * var(--timeline-track-zoom)) !important;
+  height: calc(var(--timeline-track-min) * var(--timeline-track-zoom)) !important;
+  min-height: calc(var(--timeline-track-min) * var(--timeline-track-zoom)) !important;
+  max-height: none !important;
+  box-sizing: border-box !important;
+  position: relative !important;
+}
+#timelineScreen .tracklabel, #timelineScreen .cliparea {
+  min-height: 0 !important; height: 100% !important; box-sizing: border-box !important;
+}
+#timelineScreen .clip { top: 4px !important; height: calc(100% - 8px) !important; min-height: 18px !important; max-height: none !important; }
+#timelineScreen .track-height-grip {
+  position:absolute; z-index:12; left:0; right:0; bottom:-4px; height:9px;
+  cursor:ns-resize; touch-action:none; background:transparent;
+}
+#timelineScreen .track-height-grip:after {
+  content:""; position:absolute; left:38%; right:38%; top:3px; height:2px;
+  border-radius:2px; background:#9fb5c9; opacity:.22;
+}
+#timelineScreen .track-height-grip:active:after { opacity:.9; background:#59b8ff; }
+#timelineScreen .track-height-grip:focus-visible { outline:2px solid #1687ff; outline-offset:-2px; }
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-in"],
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-out"],
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-fit"] {
+  flex:0 0 30px !important; width:30px !important; min-width:30px !important;
+  min-height:30px !important; font-size:15px !important; font-weight:800 !important;
+  touch-action:manipulation !important;
+}
+#timelineScreen .timeline-tool-rail .zoom-label-vertical {
+  display:block; flex:0 0 auto; max-width:34px; font-size:9px;
+  line-height:1.1; text-align:center; color:#9fb5c9;
+}
+#timelineScreen .timeline-work-area { gap:4px !important; }
+#timelineScreen .timeline { min-width:0 !important; }
+@media (max-height:480px) {
+  #timelineScreen .track-height-grip { bottom:-3px; height:7px; }
+  #timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-in"],
+  #timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-out"],
+  #timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-vertical-fit"] { flex-basis:27px !important; min-height:27px !important; }
+}
+
 </style>
 </head>
 <body>
