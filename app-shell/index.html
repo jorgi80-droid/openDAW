@@ -265,6 +265,8 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 #timelineScreen .bars-viewport{overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important;overscroll-behavior-x:contain!important}
 #timelineScreen .bars{justify-content:flex-start!important;gap:0!important;width:calc(var(--timeline-zoom,1)*100%)!important;min-width:100%!important}
 #timelineScreen .bars span{flex:0 0 calc(100% / 8)!important;width:calc(100% / 8)!important;box-sizing:border-box!important;padding-left:5px!important;border-left:1px solid #314253!important;text-align:left!important}
+#timelineScreen .bars{position:relative!important}
+#timelineScreen .bars span.ruler-end{position:absolute!important;right:0!important;top:0!important;bottom:0!important;display:flex!important;align-items:center!important;justify-content:flex-end!important;flex:0 0 auto!important;width:auto!important;min-width:0!important;padding:0 4px 0 0!important;border-left:0!important;text-align:right!important}
 #timelineScreen .cliparea{overflow-x:auto!important;overflow-y:hidden!important;scrollbar-width:none!important;overscroll-behavior-x:contain!important;touch-action:pan-x pan-y!important}
 #timelineScreen .clip-canvas{width:calc(var(--timeline-zoom,1)*100%)!important;min-width:100%!important}
 #timelineScreen .clip{touch-action:none!important;user-select:none!important;-webkit-user-select:none!important}
@@ -1157,7 +1159,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
 <section class="screen" id="timelineScreen">
   <div class="timeline-work-area">
     <div class="timeline">
-      <div class="ruler"><div class="trackhead">TRACK / CLIP</div><div class="bars-viewport" data-timeline-scroll="ruler"><div class="bars"><span>1</span><span>5</span><span>9</span><span>13</span><span>17</span><span>21</span><span>25</span><span>29</span><span>33</span></div></div></div>
+      <div class="ruler"><div class="trackhead">TRACK / CLIP</div><div class="bars-viewport" data-timeline-scroll="ruler"><div class="bars"><span>1</span><span>5</span><span>9</span><span>13</span><span>17</span><span>21</span><span>25</span><span>29</span><span class="ruler-end">33</span></div></div></div>
       <div class="tracks" id="tracks"></div>
     </div>
     <aside class="timeline-tool-rail" id="timelineTools" aria-label="Timeline tools">
