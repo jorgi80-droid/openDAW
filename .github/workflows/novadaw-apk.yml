@@ -54,9 +54,15 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/empty.svg -o "$ASSETS/assets/opendaw/ui/empty.svg"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/favicon-live.svg -o "$ASSETS/assets/opendaw/ui/favicon-live.svg"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/grid16.svg -o "$ASSETS/assets/opendaw/ui/grid16.svg"
-          unzip -o Melvox.zip 'Melvox/public/samples/piano/*.mp3' 'Melvox/public/samples/piano/LICENSE.txt' -d /tmp/melvox-assets
-          cp /tmp/melvox-assets/Melvox/public/samples/piano/*.mp3 "$ASSETS/assets/melvox/samples/piano/"
-          cp /tmp/melvox-assets/Melvox/public/samples/piano/LICENSE.txt "$ASSETS/assets/melvox/samples/piano/LICENSE.txt"
+          for SAMPLE in A2 A3 A4 A5 A6 C2 C3 C4 C5 C6 C7 Ds2 Ds3 Ds4 Ds5 Ds6 Fs2 Fs3 Fs4 Fs5 Fs6; do
+            curl -fsSL "https://raw.githubusercontent.com/Tonejs/audio/master/salamander/$SAMPLE.mp3" -o "$ASSETS/assets/melvox/samples/piano/$SAMPLE.mp3"
+          done
+          cat > "$ASSETS/assets/melvox/samples/piano/LICENSE.txt" <<'LICENSE'
+          Salamander Grand Piano V3
+          Recorded and edited by Alexander Holm.
+          Licensed under Creative Commons Attribution 3.0 (CC BY 3.0): https://creativecommons.org/licenses/by/3.0/
+          Samples are distributed unmodified from https://github.com/Tonejs/audio, folder salamander.
+          LICENSE
 
       - name: Build debug APK
         working-directory: android-wrapper-novadaw
