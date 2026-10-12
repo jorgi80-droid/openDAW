@@ -890,58 +890,66 @@ html[data-theme="light"] .clip{color:#152130!important}
 @media(max-height:480px){#devicesScreen .effect-chain{padding:3px;gap:2px}#devicesScreen .effect-chain-list{max-height:48px}#devicesScreen .effect-chain-item{grid-template-columns:minmax(0,1fr) 22px 22px 22px;gap:2px}#devicesScreen .effect-chain-item button{min-height:21px;height:21px;padding:1px 2px;font-size:9px}#devicesScreen .effect-chain>small{display:none}}
 
 
-/* Layout correction: the shell has five direct rows (header, transport, tempo/tools, workspace, dock). */
-.app{height:100dvh!important;min-height:0!important;grid-template-rows:42px 34px 34px minmax(0,1fr) 46px!important;grid-template-columns:minmax(0,1fr)!important;overflow:hidden!important}
-.top,.transportbar,.subbar,.workspace,.dock{min-width:0;min-height:0;box-sizing:border-box}
-.transportbar{display:flex!important;align-items:center;justify-content:center;min-height:0;padding:1px 6px!important}
-.transportbar .transport{display:flex;align-items:center;justify-content:center}
-.workspace{height:100%;min-height:0;overflow:hidden!important;padding:5px!important}
+
+/* NovaDAW arrangement-first mobile layout (inspired by FL Studio Mobile Playlist). */
+.app{grid-template-rows:clamp(38px,6.3vh,48px) minmax(0,1fr)!important;grid-template-columns:minmax(0,1fr)!important;position:relative;overflow:hidden!important}
+.top{grid-row:1;min-height:0;padding:3px 7px!important;gap:5px!important}
+.transportbar{position:absolute;top:calc(env(safe-area-inset-top) + 6px);left:50%;transform:translateX(-50%);z-index:20;display:flex!important;align-items:center;justify-content:center;padding:2px 4px!important;border:1px solid #283747;border-radius:11px;background:rgba(9,13,18,.94);box-shadow:0 5px 22px #0008;max-width:45vw}
+.transportbar .transport{gap:3px}
+.transportbar .transport button{min-width:32px;min-height:31px;padding:3px 6px}
+.transportbar #position{min-width:66px}
+.subbar{position:absolute;right:8px;top:calc(env(safe-area-inset-top) + 5px);z-index:19;display:flex!important;align-items:center;gap:4px!important;padding:0!important;border:0!important;background:transparent!important;max-width:38vw;overflow:visible!important}
+.subbar .chip{display:none!important}
+.subbar .grow{display:none!important}
+.subbar button{min-width:0;min-height:30px;padding:4px 7px;font-size:11px;white-space:nowrap}
+#save,#open{display:none}
+#export{max-width:62px;font-size:10px!important}
+.workspace{grid-row:2;height:100%;min-height:0!important;min-width:0;overflow:hidden!important;padding:4px 44px 4px 5px!important}
 .screen{height:100%;min-height:0!important;min-width:0;overflow:hidden}
-#devicesScreen:not([hidden]){display:block!important;height:100%;min-height:0!important}
-#devicesScreen>.panel{display:flex!important;flex-direction:column!important;height:100%!important;min-height:0!important;overflow:hidden!important;gap:5px!important;padding:7px!important;box-sizing:border-box}
-#devicesScreen>.panel>.paneltitle{flex:0 0 auto;margin:0 0 2px!important}
-#devicesScreen .device-trackbar{flex:0 0 auto;min-height:30px;max-height:36px;overflow:auto}
-#devicesScreen .channel-step-rack{flex:0 0 auto;min-height:36px;max-height:48px;margin:0!important;padding:4px 6px!important;gap:6px}
-#devicesScreen .step-rack-heading{gap:3px}
-#devicesScreen .step-rack-buttons{min-width:0;flex:1 1 auto;grid-template-columns:repeat(16,minmax(12px,1fr));gap:2px}
-#devicesScreen .step-rack-buttons button{min-width:0;min-height:24px;padding:1px}
-#devicesScreen .tabs{flex:0 0 auto;margin:0!important;gap:4px}
-#devicesScreen .tabs button{min-height:30px;padding:3px 6px}
-#devicesScreen .devicegrid{flex:1 1 0;min-height:0!important;min-width:0;overflow:auto;align-content:start;grid-template-columns:minmax(135px,clamp(135px,18vw,190px)) minmax(0,1fr)!important;gap:6px!important}
-#devicesScreen .device-picker,#devicesScreen .device-editor{min-width:0;min-height:0}
-#devicesScreen .device-picker{overflow:auto}
-#devicesScreen .knobs{grid-template-columns:repeat(auto-fit,minmax(105px,1fr));gap:5px}
-#devicesScreen .knob{min-width:0;padding:5px}
-#devicesScreen .dial{width:28px;height:28px;margin:2px auto}
-#devicesScreen .mini-keyboard{height:clamp(32px,6vh,48px)!important}
-#devicesScreen .mini-drum-pads{min-height:42px!important;grid-template-rows:repeat(2,minmax(18px,1fr))!important;gap:2px!important}
-#devicesScreen .drum-pad{min-height:18px!important;font-size:9px;padding:1px}
-.dock{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));overflow-x:auto}
-@media (orientation:landscape) and (max-height:480px){
- .app{grid-template-rows:38px 30px 30px minmax(0,1fr) 40px!important}
+.screen[hidden]{display:none!important}
+#timelineScreen:not([hidden]){display:flex!important;flex-direction:column!important}
+#timelineScreen .timeline{flex:1 1 0;height:auto;min-height:0;grid-template-rows:28px minmax(0,1fr)}
+#timelineScreen .tracks{min-height:0;overflow:auto;overscroll-behavior:contain}
+#timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(95px,12vw,136px) minmax(0,1fr)!important}
+#timelineScreen .bars-viewport,#timelineScreen .cliparea{min-width:0!important;overflow:auto}
+#timelineScreen .bars{min-width:550px;justify-content:space-between;padding:0 10px}
+#timelineScreen .cliparea{min-width:550px!important}
+#timelineScreen .trackrow{min-height:clamp(48px,9vh,76px)!important}
+#timelineScreen .clip{top:5px!important;height:calc(100% - 10px)!important;min-height:26px;font-size:11px;padding:4px 7px}
+#timelineScreen .tracklabel{padding:4px 6px;gap:4px}
+#timelineScreen .trackname{font-size:11px}
+#timelineScreen .trackbuttons button{min-height:22px;padding:1px 5px}
+#timelineScreen>.addtrack{flex:0 0 29px!important;align-self:flex-start;width:auto!important;min-height:27px!important;margin-top:4px!important;padding:3px 9px;font-size:11px}
+#timelineScreen .timeline-work-area{min-height:0;flex:1 1 0}
+#timelineScreen .timeline-tool-rail{display:none!important}
+.dock{position:fixed!important;z-index:40;right:max(4px,env(safe-area-inset-right));top:50%;bottom:auto!important;left:auto!important;transform:translateY(-50%);display:flex!important;flex-direction:column!important;align-items:stretch;justify-content:center;gap:4px!important;width:38px;min-width:38px;padding:4px!important;border:1px solid #2b3b4d;border-radius:12px;background:rgba(9,15,23,.94);box-shadow:0 6px 24px #0008;overflow:visible!important}
+.dock button{display:flex!important;flex:0 0 34px!important;align-items:center;justify-content:center;width:30px;min-width:30px!important;height:34px;min-height:34px!important;padding:3px!important;border-radius:8px;overflow:hidden;font-size:0!important;gap:0!important;background:#131e29}
+.dock button .workspace-dock-symbol{width:18px;height:18px;flex:0 0 18px}
+.dock button.active{background:#102d4c;border-color:#1687ff;color:#7ac4ff}
+.dock button:active{background:#17436a}
+#timelineScreen .clip.selected{outline:2px solid #f3f8ff;outline-offset:1px}
+@media (orientation:landscape) and (max-height:520px){
+ .app{grid-template-rows:38px minmax(0,1fr)!important}
  .top{padding:2px 6px!important}
  .top .brand{font-size:12px!important}
- .top .project input{max-width:90px;font-size:11px}
+ .top .project input{max-width:95px;font-size:11px;padding:3px}
  .top-actions button,.top button{min-height:25px!important;min-width:25px!important;padding:2px 4px!important}
- .transportbar .transport button{min-height:24px!important;min-width:26px!important;padding:1px 4px!important}
- .subbar{gap:4px!important;padding:2px 5px!important;overflow-x:auto}
- .subbar .chip{padding:3px 5px!important;font-size:10px!important}
- .subbar .small{min-height:23px!important;padding:2px 4px!important;font-size:10px!important}
- .workspace{padding:3px!important}
- #devicesScreen>.panel{padding:4px!important;gap:3px!important}
- #devicesScreen .devicegrid{grid-template-columns:clamp(112px,17vw,145px) minmax(0,1fr)!important;gap:4px!important}
- #devicesScreen .channel-step-rack{min-height:30px;max-height:34px}
- #devicesScreen .step-rack-heading strong{font-size:9px}
- #devicesScreen .step-rack-heading small{display:none}
- #devicesScreen .step-rack-buttons button{min-height:20px}
- #devicesScreen .tabs button{min-height:25px;font-size:10px}
- #devicesScreen .knobs{grid-template-columns:repeat(auto-fit,minmax(80px,1fr))}
- #devicesScreen .knob{padding:3px}
- #devicesScreen .mini-keyboard{height:30px!important}
- .dock{padding:2px 4px!important;gap:3px!important}
- .dock button{min-height:34px!important;font-size:10px!important}
+ .transportbar{top:calc(env(safe-area-inset-top) + 3px);max-width:43vw}
+ .transportbar .transport button{min-height:26px!important;min-width:28px!important;padding:1px 4px!important}
+ .subbar{top:calc(env(safe-area-inset-top) + 3px);right:5px;gap:3px!important}
+ .subbar button{min-height:25px!important;padding:2px 4px!important}
+ #export{max-width:51px;font-size:9px!important}
+ .workspace{padding:3px 42px 3px 4px!important}
+ #timelineScreen .timeline{grid-template-rows:25px minmax(0,1fr)}
+ #timelineScreen .trackrow{min-height:clamp(40px,9.1vh,54px)!important}
+ #timelineScreen .clip{top:4px!important;height:calc(100% - 8px)!important;min-height:22px;padding:3px 5px;font-size:10px}
+ #timelineScreen .tracklabel{padding:3px 5px;gap:3px}
+ #timelineScreen .trackbuttons button{min-height:18px!important;padding:0 3px;font-size:9px}
+ #timelineScreen>.addtrack{flex-basis:24px!important;min-height:23px!important;margin-top:3px!important;padding:2px 7px;font-size:10px}
+ .dock{width:34px;min-width:34px;right:max(3px,env(safe-area-inset-right));gap:3px!important;padding:3px!important}
+ .dock button{flex-basis:30px!important;width:26px;min-width:26px!important;height:30px;min-height:30px!important}
+ .dock button .workspace-dock-symbol{width:16px;height:16px;flex-basis:16px}
 }
-
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
