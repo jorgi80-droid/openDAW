@@ -2222,6 +2222,18 @@ function addClipToTrack(i,kind){
  selectedClip=t.clips[t.clips.length-1].id;selectedTrack=i;renderAll();updateTimelineTools();notify(label+' ditambahkan pada bar '+(start+1).toFixed(2)+' (model UI)');
 }
 let pendingLanePress=null;
+function clipCategory(clip,track){
+ const raw=String(clip?.kind||track?.type||'').toLowerCase();
+ if(raw.includes('midi')||raw.includes('pattern')||raw.includes('note'))return 'midi';
+ if(raw.includes('audio')||raw.includes('sample')||raw.includes('vocal')||raw.includes('drum'))return 'audio';
+ if(raw.includes('automation')||raw==='fx')return 'automation';
+ return String(track?.type||'').toLowerCase();
+}
+function canMoveClipToTrack(clip,sourceTrack,targetTrack){
+ if(!clip||!sourceTrack||!targetTrack)return false;
+ const kind=clipCategory(clip,sourceTrack),target=clipCategory(null,targetTrack);
+ return kind===target;
+}
 $('tracks').addEventListener('pointerdown',e=>{
  if(e.button!==undefined&&e.button!==0)return;
  const clip=e.target.closest('[data-clip]');
@@ -2273,12 +2285,38 @@ $('tracks').addEventListener('pointermove',e=>{
   }
  }
  const g=clipGesture;if(!g||g.pointerId!==e.pointerId)return;
- const dx=e.clientX-g.startX;if(Math.abs(dx)<4&&!g.moved)return;g.moved=true;e.preventDefault();
- const area=g.target.closest('.cliparea');const scale=Math.max(1,timelinePixelsPerBar());const rawDelta=dx/scale;const delta=snapEnabled?Math.round(rawDelta/snapStep)*snapStep:rawDelta;
- const item=project.tracks[g.trackIndex]?.clips.find(c=>c.id===g.clipId);if(!item)return;
- if(g.mode==='move'){const proposed=g.originStart+delta;item.start=Math.max(0,Math.min(32-item.duration,snapEnabled?Math.round(proposed/snapStep)*snapStep:proposed))}
- else {const proposed=g.originDuration+delta;item.duration=Math.max(.25,Math.min(32-item.start,snapEnabled?Math.round(proposed/snapStep)*snapStep:proposed))}
- g.target.style.left=(item.start*timelinePixelsPerBar())+'px';g.target.style.width=(Math.min(item.duration,MAX_BARS-item.start)*timelinePixelsPerBar())+'px';
+ const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
+ if(Math.hypot(dx,dy)<5&&!g.moved)return;
+ g.moved=true;e.preventDefault();
+ const scale=Math.max(1,timelinePixelsPerBar());
+ const rawDelta=dx/scale,delta=snapEnabled&&!e.altKey?Math.round(rawDelta/snapStep)*snapStep:rawDelta;
+ const sourceTrack=project.tracks[g.originTrackIndex],item=sourceTrack?.clips.find(c=>c.id===g.clipId);if(!item)return;
+ if(g.mode==='resize'){
+  const proposed=g.originDuration+rawDelta;
+  item.duration=Math.max(.25,Math.min(MAX_BARS-item.start,snapEnabled&&!e.altKey?Math.round(proposed/snapStep)*snapStep:proposed));
+  g.target.style.left=(item.start*scale)+'px';g.target.style.width=(item.duration*scale)+'px';return;
+ }
+ const proposed=g.originStart+rawDelta;
+ item.start=Math.max(0,Math.min(MAX_BARS-item.duration,snapEnabled&&!e.altKey?Math.round(proposed/snapStep)*snapStep:proposed));
+ const hit=document.elementFromPoint(e.clientX,e.clientY);
+ const lane=hit?.closest('#timelineScreen .trackrow');
+ const targetIndex=lane?Number(lane.querySelector('.cliparea')?.dataset.track):g.originTrackIndex;
+ g.targetTrackIndex=Number.isInteger(targetIndex)&&targetIndex>=0&&targetIndex<project.tracks.length?targetIndex:g.originTrackIndex;
+ const sourceRow=g.target.closest('.trackrow'),targetRow=document.querySelector('#tracks .trackrow:nth-child('+(g.targetTrackIndex+1)+')');
+ if(sourceRow&&targetRow&&g.targetTrackIndex!==g.originTrackIndex){
+  const offset=targetRow.getBoundingClientRect().top-sourceRow.getBoundingClientRect().top;
+  g.target.style.transform='translateY('+offset+'px) scale(1.015)';
+  const valid=canMoveClipToTrack(item,sourceTrack,project.tracks[g.targetTrackIndex]);
+  g.target.style.filter=valid?'brightness(1.12)':'grayscale(.85)';
+  g.target.style.boxShadow=valid?'0 0 0 2px #70c2ff,0 8px 22px #0007':'0 0 0 2px #ff6a73,0 8px 22px #0007';
+ }else{
+  g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow='';
+ }
+ g.target.style.left=(item.start*scale)+'px';g.target.style.width=(item.duration*scale)+'px';
+ if(item.start+item.duration>timelineContentBars()-1){
+  document.querySelector('#timelineScreen')?.style.setProperty('--timeline-ppb',scale+'px');
+  applyTimelineGeometry();
+ }
 });
 function timelineScrollPeers(){
  const peers=[...document.querySelectorAll('#timelineScreen [data-timeline-scroll]')];
