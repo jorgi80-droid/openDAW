@@ -1216,15 +1216,15 @@ html[data-theme="light"] .clip{color:#152130!important}
  /* Keep the actual workspace bounds outside the fixed right-side workspace dock.
     Padding alone leaves the workspace's bounding box underneath the dock. */
  #workspace{
-  width:calc(100% - 43px)!important;
-  margin-right:43px!important;
+  width:calc(100% - 86px)!important;
+  margin-right:86px!important;
   padding-right:4px!important;
   box-sizing:border-box!important;
  }
  @media (orientation:landscape) and (max-height:520px){
   #workspace{
-   width:calc(100% - 39px)!important;
-   margin-right:39px!important;
+   width:calc(100% - 78px)!important;
+   margin-right:78px!important;
    padding-right:4px!important;
   }
  }
@@ -1613,7 +1613,7 @@ function showClipContext(element,trackIndex,clip){
  // must remain possible, so the menu is placed away from the clip and never intercepts it.
  const candidateTop=(r.bottom+height+12<=window.innerHeight)?r.bottom+6:Math.max(8,r.top-height-6);
  const candidateBottom=candidateTop+height;
- const intersectsClip=(left<c.right && left+width>r.left && candidateTop<r.bottom && candidateBottom>r.top);
+ const intersectsClip=(left<r.right && left+width>r.left && candidateTop<r.bottom && candidateBottom>r.top);
  const top=intersectsClip?Math.max(8,Math.min(window.innerHeight-height-8,r.top-height-6)):candidateTop;
  pop.style.left=left+'px';pop.style.top=top+'px';pop.hidden=false;
  const mute=pop.querySelector('[data-clip-action="mute"]');mute.textContent=clip.muted?'Unmute':'Mute';
