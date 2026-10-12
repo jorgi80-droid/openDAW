@@ -19,7 +19,7 @@ try {
     await page.locator('#menu').click();
     assert(await page.locator('#settingsOverlay').isVisible(), `Home / Settings opens at ${viewport.width}x${viewport.height}`);
     await page.locator('#uiScale').evaluate(el=>{el.value='70';el.dispatchEvent(new Event('input',{bubbles:true}))});
-    assert(await page.locator('.app').evaluate(el=>getComputedStyle(el).zoom)==='0.7', `UI Scale applies to the whole workspace at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('.app').evaluate(el=>getComputedStyle(el).zoom)==='1' && await page.locator('html').evaluate(el=>getComputedStyle(el).getPropertyValue('--ui-scale').trim())==='0.7', `UI Scale adjusts typography without shrinking the workspace canvas at ${viewport.width}x${viewport.height}`);
     await page.locator('#uiScale').evaluate(el=>{el.value='85';el.dispatchEvent(new Event('input',{bubbles:true}))});
     await page.locator('#uiTheme').selectOption('midnight');
     assert(await page.locator('html').getAttribute('data-theme')==='midnight', `theme setting applies at ${viewport.width}x${viewport.height}`);
