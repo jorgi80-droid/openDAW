@@ -3122,7 +3122,7 @@ function beginTimelinePinch(distance,centerX){
  const ruler=timelineRuler();if(!ruler)return;
  cancelPendingOneFingerActions();
  timelineGestureMode='pinch';
- timelinePinchStart={pointerIds:[...timelinePointers.keys()].slice(0,2),startDistance:Math.max(1,distance),startZoom:timelineZoom,anchorBar:timelineBarAtScreenX(ruler,centerX),pendingZoom:NaN,pendingCenter:0,epoch:++timelineGestureEpoch};
+ timelinePinchStart={pointerIds:[...timelinePointers.keys()].slice(0,2),startDistance:Math.max(1,distance),startZoom:timelineZoom,startPpb:timelinePixelsPerBar(),anchorBar:timelineBarAtScreenX(ruler,centerX),pendingZoom:NaN,pendingCenter:0,epoch:++timelineGestureEpoch};
  timelinePinchPending=null;
  document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-active');
 }
@@ -3141,12 +3141,19 @@ function queueTimelinePinch(distance,centerX){
   const centerLocal=Math.max(0,Math.min(ruler.clientWidth,pending.centerX-rect.left));
   const liveZoom=Math.max(.25,Math.min(16,pending.zoom));
   const focusBar=base.anchorBar;
-  // Compositor-only live preview. The canonical clip/grid coordinates are committed once the gesture ends.
+  // Melvox-style compositor preview: transform only the ruler/lane canvases, never the label column or toolbar.
+  // Each scroll viewport gets its own compensating offset so all grid planes remain aligned.
   const ratio=liveZoom/Math.max(.0001,base.startZoom);
-  const originX=focusBar*timelinePixelsPerBar();
-  const translateX=centerLocal-originX*ratio;
-  const workArea=document.querySelector('#timelineScreen .timeline-work-area');
-  if(workArea){workArea.style.transformOrigin='0 0';workArea.style.transform='translate3d('+translateX+'px,0,0) scaleX('+ratio+')';workArea.style.willChange='transform';}
+  const previews=[{el:ruler,content:ruler.querySelector('.bars')}];
+  document.querySelectorAll('#timelineScreen .cliparea').forEach(el=>previews.push({el,content:el.querySelector('.clip-canvas')}));
+  previews.forEach(({el,content})=>{
+   if(!content)return;
+   const scroll=el.scrollLeft||0;
+   const translateX=centerLocal+scroll-focusBar*base.startPpb*ratio;
+   content.style.transformOrigin='0 0';
+   content.style.transform='translate3d('+translateX+'px,0,0) scaleX('+ratio+')';
+   content.style.willChange='transform';
+  });
   document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-preview');
   base.pendingZoom=liveZoom;base.pendingCenter=centerLocal;
  });
@@ -3158,6 +3165,8 @@ function clearTimelinePinch(){
  const workArea=document.querySelector('#timelineScreen .timeline-work-area');
  if(base&&Number.isFinite(base.pendingZoom)){
   const ruler=timelineRuler(),center=Math.max(0,Math.min(ruler?.clientWidth||0,base.pendingCenter||0));
+  const contents=[ruler?.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+  contents.forEach(el=>{el.style.transform='';el.style.transformOrigin='';el.style.willChange='';});
   if(workArea){workArea.style.transform='';workArea.style.transformOrigin='';workArea.style.willChange='';}
   document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-preview');
   timelineZoom=base.pendingZoom;
