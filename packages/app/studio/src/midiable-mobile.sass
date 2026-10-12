@@ -589,7 +589,39 @@ html.midiable-mobile .mobile-toolbar-primary .number-display
 html.midiable-mobile .mobile-toolbar-spacer
   flex: 1 1 0
   min-width: 2px
+  max-width: 80px
   height: 1px
+  pointer-events: none
+
+html.midiable-mobile .mobile-header .mobile-time-controls
+  display: flex
+  flex: 0 1 auto
+  align-items: center
+  justify-content: flex-end
+  gap: 3px
+  min-width: 0
+  max-width: 42%
+  overflow: hidden
+
+html.midiable-mobile .mobile-header .mobile-time-controls .TimeStateDisplay
+  display: flex
+  flex: 0 1 auto
+  align-items: center
+  gap: 2px
+  min-width: 0
+  max-width: 100%
+  padding: 0
+  overflow: hidden
+
+html.midiable-mobile .mobile-header .mobile-time-controls .TimeStateDisplay > *
+  flex-shrink: 0
+
+html.midiable-mobile .mobile-header .mobile-time-controls .MetronomeControl
+  display: none !important
+
+@media (max-width: 380px)
+  html.midiable-mobile .mobile-header .mobile-time-controls .MeterControl
+    display: none !important
 
 html.midiable-mobile footer .mobile-panel-shortcut
   height: 34px
