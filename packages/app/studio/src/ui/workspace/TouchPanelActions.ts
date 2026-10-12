@@ -64,6 +64,9 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
         return
     }
 
+    // The UI renders one focused native PanelState per mobile destination.
+    // Let the shared workspace lifecycle unbind/rebind the existing panel; don't
+    // call showIfAvailable after the view has switched to a different screen.
     const token = beginTransition(service)
     const current = service.layout.screen.getValue()
 
@@ -78,8 +81,6 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
         const selectBrowser = (): void => {
             if (!isCurrentTransition(service, token)) {return}
             service.switchScreen("browser")
-            afterWorkspaceRebuild(service, token, () =>
-                service.panelLayout.showIfAvailable(PanelType.BrowserPanel))
         }
         if (current !== "default") {
             service.switchScreen("default")
@@ -104,10 +105,6 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
         const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
         if (browser.isVisible) {browser.toggleMinimize()}
         service.switchScreen(destination)
-        afterWorkspaceRebuild(service, token, () => {
-            const panel = service.panelLayout.getByType(type)
-            if (!panel.isVisible) {service.panelLayout.showIfAvailable(type)}
-        })
     }
 
     if (current !== "default") {
