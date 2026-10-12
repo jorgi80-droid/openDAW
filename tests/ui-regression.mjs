@@ -15,6 +15,18 @@ try {
     page.on('pageerror', e => pageErrors.push(e.message));
     await page.goto('http://127.0.0.1:4173/app-shell/index.html', { waitUntil: 'networkidle' });
     await page.waitForSelector('#timelineScreen');
+    // Home / Settings must change real workspace scale, theme and timeline snap behavior.
+    await page.locator('#menu').click();
+    assert(await page.locator('#settingsOverlay').isVisible(), `Home / Settings opens at ${viewport.width}x${viewport.height}`);
+    await page.locator('#uiScale').evaluate(el=>{el.value='70';el.dispatchEvent(new Event('input',{bubbles:true}))});
+    assert(await page.locator('.app').evaluate(el=>getComputedStyle(el).zoom)==='0.7', `UI Scale applies to the whole workspace at ${viewport.width}x${viewport.height}`);
+    await page.locator('#uiScale').evaluate(el=>{el.value='85';el.dispatchEvent(new Event('input',{bubbles:true}))});
+    await page.locator('#uiTheme').selectOption('midnight');
+    assert(await page.locator('html').getAttribute('data-theme')==='midnight', `theme setting applies at ${viewport.width}x${viewport.height}`);
+    await page.locator('#uiTheme').selectOption('dark');
+    await page.locator('#gridSnap').selectOption('eighth');
+    assert(await page.locator('#gridSnap').inputValue()==='eighth', `timeline snap subdivision is selectable at ${viewport.width}x${viewport.height}`);
+    await page.locator('#closeSettingsDone').click();
     const dims = await page.evaluate(() => {
       const box = s => { const r=document.querySelector(s).getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom,top:r.top,right:r.right}; };
       return {workspace:box('#workspace'),dock:box('.dock'),timeline:box('#timelineScreen .timeline'),rowCount:document.querySelectorAll('#tracks .trackrow').length,visibleScreenCount:[...document.querySelectorAll('.screen')].filter(el=>getComputedStyle(el).display!=='none').length};
@@ -132,14 +144,17 @@ try {
     const splitTarget = page.locator('#tracks .clip').first();
     const splitBox = await splitTarget.boundingBox();
     await page.mouse.click(splitBox.x + splitBox.width*0.45, splitBox.y + splitBox.height/2);
-    assert(await page.locator('#tracks .clip').count() === clipsBeforeSplit + 1, `Split tool divides one clip at ${viewport.width}x${viewport.height}`);
+    const splitCountAfter=await page.locator('#tracks .clip').count();
+    const splitToast=await page.locator('#toast').textContent();
+    assert(splitCountAfter === clipsBeforeSplit + 1, `Split tool divides one clip at ${viewport.width}x${viewport.height}; before=${clipsBeforeSplit}, after=${splitCountAfter}, toast=${splitToast}`);
 
     // FL Studio Mobile-style clip controls: one tap shows controls; a quick second tap enters the editor.
     const bassClip = page.locator('#tracks .clip[data-clip="c2"]');
     await bassClip.click();
-    assert(await page.locator('#clipContextMenu').isVisible(), `single tap opens clip controls at ${viewport.width}x${viewport.height}`);
+    const contextVisible=await page.locator('#clipContextMenu').isVisible();
+    assert(contextVisible, `single tap opens clip controls at ${viewport.width}x${viewport.height}; selected=${await page.locator('#clipContextMenu').getAttribute('data-clip-id')}, toast=${await page.locator('#toast').textContent()}`);
     await bassClip.click();
-    assert(await page.locator('#pianoScreen').isVisible(), `double tap opens the MIDI editor at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#pianoScreen').isVisible(), `double tap opens the MIDI editor at ${viewport.width}x${viewport.height}; contextHidden=${await page.locator('#clipContextMenu').evaluate(el=>el.hidden)}, toast=${await page.locator('#toast').textContent()}`);
     await page.locator('.dock button[data-screen="timeline"]').click();
 
     // Copy and delete are real project-model operations, not inert buttons.
@@ -176,6 +191,9 @@ try {
     const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid .note-layer').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
     assert(notesInside, `all Piano Roll notes remain inside note grid at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#velocity span').count() === 32, `velocity bars remain in separate lane at ${viewport.width}x${viewport.height}`);
+    const pianoWidthBefore=await page.locator('#pianogrid .note-layer').evaluate(el=>el.scrollWidth);
+    await page.locator('#pianogrid').dispatchEvent('wheel',{deltaY:-100,ctrlKey:true,bubbles:true,cancelable:true,clientX:300});
+    assert(await page.locator('#pianogrid .note-layer').evaluate(el=>el.scrollWidth)>pianoWidthBefore, `Ctrl-wheel Piano Roll zoom works at ${viewport.width}x${viewport.height}`);
     assert(pageErrors.length === 0, `no JavaScript exceptions at ${viewport.width}x${viewport.height}${pageErrors.length ? ': '+pageErrors.join('; ') : ''}`);
     for (const [route,id] of routes) {
       await page.locator('.dock button[data-screen="'+route+'"]').click();
