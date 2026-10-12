@@ -1209,8 +1209,11 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
     <aside class="timeline-tool-rail" id="timelineTools" aria-label="Timeline tools">
       <button class="active" data-timeline-tool="select" aria-label="Select and move clips" title="Select / Move"><svg viewBox="0 0 24 24"><path d="M5 3l13 10-6 1-3 6z" fill="currentColor"/></svg></button>
       <button data-timeline-tool="cut" aria-label="Split clip" title="Split at tapped point"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="18" r="2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M8 7l12 10M8 17L20 7" stroke="currentColor" stroke-width="1.8" fill="none"/></svg></button>
+      <button data-timeline-tool="range" aria-label="Pilih rentang waktu" title="Time selection">R</button>
       <button data-timeline-tool="automation" aria-label="Add automation clip" title="Automation lane"><svg viewBox="0 0 24 24"><path d="M3 18l5-8 4 4 4-9 5 3" stroke="currentColor" stroke-width="1.8" fill="none"/><circle cx="8" cy="10" r="1.4" fill="currentColor"/><circle cx="12" cy="14" r="1.4" fill="currentColor"/><circle cx="16" cy="5" r="1.4" fill="currentColor"/></svg></button>
 
+      <button data-timeline-tool="duplicate-range" aria-label="Duplicate selected range" title="Duplicate range">D</button>
+      <button data-timeline-tool="delete-range" aria-label="Delete selected range" title="Delete range">×R</button>
       <div class="tool-separator"></div>
       <button data-timeline-tool="zoom-out" aria-label="Zoom out" title="Zoom out">−</button>
       <span id="zoomLabel" class="zoom-label">100%</span>
@@ -1324,6 +1327,113 @@ function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;',
 function notify(message){const el=$('toast');el.textContent=message;el.hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.hidden=true,2600);}
 function snapshot(){undoStack.push(JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
 function switchScreen(name){if(!screens[name])return;if(name!=='timeline'&&$('clipContextMenu'))$('clipContextMenu').hidden=true;if(name==='timeline'){lastClipTap={id:null,time:0};ignoreNextClipId=null;clipGesture=null;}currentScreen=name;Object.keys(screens).forEach(k=>{const el=$(screens[k]),active=k===name;el.hidden=!active;el.setAttribute('aria-hidden',active?'false':'true');el.style.display=active?(name==='timeline'?'flex':'block'):'none';});document.querySelectorAll('.dock button').forEach(b=>{const active=b.dataset.screen===name;b.classList.toggle('active',active);b.setAttribute('aria-pressed',active?'true':'false');});if(name==='devices'){renderDevices();syncRackView();}if(name==='timeline')renderTracks();if(name==='mixer')renderMixer();}
+
+let timeSelection=null,rangeGesture=null;
+const MAX_BARS=32;
+function clampBar(value){return Math.max(0,Math.min(MAX_BARS,Number(value)||0))}
+function normalizedRange(range){if(!range)return null;const start=clampBar(Math.min(range.start,range.end)),end=clampBar(Math.max(range.start,range.end));return end-start>=.0625?{start,end}:null}
+function selectedRange(){return normalizedRange(timeSelection)}
+function renderRangeSelection(){
+ const screen=$('timelineScreen');if(!screen)return;
+ screen.querySelectorAll('.time-selection,.selection-overlay').forEach(el=>el.remove());
+ const range=selectedRange();const ruler=document.querySelector('#timelineScreen .bars-viewport .bars');
+ if(!range||!ruler)return;
+ const overlay=document.createElement('div');overlay.className='selection-overlay';
+ overlay.style.position='absolute';overlay.style.left='0';overlay.style.right='0';overlay.style.top='0';overlay.style.bottom='0';overlay.style.pointerEvents='none';overlay.style.zIndex='8';
+ const marker=document.createElement('div');marker.className='time-selection';
+ marker.style.left=(range.start/MAX_BARS*100)+'%';marker.style.width=((range.end-range.start)/MAX_BARS*100)+'%';
+ overlay.appendChild(marker);ruler.style.position='relative';ruler.appendChild(overlay);
+}
+function barAtClientX(clientX,viewport){
+ const rect=viewport.getBoundingClientRect(),contentWidth=Math.max(1,viewport.scrollWidth);
+ const x=Math.max(0,Math.min(contentWidth,viewport.scrollLeft+clientX-rect.left));
+ return clampBar(x/contentWidth*MAX_BARS);
+}
+function beginRangeSelection(event){
+ if(timelineTool!=='range'||event.button!==0)return;
+ const viewport=event.target.closest('.bars-viewport');if(!viewport)return;
+ event.preventDefault();rangeGesture={pointerId:event.pointerId,viewport,start:barAtClientX(event.clientX,viewport),current:barAtClientX(event.clientX,viewport)};
+ viewport.classList.add('range-select');
+ try{viewport.setPointerCapture(event.pointerId)}catch(_){}
+ timeSelection={start:rangeGesture.start,end:rangeGesture.current};
+ renderRangeSelection();
+}
+document.querySelector('#timelineScreen .ruler')?.addEventListener('pointerdown',beginRangeSelection);
+document.querySelector('#timelineScreen .ruler')?.addEventListener('pointermove',event=>{
+ if(!rangeGesture||event.pointerId!==rangeGesture.pointerId)return;
+ rangeGesture.current=barAtClientX(event.clientX,rangeGesture.viewport);
+ timeSelection={start:rangeGesture.start,end:rangeGesture.current};renderRangeSelection();
+});
+function finishRangeSelection(event){
+ if(!rangeGesture||event.pointerId!==rangeGesture.pointerId)return;
+ const range=normalizedRange(timeSelection);rangeGesture.viewport.classList.remove('range-select');rangeGesture=null;
+ timeSelection=range;renderRangeSelection();updateTimelineTools();
+ notify(range?'Rentang waktu dipilih · bar '+(range.start+1).toFixed(2)+'–'+(range.end+1).toFixed(2):'Pilih rentang yang lebih lebar');
+}
+document.querySelector('#timelineScreen .ruler')?.addEventListener('pointerup',finishRangeSelection);
+document.querySelector('#timelineScreen .ruler')?.addEventListener('pointercancel',finishRangeSelection);
+function applyRangeOperation(action){
+ const range=selectedRange();if(!range){notify('Pilih rentang waktu terlebih dahulu');return}
+ const original=JSON.stringify(project);
+ const start=range.start,end=range.end,duration=end-start;
+ let changed=0;
+ if(action==='duplicate'){
+  snapshot();
+  project.tracks.forEach(track=>{
+   const inRange=track.clips.filter(c=>c.start<end&&c.start+c.duration>start);
+   inRange.forEach(c=>{
+    const sliceStart=Math.max(c.start,start),sliceEnd=Math.min(c.start+c.duration,end);
+    if(sliceEnd<=sliceStart)return;
+    const duplicate={...JSON.parse(JSON.stringify(c)),id:'c'+Date.now()+Math.random().toString(16).slice(2,7),
+      start:sliceStart+duration,duration:sliceEnd-sliceStart,label:(c.label||'Clip')+' Copy'};
+    if(duplicate.start+duplicate.duration<=MAX_BARS){track.clips.push(duplicate);changed++}
+   });
+  });
+  timeSelection={start:start+duration,end:end+duration};
+  if(!changed){project=JSON.parse(original);undoStack.pop();timeSelection=range;notify('Tidak ada clip yang dapat diduplikasi ke rentang berikutnya');return}
+  notify(changed+' bagian clip diduplikasi ke kanan');
+ }else if(action==='delete'){
+  snapshot();
+  project.tracks.forEach(track=>{
+   const before=track.clips.length;
+   track.clips=track.clips.filter(c=>!(c.start>=start&&c.start+c.duration<=end));
+   changed+=before-track.clips.length;
+  });
+  notify(changed?changed+' clip di dalam rentang dihapus':'Tidak ada clip yang seluruhnya berada dalam rentang');
+ }else if(action==='insert'){
+  snapshot();
+  project.tracks.forEach(track=>track.clips.forEach(c=>{if(c.start>=start){c.start=clampBar(c.start+duration);changed++}}));
+  notify('Ruang waktu disisipkan pada model timeline');
+ }else if(action==='delete-space'){
+  snapshot();
+  project.tracks.forEach(track=>{
+   const next=[];
+   track.clips.forEach(c=>{
+    const ce=c.start+c.duration;
+    if(ce<=start){next.push(c);return}
+    if(c.start>=end){c.start=Math.max(0,c.start-duration);next.push(c);changed++;return}
+    if(c.start<start){const left={...c,duration:start-c.start};if(left.duration>=.0625)next.push(left);changed++}
+    if(ce>end){const right={...c,id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start:start,duration:ce-end,label:(c.label||'Clip')+' B'};if(right.duration>=.0625)next.push(right);changed++}
+   });
+   track.clips=next;
+  });
+  timeSelection=null;notify('Ruang waktu dihapus dan clip digeser ke kiri');
+ }else if(action==='trim'){
+  snapshot();
+  project.tracks.forEach(track=>{
+   const next=[];
+   track.clips.forEach(c=>{
+    const ce=c.start+c.duration,s=Math.max(c.start,start),e=Math.min(ce,end);
+    if(e>s){next.push({...c,start:s,duration:e-s});changed++}
+   });
+   track.clips=next;
+  });
+  timeSelection={start:0,end:duration};notify('Hanya isi rentang yang dipilih dipertahankan');
+ }
+ if(action==='delete'||action==='duplicate'||action==='insert'||action==='trim'||action==='delete-space'){
+  selectedClip=null;renderAll();renderRangeSelection();updateTimelineTools();
+ }
+}
 function renderTracks(){
  const root=$('tracks');root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas){rulerCanvas.style.width=(timelineZoom*100)+'%';rulerCanvas.style.minWidth='100%';}
  project.tracks.forEach((t,index)=>{
@@ -1897,11 +2007,12 @@ applyUiPrefs();
 function updateTimelineTools(){
  document.querySelectorAll('[data-timeline-tool]').forEach(b=>{
   const tool=b.dataset.timelineTool;
-  if(tool==='select'||tool==='cut')b.classList.toggle('active',tool===timelineTool);
+  if(tool==='select'||tool==='cut'||tool==='range')b.classList.toggle('active',tool===timelineTool);
+  if(tool==='duplicate-range'||tool==='delete-range')b.disabled=!selectedRange();
   if(tool==='delete'||tool==='copy'||tool==='cut-clip')b.disabled=!selectedClip;
   if(tool==='paste')b.disabled=!clipboardClip;
  });
- $('zoomLabel').textContent=Math.round(timelineZoom*100)+'%';$('zoomLabel').title='Timeline zoom '+Math.round(timelineZoom*100)+'%';
+ renderRangeSelection();$('zoomLabel').textContent=Math.round(timelineZoom*100)+'%';$('zoomLabel').title='Timeline zoom '+Math.round(timelineZoom*100)+'%';
 }
 function splitSelectedClipAtRatio(ratio=.5){
  const match=project.tracks.flatMap((t,ti)=>t.clips.map((c,ci)=>({t,ti,c,ci}))).find(x=>x.c.id===selectedClip);
@@ -1971,6 +2082,9 @@ $('timelineTools').addEventListener('click',e=>{
   const idx=project.tracks.findIndex(t=>t.clips.some(c=>c.id===selectedClip));if(idx<0){notify('Pilih clip dulu');return}
   snapshot();project.tracks[idx].clips=project.tracks[idx].clips.filter(c=>c.id!==selectedClip);selectedClip=null;renderTracks();notify('Clip dihapus')
  }
+ else if(tool==='range'){timelineTool='range';notify('Rentang waktu: geser jari di ruler atas')}
+ else if(tool==='duplicate-range'){applyRangeOperation('duplicate');return}
+ else if(tool==='delete-range'){applyRangeOperation('delete');return}
  else if(tool==='automation'){if(selectedTrack<0||selectedTrack>=project.tracks.length)selectedTrack=0;addClipToTrack(selectedTrack,'Automation');timelineTool='select'}
  updateTimelineTools();
 });
