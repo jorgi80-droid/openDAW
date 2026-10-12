@@ -700,6 +700,40 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
  #pianoScreen .velocity{height:28px!important}
 }
 
+
+/* Final compact mixer and theme surface overrides. */
+#mixerScreen>.panel{padding:6px!important;overflow:auto!important}
+#mixerScreen .paneltitle{font-size:12px!important;margin-bottom:4px!important}
+#mixerScreen .mixergrid{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:4px!important;align-items:stretch;min-height:0}
+#mixerScreen .channel{grid-template-columns:10px minmax(0,1fr)!important;grid-template-rows:auto minmax(58px,1fr) auto auto!important;gap:4px!important;min-height:0!important;height:100%!important;max-height:none!important;padding:5px 4px!important;overflow:hidden}
+#mixerScreen .channel-head{gap:3px!important;min-width:0}
+#mixerScreen .channel-head strong{font-size:10px!important}
+#mixerScreen .channel-head .muted{font-size:8px!important}
+#mixerScreen .channel .meter{width:8px!important;min-height:55px!important;border-radius:4px}
+#mixerScreen .gain-control{gap:2px!important}
+#mixerScreen .gain-control label,#mixerScreen .pan-control label{font-size:8px!important;gap:2px!important}
+#mixerScreen .gain-control label{white-space:normal!important}
+#mixerScreen .gain-control input{width:20px!important;min-height:44px!important;max-height:100px!important;height:calc(100% - 14px)!important}
+#mixerScreen .pan-control{gap:2px!important}
+#mixerScreen .pan-control input{min-height:14px!important;height:14px!important}
+#mixerScreen .channel-actions{gap:3px!important}
+#mixerScreen .channel-actions button{min-height:23px!important;padding:2px 4px!important;font-size:9px!important;border-radius:6px!important}
+@media(max-height:480px){
+ #mixerScreen .mixergrid{gap:3px!important}
+ #mixerScreen .channel{grid-template-rows:auto minmax(48px,1fr) auto auto!important;padding:4px 3px!important;gap:3px!important}
+ #mixerScreen .channel .meter{min-height:42px!important}
+ #mixerScreen .gain-control input{min-height:38px!important}
+ #mixerScreen .channel-actions button{min-height:20px!important;font-size:8px!important}
+}
+/* Theme choices should recolor every high-level DAW surface, not just its labels. */
+html[data-theme="light"] body,html[data-theme="light"] .app{background:var(--bg)!important;color:var(--text)!important}
+html[data-theme="light"] .top,html[data-theme="light"] .subbar,html[data-theme="light"] .transportbar,html[data-theme="light"] .dock{background:var(--panel)!important;border-color:var(--line)!important}
+html[data-theme="light"] .panel,html[data-theme="light"] .timeline,html[data-theme="light"] .channel,html[data-theme="light"] .device-picker,html[data-theme="light"] .device-editor,html[data-theme="light"] .device-trackbar,html[data-theme="light"] .sample,html[data-theme="light"] .knob-control{background:var(--panel)!important;color:var(--text)!important;border-color:var(--line)!important}
+html[data-theme="light"] .ruler,html[data-theme="light"] .trackhead,html[data-theme="light"] .tracklabel,html[data-theme="light"] .device-scope,html[data-theme="light"] .device-option,html[data-theme="light"] .waveform-row,html[data-theme="light"] .device-page-tabs button,html[data-theme="light"] .knob-bank{background:var(--panel2)!important;color:var(--text)!important;border-color:var(--line)!important}
+html[data-theme="light"] button,html[data-theme="light"] input,html[data-theme="light"] select{color:var(--text);border-color:var(--line)}
+html[data-theme="light"] button:not(.primary):not(.active),html[data-theme="light"] .chip{background:var(--panel2)!important}
+html[data-theme="light"] .clip{color:#152130!important}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
