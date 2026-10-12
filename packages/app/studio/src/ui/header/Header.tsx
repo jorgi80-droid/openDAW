@@ -99,8 +99,10 @@ export const Header = ({lifecycle, service}: Construct) => {
                         <div className="mobile-toolbar-spacer"/>
                         {transport}
                         <div className="mobile-toolbar-spacer"/>
-                        {timecodes}
-                        <MetronomeControl lifecycle={lifecycle} service={service} preferences={preferences}/>
+                        <div className="mobile-time-controls">
+                            {timecodes}
+                            <MetronomeControl lifecycle={lifecycle} service={service} preferences={preferences}/>
+                        </div>
                     </div>
                     <div className="mobile-toolbar-secondary">
                         <BaseFrequencyControl lifecycle={lifecycle} service={service}/>

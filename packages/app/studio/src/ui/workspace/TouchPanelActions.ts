@@ -64,6 +64,8 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
         return
     }
 
+    // On touch devices, each tool is its own native full-screen workspace.
+    // Desktop keeps the normal split-panel show/minimize behavior above.
     const token = beginTransition(service)
     const current = service.layout.screen.getValue()
 
@@ -78,8 +80,6 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
         const selectBrowser = (): void => {
             if (!isCurrentTransition(service, token)) {return}
             service.switchScreen("browser")
-            afterWorkspaceRebuild(service, token, () =>
-                service.panelLayout.showIfAvailable(PanelType.BrowserPanel))
         }
         if (current !== "default") {
             service.switchScreen("default")
@@ -101,13 +101,7 @@ export const toggleTouchPanel = (service: StudioService, type: PanelType): void 
     clearMaximized()
     const selectDestination = (): void => {
         if (!isCurrentTransition(service, token)) {return}
-        const browser = service.panelLayout.getByType(PanelType.BrowserPanel)
-        if (browser.isVisible) {browser.toggleMinimize()}
         service.switchScreen(destination)
-        afterWorkspaceRebuild(service, token, () => {
-            const panel = service.panelLayout.getByType(type)
-            if (!panel.isVisible) {service.panelLayout.showIfAvailable(type)}
-        })
     }
 
     if (current !== "default") {

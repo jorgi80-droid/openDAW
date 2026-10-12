@@ -130,11 +130,11 @@ html.midiable-mobile section.workspace.vertical > .panel-placeholder
   max-height: 100%
 
 
-/* Mobile-first presentation layer. The workspace panels remain genuine OpenDAW
-   panels; only shell geometry and navigation are replaced for touch screens. */
+/* Compact FL Studio Mobile-inspired shell geometry. Native OpenDAW panels remain
+   the actual editing surfaces, with one shared navigation dock at the bottom. */
 html.midiable-mobile
-  --mobile-toolbar-height: 76px
-  --mobile-dock-height: 40px
+  --mobile-toolbar-height: 0px
+  --mobile-dock-height: calc(42px + env(safe-area-inset-bottom, 0px))
 
   body
     height: 100dvh
@@ -163,8 +163,6 @@ html.midiable-mobile
     max-height: 100%
     overflow: hidden
 
-  /* Touch panels switch as full-screen tools instead of squeezing Timeline,
-     Editor, Mixer and Devices into stacked rows. */
   section.workspace.vertical > .panel-placeholder
     flex: 1 1 0
     min-height: 0
@@ -176,64 +174,84 @@ html.midiable-mobile
   .mobile-header
     position: relative
     z-index: 30
-    flex: 0 0 var(--mobile-toolbar-height)
-    min-height: var(--mobile-toolbar-height)
-    max-height: var(--mobile-toolbar-height)
+    flex: 0 0 0
     width: 100%
-    padding: 3px 4px
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08)
-    background: var(--color-header-background)
-    overflow: hidden
+    height: 0
+    min-height: 0
+    max-height: 0
+    padding: 0
+    border: 0
+    overflow: visible
+    pointer-events: none
 
   .mobile-header .desktop-toolbar
     display: contents
 
   .mobile-header .mobile-toolbar
-    display: flex
-    flex: 1 1 0
-    flex-direction: column
-    width: 100%
-    min-width: 0
-    min-height: 0
-    gap: 2px
-    overflow: hidden
+    display: contents
 
   footer
-    z-index: 40
+    position: fixed
+    z-index: 90
+    left: 0
+    right: 0
+    bottom: 0
+    display: flex
     flex: 0 0 var(--mobile-dock-height)
+    align-items: center
+    gap: 5px
+    width: 100%
+    height: var(--mobile-dock-height)
     min-height: var(--mobile-dock-height)
     max-height: var(--mobile-dock-height)
-    padding: 2px 6px
-    gap: 4px
+    box-sizing: border-box
+    padding: 3px 8px calc(3px + env(safe-area-inset-bottom, 0px))
     border-top: 1px solid rgba(255, 255, 255, 0.10)
-    background: var(--color-footer-background)
+    background: rgba(18, 21, 24, 0.98)
     overflow: hidden
 
   footer .mobile-panel-shortcut
     flex: 1 1 0
     min-width: 0
     max-width: none
-    flex-direction: column
+    flex-direction: row
+    align-items: center
     justify-content: center
-    row-gap: 2px
-    height: 40px
-    min-height: 40px
-    max-height: 40px
-    border-radius: 8px
+    gap: 5px
+    height: 34px
+    min-height: 34px
+    max-height: 34px
+    border-radius: 7px
 
   footer .mobile-panel-shortcut[data-pressed]
     color: var(--color-blue)
     border-color: var(--color-blue)
     background: rgba(66, 217, 232, 0.14)
 
-  /* Each dock destination is already full-screen; the old split-layout
-     maximize control would create a conflicting layout state here. */
   .panel-placeholder > header > .panel-maximize-button
     display: none !important
 
-  /* Keep browser contents scrollable, but prevent page-level overscroll from
-     stealing timeline pinch/drag gestures. */
   .panel-placeholder,
   .panel-placeholder > *,
   .panel-placeholder section
     overscroll-behavior: contain
+
+
+/* Keep the full-height mobile work area above the navigation dock. This affects
+   only root native panels and deliberately leaves the desktop workspace unchanged. */
+html.midiable-mobile component > main > section.workspace,
+html.midiable-mobile component > main > .panel-placeholder
+  flex: 1 1 0 !important
+  min-width: 0
+  min-height: 0
+  margin-bottom: 0
+  max-height: calc(100% - var(--mobile-dock-height))
+  box-sizing: border-box
+
+@media (max-height: 480px)
+  html.midiable-mobile
+    --mobile-dock-height: calc(36px + env(safe-area-inset-bottom, 0px))
+
+  html.midiable-mobile component > main > section.workspace,
+  html.midiable-mobile component > main > .panel-placeholder
+    max-height: calc(100% - var(--mobile-dock-height))

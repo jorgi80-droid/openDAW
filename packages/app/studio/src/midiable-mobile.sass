@@ -589,7 +589,39 @@ html.midiable-mobile .mobile-toolbar-primary .number-display
 html.midiable-mobile .mobile-toolbar-spacer
   flex: 1 1 0
   min-width: 2px
+  max-width: 80px
   height: 1px
+  pointer-events: none
+
+html.midiable-mobile .mobile-header .mobile-time-controls
+  display: flex
+  flex: 0 1 auto
+  align-items: center
+  justify-content: flex-end
+  gap: 3px
+  min-width: 0
+  max-width: 42%
+  overflow: hidden
+
+html.midiable-mobile .mobile-header .mobile-time-controls .TimeStateDisplay
+  display: flex
+  flex: 0 1 auto
+  align-items: center
+  gap: 2px
+  min-width: 0
+  max-width: 100%
+  padding: 0
+  overflow: hidden
+
+html.midiable-mobile .mobile-header .mobile-time-controls .TimeStateDisplay > *
+  flex-shrink: 0
+
+html.midiable-mobile .mobile-header .mobile-time-controls .MetronomeControl
+  display: none !important
+
+@media (max-width: 380px)
+  html.midiable-mobile .mobile-header .mobile-time-controls .MeterControl
+    display: none !important
 
 html.midiable-mobile footer .mobile-panel-shortcut
   height: 34px
@@ -609,13 +641,18 @@ html.midiable-mobile footer .mobile-panel-shortcut > .label
   font-size: 8px
 
 
-/* FL Studio Mobile-inspired shell: hide the full-width top bar but keep its controls
-   in one floating transport pill anchored at the bottom. */
+/* Keep the original workspace intact and reserve a safe-area-aware bottom dock.
+   The transport remains centered; the timeline, mixer, editor and devices never
+   sit underneath the floating controls. */
+html.midiable-mobile
+  --mobile-toolbar-height: 0px
+  --mobile-dock-height: calc(42px + env(safe-area-inset-bottom, 0px))
+
 html.midiable-mobile .mobile-header
-  position: static
-  z-index: 80
+  position: relative
+  z-index: 30
   flex: 0 0 0 !important
-  width: 0
+  width: 100%
   height: 0
   min-height: 0 !important
   max-height: 0 !important
@@ -632,97 +669,107 @@ html.midiable-mobile .mobile-header .mobile-toolbar-primary
   position: fixed
   z-index: 95
   left: 50%
-  bottom: calc(8px + env(safe-area-inset-bottom, 0px))
+  bottom: calc(var(--mobile-dock-height) + 10px + env(safe-area-inset-bottom, 0px))
   transform: translateX(-50%)
   display: flex
   flex: 0 1 auto
   align-items: center
+  justify-content: center
   gap: 4px
-  width: min(780px, calc(100vw - 12px))
+  width: min(560px, calc(100vw - 20px))
   min-width: 0
-  max-width: calc(100vw - 12px)
+  max-width: calc(100vw - 20px)
   height: 44px
   min-height: 44px
   max-height: 44px
   padding: 4px 8px
   border: 1px solid rgba(255, 255, 255, 0.18)
   border-radius: 999px
-  background: rgba(14, 17, 19, 0.94)
+  background: rgba(14, 17, 19, 0.96)
   box-shadow: 0 5px 24px rgba(0, 0, 0, 0.42)
   backdrop-filter: blur(14px)
-  overflow-x: auto
-  overflow-y: hidden
+  overflow: hidden
   scrollbar-width: none
   pointer-events: auto
-  touch-action: pan-x
-  overscroll-behavior-x: contain
+  touch-action: manipulation
+  box-sizing: border-box
 
 html.midiable-mobile .mobile-header .mobile-toolbar-secondary
   display: none !important
 
-html.midiable-mobile .mobile-header .mobile-menu
-  flex: 0 0 auto
-  height: 30px
-  padding: 0 5px
-  border: 0
-  background: transparent
-
-html.midiable-mobile .mobile-header .mobile-menu h5
-  font-size: 10px
-
-html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-history,
-html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-midi-controls
-  display: flex
-  flex: 0 0 auto
-  align-items: center
-  gap: 2px
-  padding: 0 4px
-  border-right: 1px solid rgba(255, 255, 255, 0.12)
-
-html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-history svg,
-html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-midi-controls svg
-  width: 16px
-  height: 16px
+/* Symmetric spacers center play/pause regardless of the menu/history controls
+   on the left and tempo/metronome display on the right. */
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-toolbar-spacer
+  display: block
+  flex: 1 1 0
+  min-width: 4px
+  max-width: 80px
+  height: 1px
+  pointer-events: none
 
 html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup
   display: flex
   flex: 0 0 auto
   align-items: center
-  gap: 2px
+  justify-content: center
+  gap: 3px
+  order: 0
 
 html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup > *
-  flex: 0 0 26px
-  width: 26px
-  min-width: 26px
-  max-width: 26px
-  height: 30px
-  min-height: 30px
-  max-height: 30px
-  border-radius: 7px
+  flex: 0 0 32px
+  width: 32px
+  min-width: 32px
+  max-width: 32px
+  height: 34px
+  min-height: 34px
+  max-height: 34px
+  border-radius: 8px
+  touch-action: manipulation
 
 html.midiable-mobile .mobile-header .mobile-toolbar-primary .TransportGroup svg
-  width: 16px
-  height: 16px
+  width: 18px
+  height: 18px
 
-html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-toolbar-spacer
-  flex: 1 1 0
-  min-width: 1px
-  height: 1px
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-menu
+  display: flex
+  flex: 0 0 30px
+  align-items: center
+  justify-content: center
+  width: 30px
+  min-width: 30px
+  max-width: 30px
+  height: 30px
+  padding: 0
+  border: 0
+  background: transparent
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-menu h5
+  overflow: hidden
+  width: 0
+  max-width: 0
+  margin: 0
+  font-size: 0
+  white-space: nowrap
+
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-history,
+html.midiable-mobile .mobile-header .mobile-toolbar-primary .mobile-midi-controls
+  display: none !important
 
 html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay
   display: flex
   flex: 0 0 auto
   align-items: center
-  column-gap: 3px
-  padding: 0 4px
-  border-left: 1px solid rgba(255, 255, 255, 0.12)
-  overflow: visible
+  gap: 3px
+  min-width: 0
+  padding: 0 3px
+  font-size: 9px
+  overflow: hidden
 
 html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > .number-display
-  flex: 0 0 20px
+  flex: 0 0 18px
 
 html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(1)
-  font-size: 11px
+  font-size: 10px
   line-height: 1em
 
 html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > .number-display > div:nth-child(2)
@@ -730,7 +777,114 @@ html.midiable-mobile .mobile-header .mobile-toolbar-primary .TimeStateDisplay > 
   line-height: 1em
 
 html.midiable-mobile .mobile-header .mobile-toolbar-primary .MetronomeControl
-  flex: 0 0 auto
+  display: none !important
 
-html.midiable-mobile .mobile-header .mobile-toolbar-primary > *
-  flex-shrink: 0
+/* Dock is the single mobile navigation surface. Its fixed height is reserved in
+   the workspace flow so the floating transport cannot cover the editable grid. */
+html.midiable-mobile footer
+  position: fixed
+  z-index: 90
+  left: 0
+  right: 0
+  bottom: 0
+  display: flex
+  flex: 0 0 var(--mobile-dock-height)
+  align-items: center
+  gap: 5px
+  width: 100%
+  height: var(--mobile-dock-height)
+  min-height: var(--mobile-dock-height)
+  max-height: var(--mobile-dock-height)
+  box-sizing: border-box
+  padding: 3px 8px calc(3px + env(safe-area-inset-bottom, 0px))
+  overflow: hidden
+  background: rgba(18, 21, 24, 0.98)
+  border-top: 1px solid rgba(255, 255, 255, 0.10)
+  white-space: nowrap
+  font-size: 9px
+  line-height: 1
+
+html.midiable-mobile footer > div:not(.mobile-panel-shortcut)
+  display: none !important
+
+html.midiable-mobile footer .mobile-panel-shortcut
+  display: flex !important
+  flex: 1 1 0
+  flex-direction: row
+  align-items: center
+  justify-content: center
+  gap: 5px
+  width: auto
+  min-width: 0
+  max-width: none
+  height: 34px
+  min-height: 34px
+  max-height: 34px
+  box-sizing: border-box
+  margin: 0
+  padding: 0 4px
+  overflow: hidden
+  border: 1px solid rgba(255, 255, 255, 0.12)
+  border-radius: 7px
+  color: var(--color-bright)
+  background: rgba(255, 255, 255, 0.035)
+  touch-action: manipulation
+  -webkit-tap-highlight-color: transparent
+
+html.midiable-mobile footer .mobile-panel-shortcut > .label
+  display: block !important
+  flex: 0 1 auto
+  width: auto
+  min-width: 0
+  max-width: 100%
+  overflow: hidden
+  padding: 0
+  font-size: 9px
+  line-height: 1
+  text-align: center
+  white-space: nowrap
+  text-overflow: ellipsis
+
+html.midiable-mobile footer .mobile-panel-shortcut > .value
+  display: flex
+  flex: 0 0 16px
+  align-items: center
+  justify-content: center
+  width: 16px
+  min-width: 16px
+  max-width: 16px
+  height: 16px
+  min-height: 16px
+  margin: 0
+  overflow: hidden
+
+html.midiable-mobile footer .mobile-panel-shortcut > .value svg
+  display: block
+  width: 16px
+  height: 16px
+
+html.midiable-mobile footer .mobile-panel-shortcut[data-pressed]
+  color: var(--color-blue)
+  border-color: var(--color-blue)
+  background: rgba(66, 217, 232, 0.13)
+
+/* Remove bottom pixels from the editable workspace before the footer dock. */
+html.midiable-mobile component:has(> main > section.workspace),
+html.midiable-mobile component:has(> main > .panel-placeholder)
+  padding-bottom: calc(var(--mobile-dock-height) + env(safe-area-inset-bottom, 0px))
+  box-sizing: border-box
+
+@media (max-height: 480px)
+  html.midiable-mobile footer
+    --mobile-dock-height: 36px
+    gap: 3px
+    padding-left: 5px
+    padding-right: 5px
+
+  html.midiable-mobile footer .mobile-panel-shortcut
+    height: 29px
+    min-height: 29px
+    max-height: 29px
+
+  html.midiable-mobile footer .mobile-panel-shortcut > .label
+    font-size: 8px
