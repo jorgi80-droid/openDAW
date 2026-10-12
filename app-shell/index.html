@@ -2297,17 +2297,53 @@ function timelineAnchorX(centerX){
  const rect=ruler?.getBoundingClientRect();
  return rect?Math.max(0,Math.min(ruler.clientWidth,centerX-rect.left)):undefined;
 }
+let timelinePinchFrame=0;
+let timelinePinchPending=null;
 function beginTimelinePinch(distance,centerX,mode){
- timelinePinchStart={distance:Math.max(1,distance),zoom:timelineZoom,centerX,pointerMode:mode==='pointer'};
+ const ruler=document.querySelector('#timelineScreen .bars-viewport');
+ const rect=ruler?.getBoundingClientRect();
+ const localX=rect?Math.max(0,Math.min(ruler.clientWidth,centerX-rect.left)):0;
+ const contentWidth=Math.max(1,timelineCanvasFor(ruler)?.scrollWidth||ruler?.clientWidth||1);
+ timelinePinchStart={
+  distance:Math.max(1,distance),
+  zoom:timelineZoom,
+  centerX,
+  anchorTime:Math.max(0,Math.min(1,((ruler?.scrollLeft||0)+localX)/contentWidth)),
+  pointerMode:mode==='pointer'
+ };
+ timelinePinchPending=null;
  clipGesture=null;pendingLanePress=null;timelinePan=null;
  document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-active');
 }
 function moveTimelinePinch(distance,centerX){
  if(!timelinePinchStart)return;
- setTimelineZoom(timelinePinchStart.zoom*Math.max(1,distance)/timelinePinchStart.distance,timelineAnchorX(centerX));
+ timelinePinchPending={
+  zoom:Math.max(.25,Math.min(16,timelinePinchStart.zoom*Math.max(1,distance)/timelinePinchStart.distance)),
+  centerX
+ };
+ if(timelinePinchFrame)return;
+ timelinePinchFrame=requestAnimationFrame(()=>{
+  timelinePinchFrame=0;
+  const pending=timelinePinchPending,start=timelinePinchStart;
+  timelinePinchPending=null;
+  if(!pending||!start)return;
+  const ruler=document.querySelector('#timelineScreen .bars-viewport');
+  if(!ruler)return;
+  timelineZoom=pending.zoom;
+  $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
+  const contentWidth=applyTimelineGeometry()||Math.max(1,ruler.clientWidth*timelineZoom);
+  const rect=ruler.getBoundingClientRect();
+  const currentCenterX=Math.max(0,Math.min(ruler.clientWidth,pending.centerX-rect.left));
+  const maxScroll=Math.max(0,contentWidth-ruler.clientWidth);
+  ruler.scrollLeft=Math.max(0,Math.min(maxScroll,start.anchorTime*contentWidth-currentCenterX));
+  syncTimelineScroll(ruler);
+  updateTimelineTools();
+ });
 }
 function clearTimelinePinch(){
  timelinePinchStart=null;
+ timelinePinchPending=null;
+ if(timelinePinchFrame){cancelAnimationFrame(timelinePinchFrame);timelinePinchFrame=0}
  document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active');
 }
 /* Touch Events intentionally not registered here. Timeline gestures use one Pointer Events path to prevent duplicate pinch handling. */
