@@ -1188,6 +1188,86 @@ html[data-theme="light"] .clip{color:#152130!important}
 @font-face{font-family:Rubik;src:url('assets/opendaw/fonts/rubik-300.woff2') format('woff2');font-weight:300;font-display:swap}
 html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-ui,sans-serif}
 .workspace-dock-symbol{width:20px;height:20px;display:block;flex:0 0 20px}
+/* P0/P1 Playlist geometry: one consistent label rail and scrollable time lanes.
+   Consolidates the effective end-of-sheet dimensions without changing editing logic. */
+#timelineScreen .timeline {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+#timelineScreen .ruler,
+#timelineScreen .trackrow {
+  display: grid !important;
+  grid-template-columns: clamp(104px, 13vw, 148px) minmax(0, 1fr) !important;
+  min-width: 0 !important;
+}
+#timelineScreen .ruler {
+  flex: 0 0 30px;
+  overflow: hidden !important;
+}
+#timelineScreen .trackhead,
+#timelineScreen .tracklabel {
+  width: auto !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+#timelineScreen .bars-viewport,
+#timelineScreen .cliparea {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  overscroll-behavior-x: contain !important;
+  scrollbar-width: none !important;
+  -webkit-overflow-scrolling: touch;
+}
+#timelineScreen .bars-viewport::-webkit-scrollbar,
+#timelineScreen .cliparea::-webkit-scrollbar { display: none !important; }
+#timelineScreen .bars-viewport .bars,
+#timelineScreen .cliparea .clip-canvas {
+  min-width: 100% !important;
+  height: 100% !important;
+  position: relative !important;
+}
+#timelineScreen .trackrow {
+  flex: 0 0 auto;
+  min-height: 48px !important;
+  height: clamp(48px, 7.3vh, 62px);
+}
+#timelineScreen .clip {
+  top: 5px !important;
+  height: calc(100% - 10px) !important;
+  min-height: 28px !important;
+  max-height: none !important;
+  padding: 4px 7px !important;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+#timelineScreen .clip-resize-handle {
+  width: 16px !important;
+  min-width: 16px !important;
+  z-index: 8 !important;
+  touch-action: none !important;
+}
+#timelineScreen .tracklabel .trackname > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-height: 480px) {
+  #timelineScreen .ruler { flex-basis: 26px; }
+  #timelineScreen .trackrow { height: 46px; min-height: 46px !important; }
+  #timelineScreen .clip {
+    top: 4px !important;
+    height: calc(100% - 8px) !important;
+  }
+}
+#timelineScreen .bars-viewport,
+#timelineScreen .cliparea,
+#timelineScreen .clip { -webkit-tap-highlight-color: transparent; }
+
 </style>
 </head>
 <body>
