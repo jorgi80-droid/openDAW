@@ -1296,6 +1296,36 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
   min-width: 100%;
   box-sizing: border-box;
 }
+
+/* Final Playlist zoom controls: keep zoom reachable despite legacy cascade. */
+#timelineScreen .timeline-tool-rail{
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain;
+  scrollbar-width:none;
+}
+#timelineScreen .timeline-tool-rail::-webkit-scrollbar{display:none}
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-in"],
+#timelineScreen .timeline-tool-rail [data-timeline-tool="zoom-out"]{
+  flex:0 0 32px!important;
+  min-height:32px!important;
+  background:#153047!important;
+  border-color:#315a79!important;
+  font-weight:800!important;
+  font-size:18px!important;
+}
+#timelineScreen .timeline-tool-rail .zoom-label{
+  flex:0 0 auto!important;
+  writing-mode:horizontal-tb!important;
+  transform:none!important;
+  min-height:0!important;
+  max-width:34px!important;
+  padding:2px 0!important;
+  font-size:9px!important;
+  font-weight:750!important;
+  line-height:1.1!important;
+  text-align:center!important;
+}
 </style>
 </head>
 <body>
