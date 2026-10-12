@@ -2,6 +2,9 @@ name: NovaDAW APK build
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - novadaw-from-zero
 
 permissions:
   contents: read
