@@ -1,4 +1,4 @@
-name: NovaDAW APK build
+name: StudioWave APK build
 
 on:
   workflow_dispatch:
