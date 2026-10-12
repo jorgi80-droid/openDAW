@@ -2331,7 +2331,7 @@ $('tracks').addEventListener('pointerdown',e=>{
  const mode=resizeHandle?'resize':'move';
  // The full clip surface supports moving; the narrow end handle is reserved for resizing.
  if(e.button!==undefined&&e.button!==0)return;
- clipGesture={pointerId:e.pointerId,target:clip,trackIndex,clipId,mode,startX:e.clientX,startY:e.clientY,originStart:item.start,originDuration:item.duration,originTrackIndex:trackIndex,targetTrackIndex:trackIndex,before:JSON.stringify(project),moved:false};
+ clipGesture={pointerId:e.pointerId,target:clip,trackIndex,clipId,mode,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,originStart:item.start,originDuration:item.duration,originTrackIndex:trackIndex,targetTrackIndex:trackIndex,viewport:clip.closest('.cliparea'),startScrollLeft:clip.closest('.cliparea')?.scrollLeft||0,edgeDirection:0,edgeDistance:0,before:JSON.stringify(project),moved:false};
  try{clip.setPointerCapture(e.pointerId)}catch(_){}
 });
 $('tracks').addEventListener('pointermove',e=>{
