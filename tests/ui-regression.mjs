@@ -83,6 +83,17 @@ try {
       assert(await page.locator('#samples .sample').count() === count, `Browser ${cat} populates ${count} items at ${viewport.width}x${viewport.height}`);
     }
     await page.locator('.dock button[data-screen="devices"]').click();
+    // The compact Channel Rack step row must be usable and isolated per track.
+    await page.locator('#deviceTrackSelect').selectOption('0');
+    await page.locator('#devTabs button[data-cat="Instrument"]').click();
+    assert(await page.locator('#stepRackButtons [data-step-index]').count() === 16, `Channel Rack exposes 16 touch steps at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#stepRackButtons [data-step-index="0"]').getAttribute('aria-pressed') === 'true', `Drum track starts with a visible four-beat pattern at ${viewport.width}x${viewport.height}`);
+    await page.locator('#stepRackButtons [data-step-index="1"]').click();
+    assert(await page.locator('#stepRackButtons [data-step-index="1"]').getAttribute('aria-pressed') === 'true', `Channel Rack step toggles on at ${viewport.width}x${viewport.height}`);
+    await page.locator('#deviceTrackSelect').selectOption('1');
+    assert(await page.locator('#stepRackButtons [data-step-index="1"]').getAttribute('aria-pressed') === 'false', `Channel Rack patterns are isolated between tracks at ${viewport.width}x${viewport.height}`);
+    await page.locator('#deviceTrackSelect').selectOption('0');
+    assert(await page.locator('#stepRackButtons [data-step-index="1"]').getAttribute('aria-pressed') === 'true', `Channel Rack pattern persists when returning to a track at ${viewport.width}x${viewport.height}`);
     await page.locator('#devTabs button[data-cat="Effect"]').click();
     assert(await page.locator('#devices .device-option').count() === 6, `Devices Effect tab lists 6 effects at ${viewport.width}x${viewport.height}`);
     assert(await page.locator('#devices .device-editor').isVisible(), `Devices has one focused editor at ${viewport.width}x${viewport.height}`);
