@@ -23,6 +23,7 @@ permissions:
 jobs:
   ui-browser:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -34,6 +35,7 @@ jobs:
           path: ~/.cache/ms-playwright
           key: ${{ runner.os }}-novadaw-playwright-chromium-v1
       - name: Install Playwright
+        timeout-minutes: 12
         run: |
           npm install --no-save playwright
           npx playwright install --with-deps chromium
@@ -48,6 +50,7 @@ jobs:
           cat /tmp/novadaw-http.log
           exit 1
       - name: Run browser and layout regression checks
+        timeout-minutes: 6
         run: node tests/ui-regression.mjs
       - name: Upload per-screen screenshots
         if: always()
