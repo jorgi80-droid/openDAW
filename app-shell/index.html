@@ -2155,6 +2155,38 @@ function renderSamples(category='Samples',filter='All'){
 }
 function renderAll(){renderTracks();renderMixer();renderPiano();renderDevices();renderSamples();$('projectName').value=project.name;$('tempo').value=project.tempo;$('meter').value=project.meter;}
 document.querySelectorAll('.dock button').forEach(b=>b.addEventListener('click',()=>switchScreen(b.dataset.screen)));
+
+const floatingMenus=['floatingEditorMenu','floatingWorkspaceMenu','floatingBrowserMenu'];
+function hideFloatingMenus(){floatingMenus.forEach(id=>$(id).hidden=true);['floatingEditorButton','floatingWorkspaceButton','floatingBrowserButton'].forEach(id=>$(id)?.setAttribute('aria-expanded','false'))}
+function toggleFloatingMenu(id,buttonId){
+ const target=$(id),wasOpen=!target.hidden;hideFloatingMenus();if(wasOpen)return;
+ target.hidden=false;$(buttonId)?.setAttribute('aria-expanded','true');
+ const r=$(buttonId).getBoundingClientRect();target.style.top=Math.max(54,Math.min(innerHeight-54,r.top+r.height/2))+'px';
+}
+$('floatingEditorButton').addEventListener('click',()=>{if(currentScreen!=='timeline'){switchScreen('timeline')}toggleFloatingMenu('floatingEditorMenu','floatingEditorButton');updateFloatingEditorMenu()});
+$('floatingWorkspaceButton').addEventListener('click',()=>toggleFloatingMenu('floatingWorkspaceMenu','floatingWorkspaceButton'));
+$('floatingBrowserButton').addEventListener('click',()=>switchScreen('browser'));
+document.querySelectorAll('#floatingWorkspaceMenu [data-screen]').forEach(b=>b.addEventListener('click',()=>{hideFloatingMenus();switchScreen(b.dataset.screen)}));
+document.querySelector('#floatingBrowserMenu [data-screen]')?.addEventListener('click',()=>{hideFloatingMenus();switchScreen('browser')});
+document.querySelectorAll('#floatingEditorMenu [data-editor-action]').forEach(b=>b.addEventListener('click',()=>{
+ const action=b.dataset.editorAction;hideFloatingMenus();
+ const tool=action==='copy'?'copy':action==='cut'?'cut-clip':action==='paste'?'paste':action==='split'?'cut':'delete';
+ const button=document.querySelector('#timelineTools [data-timeline-tool="'+tool+'"]');
+ if(!button){notify('Aksi '+action+' belum tersedia');return}
+ if(action==='split'&&!selectedClip){notify('Pilih clip lalu coba Split');return}
+ button.click();
+}));
+function updateFloatingEditorMenu(){
+ const m=$('floatingEditorMenu');if(!m)return;
+ m.querySelector('[data-editor-action="copy"]').disabled=!selectedClip;
+ m.querySelector('[data-editor-action="cut"]').disabled=!selectedClip;
+ m.querySelector('[data-editor-action="paste"]').disabled=!clipboardClip;
+ m.querySelector('[data-editor-action="split"]').disabled=!selectedClip;
+ m.querySelector('[data-editor-action="delete"]').disabled=!selectedClip;
+}
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('.dock')&&!e.target.closest('.floating-menu'))hideFloatingMenus()},{capture:true});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')hideFloatingMenus()});
+
 function pushUndoSnapshot(serialized){undoStack.push(serialized||JSON.stringify(project));if(undoStack.length>50)undoStack.shift();redoStack=[];}
 function openTrackMenu(i){
  if(i<0||i>=project.tracks.length)return;
