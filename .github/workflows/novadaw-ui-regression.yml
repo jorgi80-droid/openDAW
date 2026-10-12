@@ -44,6 +44,11 @@ jobs:
             ['cancelled clip gestures roll back model changes before pinch or pointer cancellation', html.includes('function cancelClipGesture(pointerId)') && html.includes('cancelClipGesture(e.pointerId)') && html.includes('cancelClipGesture();')],
             ['cancelled time-range selection restores the previous selection', html.includes('function cancelRangeSelection(event)') && html.includes("addEventListener('pointercancel',cancelRangeSelection)") && html.includes('previous:timeSelection?{...timeSelection}:null')],
             ['browser list has independent scrolling', html.includes('#browserScreen .categories,#browserScreen .samplelist{min-height:0;overflow:auto')],
+            ['three floating controls replace visible five-item dock', html.includes('id="floatingEditorButton"') && html.includes('id="floatingWorkspaceButton"') && html.includes('id="floatingBrowserButton"') && html.includes('id="floatingEditorMenu"')],
+            ['legacy tool rail is hidden from the workspace', /<aside class="timeline-tool-rail" id="timelineTools"[^>]*hidden/.test(html)],
+            ['add-track is a floating action above the timeline', html.includes('#timelineScreen>.addtrack{position:fixed!important')],
+            ['micro-grid third subdivision was removed', !html.includes("(ppb/4)+'px 100%'" )],
+            ['zoom requests are coalesced into animation frames', html.includes('function setTimelineZoomSmooth')],
             ['piano roll uses grid and velocity layout', html.includes('id="pianogrid"') && html.includes('id="velocity"')],
           ];
           for (const [name, pass] of checks) console.log((pass?'PASS':'FAIL')+' '+name);
