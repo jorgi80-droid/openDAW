@@ -41,6 +41,7 @@ jobs:
             ['two-pointer pinch has fallback and pointer cleanup', html.includes('const timelinePointers=new Map();') && html.includes("document.addEventListener('pointercancel',endTimelinePointer")],
             ['vertical drag scrolls the track list without hijacking horizontal pan', html.includes("timelinePan.axis='y'") && html.includes('timelinePan.trackScroller.scrollTop=Math.max(0,timelinePan.startScrollY-dy)')],
             ['cancelled clip gestures roll back model changes before pinch or pointer cancellation', html.includes('function cancelClipGesture(pointerId)') && html.includes('cancelClipGesture(e.pointerId)') && html.includes('cancelClipGesture();')],
+            ['cancelled time-range selection restores the previous selection', html.includes('function cancelRangeSelection(event)') && html.includes("addEventListener('pointercancel',cancelRangeSelection)") && html.includes('previous:timeSelection?{...timeSelection}:null')],
             ['browser list has independent scrolling', html.includes('#browserScreen .categories,#browserScreen .samplelist{min-height:0;overflow:auto')],
             ['piano roll uses grid and velocity layout', html.includes('id="pianogrid"') && html.includes('id="velocity"')],
           ];
