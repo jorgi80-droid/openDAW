@@ -1484,6 +1484,13 @@ button:active{transform:scale(.975)}
 #timelineScreen .bars span{display:none!important}
 #timelineScreen .bars-viewport{padding:0!important;margin:0!important}
 
+/* Pinch preview is compositor-only; suppress text-selection and keep subpixel horizontal scaling clean. */
+#timelineScreen .timeline-work-area.timeline-pinch-preview,
+#timelineScreen.timeline-pinch-preview .timeline-work-area{will-change:transform!important;backface-visibility:hidden!important;contain:paint!important}
+#timelineScreen.timeline-pinch-preview .timeline-tool-rail,
+#timelineScreen.timeline-pinch-preview>.addtrack{visibility:hidden!important}
+#timelineScreen .bars .timeline-ruler-canvas{image-rendering:auto!important}
+
 /* Final ruler/track coordinate contract: identical label column, pixel origin and track canvas width. */
 #timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(110px,15vw,165px) minmax(0,1fr)!important}
 #timelineScreen .ruler{display:grid!important;overflow:hidden!important}
