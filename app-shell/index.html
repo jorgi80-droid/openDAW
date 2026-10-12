@@ -772,6 +772,32 @@ html[data-theme="light"] .clip{color:#152130!important}
  #devicesScreen .device-editor-actions select{width:58px!important;min-width:48px!important}
 }
 
+
+/* Use UI Scale once for text/controls. Scaling the entire app with CSS zoom caused
+   horizontal overflow at 854px and doubled font scaling. */
+.app{zoom:1!important;width:100%!important;height:100dvh!important;max-width:none!important}
+.subbar .chip input{width:46px!important;min-width:46px!important}
+.top .project input{max-width:clamp(76px,15vw,170px)!important}
+.dock{display:flex!important;width:100%!important;min-width:0!important;gap:4px!important;overflow:hidden!important}
+.dock button{flex:1 1 0!important;width:0!important;min-width:0!important;max-width:none!important;padding:2px 1px!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;font-size:clamp(8px,1.2vw,11px)!important}
+.dock .workspace-dock-symbol{width:15px!important;height:15px!important;flex:0 0 15px!important}
+#timelineScreen .tracks{display:flex!important;flex-direction:column!important;flex:1 1 auto!important;min-height:0!important;height:100%!important;overflow:auto!important}
+#timelineScreen .trackrow{flex:1 0 clamp(48px,calc((100dvh - 175px)/6),104px)!important;min-height:clamp(48px,calc((100dvh - 175px)/6),104px)!important}
+#devicesScreen .devicegrid{height:100%!important;min-height:0!important}
+#devicesScreen .device-editor{height:100%!important;align-self:stretch!important;min-height:0!important}
+#devicesScreen .device-editor-main{flex:1 1 0!important;min-height:0!important;align-items:stretch!important}
+#devicesScreen .knob-bank{align-content:stretch!important;grid-auto-rows:minmax(0,1fr)!important}
+#devicesScreen .knob-control{justify-content:space-between!important}
+#devicesScreen .device-scope{justify-content:space-between!important}
+.transportbar #play{width:40px!important;height:32px!important;min-width:40px!important;min-height:32px!important;padding:2px!important}
+.transportbar .transport{height:32px!important;min-height:32px!important}
+@media(max-height:480px){
+ .app{grid-template-rows:38px 32px 28px minmax(0,1fr) 38px!important}
+ .dock button{font-size:8px!important;gap:2px!important}
+ .dock .workspace-dock-symbol{width:13px!important;height:13px!important;flex-basis:13px!important}
+ #timelineScreen .trackrow{flex-basis:clamp(44px,calc((100dvh - 160px)/6),75px)!important;min-height:clamp(44px,calc((100dvh - 160px)/6),75px)!important}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
