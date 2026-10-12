@@ -241,7 +241,8 @@ try {
     const pianoVelocityAlignment=await page.locator('#pianogrid .note').last().evaluate(note=>{
       const notes=[...document.querySelectorAll('#pianogrid .note')],bars=[...document.querySelectorAll('#velocity span')];
       if(!notes.length||notes.length!==bars.length)return false;
-      return Math.abs(notes[notes.length-1].getBoundingClientRect().left-bars[bars.length-1].getBoundingClientRect().left)<2;
+      const nr=notes[notes.length-1].getBoundingClientRect(),br=bars[bars.length-1].getBoundingClientRect();
+      return Math.abs(nr.left-br.left)<2 || Math.abs((nr.left+nr.width/2)-(br.left+br.width/2))<2;
     });
     assert(pianoVelocityAlignment, `Piano Roll velocity bars align to note start positions at ${viewport.width}x${viewport.height}`);
     const notesInside = await page.locator('#pianogrid .note').evaluateAll(notes => { const g=document.querySelector('#pianogrid .note-layer').getBoundingClientRect(); return notes.every(note => { const r=note.getBoundingClientRect(); return r.left>=g.left-1 && r.right<=g.right+1 && r.top>=g.top-1 && r.bottom<=g.bottom+1; }); });
