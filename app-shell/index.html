@@ -3124,8 +3124,10 @@ function queueTimelinePinch(distance,centerX){
   $('timelineScreen').style.setProperty('--timeline-ppb',timelinePixelsPerBar()+'px');
   const contentWidth=applyTimelineGeometry({fast:true})||timelineContentWidth();
   const maxScroll=Math.max(0,contentWidth-ruler.clientWidth);
-  const anchorBar=base.anchorBar;
-  ruler.scrollLeft=Math.max(0,Math.min(maxScroll,anchorBar*timelinePixelsPerBar()-centerLocal));
+  // Zoom follows the bar that is currently beneath the moving pinch center, preventing drift.
+  const focusBar=(ruler.scrollLeft+centerLocal)/Math.max(1,timelinePixelsPerBar());
+  base.anchorBar=focusBar;
+  ruler.scrollLeft=Math.max(0,Math.min(maxScroll,focusBar*timelinePixelsPerBar()-centerLocal));
   syncTimelineScroll(ruler);paintTimelineRuler();updateTimelineTools();
  });
 }
