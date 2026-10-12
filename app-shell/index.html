@@ -1538,10 +1538,10 @@ function applyRangeOperation(action){
  const original=JSON.stringify(project);
  const start=range.start,end=range.end,duration=end-start;
  const spanPieces=track=>track.clips.flatMap(c=>{const cs=Number(c.start)||0,ce=cs+(Number(c.duration)||0),left=Math.max(cs,start),right=Math.min(ce,end);return right>left?[{clip:c,left,right}]:[]});
- const canShift=()=>project.tracks.every(track=>track.clips.every(c=>c.start<end||c.start+c.duration+duration<=MAX_BARS));
+ const selectedPieces=project.tracks.flatMap(track=>spanPieces(track));
  let changed=0;
  if(action==='duplicate'){
-  if(!canShift()){notify('Tidak cukup ruang di akhir timeline untuk menggandakan rentang ini');return}
+  if(selectedPieces.some(piece=>piece.right+duration>MAX_BARS+1e-6)){notify('Tidak cukup ruang di akhir timeline untuk menggandakan rentang ini');return}
   snapshot();
   project.tracks.forEach(track=>{
    const pieces=spanPieces(track);
