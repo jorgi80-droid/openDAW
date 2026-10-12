@@ -1506,7 +1506,7 @@ function barAtClientX(clientX,viewport){
 function beginRangeSelection(event){
  if(timelineTool!=='range'||event.button!==0)return;
  const viewport=event.target.closest('.bars-viewport');if(!viewport)return;
- event.preventDefault();rangeGesture={pointerId:event.pointerId,viewport,start:barAtClientX(event.clientX,viewport),current:barAtClientX(event.clientX,viewport)};
+ event.preventDefault();rangeGesture={pointerId:event.pointerId,viewport,start:barAtClientX(event.clientX,viewport),current:barAtClientX(event.clientX,viewport),previous:timeSelection?{...timeSelection}:null};
  viewport.classList.add('range-select');
  try{viewport.setPointerCapture(event.pointerId)}catch(_){}
  timeSelection={start:rangeGesture.start,end:rangeGesture.current};
@@ -1524,8 +1524,15 @@ function finishRangeSelection(event){
  timeSelection=range;renderRangeSelection();updateTimelineTools();
  notify(range?'Rentang waktu dipilih · bar '+(range.start+1).toFixed(2)+'–'+(range.end+1).toFixed(2):'Pilih rentang yang lebih lebar');
 }
+function cancelRangeSelection(event){
+ if(!rangeGesture||event.pointerId!==rangeGesture.pointerId)return;
+ rangeGesture.viewport.classList.remove('range-select');
+ timeSelection=rangeGesture.previous;
+ rangeGesture=null;
+ renderRangeSelection();updateTimelineTools();
+}
 document.querySelector('#timelineScreen .ruler')?.addEventListener('pointerup',finishRangeSelection);
-document.querySelector('#timelineScreen .ruler')?.addEventListener('pointercancel',finishRangeSelection);
+document.querySelector('#timelineScreen .ruler')?.addEventListener('pointercancel',cancelRangeSelection);
 function applyRangeOperation(action){
  const range=selectedRange();if(!range){notify('Pilih rentang waktu terlebih dahulu');return}
  const original=JSON.stringify(project);
