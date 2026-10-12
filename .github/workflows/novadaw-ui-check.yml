@@ -62,5 +62,5 @@ jobs:
             raise SystemExit("Project actions must be hidden from the toolbar")
           if "function saveProject()" not in s or "function openProject()" not in s or "function exportProject()" not in s:
             raise SystemExit("Project menu actions are not wired to shared project handlers")
-                    print("NovaDAW UI static checks passed.")
+          print("NovaDAW UI static checks passed.")
           PY
