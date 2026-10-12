@@ -1867,8 +1867,6 @@ button:active{transform:scale(.975)}
    <button id="projectOpen">Buka / Impor proyek</button>
    <button id="projectExport">Ekspor JSON</button>
    <button id="projectImport">Impor JSON</button>
-   <button id="projectMenuUndo">Undo</button>
-   <button id="projectMenuRedo">Redo</button>
   </div>
   <div class="menu-actions"><button id="closeProjectMenuDone" class="primary">Selesai</button></div>
  </section>
@@ -2543,18 +2541,22 @@ function timelineContentWidth(){
  const base=timelineBaseWidth(),ppb=timelinePixelsPerBar();
  return Math.max(base,Math.ceil(timelineContentBars()*ppb));
 }
-function applyTimelineGeometry(){
+function applyTimelineGeometry(options={}){
  const ruler=document.querySelector('#timelineScreen .bars-viewport');if(!ruler)return;
  const contentWidth=timelineContentWidth(),ppb=timelinePixelsPerBar();
+ const fast=!!options.fast;
  const canvases=[ruler.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
  canvases.forEach(canvas=>{
-  canvas.style.setProperty('width',contentWidth+'px','important');
-  canvas.style.setProperty('min-width',contentWidth+'px','important');
-  canvas.style.setProperty('max-width','none','important');
-  canvas.style.setProperty('box-sizing','border-box','important');
+  if(canvas._timelineAppliedWidth!==contentWidth){
+   canvas.style.setProperty('width',contentWidth+'px','important');
+   canvas.style.setProperty('min-width',contentWidth+'px','important');
+   canvas.style.setProperty('max-width','none','important');
+   canvas.style.setProperty('box-sizing','border-box','important');
+   canvas._timelineAppliedWidth=contentWidth;
+  }
  });
  const bars=ruler.querySelector('.bars');
- if(bars){
+ if(bars&&!fast){
   const visibleBars=Math.max(INITIAL_TIMELINE_BARS,Math.ceil(contentWidth/Math.max(1,ppb)));
   const desiredLabels=Math.ceil(visibleBars/4);
   let labels=[...bars.querySelectorAll('span:not(.ruler-end)')];
@@ -2579,10 +2581,12 @@ function applyTimelineGeometry(){
  }
  document.querySelectorAll('#timelineScreen .clip-canvas').forEach(canvas=>{
   const lane=canvas.closest('.cliparea'),index=Number(lane?.dataset.track),track=project.tracks[index];if(!track)return;
-  canvas.querySelectorAll('.clip[data-clip]').forEach(el=>{
-   const clip=track.clips.find(x=>x.id===el.dataset.clip);if(!clip)return;
-   el.style.left=(clip.start*ppb)+'px';el.style.width=(Math.min(clip.duration,MAX_BARS-clip.start)*ppb)+'px';
-  });
+  if(!fast){
+   canvas.querySelectorAll('.clip[data-clip]').forEach(el=>{
+    const clip=track.clips.find(x=>x.id===el.dataset.clip);if(!clip)return;
+    el.style.left=(clip.start*ppb)+'px';el.style.width=(Math.min(clip.duration,MAX_BARS-clip.start)*ppb)+'px';
+   });
+  }
   canvas.style.setProperty('background-size',(ppb*4)+'px 100%, '+ppb+'px 100%','important');
  });
  $('timelineScreen').style.setProperty('--timeline-ppb',ppb+'px');
@@ -2884,8 +2888,6 @@ $('projectSave').addEventListener('click',()=>{saveProject();closeProjectMenu()}
 $('projectOpen').addEventListener('click',()=>{openProject();closeProjectMenu()});
 $('projectExport').addEventListener('click',()=>{exportProject();closeProjectMenu()});
 $('projectImport').addEventListener('click',()=>{importProject();closeProjectMenu()});
-$('projectMenuUndo').addEventListener('click',()=>{$('undo').click();closeProjectMenu()});
-$('projectMenuRedo').addEventListener('click',()=>{$('redo').click();closeProjectMenu()});
 $('undo').addEventListener('click',()=>{if(!undoStack.length){notify('Tidak ada aksi untuk undo');return}redoStack.push(JSON.stringify(project));project=JSON.parse(undoStack.pop());renderAll();notify('Undo selesai')});
 $('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada aksi untuk redo');return}undoStack.push(JSON.stringify(project));project=JSON.parse(redoStack.pop());renderAll();notify('Redo selesai')});
 const uiPrefs={scale:85,theme:'dark',density:'compact',snap:'quarter'};
@@ -3088,7 +3090,7 @@ function queueTimelinePinch(distance,centerX){
   timelineZoom=pending.zoom;
   $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
   $('timelineScreen').style.setProperty('--timeline-ppb',timelinePixelsPerBar()+'px');
-  const contentWidth=applyTimelineGeometry()||timelineContentWidth();
+  const contentWidth=applyTimelineGeometry({fast:true})||timelineContentWidth();
   const maxScroll=Math.max(0,contentWidth-ruler.clientWidth);
   ruler.scrollLeft=Math.max(0,Math.min(maxScroll,base.anchorBar*timelinePixelsPerBar()-centerLocal));
   syncTimelineScroll(ruler);updateTimelineTools();
@@ -3176,7 +3178,7 @@ function endTimelinePointer(e){
  const wasPinching=!!timelinePinchStart||timelineGestureMode==='pinch-ended';
  const pan=timelinePan&&timelinePan.pointerId===e.pointerId?timelinePan:null;
  timelinePointers.delete(e.pointerId);
- if(timelinePinchStart){timelineGestureMode='pinch-ended';timelinePan=null;clearTimelinePinch()}
+ if(timelinePinchStart){timelineGestureMode='pinch-ended';timelinePan=null;clearTimelinePinch();const zoom=r=>requestAnimationFrame(()=>{if(!timelinePinchStart&&!timelinePointers.size){applyTimelineGeometry();syncTimelineScroll(r);updateTimelineTools()}});zoom(timelineRuler())}
  if(timelinePointers.size===0){
   if(e.type==='pointerup'&&!wasPinching&&pan&&pan.axis)startTimelinePanInertia(pan);
   timelinePan=null;timelineGestureMode='idle';
