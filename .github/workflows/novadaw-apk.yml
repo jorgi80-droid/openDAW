@@ -2,12 +2,6 @@ name: NovaDAW APK build
 
 on:
   workflow_dispatch:
-  push:
-    branches: [novadaw-from-zero]
-    paths:
-      - 'app-shell/**'
-      - 'android-wrapper-novadaw/**'
-      - '.github/workflows/novadaw-apk.yml'
 
 permissions:
   contents: read
