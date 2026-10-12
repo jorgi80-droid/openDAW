@@ -237,3 +237,22 @@ html.midiable-mobile
   .panel-placeholder > *,
   .panel-placeholder section
     overscroll-behavior: contain
+
+
+
+/* Keep the full-height mobile work area above the navigation dock. This affects
+   only root native panels and deliberately leaves the desktop workspace unchanged. */
+html.midiable-mobile component > main > section.workspace,
+html.midiable-mobile component > main > .panel-placeholder
+  margin-bottom: var(--mobile-dock-height)
+  max-height: calc(100% - var(--mobile-dock-height))
+  box-sizing: border-box
+
+html.midiable-mobile component > main > section.workspace > .panel-placeholder
+  min-height: 0
+
+@media (max-height: 480px)
+  html.midiable-mobile component > main > section.workspace,
+  html.midiable-mobile component > main > .panel-placeholder
+    margin-bottom: 36px
+    max-height: calc(100% - 36px)
