@@ -1302,9 +1302,17 @@ $('pianogrid').addEventListener('click',e=>{
 });
 $('deviceTrackSelect').addEventListener('change',e=>{const index=Number(e.target.value);if(!Number.isInteger(index)||!project.tracks[index])return;selectedTrack=index;renderDevices();syncRackView();notify('Rack track: '+project.tracks[index].name)});
 $('devTabs').addEventListener('click',e=>{const b=e.target.closest('[data-cat]');if(!b)return;selectedDeviceCategory=b.dataset.cat;selectedDeviceTab=b.dataset.cat==='Instrument'?'OSC':b.dataset.cat==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory)});
-$('devices').addEventListener('click',e=>{
+$('channelStepRack').addEventListener('click',e=>{
  const step=e.target.closest('[data-step-index]');
- if(step){const rack=getTrackRack();const index=Number(step.dataset.stepIndex);if(Number.isInteger(index)&&index>=0&&index<16){rack.steps[index]=!rack.steps[index];step.setAttribute('aria-pressed',rack.steps[index]?'true':'false');step.classList.toggle('active',rack.steps[index]);notify('Step '+(index+1)+' '+(rack.steps[index]?'aktif':'nonaktif')+' pada '+project.tracks[selectedTrack].name+' · UI model');}return}
+ if(!step)return;
+ const rack=getTrackRack(),index=Number(step.dataset.stepIndex);
+ if(!Number.isInteger(index)||index<0||index>=16)return;
+ rack.steps[index]=!rack.steps[index];
+ step.setAttribute('aria-pressed',rack.steps[index]?'true':'false');
+ step.classList.toggle('active',rack.steps[index]);
+ notify('Step '+(index+1)+' '+(rack.steps[index]?'aktif':'nonaktif')+' pada '+project.tracks[selectedTrack].name+' · UI model');
+});
+$('devices').addEventListener('click',e=>{
  const keyboard=e.target.closest('[data-device-keyboard]');if(keyboard){deviceKeyboardVisible=!deviceKeyboardVisible;renderDevices('Instrument');return}
  const key=e.target.closest('.mini-keyboard .white-key');if(key){key.classList.add('pressed');setTimeout(()=>key.classList.remove('pressed'),110);return}
  const option=e.target.closest('[data-device-select]');if(option){const rack=getTrackRack();if(selectedDeviceCategory==='Instrument')rack.instrument=option.dataset.deviceSelect;else if(selectedDeviceCategory==='Effect')rack.effect=option.dataset.deviceSelect;else rack.preset=option.dataset.deviceSelect;selectedDevice=option.dataset.deviceSelect;selectedDeviceTab=selectedDeviceCategory==='Instrument'?'OSC':selectedDeviceCategory==='Effect'?'EQ':'OSC';renderDevices(selectedDeviceCategory);return}
