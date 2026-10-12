@@ -1741,7 +1741,25 @@ document.addEventListener('keydown',e=>{
   if(selectedClip){e.preventDefault();const found=project.tracks.flatMap((t,ti)=>t.clips.map(c=>({c,ti,t}))).find(x=>x.c.id===selectedClip);if(found)clipboardClip={clip:JSON.parse(JSON.stringify(found.c)),sourceTrack:found.ti,pendingPaste:true,mode:'move'};notify(found?'Clip siap dipotong':'Pilih clip dulu')}
   return
  }
- if((e.ctrlKey||e.metaKey)&&key==='v'){if(clipboardClip){e.preventDefault();clipboardClip.pendingPaste=true;notify('Pilih clip tujuan untuk menempel')}return}
+ if((e.ctrlKey||e.metaKey)&&key==='v'){
+  if(!clipboardClip)return;
+  e.preventDefault();
+  const targetClip=selectedClip?project.tracks.flatMap((t,ti)=>t.clips.map(c=>({c,ti,t}))).find(x=>x.c.id===selectedClip):null;
+  if(!targetClip){clipboardClip.pendingPaste=true;notify('Pilih clip tujuan untuk menempel');return}
+  snapshot();
+  let start=targetClip.c.start+targetClip.c.duration;
+  const sourceTrack=project.tracks[clipboardClip.sourceTrack];
+  const source=sourceTrack?.clips.find(c=>c.id===clipboardClip.clip.id);
+  if(clipboardClip.mode==='move'&&source){
+   start=source.start;
+   sourceTrack.clips=sourceTrack.clips.filter(c=>c.id!==source.id);
+  }
+  const pasted={...JSON.parse(JSON.stringify(clipboardClip.clip)),id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start,label:(clipboardClip.clip.label||'Clip')+(clipboardClip.mode==='move'?'':' Copy')};
+  if(pasted.start+pasted.duration>32)pasted.start=Math.max(0,32-pasted.duration);
+  targetClip.t.clips.push(pasted);
+  selectedTrack=targetClip.ti;selectedClip=pasted.id;clipboardClip={clip:JSON.parse(JSON.stringify(pasted)),sourceTrack:targetClip.ti,pendingPaste:false,mode:'copy'};
+  renderTracks();updateTimelineTools();hideClipContext();notify('Clip ditempel');return
+ }
  if(key==='delete'||key==='backspace'){
   if(!selectedClip)return;
   e.preventDefault();const owner=project.tracks.find(t=>t.clips.some(c=>c.id===selectedClip));if(!owner)return;
