@@ -2644,7 +2644,8 @@ function applyTimelineGeometry(options={}){
  const ruler=document.querySelector('#timelineScreen .bars-viewport');if(!ruler)return 0;
  const width=timelineContentWidth(),ppb=timelinePixelsPerBar(),fast=!!options.fast;
  const bars=ruler.querySelector('.bars');
- // Ruler and clip lanes share the exact same content width in logical pixels.
+ // Every visible time surface uses the same logical origin and width. The ruler's grid
+ // and label canvases are absolutely positioned, so set the parent width explicitly.
  if(bars&&bars._appliedWidth!==width){bars.style.width=width+'px';bars.style.minWidth=width+'px';bars.style.maxWidth='none';bars._appliedWidth=width}
  document.querySelectorAll('#timelineScreen .clip-canvas').forEach(canvas=>{
   if(canvas._appliedWidth!==width){canvas.style.width=width+'px';canvas.style.minWidth=width+'px';canvas.style.maxWidth='none';canvas._appliedWidth=width}
@@ -2665,6 +2666,8 @@ function applyTimelineGeometry(options={}){
  });
  $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
  $('timelineScreen').style.setProperty('--timeline-ppb',ppb+'px');
+ // Repaint only after geometry is committed. During a pinch, the compositor preview is
+ // cleared first, and the final ruler labels/grid are rebuilt together from this same scale.
  if(!fast)requestPaintTimelineRuler(true);
  return width;
 }
