@@ -28,7 +28,6 @@ component
 
       &.vertical
         flex-direction: column
-        /* cancels the gap between the fill */
         margin-top: -1px
 
         > div.fill
@@ -46,7 +45,6 @@ component
 
       &.horizontal
         flex-direction: row
-        /* cancels the gap between the fill */
         margin-left: -1px
 
 @media (max-width: 900px), (pointer: coarse)
@@ -69,9 +67,6 @@ component
       > *
         min-width: 0
 
-
-
-// Mobile: keep workspace, touch controls and status in one bounded vertical layout.
 @media (max-width: 900px), (pointer: coarse)
   component
     height: auto
@@ -81,3 +76,58 @@ component
 
     > main
       min-height: 0
+
+html.midiable-mobile .touch-dock
+  position: fixed
+  z-index: 4500
+  top: 50%
+  right: 5px
+  transform: translateY(-50%)
+  display: flex
+  flex-direction: column
+  align-items: stretch
+  gap: 4px
+  padding: 4px
+  border: 1px solid rgba(145, 165, 190, 0.28)
+  border-radius: 13px
+  background: rgba(12, 18, 27, 0.92)
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.32)
+  backdrop-filter: blur(12px)
+  -webkit-backdrop-filter: blur(12px)
+  touch-action: manipulation
+
+  > button
+    width: 36px
+    min-width: 36px
+    height: 36px
+    min-height: 36px
+    padding: 0
+    border: 1px solid rgba(120, 145, 173, 0.24)
+    border-radius: 8px
+    color: #dce7f4
+    background: rgba(26, 36, 49, 0.94)
+    font-size: 10px
+    font-weight: 600
+    letter-spacing: 0.02em
+    touch-action: manipulation
+
+    &.active
+      color: #8ac7ff
+      border-color: #308cf0
+      background: rgba(27, 88, 145, 0.42)
+
+    &:active
+      background: rgba(36, 105, 169, 0.7)
+
+@media (max-width: 900px), (pointer: coarse)
+  html.midiable-mobile .touch-dock
+    right: max(4px, env(safe-area-inset-right))
+    gap: 4px
+    padding: 4px
+
+    > button
+      width: 34px
+      min-width: 34px
+      height: 34px
+      min-height: 34px
+      border-radius: 8px
