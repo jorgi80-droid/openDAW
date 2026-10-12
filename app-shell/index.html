@@ -3285,11 +3285,30 @@ function endTimelinePointer(e){
  const wasPinching=!!timelinePinchStart||timelineGestureMode==='pinch-ended';
  const pan=timelinePan&&timelinePan.pointerId===e.pointerId?timelinePan:null;
  timelinePointers.delete(e.pointerId);
- if(timelinePinchStart){timelineGestureMode='pinch-ended';timelinePan=null;clearTimelinePinch();const zoom=r=>requestAnimationFrame(()=>{if(!timelinePinchStart&&!timelinePointers.size){applyTimelineGeometry();syncTimelineScroll(r);updateTimelineTools()}});zoom(timelineRuler())}
+ if(timelinePinchStart){
+  timelineGestureMode='pinch-ended';timelinePan=null;
+  clearTimelinePinch();
+  // A third/remaining finger must not leave the gesture stuck in "pinch-ended".
+  // Rebase the surviving pointer as a fresh one-finger gesture on its next move.
+  timelinePointers.forEach(point=>{point.startX=point.x;point.startY=point.y});
+  const zoom=()=>{
+   if(!timelinePinchStart&&!timelinePointers.size){
+    applyTimelineGeometry();
+    const ruler=timelineRuler();
+    if(ruler)syncTimelineScroll(ruler);
+    updateTimelineTools();
+   }
+  };
+  requestAnimationFrame(zoom);
+ }
  if(timelinePointers.size===0){
   if(e.type==='pointerup'&&!wasPinching&&pan&&pan.axis)startTimelinePanInertia(pan);
   timelinePan=null;timelineGestureMode='idle';
- }else{timelineGestureMode='pinch-ended';timelinePan=null}
+ }else{
+  // Ignore the remaining finger until all contacts are lifted. This avoids jumping
+  // from a pinch into a stale pan anchor after one finger leaves the surface.
+  timelineGestureMode='pinch-ended';timelinePan=null;
+ }
 }
 document.addEventListener('pointerdown',beginTimelinePointer,{capture:true,passive:false});
 document.addEventListener('pointermove',moveTimelinePointer,{capture:true,passive:false});
