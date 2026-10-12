@@ -1,0 +1,79 @@
+/* NovaDAW timeline geometry repair.
+Keep track labels and the ruler on one shared fixed track-label rail, and
+give the ruler and every clip lane one shared horizontal time coordinate.
+This removes nested/independent scrolling widths that cause bar/clip drift. */
+#timelineScreen .timeline {
+  display: flex !important;
+  flex-direction: column !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+}
+#timelineScreen .ruler,
+#timelineScreen .trackrow {
+  display: grid !important;
+  grid-template-columns: clamp(104px, 13vw, 148px) minmax(0, 1fr) !important;
+  min-width: 0 !important;
+}
+#timelineScreen .ruler {
+  flex: 0 0 30px;
+  overflow: hidden !important;
+}
+#timelineScreen .trackhead,
+#timelineScreen .tracklabel {
+  min-width: 0 !important;
+  width: auto !important;
+  overflow: hidden !important;
+}
+#timelineScreen .bars-viewport,
+#timelineScreen .cliparea {
+  min-width: 0 !important;
+  width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+#timelineScreen .bars-viewport::-webkit-scrollbar,
+#timelineScreen .cliparea::-webkit-scrollbar { display: none !important; }
+#timelineScreen .bars-viewport .bars,
+#timelineScreen .cliparea .clip-canvas {
+  min-width: 100% !important;
+  width: calc(var(--timeline-zoom, 1) * 100%) !important;
+  height: 100% !important;
+  position: relative !important;
+}
+#timelineScreen .trackrow {
+  flex: 0 0 auto;
+  min-height: 48px !important;
+  height: clamp(48px, 7.3vh, 62px);
+}
+#timelineScreen .clip {
+  top: 5px !important;
+  height: calc(100% - 10px) !important;
+  min-height: 28px !important;
+  max-height: none !important;
+  padding: 4px 7px !important;
+  touch-action: none !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+}
+#timelineScreen .clip-resize-handle {
+  width: 16px !important;
+  min-width: 16px !important;
+  z-index: 8 !important;
+  touch-action: none !important;
+}
+#timelineScreen .tracklabel .trackname > span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-height: 480px) {
+  #timelineScreen .ruler { flex-basis: 26px; }
+  #timelineScreen .trackrow { height: 46px; min-height: 46px !important; }
+  #timelineScreen .clip { top: 4px !important; height: calc(100% - 8px) !important; }
+}
+#timelineScreen .bars-viewport,
+#timelineScreen .cliparea,
+#timelineScreen .clip { -webkit-tap-highlight-color: transparent; }
