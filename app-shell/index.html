@@ -388,10 +388,10 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 .device-track-picker{position:fixed;z-index:30;right:12px;top:72px;width:min(310px,calc(100vw - 24px));max-height:calc(100dvh - 100px);overflow:auto;background:#101720;border:1px solid #3a5268;border-radius:12px;box-shadow:0 18px 60px #000c;padding:9px}.device-track-picker-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:4px 2px 9px}.device-track-picker-head strong{font-size:13px}.device-track-picker-head button{min-height:30px;padding:4px 9px}.device-track-picker-list{display:flex;flex-direction:column;gap:5px}.device-track-picker-list button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left;min-height:40px}.device-track-picker-list button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.device-track-picker-list button small{color:var(--muted);white-space:nowrap}.device-track-picker-list button.active{border-color:var(--blue);background:#102d4c}
 
 /* Compact landscape DAW UI, adjustable scale/theme, usable piano grid. */
-:root{--ui-scale:1;--piano-zoom:1;--snap-step:.0625}
+:root{--ui-scale:1;--ui-scale-inverse:1;--piano-zoom:1;--snap-step:.0625}
 html{font-size:calc(14px * var(--ui-scale))}
 body{font-size:calc(14px * var(--ui-scale))}
-.app{grid-template-rows:clamp(38px,6.2vh,48px) clamp(32px,5vh,39px) minmax(0,1fr) clamp(42px,7vh,52px)!important;zoom:var(--ui-scale);width:calc(100% / var(--ui-scale));height:calc(100dvh / var(--ui-scale))}
+.app{grid-template-rows:clamp(38px,6.2vh,48px) clamp(32px,5vh,39px) minmax(0,1fr) clamp(42px,7vh,52px)!important;zoom:var(--ui-scale);width:calc(100% * var(--ui-scale-inverse));height:calc(100dvh * var(--ui-scale-inverse))}
 .top{gap:5px!important;padding:3px 7px!important;min-height:0}
 .top .brand{font-size:calc(15px * var(--ui-scale));letter-spacing:-.5px}
 .top .project{gap:3px}
@@ -1033,8 +1033,8 @@ $('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada 
 const uiPrefs={scale:85,theme:'dark',density:'compact',snap:'quarter'};
 function applyUiPrefs(){
  const scale=Math.max(70,Math.min(110,Number(uiPrefs.scale)||85));
- document.documentElement.style.setProperty('--ui-scale',String(scale/100));
- const root=document.documentElement;root.dataset.theme=uiPrefs.theme||'dark';root.dataset.density=uiPrefs.density||'compact';
+ document.documentElement.style.setProperty('--ui-scale',String(scale/100));document.documentElement.style.setProperty('--ui-scale-inverse',String(100/scale));
+ const root=document.documentElement;root.dataset.theme=uiPrefs.theme||'dark';root.dataset.density=uiPrefs.density||'compact';if(typeof uiPrefs.snap==='boolean')uiPrefs.snap=uiPrefs.snap?'quarter':'off';
  $('uiScale').value=String(scale);$('uiScaleValue').textContent=scale+'%';$('uiTheme').value=uiPrefs.theme;$('compactMode').value=uiPrefs.density;$('gridSnap').value=uiPrefs.snap||'quarter';snapEnabled=$('gridSnap').value!=='off';snapStep=({quarter:.0625,eighth:.03125,half:.125,beat:.25,bar:1,off:0})[$('gridSnap').value]||.0625;root.style.setProperty('--snap-step',String(snapStep));
  document.body.classList.toggle('comfortable-ui',uiPrefs.density==='comfortable');
  const themes={dark:{bg:'#090d12',panel:'#101720',panel2:'#151e28',line:'#283747',text:'#eaf3fc',muted:'#91a3b7',blue:'#1687ff',cyan:'#31caff'},midnight:{bg:'#070b16',panel:'#0e1626',panel2:'#13213a',line:'#263a58',text:'#eaf2ff',muted:'#91a6c8',blue:'#4c91ff',cyan:'#50d7ff'},light:{bg:'#e7edf4',panel:'#f7f9fc',panel2:'#fff',line:'#bac7d5',text:'#142130',muted:'#5b6d80',blue:'#176bd1',cyan:'#009fbe'}};
