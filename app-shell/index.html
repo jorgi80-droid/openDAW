@@ -571,7 +571,7 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
 #pianoScreen .keys span.black-note-name{background:#182432;color:#88a0b8}
 #pianoScreen .pianogrid{grid-column:2;grid-row:2;overflow:auto!important;overscroll-behavior:contain;scrollbar-width:none;touch-action:pan-x pan-y}
 #pianoScreen .pianogrid::-webkit-scrollbar,#pianoScreen .piano-ruler::-webkit-scrollbar,#pianoScreen .keys::-webkit-scrollbar{display:none}
-#pianoScreen .note-layer{min-width:480px;width:100%;min-height:300px;background-color:#0b1219;background-image:repeating-linear-gradient(to right,transparent 0 calc(3.125% - 1px),#263543 calc(3.125% - 1px) 3.125%),repeating-linear-gradient(to right,transparent 0 calc(12.5% - 2px),#51677c calc(12.5% - 2px) 12.5%),repeating-linear-gradient(to bottom,transparent 0 calc(4% - 1px),#263543 calc(4% - 1px) 4%);background-size:100% 100%}
+#pianoScreen .note-layer{min-width:480px;width:100%;min-height:300px;background-color:#0b1219;background-image:repeating-linear-gradient(to right,transparent 0 calc(.78125% - 1px),#263543 calc(.78125% - 1px) .78125%),repeating-linear-gradient(to right,transparent 0 calc(3.125% - 2px),#3b5064 calc(3.125% - 2px) 3.125%),repeating-linear-gradient(to right,transparent 0 calc(12.5% - 2px),#51677c calc(12.5% - 2px) 12.5%),repeating-linear-gradient(to bottom,transparent 0 calc(4% - 1px),#263543 calc(4% - 1px) 4%);background-size:100% 100%}
 #pianoScreen .note-layer .note{background:#35df79;border:1px solid #83f5a7;color:#06140b;box-shadow:none;border-radius:1px;touch-action:none}
 #pianoScreen .velocity{grid-column:1/3;grid-row:3;min-height:0!important;height:100%;padding:3px 6px;gap:4px;align-items:stretch;overflow:hidden;border-top:1px solid #344353;background:#0d151e}
 #pianoScreen .velocity span{background:#35df79;border-radius:3px 3px 0 0;flex:1;width:auto;min-width:2px;align-self:end;max-height:100%;min-height:3px}
@@ -677,7 +677,7 @@ let currentScreen='timeline',selectedTrack=0,selectedClip=null,selectedNote=null
 let trackMenuIndex=-1,clipGesture=null,noteGesture=null,ignoreNextClipId=null,ignoreNextNoteClick=false,timelineTool='select',snapEnabled=true,snapStep=.0625,timelineZoom=1,pianoZoom=1,timelineScrollSync=false;
 let lastClipTap={id:null,time:0};
 let selectedDevice='Vaporisateur Synth',selectedDeviceTab='OSC',selectedDeviceCategory='Instrument',devicePreset='Init Preset';
-let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
+let project={schemaVersion:2,name:'My Song',tempo:120,meter:'4/4',tracks:[
 {id:'t1',name:'Drums',type:'Audio',color:'#ff625e',mute:false,solo:false,gain:0,pan:0,clips:[{id:'c1',label:'Drum Loop',start:0,duration:18,color:'#ff625e'}]},
 {id:'t2',name:'Bass',type:'MIDI',color:'#168cff',mute:false,solo:false,gain:-6,pan:0,clips:[{id:'c2',label:'Bass Pattern',start:2,duration:16,color:'#168cff'}]},
 {id:'t3',name:'Piano',type:'MIDI',color:'#20cf8a',mute:false,solo:false,gain:-1.5,pan:0,clips:[{id:'c3',label:'Chord Progression',start:2,duration:14,color:'#20cf8a'},{id:'c4',label:'Variation',start:18,duration:12,color:'#20cf8a'}]},
@@ -685,6 +685,8 @@ let project={schemaVersion:1,name:'My Song',tempo:120,meter:'4/4',tracks:[
 {id:'t5',name:'Vocal',type:'Audio',color:'#ffad34',mute:false,solo:false,gain:-2.1,pan:0,clips:[{id:'c6',label:'Vocal Main',start:2,duration:26,color:'#ffad34'}]},
 {id:'t6',name:'FX',type:'Automation',color:'#58c9f1',mute:false,solo:false,gain:-8,pan:0,clips:[{id:'c7',label:'Filter Sweep',start:0,duration:8,color:'#58c9f1'},{id:'c8',label:'Reverb Send',start:10,duration:9,color:'#58c9f1'}]}
 ],notes:[{row:7,col:0,len:1},{row:6,col:1,len:2},{row:5,col:2,len:1},{row:4,col:3,len:2},{row:5,col:4,len:1},{row:7,col:5,len:1},{row:8,col:6,len:2},{row:9,col:8,len:2},{row:10,col:10,len:2},{row:8,col:12,len:2},{row:7,col:14,len:2}]};
+function normalizePianoResolution(p){if(!p||!Array.isArray(p.notes))return p;if((Number(p.schemaVersion)||1)<2){p.notes=p.notes.map(n=>({...n,col:Math.max(0,Math.round((Number(n.col)||0)*4)),len:Math.max(1,Math.round((Number(n.len)||1)*4))}));p.schemaVersion=2}return p}
+normalizePianoResolution(project);
 const trackRacks = Object.create(null);
 function getTrackRack(index=selectedTrack){
  const track=project.tracks[index]; if(!track)return null;
@@ -743,14 +745,14 @@ function renderPiano(){
  project.notes.forEach((n,i)=>{
   const row=Math.max(0,Math.min(rows-1,Number(n.row)||0));
   const note=document.createElement('button');note.className='note';
-  note.style.left=(Math.max(0,n.col)/32*100)+'%';note.style.width=(Math.max(1,n.len)/32*100)+'%';
+  note.style.left=(Math.max(0,n.col)/128*100)+'%';note.style.width=(Math.max(1,n.len)/128*100)+'%';
   note.style.top=(row/rows*100)+'%';note.style.height=(100/rows)+'%';
   note.dataset.noteIndex=i;note.title='Nada '+names[row];note.setAttribute('aria-label',note.title);
   note.addEventListener('pointerdown',e=>beginNoteGesture(e,note));
   layer.appendChild(note);
  });
  grid.appendChild(layer);
- for(let i=0;i<32;i++){const s=document.createElement('span');s.style.setProperty('--h',(18+(i*37%68))+'%');s.title='Velocity';s.dataset.velocityIndex=i;vel.appendChild(s)}
+ project.notes.forEach((n,i)=>{const s=document.createElement('span');s.style.height=Math.max(4,Math.min(127,Number(n.velocity)||80))/127*100+'%';s.title='Velocity '+(n.velocity||80);s.dataset.velocityIndex=i;vel.appendChild(s)})
 }
 const deviceCatalog={
  Instrument:[
@@ -949,6 +951,7 @@ $('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.le
 $('mixer').addEventListener('input',e=>{const el=e.target;if(!el.dataset.mix)return;const t=project.tracks[+el.dataset.i];t[el.dataset.mix]=+el.value;$(el.dataset.mix==='gain'?'gainv'+el.dataset.i:'panv'+el.dataset.i).textContent=el.dataset.mix==='gain'?Number(el.value).toFixed(1)+' dB':el.value;});
 $('mixer').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const t=project.tracks[+b.dataset.i];snapshot();t[b.dataset.action]=!t[b.dataset.action];renderAll()});
 $('pianogrid').addEventListener('scroll',()=>{const ruler=$('pianoRuler'),keys=$('keys'),grid=$('pianogrid');if(ruler)ruler.scrollLeft=grid.scrollLeft;if(keys)keys.scrollTop=grid.scrollTop;},{passive:true});
+$('velocity').addEventListener('pointerdown',e=>{const lane=$('velocity'),bars=[...lane.querySelectorAll('[data-velocity-index]')];if(!bars.length)return;const r=lane.getBoundingClientRect(),idx=Math.max(0,Math.min(bars.length-1,Math.floor((e.clientX-r.left)/Math.max(1,r.width)*bars.length))),note=project.notes[idx];if(!note)return;snapshot();selectedNote=idx;note.velocity=Math.max(1,Math.min(127,Math.round((r.bottom-e.clientY)/Math.max(1,r.height)*127)));renderPiano();notify('Velocity '+note.velocity);e.preventDefault()});
 function setPianoZoom(next,anchorX){const old=pianoZoom,grid=$('pianogrid'),ruler=$('pianoRuler'),scroll=grid.scrollLeft,anchor=Number.isFinite(anchorX)?anchorX:grid.clientWidth/2;pianoZoom=Math.max(.5,Math.min(4,next));renderPiano();grid.scrollLeft=Math.max(0,(scroll+anchor)*(pianoZoom/old)-anchor);ruler.scrollLeft=grid.scrollLeft;document.documentElement.style.setProperty('--piano-zoom',String(pianoZoom));}
 $('pianogrid').addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const r=$('pianogrid').getBoundingClientRect();setPianoZoom(pianoZoom*(e.deltaY<0?1.1:.9),e.clientX-r.left)},{passive:false});
 let pianoPinchStart=null;
@@ -959,7 +962,7 @@ $('pianogrid').addEventListener('touchend',e=>{if(e.touches.length<2)pianoPinchS
  function beginNoteGesture(e,note){
  if(e.button!==undefined&&e.button!==0)return;
  const index=Number(note.dataset.noteIndex),n=project.notes[index];if(!n)return;
- const rect=note.getBoundingClientRect(),mode=e.clientX>=rect.right-10?'resize':'move';
+ const rect=note.getBoundingClientRect(),mode=e.clientX>=rect.right-Math.min(8,Math.max(3,rect.width*.25))?'resize':'move';
  noteGesture={pointerId:e.pointerId,index,target:note,mode,startX:e.clientX,startY:e.clientY,originCol:n.col,originRow:n.row,originLen:n.len,before:JSON.stringify(project),moved:false};
  selectedNote=index;
  window.__pianoDragDebug={phase:'down',pointerId:e.pointerId,index,mode,startX:e.clientX,startY:e.clientY};
@@ -974,13 +977,13 @@ function updateNoteGesture(e){
  window.__pianoDragDebug={...(window.__pianoDragDebug||{}),phase:'move',pointerId:e.pointerId,dx,dy};
  const layer=$('pianogrid .note-layer');
  const layerRect=layer?.getBoundingClientRect(),gridRect=$('pianogrid').getBoundingClientRect();
- const stepWidth=Math.max(1,layerRect?.width||gridRect.width)/32;
+ const stepWidth=Math.max(1,layerRect?.width||gridRect.width)/128;
  const rowHeight=Math.max(1,layerRect?.height||gridRect.height)/25;
  const dc=Math.round(dx/stepWidth),dr=Math.round(dy/rowHeight),n=project.notes[g.index];if(!n)return;
- if(g.mode==='resize'){n.len=Math.max(1,Math.min(32-g.originCol,g.originLen+dc));n.col=g.originCol;n.row=g.originRow}
- else{n.len=g.originLen;n.col=Math.max(0,Math.min(32-g.originLen,g.originCol+dc));n.row=Math.max(0,Math.min(24,g.originRow+dr))}
+ if(g.mode==='resize'){n.len=Math.max(1,Math.min(128-g.originCol,g.originLen+dc));n.col=g.originCol;n.row=g.originRow}
+ else{n.len=g.originLen;n.col=Math.max(0,Math.min(128-g.originLen,g.originCol+dc));n.row=Math.max(0,Math.min(24,g.originRow+dr))}
  const live=layer?.querySelector('[data-note-index="'+g.index+'"]');
- if(live){live.style.left=(n.col/32*100)+'%';live.style.width=(n.len/32*100)+'%';live.style.top=(n.row/25*100)+'%'}
+ if(live){live.style.left=(n.col/128*100)+'%';live.style.width=(n.len/128*100)+'%';live.style.top=(n.row/25*100)+'%'}
 }
 function finishNoteGesture(e){
  const g=noteGesture;if(!g||g.pointerId!==e.pointerId)return;
@@ -998,10 +1001,10 @@ $('pianogrid').addEventListener('click',e=>{
  if(ignoreNextNoteClick){ignoreNextNoteClick=false;return}
  const note=e.target.closest('.note');
  if(note){selectedNote=Number(note.dataset.noteIndex);notify('Nada dipilih');return}
- const rect=e.currentTarget.getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(1,layer?.scrollWidth||rect.width)/32;
+ const rect=e.currentTarget.getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(1,layer?.scrollWidth||rect.width)/128;
  const row=Math.floor((e.clientY-rect.top+(e.currentTarget.scrollTop||0))/(Math.max(1,layer?.scrollHeight||layer?.clientHeight||rect.height)/25));
  const col=Math.floor((e.clientX-rect.left+(e.currentTarget.scrollLeft||0))/stepWidth);
- snapshot();project.notes.push({row:Math.max(0,Math.min(24,row)),col:Math.max(0,Math.min(31,col)),len:1,velocity:80});
+ snapshot();project.notes.push({row:Math.max(0,Math.min(24,row)),col:Math.max(0,Math.min(127,col)),len:4,velocity:80});
  renderPiano();notify('Nada MIDI ditambahkan (model demo)')
 });
 $('deviceTrackSelect').addEventListener('change',e=>{const index=Number(e.target.value);if(!Number.isInteger(index)||!project.tracks[index])return;selectedTrack=index;renderDevices();syncRackView();notify('Rack track: '+project.tracks[index].name)});
@@ -1025,8 +1028,8 @@ $('tempo').addEventListener('change',()=>{snapshot();project.tempo=Math.max(40,M
 $('meter').addEventListener('change',()=>{snapshot();project.meter=$('meter').value;notify('Meter proyek diubah ke '+project.meter)});
 $('projectName').addEventListener('change',()=>{snapshot();project.name=$('projectName').value.trim()||'Untitled';$('projectName').value=project.name});
 $('save').addEventListener('click',()=>{try{localStorage.setItem('novadaw-project',JSON.stringify({...project,uiRackState:trackRacks}));notify('Proyek tersimpan di penyimpanan browser')}catch(e){notify('Penyimpanan tidak tersedia di mode ini')}});
-$('open').addEventListener('click',()=>{const s=localStorage.getItem('novadaw-project');if(s){try{snapshot();const loaded=JSON.parse(s);project={...loaded};if(loaded.uiRackState&&typeof loaded.uiRackState==='object')Object.assign(trackRacks,loaded.uiRackState);selectedClip=null;renderAll();notify('Proyek dibuka')}catch(e){notify('Data proyek tidak valid')}}else{$('file').click()}});
-$('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const p=JSON.parse(await f.text());if(!Array.isArray(p.tracks)||!Array.isArray(p.notes))throw Error('format');snapshot();if(p.uiRackState&&typeof p.uiRackState==='object')Object.assign(trackRacks,p.uiRackState);project={...p};renderAll();notify('Proyek JSON diimpor')}catch(_){notify('File proyek JSON tidak valid')}e.target.value=''});
+$('open').addEventListener('click',()=>{const s=localStorage.getItem('novadaw-project');if(s){try{snapshot();const loaded=normalizePianoResolution(JSON.parse(s));project={...loaded};if(loaded.uiRackState&&typeof loaded.uiRackState==='object')Object.assign(trackRacks,loaded.uiRackState);selectedClip=null;renderAll();notify('Proyek dibuka')}catch(e){notify('Data proyek tidak valid')}}else{$('file').click()}});
+$('file').addEventListener('change',async e=>{const f=e.target.files[0];if(!f)return;try{const p=normalizePianoResolution(JSON.parse(await f.text()));if(!Array.isArray(p.tracks)||!Array.isArray(p.notes))throw Error('format');snapshot();if(p.uiRackState&&typeof p.uiRackState==='object')Object.assign(trackRacks,p.uiRackState);project={...p};renderAll();notify('Proyek JSON diimpor')}catch(_){notify('File proyek JSON tidak valid')}e.target.value=''});
 $('export').addEventListener('click',()=>{const blob=new Blob([JSON.stringify({...project,uiRackState:trackRacks},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=(project.name||'novadaw').replace(/[^a-z0-9-_]/gi,'_')+'.json';a.click();URL.revokeObjectURL(url);notify('Ekspor JSON dibuat')});
 $('undo').addEventListener('click',()=>{if(!undoStack.length){notify('Tidak ada aksi untuk undo');return}redoStack.push(JSON.stringify(project));project=JSON.parse(undoStack.pop());renderAll();notify('Undo selesai')});
 $('redo').addEventListener('click',()=>{if(!redoStack.length){notify('Tidak ada aksi untuk redo');return}undoStack.push(JSON.stringify(project));project=JSON.parse(redoStack.pop());renderAll();notify('Redo selesai')});
