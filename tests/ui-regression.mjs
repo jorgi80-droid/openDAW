@@ -277,6 +277,18 @@ try {
       await page.locator('#toast').evaluate(el => { el.hidden = true; });
       await page.screenshot({ path:path.join(outDir,`${viewport.width}x${viewport.height}-${route}.png`), fullPage:true });
     }
+    // Home panel project actions are real and must not disturb the workspace navigation.
+    await page.locator('#menu').click();
+    assert(await page.locator('#homeProjectSummary').innerText().then(s=>s.includes('BPM')&&s.includes('track')), `Home shows current project metadata at ${viewport.width}x${viewport.height}`);
+    await page.locator('#homeSaveProject').click();
+    const savedProject=await page.evaluate(()=>{try{return JSON.parse(localStorage.getItem('novadaw-project')||'null')}catch(_){return null}});
+    assert(savedProject && Array.isArray(savedProject.tracks), `Home Save persists a project model at ${viewport.width}x${viewport.height}`);
+    await page.locator('#menu').click();
+    page.once('dialog',dialog=>dialog.accept());
+    await page.locator('#homeNewProject').click();
+    assert(await page.locator('#projectName').inputValue()==='Untitled', `Home New Project updates the active project at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#tracks .clip').count()===0, `Home New Project clears starter clips at ${viewport.width}x${viewport.height}`);
+    assert(pageErrors.length===0, `no JavaScript exceptions after Home actions at ${viewport.width}x${viewport.height}`);
     await context.close();
   }
 } finally { await browser.close(); }
