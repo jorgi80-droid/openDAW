@@ -1591,7 +1591,13 @@ function showClipContext(element,trackIndex,clip){
  document.querySelectorAll('#tracks .clip').forEach(el=>el.classList.toggle('selected',el.dataset.clip===clip.id));
  const r=element.getBoundingClientRect(),width=Math.min(230,window.innerWidth-24),height=174;
  const left=Math.max(12,Math.min(window.innerWidth-width-12,r.left));
- const top=(r.bottom+height+12<=window.innerHeight)?r.bottom+6:Math.max(8,r.top-height-6);
+ // Keep the context sheet inside the timeline content, not over the clip's second tap target.
+ // FL-style behaviour: the first tap selects and exposes actions; a second tap on the clip
+ // must remain possible, so the menu is placed away from the clip and never intercepts it.
+ const candidateTop=(r.bottom+height+12<=window.innerHeight)?r.bottom+6:Math.max(8,r.top-height-6);
+ const candidateBottom=candidateTop+height;
+ const intersectsClip=(left<c.right && left+width>r.left && candidateTop<r.bottom && candidateBottom>r.top);
+ const top=intersectsClip?Math.max(8,Math.min(window.innerHeight-height-8,r.top-height-6)):candidateTop;
  pop.style.left=left+'px';pop.style.top=top+'px';pop.hidden=false;
  const mute=pop.querySelector('[data-clip-action="mute"]');mute.textContent=clip.muted?'Unmute':'Mute';
 }
