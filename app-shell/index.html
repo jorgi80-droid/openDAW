@@ -2341,25 +2341,59 @@ function renderDevices(cat=selectedDeviceCategory){
  }
  root.appendChild(picker);root.appendChild(editor);
 }
-const samples=['Kick 01.wav','Kick 02.wav','Snare 01.wav','Snare 02.wav','HiHat Closed.wav','HiHat Open.wav','Tom 01.wav','Piano Soft.wav','Bass Sub.wav','Ambient Pad.wav'];
+const melvoxBrowserAssets = [
+ {name:'C2 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/C2.mp3',license:'CC BY 3.0'},
+ {name:'C3 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/C3.mp3',license:'CC BY 3.0'},
+ {name:'C4 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/C4.mp3',license:'CC BY 3.0'},
+ {name:'C5 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/C5.mp3',license:'CC BY 3.0'},
+ {name:'C6 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/C6.mp3',license:'CC BY 3.0'},
+ {name:'C7 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/C7.mp3',license:'CC BY 3.0'},
+ {name:'A2 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/A2.mp3',license:'CC BY 3.0'},
+ {name:'A3 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/A3.mp3',license:'CC BY 3.0'},
+ {name:'A4 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/A4.mp3',license:'CC BY 3.0'},
+ {name:'A5 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/A5.mp3',license:'CC BY 3.0'},
+ {name:'A6 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/A6.mp3',license:'CC BY 3.0'},
+ {name:'D#2 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Ds2.mp3',license:'CC BY 3.0'},
+ {name:'D#3 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Ds3.mp3',license:'CC BY 3.0'},
+ {name:'D#4 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Ds4.mp3',license:'CC BY 3.0'},
+ {name:'D#5 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Ds5.mp3',license:'CC BY 3.0'},
+ {name:'D#6 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Ds6.mp3',license:'CC BY 3.0'},
+ {name:'F#2 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Fs2.mp3',license:'CC BY 3.0'},
+ {name:'F#3 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Fs3.mp3',license:'CC BY 3.0'},
+ {name:'F#4 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Fs4.mp3',license:'CC BY 3.0'},
+ {name:'F#5 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Fs5.mp3',license:'CC BY 3.0'},
+ {name:'F#6 Grand Piano',kind:'Piano',url:'assets/melvox/samples/piano/Fs6.mp3',license:'CC BY 3.0'}
+];
+const samples=['Kick 01.wav','Kick 02.wav','Snare 01.wav','Snare 02.wav','HiHat Closed.wav','HiHat Open.wav','Tom 01.wav','Bass Sub.wav','Ambient Pad.wav'];
 const browserItems={
  Samples:[
+  ...melvoxBrowserAssets,
   {name:'Kick 01.wav',kind:'Drums',available:false},{name:'Kick 02.wav',kind:'Drums',available:false},
   {name:'Snare 01.wav',kind:'Drums',available:false},{name:'Snare 02.wav',kind:'Drums',available:false},
   {name:'HiHat Closed.wav',kind:'Drums',available:false},{name:'HiHat Open.wav',kind:'Drums',available:false},
-  {name:'Tom 01.wav',kind:'Drums',available:false},{name:'Piano Soft.wav',kind:'Piano',available:false},
-  {name:'Bass Sub.wav',kind:'Bass',available:false},{name:'Ambient Pad.wav',kind:'Synth',available:false}],
+  {name:'Tom 01.wav',kind:'Drums',available:false},{name:'Bass Sub.wav',kind:'Bass',available:false},{name:'Ambient Pad.wav',kind:'Synth',available:false}],
  Instruments:[
-  {name:'Vaporisateur Synth',kind:'Synth',available:false},{name:'Nano Sampler',kind:'User',available:false},
-  {name:'Playfield Drums',kind:'Drums',available:false},{name:'SoundFont Player',kind:'Piano',available:false}],
+  {name:'DERIZ Resynthesis',kind:'Melvox',available:false},{name:'MGCHORD Chord Generator',kind:'Melvox',available:false},
+  {name:'MPCS Vocal Tuner',kind:'Melvox',available:false},{name:'Synth Engine',kind:'Melvox',available:false},
+  {name:'Drum Machine',kind:'Drums',available:false},{name:'Audio Sampler',kind:'Sampler',available:false}],
  Effects:[
-  {name:'Revamp EQ',kind:'User',available:false},{name:'Delay',kind:'User',available:false},
-  {name:'Free Reverb',kind:'User',available:false},{name:'Waveshaper',kind:'User',available:false},
-  {name:'Maximizer',kind:'User',available:false},{name:'Stereo Tool',kind:'User',available:false}],
+  {name:'Equalizer',kind:'DSP',available:false},{name:'Delay',kind:'DSP',available:false},
+  {name:'Reverb',kind:'DSP',available:false},{name:'De-Esser',kind:'DSP',available:false},
+  {name:'Filter',kind:'DSP',available:false},{name:'Automation',kind:'Modulation',available:false}],
  Presets:[
   {name:'Warm Keys',kind:'Piano',available:false},{name:'Deep Bass',kind:'Bass',available:false},
   {name:'Airy Pad',kind:'Synth',available:false},{name:'Studio Drums',kind:'Drums',available:false}]
 };
+let melvoxPreviewAudio=null;
+async function previewMelvoxAsset(item){
+ if(!item?.url)return;
+ try{
+  if(melvoxPreviewAudio){melvoxPreviewAudio.pause();melvoxPreviewAudio=null}
+  const audio=new Audio(item.url);audio.preload='auto';melvoxPreviewAudio=audio;
+  await audio.play();
+  audio.addEventListener('ended',()=>{if(melvoxPreviewAudio===audio)melvoxPreviewAudio=null},{once:true});
+ }catch(error){notify('Preview audio gagal: '+(error?.message||'asset tidak dapat diputar'))}
+}
 function renderSamples(category='Samples',filter='All'){
  const root=$('samples');root.innerHTML='';
  const items=(browserItems[category]||[]).filter(item=>filter==='All'||(filter==='User'?item.kind==='User':item.kind===filter));
@@ -2369,9 +2403,10 @@ function renderSamples(category='Samples',filter='All'){
  }
  items.forEach(item=>{
   const row=document.createElement('div');row.className='sample';
-  row.innerHTML='<button aria-label="Preview '+esc(item.name)+'" data-preview="'+esc(item.name)+'" '+(!item.available?'disabled':'')+'>▶</button>'+
-   '<div class="sample-meta"><div class="sample-name">'+esc(item.name)+'</div><div class="wave" aria-hidden="true"></div><div class="sample-status">'+(item.available?'Aset tersedia':'Demo • aset audio belum tersedia')+'</div></div>'+
-   '<button aria-label="Tambahkan '+esc(item.name)+'" data-addsample="'+esc(item.name)+'">＋</button>';
+  const real=!!item.url;
+  row.innerHTML='<button aria-label="Preview '+esc(item.name)+'" data-preview="'+esc(item.name)+'" '+(!real?'disabled':'')+'>▶</button>'+
+   '<div class="sample-meta"><div class="sample-name">'+esc(item.name)+'</div><div class="wave" aria-hidden="true"></div><div class="sample-status">'+(real?'Local asset · '+esc(item.license||'user asset'):'Demo • aset audio belum tersedia')+'</div></div>'+
+   '<button aria-label="Tambahkan '+esc(item.name)+'" data-addsample="'+esc(item.name)+'" '+(!real?'disabled':'')+'>＋</button>';
   root.appendChild(row);
  });
 }
