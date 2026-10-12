@@ -37,8 +37,10 @@ jobs:
             ['Playlist zoom uses stable pixel-based timeline geometry', html.includes('function applyTimelineGeometry()') && html.includes("style.setProperty('width',contentWidth+'px','important')")],
             ['pinch zoom no longer rebuilds clip DOM every move', !html.slice(html.indexOf('function setTimelineZoom(next,anchorX){'),html.indexOf("\n$('timelineScreen').addEventListener('wheel'")).includes('renderTracks();')],
             ['ruler and lanes share direct pixel scroll offsets', html.includes('const next=Math.max(0,Math.min(content-el.clientWidth,offset))')],
-            ['touch pinch prevents browser-default gesture during move', html.includes("document.addEventListener('touchmove',e=>") && html.includes("{capture:true,passive:false}")],
+            ['single Pointer Events pipeline prevents browser-default gesture during move', html.includes("document.addEventListener('pointermove',e=>") && html.includes("{capture:true,passive:false}")],
             ['two-pointer pinch has fallback and pointer cleanup', html.includes('const timelinePointers=new Map();') && html.includes("document.addEventListener('pointercancel',endTimelinePointer")],
+            ['vertical drag scrolls the track list without hijacking horizontal pan', html.includes("timelinePan.axis='y'") && html.includes('timelinePan.trackScroller.scrollTop=Math.max(0,timelinePan.startScrollY-dy)')],
+            ['cancelled clip gestures roll back model changes before pinch or pointer cancellation', html.includes('function cancelClipGesture(pointerId)') && html.includes('cancelClipGesture(e.pointerId)') && html.includes('cancelClipGesture();')],
             ['browser list has independent scrolling', html.includes('#browserScreen .categories,#browserScreen .samplelist{min-height:0;overflow:auto')],
             ['piano roll uses grid and velocity layout', html.includes('id="pianogrid"') && html.includes('id="velocity"')],
           ];
