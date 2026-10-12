@@ -734,6 +734,14 @@ html[data-theme="light"] button,html[data-theme="light"] input,html[data-theme="
 html[data-theme="light"] button:not(.primary):not(.active),html[data-theme="light"] .chip{background:var(--panel2)!important}
 html[data-theme="light"] .clip{color:#152130!important}
 
+
+/* Anchor Play/Pause on the exact viewport center; keep companion actions balanced around it. */
+.transportbar .transport{position:relative!important;display:block!important;width:100%!important;height:100%!important;min-height:0!important}
+.transportbar #rewind{position:absolute!important;left:calc(50% - 62px)!important;top:50%!important;transform:translateY(-50%)!important}
+.transportbar #play{position:absolute!important;left:50%!important;top:50%!important;transform:translate(-50%,-50%)!important;z-index:2}
+.transportbar #record{position:absolute!important;left:calc(50% + 24px)!important;top:50%!important;transform:translateY(-50%)!important}
+.transportbar #position{position:absolute!important;left:calc(50% + 55px)!important;top:50%!important;transform:translateY(-50%)!important}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
