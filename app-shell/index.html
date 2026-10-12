@@ -2409,18 +2409,36 @@ function cancelClipGesture(pointerId){
  const g=clipGesture;if(!g||(pointerId!==undefined&&g.pointerId!==pointerId))return;
  if(g.moved){
   project=JSON.parse(g.before);
-  selectedClip=g.clipId;selectedTrack=g.trackIndex;
+  selectedClip=g.clipId;selectedTrack=g.originTrackIndex;
+  g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow='';
   renderTracks();updateTimelineTools();
  }
  clipGesture=null;
 }
 function finishClipGesture(e){
  const g=clipGesture;if(!g||e.pointerId!==g.pointerId)return;
- if(g.moved){
-  pushUndoSnapshot(g.before);selectedClip=g.clipId;selectedTrack=g.trackIndex;
+ const sourceIndex=g.originTrackIndex,targetIndex=g.mode==='move'?g.targetTrackIndex:sourceIndex;
+ const source=project.tracks[sourceIndex],target=project.tracks[targetIndex];
+ const clip=source?.clips.find(c=>c.id===g.clipId);
+ if(g.moved&&clip){
+  if(g.mode==='move'&&targetIndex!==sourceIndex){
+   if(!canMoveClipToTrack(clip,source,target)){
+    project=JSON.parse(g.before);selectedClip=g.clipId;selectedTrack=sourceIndex;
+    renderTracks();updateTimelineTools();notify('Tidak bisa memindahkan clip '+clipCategory(clip,source)+' ke track '+clipCategory(null,target)+'. Jenis track harus sama.');
+    clipGesture=null;return;
+   }
+   source.clips=source.clips.filter(c=>c.id!==clip.id);
+   target.clips.push(clip);selectedTrack=targetIndex;
+  }else selectedTrack=sourceIndex;
+  if(g.mode==='move'||g.mode==='resize') {
+   clip.start=Math.max(0,Math.min(MAX_BARS-clip.duration,clip.start));
+   clip.duration=Math.max(.25,Math.min(MAX_BARS-clip.start,clip.duration));
+  }
+  pushUndoSnapshot(g.before);selectedClip=g.clipId;
   ignoreNextClipId=g.clipId;setTimeout(()=>{if(ignoreNextClipId===g.clipId)ignoreNextClipId=null},400);
-  renderTracks();updateTimelineTools();hideClipContext();notify(g.mode==='move'?'Clip dipindahkan':'Panjang clip diubah')
- }
+  renderTracks();updateTimelineTools();hideClipContext();
+  notify(g.mode==='resize'?'Panjang clip diubah':targetIndex!==sourceIndex?'Clip dipindahkan ke track '+target.name:'Clip dipindahkan');
+ }else if(g.target){g.target.style.transform='';g.target.style.filter='';g.target.style.boxShadow=''}
  clipGesture=null;
 }
 $('tracks').addEventListener('pointerup',e=>{
