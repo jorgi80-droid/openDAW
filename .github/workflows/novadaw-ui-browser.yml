@@ -5,16 +5,7 @@ concurrency:
 
 
 on:
-  push:
-    branches: [novadaw-from-zero]
-    paths:
-      - "app-shell/**"
-      - "android-wrapper-novadaw/app/src/main/AndroidManifest.xml"
-      - "android-wrapper-novadaw/app/src/main/java/**"
-      - "tests/ui-regression.mjs"
-      - ".github/workflows/novadaw-ui-browser.yml"
-  pull_request:
-    branches: [novadaw-from-zero]
+  # Browser regression is opt-in only; validate UI directly in the Android app per current workflow.
   workflow_dispatch:
 
 permissions:
