@@ -2167,6 +2167,12 @@ document.querySelectorAll('#floatingEditorMenu [data-editor-action]').forEach(b=
  const button=document.querySelector('#timelineTools [data-timeline-tool="'+tool+'"]');
  if(!button){notify('Aksi '+action+' belum tersedia');return}
  if(action==='split'&&!selectedClip){notify('Pilih clip lalu coba Split');return}
+ if(action==='copy'||action==='cut'||action==='paste'||action==='delete'){
+  const existing=document.querySelector('#clipContextMenu [data-clip-action="'+(action==='cut'?'cut':action)+'"]');
+  if(existing&&selectedClip){existing.click();return}
+  if(action==='paste'&&clipboardClip){const paste=document.querySelector('#timelineTools [data-timeline-tool="paste"]');if(paste)paste.click();else notify('Tempel: ketuk tujuan di timeline');return}
+  if(action==='delete'&&selectedClip){const clipDelete=document.querySelector('#clipContextMenu [data-clip-action="delete"]');if(clipDelete){clipDelete.click();return}}
+ }
  button.click();
 }));
 function updateFloatingEditorMenu(){
