@@ -234,7 +234,7 @@ html,body{min-width:100%;min-height:100%;overscroll-behavior:none}
 .timeline-work-area{display:flex;gap:6px;flex:1 1 0;min-height:0;overflow:hidden}
 #timelineScreen .timeline{flex:1 1 0;min-width:0;height:auto;min-height:0;display:grid;grid-template-rows:30px minmax(0,1fr);--timeline-zoom:1}
 #timelineScreen .ruler,#timelineScreen .trackrow{grid-template-columns:clamp(105px,15vw,150px) minmax(0,1fr)}
-#timelineScreen .bars-viewport{min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none}
+#timelineScreen .bars-viewport{min-width:0;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;touch-action:pan-x pan-y}
 #timelineScreen .bars-viewport::-webkit-scrollbar,#timelineScreen .cliparea::-webkit-scrollbar{display:none}
 #timelineScreen .bars{width:100%;min-width:100%;height:100%;display:flex;align-items:center;justify-content:space-around}
 #timelineScreen .tracks{overflow:auto;min-height:0;overscroll-behavior:contain}
@@ -559,17 +559,17 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
 #devicesScreen>.panel>.paneltitle{flex:0 0 auto;margin-bottom:3px}
 #devicesScreen>.panel>.muted:last-child{display:none}
 #devicesScreen .devicegrid{flex:1 1 0;min-height:0;overflow:hidden}
-#devicesScreen .device-editor{min-height:0;min-width:0;overflow:auto}
-#devicesScreen .device-editor-main{min-height:0}
+#devicesScreen .device-editor{min-height:0;min-width:0;overflow:auto;overscroll-behavior:contain}
+#devicesScreen .device-editor-main{min-height:0;flex:1 1 auto}
 #pianoScreen .pianowrap{grid-template-columns:clamp(42px,5.2vw,58px) minmax(0,1fr);grid-template-rows:clamp(20px,3.8vh,26px) minmax(0,1fr) clamp(30px,6.5vh,44px)!important;overflow:hidden!important}
 #pianoScreen .piano-corner{grid-column:1;grid-row:1;background:#151f2b;border-right:1px solid #344353;border-bottom:1px solid #344353}
 #pianoScreen .piano-ruler{grid-column:2;grid-row:1;overflow:hidden;min-width:0;background:#151f2b;border-bottom:1px solid #344353;color:#a9bbce;font-size:9px;touch-action:pan-x}
-#pianoScreen .piano-ruler-canvas{height:100%;min-width:960px;display:grid;grid-template-columns:repeat(8,minmax(0,1fr))}
+#pianoScreen .piano-ruler-canvas{height:100%;min-width:0;display:grid;grid-template-columns:repeat(8,minmax(0,1fr))}
 #pianoScreen .piano-ruler-canvas span{display:flex;align-items:center;padding-left:5px;border-left:1px solid #344353;white-space:nowrap}
 #pianoScreen .keys{grid-column:1;grid-row:2;grid-template-rows:repeat(25,minmax(0,1fr));overflow:hidden;overscroll-behavior:contain}
 #pianoScreen .keys span{font-size:calc(9px * var(--ui-scale));padding-left:4px}
 #pianoScreen .keys span.black-note-name{background:#182432;color:#88a0b8}
-#pianoScreen .pianogrid{grid-column:2;grid-row:2;overflow:auto!important;overscroll-behavior:contain;scrollbar-width:none}
+#pianoScreen .pianogrid{grid-column:2;grid-row:2;overflow:auto!important;overscroll-behavior:contain;scrollbar-width:none;touch-action:pan-x pan-y}
 #pianoScreen .pianogrid::-webkit-scrollbar,#pianoScreen .piano-ruler::-webkit-scrollbar,#pianoScreen .keys::-webkit-scrollbar{display:none}
 #pianoScreen .note-layer{min-width:960px;width:100%;min-height:300px;background-color:#0b1219;background-image:repeating-linear-gradient(to right,transparent 0 calc(3.125% - 1px),#344353 calc(3.125% - 1px) 3.125%),repeating-linear-gradient(to bottom,transparent 0 calc(4% - 1px),#263543 calc(4% - 1px) 4%);background-size:100% 100%}
 #pianoScreen .note-layer .note{background:#35df79;border:1px solid #83f5a7;color:#06140b;box-shadow:none;border-radius:1px;touch-action:none}
