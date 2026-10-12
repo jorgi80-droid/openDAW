@@ -1076,6 +1076,7 @@ function setTimelineZoom(next,anchorX){
  timelineZoom=Math.max(.5,Math.min(4,next));$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas)rulerCanvas.style.width=(timelineZoom*100)+'%';
  renderTracks();const ruler=document.querySelector('.bars-viewport');if(ruler)ruler.scrollLeft=Math.max(0,(scroll+anchor)*(timelineZoom/old)-anchor);updateTimelineTools();
 }
+$('timelineScreen').addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const r=document.querySelector('.bars-viewport')?.getBoundingClientRect();setTimelineZoom(timelineZoom*(e.deltaY<0?1.1:.9),r?e.clientX-r.left:undefined)},{passive:false});
 $('timelineTools').addEventListener('click',e=>{
  const b=e.target.closest('[data-timeline-tool]');if(!b)return;const tool=b.dataset.timelineTool;
  // A tool change starts a new gesture context; never let a prior tap be treated as a double tap.
