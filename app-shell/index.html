@@ -1497,8 +1497,10 @@ button:active{transform:scale(.975)}
 #mainToolbar .transportbar .transport #position{min-width:55px!important;width:55px!important;background:#121c27!important;color:#bed0e4!important;border-color:#2a3a4b!important}
 #mainToolbar .transportbar .transport button:focus-visible,#mainToolbar .top-actions button:focus-visible{outline:2px solid #54afff!important;outline-offset:2px!important}
 #timelineScreen .bars span:not(.ruler-end){font-variant-numeric:tabular-nums!important;padding-left:6px!important;border-left:1px solid #334455!important}
-#timelineScreen .clip-canvas{background-image:linear-gradient(to right,#324354 1px,transparent 1px),linear-gradient(to right,#1d2a37 1px,transparent 1px)!important;background-repeat:repeat!important}
+#timelineScreen .clip-canvas{background-image:linear-gradient(to right,#334454 1px,transparent 1px),linear-gradient(to right,#1d2a37 1px,transparent 1px)!important;background-repeat:repeat!important;background-position:0 0!important}
 #timelineScreen .clip-canvas{background-size:calc(var(--timeline-ppb,24px)*4) 100%,var(--timeline-ppb,24px) 100%!important}
+#timelineScreen .bars span:not(.ruler-end){border-left:1px solid #334454!important;background:transparent!important}
+#timelineScreen .bars span:nth-child(4n+1){border-left-color:#334454!important}
 #timelineScreen .clip{transition:filter 90ms linear,box-shadow 90ms linear!important;will-change:left,top,width,transform,filter!important}
 #timelineScreen .clip.dragging{transition:none!important;z-index:20!important}
 #timelineScreen .trackrow{contain:layout style}
@@ -2485,6 +2487,23 @@ function runClipAutoScroll(){
 function endClipAutoScroll(){
  if(clipAutoScrollFrame){cancelAnimationFrame(clipAutoScrollFrame);clipAutoScrollFrame=0}
 }
+let clipGestureFrame=0;
+function queueClipGestureFrame(){
+ if(clipGestureFrame)return;
+ clipGestureFrame=requestAnimationFrame(()=>{
+  clipGestureFrame=0;
+  const g=clipGesture;if(!g||!g.moved)return;
+  const viewport=g.viewport,rect=viewport?.getBoundingClientRect();
+  if(rect&&(g.mode==='move'||g.mode==='resize')){
+   if(g.lastX>rect.right-80){g.edgeDirection=1;g.edgeDistance=Math.max(0,g.lastX-(rect.right-80))}
+   else if(g.lastX<rect.left+24){g.edgeDirection=-1;g.edgeDistance=Math.max(0,(rect.left+24)-g.lastX)}
+   else {g.edgeDirection=0;g.edgeDistance=0}
+   if(g.edgeDirection&&!clipAutoScrollFrame)clipAutoScrollFrame=requestAnimationFrame(runClipAutoScroll);
+   if(!g.edgeDirection)endClipAutoScroll();
+  }
+  applyActiveClipGestureFrame();
+ });
+}
 $('tracks').addEventListener('pointermove',e=>{
  if(pendingLanePress&&pendingLanePress.pointerId===e.pointerId){
   pendingLanePress.atX=e.clientX;pendingLanePress.atY=e.clientY;
@@ -2496,16 +2515,8 @@ $('tracks').addEventListener('pointermove',e=>{
  g.lastX=e.clientX;g.lastY=e.clientY;g.altKey=e.altKey;
  if(Math.hypot(e.clientX-g.startX,e.clientY-g.startY)<5&&!g.moved)return;
  g.moved=true;e.preventDefault();
- const viewport=g.viewport,rect=viewport?.getBoundingClientRect();
- if(rect&&(g.mode==='move'||g.mode==='resize')){
-  if(e.clientX>rect.right-80){g.edgeDirection=1;g.edgeDistance=Math.max(0,e.clientX-(rect.right-80))}
-  else if(e.clientX<rect.left+24){g.edgeDirection=-1;g.edgeDistance=Math.max(0,(rect.left+24)-e.clientX)}
-  else {g.edgeDirection=0;g.edgeDistance=0}
-  if(g.edgeDirection&&!clipAutoScrollFrame)clipAutoScrollFrame=requestAnimationFrame(runClipAutoScroll);
-  if(!g.edgeDirection)endClipAutoScroll();
- }
- applyActiveClipGestureFrame();
-});
+ queueClipGestureFrame();
+},{passive:false});
 function timelineScrollPeers(){
  const peers=[...document.querySelectorAll('#timelineScreen [data-timeline-scroll]')];
  return peers;
@@ -2608,6 +2619,10 @@ function cancelClipGesture(pointerId){
 }
 function finishClipGesture(e){
  const g=clipGesture;if(!g||e.pointerId!==g.pointerId)return;
+ if(g.moved){
+  if(clipGestureFrame){cancelAnimationFrame(clipGestureFrame);clipGestureFrame=0}
+  applyActiveClipGestureFrame();
+ }
  endClipAutoScroll();
  const sourceIndex=g.originTrackIndex,targetIndex=g.mode==='move'?g.targetTrackIndex:sourceIndex;
  const source=project.tracks[sourceIndex],target=project.tracks[targetIndex];
@@ -2852,7 +2867,7 @@ $('categories').addEventListener('click',e=>{const b=e.target.closest('[data-fil
 $('samples').addEventListener('click',e=>{const p=e.target.closest('[data-preview]'),a=e.target.closest('[data-addsample]');if(p){notify('Preview tidak tersedia: file audio belum dikemas')}if(a){snapshot();project.tracks[selectedTrack].clips.push({id:'c'+Date.now(),label:a.dataset.addsample,start:0,duration:8,color:project.tracks[selectedTrack].color,sourceType:browseCat});switchScreen('timeline');renderTracks();notify('Clip metadata demo ditambahkan ke '+project.tracks[selectedTrack].name+' • tidak ada suara asli')}});
 $('play').addEventListener('click',()=>{playing=!playing;$('play').innerHTML=playing?'<svg class=\"workspace-dock-symbol\" viewBox=\"0 0 24 24\"><path d=\"M7 4h4v16H7zM15 4h4v16h-4z\" fill=\"currentColor\"/></svg>':'<svg class=\"workspace-dock-symbol\" viewBox=\"0 0 24 24\"><path d=\"M7 4l13 8-13 8z\" fill=\"currentColor\"/></svg>';$('audioState').textContent=playing?'Preview UI':'Demo';notify(playing?'Mode play UI aktif — engine audio belum terhubung':'Playback UI berhenti')});
 $('rewind').addEventListener('click',()=>{$('position').textContent='1:1:000';tick=0;notify('Posisi kembali ke awal')});
-$('record').addEventListener('click',()=>{recording=!recording;$('record').style.color=recording?'#ff6675':'';notify(recording?'Status rekam demo aktif — input belum direkam':'Rekam dihentikan')});
+$('record').addEventListener('click',()=>{recording=!recording;$('record').classList.toggle('recording',recording);$('record').setAttribute('aria-pressed',recording?'true':'false');notify(recording?'Status rekam demo aktif — input belum direkam':'Rekam dihentikan')});
 $('tempo').addEventListener('change',()=>{snapshot();project.tempo=Math.max(40,Math.min(240,+$('tempo').value||120));$('tempo').value=project.tempo;notify('Tempo proyek: '+project.tempo+' BPM')});
 $('meter').addEventListener('change',()=>{snapshot();project.meter=$('meter').value;notify('Meter proyek diubah ke '+project.meter)});
 $('projectName').addEventListener('change',()=>{snapshot();project.name=$('projectName').value.trim()||'Untitled';$('projectName').value=project.name});
