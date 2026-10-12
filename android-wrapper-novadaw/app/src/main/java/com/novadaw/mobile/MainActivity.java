@@ -18,7 +18,7 @@ public final class MainActivity extends Activity {
     private WebView webView;
     private final NativeAudioBridge audioBridge = new NativeAudioBridge();
 
-    private final class NativeAudioBridge {
+    public final class NativeAudioBridge {
         @JavascriptInterface public boolean start() { return nativeStartAudio(); }
         @JavascriptInterface public void stop() { nativeStopAudio(); }
         @JavascriptInterface public void noteOn(double frequency, float velocity) {
