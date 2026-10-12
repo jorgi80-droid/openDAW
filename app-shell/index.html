@@ -2969,11 +2969,39 @@ function clearTimelinePinch(){
  document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active');
  timelineLastPinchAt=Date.now();
 }
+let timelineInertiaFrame=0;
+function stopTimelinePanInertia(){
+ if(timelineInertiaFrame){cancelAnimationFrame(timelineInertiaFrame);timelineInertiaFrame=0}
+}
+function startTimelinePanInertia(pan){
+ stopTimelinePanInertia();
+ if(!pan||!pan.axis)return;
+ let vx=pan.velocityX||0,vy=pan.velocityY||0,last=performance.now();
+ if(Math.abs(vx)<.035&&Math.abs(vy)<.035)return;
+ const tick=now=>{
+  const dt=Math.max(1,Math.min(32,now-last));last=now;
+  if(pan.axis==='x'&&pan.viewport&&Math.abs(vx)>=.015){
+   const before=pan.viewport.scrollLeft;
+   pan.viewport.scrollLeft=Math.max(0,Math.min(pan.viewport.scrollWidth-pan.viewport.clientWidth,before+vx*dt));
+   if(pan.viewport.scrollLeft===before)vx=0;else syncTimelineScroll(pan.viewport);
+  }else vx=0;
+  if(pan.axis==='y'&&pan.trackScroller&&Math.abs(vy)>=.015){
+   const before=pan.trackScroller.scrollTop;
+   pan.trackScroller.scrollTop=Math.max(0,Math.min(pan.trackScroller.scrollHeight-pan.trackScroller.clientHeight,before+vy*dt));
+   if(pan.trackScroller.scrollTop===before)vy=0;
+  }else vy=0;
+  const decay=Math.exp(-dt/185);vx*=decay;vy*=decay;
+  if(Math.abs(vx)<.015&&Math.abs(vy)<.015){timelineInertiaFrame=0;return}
+  timelineInertiaFrame=requestAnimationFrame(tick);
+ };
+ timelineInertiaFrame=requestAnimationFrame(tick);
+}
 function beginTimelinePointer(e){
  const area=e.target.closest('#timelineScreen .timeline-work-area');
  if(!area||e.pointerType==='mouse')return;
  if(timelinePointers.has(e.pointerId))return;
  const first=timelinePointers.size===0;
+ if(first)stopTimelinePanInertia();
  timelinePointers.set(e.pointerId,{x:e.clientX,y:e.clientY,startX:e.clientX,startY:e.clientY,target:e.target});
  if(timelinePointers.size===2){
   const points=[...timelinePointers.values()].slice(0,2);
@@ -2984,7 +3012,7 @@ function beginTimelinePointer(e){
  timelineGestureMode='pending';
  if(first&&!e.target.closest('.clip,button,.timeline-tool-rail,.track-height-grip')&&timelineTool!=='range'&&timelineTool!=='cut'){
   const viewport=e.target.closest('.cliparea,.bars-viewport'),trackScroller=document.querySelector('#timelineScreen .tracks');
-  if(viewport||e.target.closest('.tracklabel'))timelinePan={pointerId:e.pointerId,viewport,trackScroller,startX:e.clientX,startY:e.clientY,startScrollX:viewport?.scrollLeft||0,startScrollY:trackScroller?.scrollTop||0,axis:null};
+  if(viewport||e.target.closest('.tracklabel'))timelinePan={pointerId:e.pointerId,viewport,trackScroller,startX:e.clientX,startY:e.clientY,lastX:e.clientX,lastY:e.clientY,lastTime:performance.now(),velocityX:0,velocityY:0,startScrollX:viewport?.scrollLeft||0,startScrollY:trackScroller?.scrollTop||0,axis:null};
  }
 }
 function moveTimelinePointer(e){
@@ -2997,22 +3025,31 @@ function moveTimelinePointer(e){
   queueTimelinePinch(Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y),(points[0].x+points[1].x)/2);
   return;
  }
- if(timelineGestureMode==='pinch-ended'||timelinePointers.size!==1||!timelinePan||timelinePan.pointerId!==e.pointerId)return;
- const dx=e.clientX-timelinePan.startX,dy=e.clientY-timelinePan.startY;
- if(!timelinePan.axis&&Math.hypot(dx,dy)>timelineGestureSlop){
-  if(Math.abs(dx)>Math.abs(dy)*1.15)timelinePan.axis='x';
-  else if(Math.abs(dy)>Math.abs(dx)*1.15)timelinePan.axis='y';
-  if(timelinePan.axis)timelineGestureMode='pan';
+ const pan=timelinePan;
+ if(timelineGestureMode==='pinch-ended'||timelinePointers.size!==1||!pan||pan.pointerId!==e.pointerId)return;
+ const dx=e.clientX-pan.startX,dy=e.clientY-pan.startY;
+ if(!pan.axis&&Math.hypot(dx,dy)>timelineGestureSlop){
+  if(Math.abs(dx)>Math.abs(dy)*1.15)pan.axis='x';
+  else if(Math.abs(dy)>Math.abs(dx)*1.15)pan.axis='y';
+  if(pan.axis)timelineGestureMode='pan';
  }
- if(timelinePan.axis==='x'&&timelinePan.viewport){timelinePan.viewport.scrollLeft=Math.max(0,timelinePan.startScrollX-dx);syncTimelineScroll(timelinePan.viewport);e.preventDefault()}
- else if(timelinePan.axis==='y'&&timelinePan.trackScroller){timelinePan.trackScroller.scrollTop=Math.max(0,timelinePan.startScrollY-dy);e.preventDefault()}
+ const now=performance.now(),elapsed=Math.max(1,now-pan.lastTime);
+ if(pan.axis==='x')pan.velocityX=-(e.clientX-pan.lastX)/elapsed;
+ if(pan.axis==='y')pan.velocityY=-(e.clientY-pan.lastY)/elapsed;
+ pan.lastX=e.clientX;pan.lastY=e.clientY;pan.lastTime=now;
+ if(pan.axis==='x'&&pan.viewport){pan.viewport.scrollLeft=Math.max(0,pan.startScrollX-dx);syncTimelineScroll(pan.viewport);e.preventDefault()}
+ else if(pan.axis==='y'&&pan.trackScroller){pan.trackScroller.scrollTop=Math.max(0,pan.startScrollY-dy);e.preventDefault()}
 }
 function endTimelinePointer(e){
  if(!timelinePointers.has(e.pointerId))return;
+ const wasPinching=!!timelinePinchStart||timelineGestureMode==='pinch-ended';
+ const pan=timelinePan&&timelinePan.pointerId===e.pointerId?timelinePan:null;
  timelinePointers.delete(e.pointerId);
  if(timelinePinchStart){timelineGestureMode='pinch-ended';timelinePan=null;clearTimelinePinch()}
- if(timelinePointers.size===0){timelinePan=null;timelineGestureMode='idle'}
- else{timelineGestureMode='pinch-ended';timelinePan=null}
+ if(timelinePointers.size===0){
+  if(e.type==='pointerup'&&!wasPinching&&pan&&pan.axis)startTimelinePanInertia(pan);
+  timelinePan=null;timelineGestureMode='idle';
+ }else{timelineGestureMode='pinch-ended';timelinePan=null}
 }
 document.addEventListener('pointerdown',beginTimelinePointer,{capture:true,passive:false});
 document.addEventListener('pointermove',moveTimelinePointer,{capture:true,passive:false});
