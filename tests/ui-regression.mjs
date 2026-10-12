@@ -27,8 +27,9 @@ try {
     await page.locator('#gridSnap').selectOption('eighth');
     assert(await page.locator('#gridSnap').inputValue()==='eighth', `timeline snap subdivision is selectable at ${viewport.width}x${viewport.height}`);
     await page.locator('#closeSettingsDone').click();
-    const transportGeometry=await page.evaluate(()=>{const bar=document.querySelector('.transportbar').getBoundingClientRect(),controls=document.querySelector('.transportbar .transport').getBoundingClientRect();return {barCenter:bar.left+bar.width/2,controlsCenter:controls.left+controls.width/2,height:bar.height,play:document.querySelector('#play').getBoundingClientRect()};});
-    assert(Math.abs(transportGeometry.barCenter-transportGeometry.controlsCenter)<=2, `transport is centered in its own compact control strip at ${viewport.width}x${viewport.height}`);
+    const transportGeometry=await page.evaluate(()=>{const bar=document.querySelector('.transportbar').getBoundingClientRect(),controls=document.querySelector('.transportbar .transport').getBoundingClientRect(),play=document.querySelector('#play').getBoundingClientRect();return {barCenter:bar.left+bar.width/2,controlsCenter:controls.left+controls.width/2,playCenter:play.left+play.width/2,height:bar.height,play};});
+    assert(Math.abs(transportGeometry.barCenter-transportGeometry.controlsCenter)<=2, `transport layout is centered in its compact control strip at ${viewport.width}x${viewport.height}`);
+    assert(Math.abs(transportGeometry.barCenter-transportGeometry.playCenter)<=2, `Play/Pause button itself is exactly centered at ${viewport.width}x${viewport.height}`);
     assert(transportGeometry.height<=36 && transportGeometry.play.width>=30, `transport strip stays compact while Play remains touchable at ${viewport.width}x${viewport.height}`);
     const dims = await page.evaluate(() => {
       const box = s => { const r=document.querySelector(s).getBoundingClientRect(); return {x:r.x,y:r.y,width:r.width,height:r.height,bottom:r.bottom,top:r.top,right:r.right}; };
