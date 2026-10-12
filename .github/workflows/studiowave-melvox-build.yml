@@ -41,7 +41,7 @@ jobs:
           p = Path("app-shell/melvox/src/main.ts")
           text = p.read_text()
           start = text.index("setPianoRollPreviewHandler({")
-          end = text.index("\n});", start) + 4
+          end = text.index("\n  });", start) + 6
           block = text[start:end]
           block = block.replace(
               "  on(m) {\n",
