@@ -553,6 +553,34 @@ html[data-theme="light"] .trackhead,html[data-theme="light"] .ruler,html[data-th
 #pianoScreen .note-layer .note{position:absolute!important;display:block;pointer-events:auto!important;touch-action:none;cursor:grab;z-index:5;box-sizing:border-box}
 #pianoScreen .note-layer .note:active{cursor:grabbing}
 
+
+/* Final compact-workspace pass: functional panel sizing and FL-style Piano Roll ruler. */
+#devicesScreen>.panel{display:flex;flex-direction:column;height:100%;min-height:0;overflow:hidden}
+#devicesScreen>.panel>.paneltitle{flex:0 0 auto;margin-bottom:3px}
+#devicesScreen>.panel>.muted:last-child{display:none}
+#devicesScreen .devicegrid{flex:1 1 0;min-height:0;overflow:hidden}
+#devicesScreen .device-editor{min-height:0;min-width:0;overflow:auto}
+#devicesScreen .device-editor-main{min-height:0}
+#pianoScreen .pianowrap{grid-template-columns:clamp(42px,5.2vw,58px) minmax(0,1fr);grid-template-rows:clamp(20px,3.8vh,26px) minmax(0,1fr) clamp(30px,6.5vh,44px)!important;overflow:hidden!important}
+#pianoScreen .piano-corner{grid-column:1;grid-row:1;background:#151f2b;border-right:1px solid #344353;border-bottom:1px solid #344353}
+#pianoScreen .piano-ruler{grid-column:2;grid-row:1;overflow:hidden;min-width:0;background:#151f2b;border-bottom:1px solid #344353;color:#a9bbce;font-size:9px;touch-action:pan-x}
+#pianoScreen .piano-ruler-canvas{height:100%;min-width:960px;display:grid;grid-template-columns:repeat(8,minmax(0,1fr))}
+#pianoScreen .piano-ruler-canvas span{display:flex;align-items:center;padding-left:5px;border-left:1px solid #344353;white-space:nowrap}
+#pianoScreen .keys{grid-column:1;grid-row:2;grid-template-rows:repeat(25,minmax(0,1fr));overflow:hidden;overscroll-behavior:contain}
+#pianoScreen .keys span{font-size:calc(9px * var(--ui-scale));padding-left:4px}
+#pianoScreen .keys span.black-note-name{background:#182432;color:#88a0b8}
+#pianoScreen .pianogrid{grid-column:2;grid-row:2;overflow:auto!important;overscroll-behavior:contain;scrollbar-width:none}
+#pianoScreen .pianogrid::-webkit-scrollbar,#pianoScreen .piano-ruler::-webkit-scrollbar,#pianoScreen .keys::-webkit-scrollbar{display:none}
+#pianoScreen .note-layer{min-width:960px;width:100%;min-height:300px;background-color:#0b1219;background-image:repeating-linear-gradient(to right,transparent 0 calc(3.125% - 1px),#344353 calc(3.125% - 1px) 3.125%),repeating-linear-gradient(to bottom,transparent 0 calc(4% - 1px),#263543 calc(4% - 1px) 4%);background-size:100% 100%}
+#pianoScreen .note-layer .note{background:#35df79;border:1px solid #83f5a7;color:#06140b;box-shadow:none;border-radius:1px;touch-action:none}
+#pianoScreen .velocity{grid-column:1/3;grid-row:3;min-height:0!important;height:100%;padding:3px 6px;gap:4px;align-items:stretch;overflow:hidden;border-top:1px solid #344353;background:#0d151e}
+#pianoScreen .velocity span{background:#35df79;border-radius:3px 3px 0 0;flex:1;width:auto;min-width:2px;align-self:end;max-height:100%;min-height:3px}
+@media(max-height:480px){
+ #pianoScreen .pianowrap{grid-template-rows:20px minmax(0,1fr) 30px!important}
+ #pianoScreen .piano-ruler-canvas span{font-size:8px;padding-left:3px}
+ #pianoScreen .note-layer{min-height:250px}
+}
+
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -594,7 +622,7 @@ html,body,button,input,select{font-family:Rubik,Inter,Roboto,"Segoe UI",system-u
   <button class="addtrack" id="addTrack">＋ Tambah Track</button>
 </section>
 <section class="screen" id="mixerScreen" hidden><div class="panel"><h2 class="paneltitle">Mixer <span class="muted" style="font-size:12px">· per track</span></h2><div class="mixergrid" id="mixer"></div></div></section>
-<section class="screen" id="pianoScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Piano Roll <span class="muted" style="font-size:12px">· ketuk grid untuk menambah nada</span></h2><div class="pianowrap"><div class="keys" id="keys"></div><div class="pianogrid" id="pianogrid" aria-label="Grid piano roll"></div><div class="velocity" id="velocity"></div></div></div></section>
+<section class="screen" id="pianoScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Piano Roll <span class="muted" style="font-size:12px">· ketuk grid untuk menambah nada</span></h2><div class="pianowrap"><div class="piano-corner" aria-hidden="true"></div><div class="piano-ruler" id="pianoRuler" aria-label="Piano Roll bar ruler"><div class="piano-ruler-canvas" id="pianoRulerCanvas"></div></div><div class="keys" id="keys"></div><div class="pianogrid" id="pianogrid" aria-label="Grid piano roll"></div><div class="velocity" id="velocity"></div></div></div></section>
 <section class="screen" id="devicesScreen" hidden><div class="panel"><h2 class="paneltitle">Devices & Instruments</h2><div class="device-trackbar"><strong id="deviceTrackLabel">Track 1 · Drums · Audio</strong><span class="muted">Rack per-track</span><select id="deviceTrackSelect" aria-label="Pilih track untuk rack"></select></div><div class="tabs" id="devTabs"><button class="active" data-cat="Instrument">Instrumen</button><button data-cat="Effect">Efek</button><button data-cat="Preset">Preset</button></div><div class="devicegrid" id="devices"></div><p class="muted" style="margin-bottom:0;font-size:12px">UI prototype: kontrol instrumen ini belum dirutekan ke engine OpenDAW.</p></div></section>
 <section class="screen" id="browserScreen" hidden><div class="panel" style="height:100%;min-height:0"><h2 class="paneltitle">Browser</h2><div class="tabs" id="browserTabs"><button class="active" data-cat="Samples">Samples</button><button data-cat="Instruments">Instrumen</button><button data-cat="Effects">Efek</button><button data-cat="Presets">Preset</button></div><div class="browserlayout"><div class="categories" id="categories"><button class="active" data-filter="All">Semua</button><button data-filter="Drums">Drums</button><button data-filter="Bass">Bass</button><button data-filter="Synth">Synth</button><button data-filter="Piano">Piano</button><button data-filter="Vocals">Vokal</button><button data-filter="User">Impor</button></div><div class="samplelist" id="samples"></div></div><p class="muted" style="font-size:12px;margin-bottom:0">Daftar ini memakai data demo UI; sampel, instrumen, dan efek belum terhubung ke mesin audio.</p></div></section>
 </main>
@@ -706,11 +734,12 @@ function renderMixer(){
  });
 }
 function renderPiano(){
- const keys=$('keys'),grid=$('pianogrid'),vel=$('velocity');keys.innerHTML='';grid.innerHTML='';vel.innerHTML='';
+ const keys=$('keys'),grid=$('pianogrid'),vel=$('velocity'),ruler=$('pianoRulerCanvas');keys.innerHTML='';grid.innerHTML='';vel.innerHTML='';ruler.innerHTML='';
  const names=['C6','B5','A#5','A5','G#5','G5','F#5','F5','E5','D#5','D5','C#5','C5','B4','A#4','A4','G#4','G4','F#4','F4','E4','D#4','D4','C#4','C4'];
  const rows=names.length;keys.style.gridTemplateRows='repeat('+rows+',minmax(0,1fr))';
  names.forEach((name,i)=>{const span=document.createElement('span');span.textContent=name;span.dataset.pianoRow=i;if(name.includes('#'))span.classList.add('black-note-name');keys.appendChild(span)});
- const layer=document.createElement('div');layer.className='note-layer';layer.setAttribute('aria-label','MIDI note lane');layer.style.width='100%';layer.style.minWidth='960px';
+ const rulerWidth= Math.max(960,grid.clientWidth);ruler.style.width=rulerWidth+'px';for(let bar=1;bar<=8;bar++){const label=document.createElement('span');label.textContent=String(bar);ruler.appendChild(label)}
+ const layer=document.createElement('div');layer.className='note-layer';layer.setAttribute('aria-label','MIDI note lane');layer.style.width=rulerWidth+'px';layer.style.minWidth='960px';
  project.notes.forEach((n,i)=>{
   const row=Math.max(0,Math.min(rows-1,Number(n.row)||0));
   const note=document.createElement('button');note.className='note';
@@ -919,7 +948,9 @@ $('tracks').addEventListener('click',e=>{
 $('addTrack').addEventListener('click',()=>{snapshot();const n=project.tracks.length;const colors=['#ff625e','#168cff','#20cf8a','#a95bff','#ffad34','#58c9f1'];project.tracks.push({id:'t'+Date.now(),name:'Track '+(n+1),type:'MIDI',color:colors[n%colors.length],mute:false,solo:false,gain:0,pan:0,clips:[]});renderAll();notify('Track baru ditambahkan')});
 $('mixer').addEventListener('input',e=>{const el=e.target;if(!el.dataset.mix)return;const t=project.tracks[+el.dataset.i];t[el.dataset.mix]=+el.value;$(el.dataset.mix==='gain'?'gainv'+el.dataset.i:'panv'+el.dataset.i).textContent=el.dataset.mix==='gain'?Number(el.value).toFixed(1)+' dB':el.value;});
 $('mixer').addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const t=project.tracks[+b.dataset.i];snapshot();t[b.dataset.action]=!t[b.dataset.action];renderAll()});
-function beginNoteGesture(e,note){
+$('pianogrid').addEventListener('scroll',()=>{const ruler=$('pianoRuler'),keys=$('keys'),grid=$('pianogrid');if(ruler)ruler.scrollLeft=grid.scrollLeft;if(keys)keys.scrollTop=grid.scrollTop;},{passive:true});
+ $('pianoRuler').addEventListener('scroll',()=>{const grid=$('pianogrid');if(grid&&Math.abs(grid.scrollLeft-$('pianoRuler').scrollLeft)>1)grid.scrollLeft=$('pianoRuler').scrollLeft;},{passive:true});
+ function beginNoteGesture(e,note){
  if(e.button!==undefined&&e.button!==0)return;
  const index=Number(note.dataset.noteIndex),n=project.notes[index];if(!n)return;
  const rect=note.getBoundingClientRect(),mode=e.clientX>=rect.right-10?'resize':'move';
