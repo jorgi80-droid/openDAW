@@ -1216,6 +1216,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,[role=slider]:focu
 .channel,.device-card,.browser-row{border:1px solid var(--sw-border)!important;background:linear-gradient(180deg,#121d28,#0b1219)!important;border-radius:10px!important;box-shadow:inset 0 1px #ffffff05!important}
 .channel:focus-within,.device-card:focus-within{border-color:#376381!important}
 input[type=range]{accent-color:var(--sw-accent)}
+
+/* Melvox suite is an independent workspace overlay; the Playlist DOM and geometry remain unchanged. */
+#melvoxStudioOverlay{position:fixed;inset:0;z-index:1000;background:#0b1017;display:flex;flex-direction:column;min-width:0;min-height:0}
+#melvoxStudioOverlay[hidden]{display:none!important}
+#melvoxStudioOverlay .melvox-suite-toolbar{flex:0 0 42px;display:flex;align-items:center;gap:10px;padding:4px 9px;background:#101923;border-bottom:1px solid #2a3b4b;color:#eaf3fc;font:12px/1.3 Inter,Roboto,system-ui,sans-serif}
+#melvoxStudioOverlay .melvox-suite-toolbar strong{font-weight:750;white-space:nowrap}
+#melvoxStudioOverlay .melvox-suite-toolbar span{flex:1;min-width:0;color:#91a3b7;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#melvoxStudioOverlay .melvox-suite-toolbar button{min-height:30px!important;white-space:nowrap;background:#182a3a!important;border:1px solid #34516a!important;border-radius:8px!important;padding:4px 10px!important;color:#d7efff!important}
+#melvoxStudioOverlay iframe{flex:1 1 auto;display:block;width:100%;height:calc(100% - 42px);min-height:0;border:0;background:#0f0d13}
+@media(max-width:520px){#melvoxStudioOverlay .melvox-suite-toolbar{gap:6px;padding:4px 6px}#melvoxStudioOverlay .melvox-suite-toolbar span{display:none}#melvoxStudioOverlay .melvox-suite-toolbar button{margin-left:auto}}
 </style>
 
 <link rel="icon" type="image/svg+xml" href="assets/opendaw/favicon.svg">
@@ -1844,7 +1854,7 @@ button:active{transform:scale(.975)}
   <div class="project"><button class="small" aria-label="Home and settings" id="menu" title="Home / Settings"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" fill="none"/></svg></button><input id="projectName" aria-label="Nama proyek" value="My Song"></div>
   <div class="transportbar"><div class="transport"><button class="small" id="rewind" aria-label="Kembali ke awal"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4v16M19 5L7 12l12 7z" stroke="currentColor" stroke-width="1.6" fill="currentColor"/></svg></button><button class="small play" id="play" aria-label="Putar atau jeda"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4l13 8-13 8z" fill="currentColor"/></svg></button><button class="small" id="record" aria-label="Rekam"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6" fill="#ff5c69"/></svg></button><button class="small meta" id="position">1:1:000</button></div></div>
   <div class="subbar"><span class="chip">Tempo <b><input id="tempo" type="number" min="40" max="240" value="120" aria-label="Tempo in BPM"></b> BPM</span><span class="chip">Meter <b><select id="meter" aria-label="Time signature"><option>4/4</option><option>3/4</option><option>6/8</option><option>5/4</option></select></b></span><span class="chip">Audio <b id="audioState">Demo</b></span><input hidden id="file" type="file" accept=".json,application/json"></div>
-  <div class="top-actions"><button class="small" id="projectMenuButton" aria-label="Project menu" title="Project menu"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><button class="small" id="undo" aria-label="Undo" title="Undo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4 12l5 5M4 12h10a5 5 0 0 1 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button class="small" id="redo" aria-label="Redo" title="Redo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7l5 5-5 5M20 12H10a5 5 0 0 0-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button></div>
+  <div class="top-actions"><button class="small" id="melvoxStudioButton" aria-label="Buka Melvox Studio" title="Melvox Studio"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h3l2-7 4 12 2-8 2 3h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button class="small" id="projectMenuButton" aria-label="Project menu" title="Project menu"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></svg></button><button class="small" id="undo" aria-label="Undo" title="Undo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7L4 12l5 5M4 12h10a5 5 0 0 1 5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button><button class="small" id="redo" aria-label="Redo" title="Redo"><svg class="workspace-dock-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 7l5 5-5 5M20 12H10a5 5 0 0 0-5 5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button></div>
 </header>
 <main class="workspace" id="workspace">
 <section class="screen" id="timelineScreen">
@@ -3507,7 +3517,40 @@ document.addEventListener('keydown',e=>{
 renderAll();updateTimelineTools();
 window.addEventListener('resize',()=>{if(!$('timelineScreen').hidden){const r=document.querySelector('#timelineScreen .bars-viewport');const x=r?.scrollLeft||0;$('timelineScreen').style.setProperty('--timeline-ppb',timelinePixelsPerBar()+'px');applyTimelineGeometry();if(r)r.scrollLeft=Math.min(x,Math.max(0,timelineContentWidth()-r.clientWidth));syncTimelineScroll(r)}},{passive:true});
 })();
+
+/* Keep Melvox tools out of the Timeline DOM. This overlay is a separate local workspace. */
+const melvoxOverlay=$('melvoxStudioOverlay');
+const melvoxFrame=$('melvoxStudioFrame');
+function openMelvoxStudio(){
+  if(!melvoxOverlay)return;
+  melvoxOverlay.hidden=false;
+  melvoxOverlay.setAttribute('aria-hidden','false');
+  $('melvoxStudioButton')?.setAttribute('aria-expanded','true');
+}
+function closeMelvoxStudio(){
+  if(!melvoxOverlay)return;
+  melvoxOverlay.hidden=true;
+  melvoxOverlay.setAttribute('aria-hidden','true');
+  $('melvoxStudioButton')?.setAttribute('aria-expanded','false');
+  $('melvoxStudioButton')?.focus({preventScroll:true});
+}
+$('melvoxStudioButton')?.addEventListener('click',openMelvoxStudio);
+$('closeMelvoxStudio')?.addEventListener('click',closeMelvoxStudio);
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&melvoxOverlay&&!melvoxOverlay.hidden){e.preventDefault();closeMelvoxStudio()}
+});
+
 </script>
+
+<div id="melvoxStudioOverlay" hidden aria-label="Melvox Studio workspace">
+  <div class="melvox-suite-toolbar">
+    <strong>Melvox Studio</strong>
+    <span>Audio, instruments, effects & editors</span>
+    <button id="closeMelvoxStudio" type="button" aria-label="Kembali ke StudioWave">← StudioWave</button>
+  </div>
+  <iframe id="melvoxStudioFrame" title="Melvox Studio" src="./melvox/index.html" loading="eager" allow="autoplay; microphone" referrerpolicy="no-referrer"></iframe>
+</div>
+
 </body>
 </html>
 
