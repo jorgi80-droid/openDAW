@@ -1001,9 +1001,9 @@ $('pianogrid').addEventListener('click',e=>{
  if(ignoreNextNoteClick){ignoreNextNoteClick=false;return}
  const note=e.target.closest('.note');
  if(note){selectedNote=Number(note.dataset.noteIndex);notify('Nada dipilih');return}
- const rect=e.currentTarget.getBoundingClientRect(),layer=$('pianogrid .note-layer'),stepWidth=Math.max(1,layer?.scrollWidth||rect.width)/128;
- const row=Math.floor((e.clientY-rect.top+(e.currentTarget.scrollTop||0))/(Math.max(1,layer?.scrollHeight||layer?.clientHeight||rect.height)/25));
- const col=Math.floor((e.clientX-rect.left+(e.currentTarget.scrollLeft||0))/stepWidth);
+ const rect=e.currentTarget.getBoundingClientRect(),layer=$('pianogrid .note-layer'),layerRect=layer?.getBoundingClientRect(),sx=layer&&layerRect?layerRect.width/Math.max(1,layer.offsetWidth):1,sy=layer&&layerRect?layerRect.height/Math.max(1,layer.offsetHeight):1,stepWidth=Math.max(1,layerRect?.width||rect.width)/128;
+ const row=Math.floor((e.clientY-rect.top+(e.currentTarget.scrollTop||0)*sy)/(Math.max(1,layerRect?.height||rect.height)/25));
+ const col=Math.floor((e.clientX-rect.left+(e.currentTarget.scrollLeft||0)*sx)/stepWidth);
  snapshot();project.notes.push({row:Math.max(0,Math.min(24,row)),col:Math.max(0,Math.min(127,col)),len:4,velocity:80});
  renderPiano();notify('Nada MIDI ditambahkan (model demo)')
 });
