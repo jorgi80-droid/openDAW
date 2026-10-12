@@ -49,6 +49,13 @@ jobs:
             ['add-track is a floating action above the timeline', html.includes('#timelineScreen>.addtrack{position:fixed!important')],
             ['micro-grid third subdivision was removed', !html.includes("(ppb/4)+'px 100%'" )],
             ['zoom requests are coalesced into animation frames', html.includes('function setTimelineZoomSmooth')],
+            ['ruler and grid share a single 32-bar base scale', html.includes('const INITIAL_TIMELINE_BARS=32;') && html.includes('function timelinePixelsPerBar()') && html.includes('function timelineContentBars()')],
+            ['Playlist timeline can grow past the first 32 bars', html.includes('const MAX_BARS=512;') && html.includes('Math.ceil(clipEnd+4)')],
+            ['clip drag includes vertical targeting and preserves original track', html.includes('originTrackIndex:trackIndex') && html.includes('targetTrackIndex:trackIndex') && html.includes('function canMoveClipToTrack')],
+            ['incompatible Audio and MIDI clip drops are rejected', html.includes('return kind===target') && html.includes('Jenis track harus sama')],
+            ['clip drag supports continuous edge auto-scroll', html.includes('function runClipAutoScroll()') && html.includes('startScrollLeft') && html.includes('applyActiveClipGestureFrame()')],
+            ['top toolbar uses aligned single-row controls', html.includes('grid-template-rows:36px!important') && html.includes('#mainToolbar>.subbar{grid-column:4!important')],
+            ['ruler end marker does not overlap bar labels', html.includes('#timelineScreen .bars span.ruler-end{display:none!important}')],
             ['piano roll uses grid and velocity layout', html.includes('id="pianogrid"') && html.includes('id="velocity"')],
           ];
           for (const [name, pass] of checks) console.log((pass?'PASS':'FAIL')+' '+name);
