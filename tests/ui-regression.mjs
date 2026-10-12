@@ -8,7 +8,7 @@ const browser = await chromium.launch({ headless: true });
 const failures = [];
 const assert = (ok, message) => { console.log((ok ? 'PASS ' : 'FAIL ') + message); if (!ok) failures.push(message); };
 try {
-  for (const viewport of [{ width: 1280, height: 720 }, { width: 854, height: 480 }]) {
+  for (const viewport of [{ width: 1280, height: 720 }, { width: 854, height: 480 }, { width: 720, height: 360 }]) {
     const context = await browser.newContext({ viewport, deviceScaleFactor: 1, isMobile: false });
     const page = await context.newPage();
     const pageErrors = [];
