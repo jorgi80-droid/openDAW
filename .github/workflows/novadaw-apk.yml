@@ -42,7 +42,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Package NovaDAW UI assets
+      - name: Package StudioWave UI assets
         run: |
           mkdir -p android-wrapper-novadaw/app/src/main/assets/novadaw/assets/opendaw/fonts
           cp app-shell/index.html android-wrapper-novadaw/app/src/main/assets/novadaw/index.html
@@ -57,6 +57,6 @@ jobs:
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: novadaw-mobile-debug-apk
+          name: studiowave-mobile-debug-apk
           path: android-wrapper-novadaw/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
