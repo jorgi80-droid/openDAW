@@ -1215,17 +1215,18 @@ html[data-theme="light"] .clip{color:#152130!important}
 
  /* Keep the actual workspace bounds outside the fixed right-side workspace dock.
     Padding alone leaves the workspace's bounding box underneath the dock. */
+ /* Reserve space for the right dock without shrinking the timeline unnecessarily. */
  #workspace{
-  width:calc(100% - 86px)!important;
-  margin-right:86px!important;
-  padding-right:4px!important;
+  width:calc(100% - 74px)!important;
+  margin-right:74px!important;
+  padding:4px 4px 4px 5px!important;
   box-sizing:border-box!important;
  }
  @media (orientation:landscape) and (max-height:520px){
   #workspace{
-   width:calc(100% - 78px)!important;
-   margin-right:78px!important;
-   padding-right:4px!important;
+   width:calc(100% - 66px)!important;
+   margin-right:66px!important;
+   padding:3px 3px 3px 4px!important;
   }
  }
  </style>
@@ -1843,16 +1844,27 @@ function splitSelectedClipAtRatio(ratio=.5){
  selectedClip=second.id;renderTracks();updateTimelineTools();notify('Clip dipisah menjadi dua bagian');
 }
 function setTimelineZoom(next,anchorX){
- const old=timelineZoom,viewport=document.querySelector('.bars-viewport'),scroll=viewport?.scrollLeft||0,anchor=Number.isFinite(anchorX)?anchorX:(viewport?.clientWidth||0)/2;
- timelineZoom=Math.max(.5,Math.min(4,next));$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas)rulerCanvas.style.width=(timelineZoom*100)+'%';
- renderTracks();const ruler=document.querySelector('.bars-viewport');if(ruler)ruler.scrollLeft=Math.max(0,(scroll+anchor)*(timelineZoom/old)-anchor);updateTimelineTools();
+ const old=timelineZoom;
+ const viewport=document.querySelector('.bars-viewport');
+ const scroll=viewport?.scrollLeft||0;
+ const anchor=Number.isFinite(anchorX)?Math.max(0,Math.min(viewport?.clientWidth||0,anchorX)):(viewport?.clientWidth||0)/2;
+ timelineZoom=Math.max(.25,Math.min(16,Number(next)||1));
+ if(Math.abs(timelineZoom-old)<.0001)return;
+ $('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);
+ const rulerCanvas=document.querySelector('#timelineScreen .bars');
+ if(rulerCanvas)rulerCanvas.style.width=(timelineZoom*100)+'%';
+ renderTracks();
+ const ruler=document.querySelector('.bars-viewport');
+ if(ruler)ruler.scrollLeft=Math.max(0,(scroll+anchor)*(timelineZoom/old)-anchor);
+ updateTimelineTools();
 }
 $('timelineScreen').addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const r=document.querySelector('.bars-viewport')?.getBoundingClientRect();setTimelineZoom(timelineZoom*(e.deltaY<0?1.1:.9),r?e.clientX-r.left:undefined)},{passive:false});
 let timelinePinchStart=null;
 const timelineArea=document.querySelector('#timelineScreen .timeline-work-area');
-timelineArea?.addEventListener('touchstart',e=>{if(e.touches.length!==2){timelinePinchStart=null;return}const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;clipGesture=null;timelinePinchStart={distance:Math.max(1,Math.hypot(dx,dy)),zoom:timelineZoom}},{passive:true});
+timelineArea?.addEventListener('touchstart',e=>{if(e.touches.length!==2){timelinePinchStart=null;return}const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY;clipGesture=null;timelinePinchStart={distance:Math.max(1,Math.hypot(dx,dy)),zoom:timelineZoom,anchorX:(e.touches[0].clientX+e.touches[1].clientX)/2}},{passive:true});
 timelineArea?.addEventListener('touchmove',e=>{if(e.touches.length!==2||!timelinePinchStart)return;e.preventDefault();const dx=e.touches[0].clientX-e.touches[1].clientX,dy=e.touches[0].clientY-e.touches[1].clientY,dist=Math.max(1,Math.hypot(dx,dy)),r=document.querySelector('.bars-viewport')?.getBoundingClientRect(),center=(e.touches[0].clientX+e.touches[1].clientX)/2;setTimelineZoom(timelinePinchStart.zoom*dist/timelinePinchStart.distance,r?center-r.left:undefined)},{passive:false});
 timelineArea?.addEventListener('touchend',e=>{if(e.touches.length<2)timelinePinchStart=null},{passive:true});
+timelineArea?.addEventListener('touchcancel',()=>{timelinePinchStart=null},{passive:true});
 $('timelineTools').addEventListener('click',e=>{
  const b=e.target.closest('[data-timeline-tool]');if(!b)return;const tool=b.dataset.timelineTool;
  // A tool change starts a new gesture context; never let a prior tap be treated as a double tap.
