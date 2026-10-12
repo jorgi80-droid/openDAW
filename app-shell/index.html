@@ -1801,7 +1801,8 @@ function switchScreen(name){
  updateFloatingEditorMenu();
 }
 let timeSelection=null,rangeGesture=null;
-const MAX_BARS=32;
+const MAX_BARS=512;
+const INITIAL_TIMELINE_BARS=32;
 function clampBar(value){return Math.max(0,Math.min(MAX_BARS,Number(value)||0))}
 function normalizedRange(range){if(!range)return null;const start=clampBar(Math.min(range.start,range.end)),end=clampBar(Math.max(range.start,range.end));return end-start>=.0625?{start,end}:null}
 function selectedRange(){return normalizedRange(timeSelection)}
@@ -1818,8 +1819,7 @@ function renderRangeSelection(){
 }
 function barAtClientX(clientX,viewport){
  const rect=viewport.getBoundingClientRect();
- const zoomWidth=Math.max(1,viewport.querySelector('.bars')?.getBoundingClientRect().width||viewport.scrollWidth);
- const x=Math.max(0,Math.min(zoomWidth,viewport.scrollLeft+clientX-rect.left));
+ const x=Math.max(0,(viewport.scrollLeft||0)+clientX-rect.left);
  return Math.max(0,Math.min(MAX_BARS,x/Math.max(1,timelinePixelsPerBar())));
 }
 function beginRangeSelection(event){
@@ -1982,7 +1982,7 @@ function renderTracks(){
  const savedScrollLeft=rulerViewport?.scrollLeft||0,savedScrollTop=root.scrollTop||0;
  root.innerHTML='';$('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);const rulerCanvas=document.querySelector('#timelineScreen .bars');if(rulerCanvas){rulerCanvas.style.width=(timelineZoom*100)+'%';rulerCanvas.style.minWidth='100%';}
  const barViewport=document.querySelector('#timelineScreen .bars');
- if(barViewport){barViewport.querySelectorAll('span:not(.ruler-end)').forEach((label,index)=>{label.textContent=String(index*4+1);label.style.flex='0 0 '+(100/8)+'%';});const end=barViewport.querySelector('.ruler-end');if(end)end.textContent=String(MAX_BARS+1)}
+ if(barViewport){barViewport.querySelectorAll('span:not(.ruler-end)').forEach((label,index)=>{label.textContent=String(index*4+1);label.style.flex='0 0 '+(100/8)+'%';});const end=barViewport.querySelector('.ruler-end');if(end)end.hidden=true}
  project.tracks.forEach((t,index)=>{
   const row=document.createElement('div');row.className='trackrow';row.style.setProperty('--track',t.color);
   row.style.setProperty('--track-index',String(index));
@@ -1992,7 +1992,7 @@ function renderTracks(){
   const heightGrip=document.createElement('div');heightGrip.className='track-height-grip';heightGrip.dataset.trackHeight=String(index);heightGrip.setAttribute('role','separator');heightGrip.setAttribute('aria-orientation','horizontal');heightGrip.setAttribute('aria-label','Ubah tinggi track');heightGrip.tabIndex=0;heightGrip.addEventListener('pointerdown',beginTrackHeightGesture);heightGrip.addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();setTimelineTrackZoom(timelineTrackZoom*(e.key==='ArrowUp'?1.08:1/1.08),.5)}});row.appendChild(heightGrip);
   const area=document.createElement('div');area.className='cliparea';area.dataset.track=index;area.dataset.timelineScroll='clip';
   area.addEventListener('scroll',e=>syncTimelineScroll(e.currentTarget),{passive:true});
-  const canvas=document.createElement('div');canvas.className='clip-canvas';canvas.style.width=(timelineZoom*100)+'%';canvas.style.backgroundImage='linear-gradient(to right,#314355 1px,transparent 1px),linear-gradient(to right,#1c2936 1px,transparent 1px)';canvas.style.backgroundSize=(100/32)+'% 100%, '+(100/128)+'% 100%, '+(100/512)+'% 100%';
+  const canvas=document.createElement('div');canvas.className='clip-canvas';canvas.style.width=(timelineZoom*100)+'%';canvas.style.backgroundImage='linear-gradient(to right,#314355 1px,transparent 1px),linear-gradient(to right,#1c2936 1px,transparent 1px)';canvas.style.backgroundSize=(100/8)+'% 100%, '+(100/32)+'% 100%';
   t.clips.forEach(c=>{
    const clip=document.createElement('button');clip.className='clip'+(selectedClip===c.id?' selected':'')+(c.muted?' is-muted':'');clip.style.setProperty('--clip',c.color||t.color);clip.style.left=(c.start*timelinePixelsPerBar())+'px';clip.style.width=(Math.min(c.duration,MAX_BARS-c.start)*timelinePixelsPerBar())+'px';clip.innerHTML='<span class="clip-label">'+esc(c.label)+'</span><span class="clip-resize-handle" aria-label="Resize clip"><span class="resize-grip"></span></span>';clip.dataset.clip=c.id;clip.dataset.track=index;clip.title=c.label+' · tap for actions, double tap to edit, drag to move, drag right edge to resize';canvas.appendChild(clip);
   });
@@ -2330,11 +2330,19 @@ function timelineBaseWidth(){
  return Math.max(1,viewport?.clientWidth||document.querySelector('#timelineScreen .timeline')?.clientWidth||1);
 }
 function timelinePixelsPerBar(){
- return timelineBaseWidth()/MAX_BARS*Math.max(.25,Math.min(16,timelineZoom));
+ return timelineBaseWidth()/INITIAL_TIMELINE_BARS*Math.max(.25,Math.min(16,timelineZoom));
+}
+function timelineContentBars(){
+ let end=INITIAL_TIMELINE_BARS;
+ for(const track of project.tracks||[])for(const clip of track.clips||[]){
+  const clipEnd=Math.max(0,Number(clip.start)||0)+Math.max(.25,Number(clip.duration)||.25);
+  end=Math.max(end,Math.ceil(clipEnd+4));
+ }
+ return Math.min(MAX_BARS,end);
 }
 function timelineContentWidth(){
- const base=timelineBaseWidth(),zoom=Math.max(.25,Math.min(16,timelineZoom));
- return Math.max(base,Math.round(base*zoom));
+ const base=timelineBaseWidth(),ppb=timelinePixelsPerBar();
+ return Math.max(base,Math.ceil(timelineContentBars()*ppb));
 }
 function applyTimelineGeometry(){
  const ruler=document.querySelector('#timelineScreen .bars-viewport');if(!ruler)return;
@@ -2348,43 +2356,37 @@ function applyTimelineGeometry(){
  });
  const bars=ruler.querySelector('.bars');
  if(bars){
-  const visibleBars=Math.max(MAX_BARS,Math.ceil(contentWidth/Math.max(1,ppb)));
+  const visibleBars=Math.max(INITIAL_TIMELINE_BARS,Math.ceil(contentWidth/Math.max(1,ppb)));
   const desiredLabels=Math.ceil(visibleBars/4);
   let labels=[...bars.querySelectorAll('span:not(.ruler-end)')];
   if(labels.length!==desiredLabels){
    labels.forEach(el=>el.remove());
    const fragment=document.createDocumentFragment();
    for(let i=0;i<desiredLabels;i++){
-    const label=document.createElement('span');
-    label.textContent=String(i*4+1);
-    fragment.appendChild(label);
+    const label=document.createElement('span');label.textContent=String(i*4+1);fragment.appendChild(label);
    }
    bars.insertBefore(fragment,bars.querySelector('.ruler-end'));
    labels=[...bars.querySelectorAll('span:not(.ruler-end)')];
   }
   labels.forEach((label,index)=>{
    label.textContent=String(index*4+1);
-   label.style.setProperty('flex','0 0 '+(ppb*4)+'px','important');
-   label.style.setProperty('width',(ppb*4)+'px','important');
-   label.style.setProperty('min-width',(ppb*4)+'px','important');
+   const width=(ppb*4)+'px';
+   label.style.setProperty('flex','0 0 '+width,'important');
+   label.style.setProperty('width',width,'important');
+   label.style.setProperty('min-width',width,'important');
+   label.style.setProperty('box-sizing','border-box','important');
   });
-  const endLabel=bars.querySelector('.ruler-end');
-  if(endLabel){
-   endLabel.textContent=String(visibleBars+1);
-   endLabel.style.setProperty('left','auto','important');
-   endLabel.style.setProperty('right','0','important');
-  }
+  const endLabel=bars.querySelector('.ruler-end');if(endLabel)endLabel.hidden=true;
  }
  document.querySelectorAll('#timelineScreen .clip-canvas').forEach(canvas=>{
-  const lane=canvas.closest('.cliparea'),index=Number(lane?.dataset.track),track=project.tracks[index];
-  if(!track)return;
+  const lane=canvas.closest('.cliparea'),index=Number(lane?.dataset.track),track=project.tracks[index];if(!track)return;
   canvas.querySelectorAll('.clip[data-clip]').forEach(el=>{
-   const clip=track.clips.find(c=>c.id===el.dataset.clip);if(!clip)return;
-   el.style.left=(clip.start*ppb)+'px';
-   el.style.width=(Math.min(clip.duration,MAX_BARS-clip.start)*ppb)+'px';
+   const clip=track.clips.find(x=>x.id===el.dataset.clip);if(!clip)return;
+   el.style.left=(clip.start*ppb)+'px';el.style.width=(Math.min(clip.duration,MAX_BARS-clip.start)*ppb)+'px';
   });
-  canvas.style.backgroundSize=(ppb*4)+'px 100%, '+ppb+'px 100%';
+  canvas.style.setProperty('background-size',(ppb*4)+'px 100%, '+ppb+'px 100%','important');
  });
+ $('timelineScreen').style.setProperty('--timeline-ppb',ppb+'px');
  return contentWidth;
 }
 function syncTimelineScroll(source){
