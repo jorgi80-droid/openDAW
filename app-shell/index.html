@@ -2672,14 +2672,18 @@ function syncTimelineScroll(source){
  if(timelineScrollSync||!source)return;
  timelineScrollSync=true;
  try{
+  // All horizontal panes share the same logical time coordinate: one CSS pixel per
+  // timeline pixel. Do not infer content width from transformed getBoundingClientRect()
+  // during pinch preview; transformed visual bounds are not the scrollable layout width.
   const offset=Math.max(0,source.scrollLeft||0);
+  const ruler=timelineRuler();
+  const logicalWidth=Math.max(timelineBaseWidth(),timelineContentWidth());
   timelineScrollPeers().forEach(el=>{
    if(el===source)return;
-   const canvas=timelineCanvasFor(el);
-   const content=Math.max(el.clientWidth,canvas?.scrollWidth||canvas?.getBoundingClientRect().width||el.clientWidth);
-   const next=Math.max(0,Math.min(content-el.clientWidth,offset));
+   const next=Math.max(0,Math.min(Math.max(0,logicalWidth-el.clientWidth),offset));
    if(Math.abs((el.scrollLeft||0)-next)>.5)el.scrollLeft=next;
   });
+  if(source===ruler)requestPaintTimelineRuler();
  }finally{
   timelineScrollSync=false;
  }
