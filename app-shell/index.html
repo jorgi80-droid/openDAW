@@ -1465,10 +1465,9 @@ function addClipToTrack(i,kind){
 }
 let pendingLanePress=null;
 $('tracks').addEventListener('pointerdown',e=>{
- if(timelineTool!=='select')return;
  if(e.button!==undefined&&e.button!==0)return;
  const clip=e.target.closest('[data-clip]');
- if(!clip && clipboardClip){
+ if(!clip && clipboardClip && timelineTool==='select'){
   const area=e.target.closest('.cliparea');
   if(area){
    const canvas=area.querySelector('.clip-canvas'),trackIndex=Number(area.dataset.track);
@@ -1526,11 +1525,12 @@ $('tracks').addEventListener('pointermove',e=>{
 function syncTimelineScroll(source){
  if(timelineScrollSync)return;
  timelineScrollSync=true;
- const left=source.scrollLeft;
+ const range=source.scrollWidth-source.clientWidth;
+ const ratio=range>0?source.scrollLeft/range:0;
  document.querySelectorAll('[data-timeline-scroll]').forEach(el=>{
   if(el===source)return;
   const max=Math.max(0,el.scrollWidth-el.clientWidth);
-  const next=Math.max(0,Math.min(max,left));
+  const next=max*ratio;
   if(Math.abs(el.scrollLeft-next)>1)el.scrollLeft=next;
  });
  timelineScrollSync=false;
@@ -1539,7 +1539,11 @@ document.querySelector('.bars-viewport')?.addEventListener('scroll',e=>syncTimel
 $('tracks').addEventListener('scroll',e=>{const area=e.target.closest('[data-timeline-scroll="clip"]');if(area)syncTimelineScroll(area)},{passive:true});
 function finishClipGesture(e){
  const g=clipGesture;if(!g||e.pointerId!==g.pointerId)return;
- if(g.moved){pushUndoSnapshot(g.before);selectedClip=g.clipId;selectedTrack=g.trackIndex;ignoreNextClipId=g.clipId;setTimeout(()=>{if(ignoreNextClipId===g.clipId)ignoreNextClipId=null},400);renderTracks();notify(g.mode==='move'?'Clip dipindahkan':'Panjang clip diubah')}
+ if(g.moved){
+  pushUndoSnapshot(g.before);selectedClip=g.clipId;selectedTrack=g.trackIndex;
+  ignoreNextClipId=g.clipId;setTimeout(()=>{if(ignoreNextClipId===g.clipId)ignoreNextClipId=null},400);
+  renderTracks();updateTimelineTools();hideClipContext();notify(g.mode==='move'?'Clip dipindahkan':'Panjang clip diubah')
+ }
  clipGesture=null;
 }
 $('tracks').addEventListener('pointerup',e=>{
@@ -1870,7 +1874,9 @@ function setTimelineZoom(next,anchorX){
  const old=timelineZoom;
  const viewport=document.querySelector('.bars-viewport');
  const scroll=viewport?.scrollLeft||0;
+ const oldRange=viewport?Math.max(1,viewport.scrollWidth-viewport.clientWidth):1;
  const anchor=Number.isFinite(anchorX)?Math.max(0,Math.min(viewport?.clientWidth||0,anchorX)):(viewport?.clientWidth||0)/2;
+ const anchorTime=(scroll+anchor)/oldRange;
  timelineZoom=Math.max(.25,Math.min(16,Number(next)||1));
  if(Math.abs(timelineZoom-old)<.0001)return;
  $('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);
@@ -1878,7 +1884,11 @@ function setTimelineZoom(next,anchorX){
  if(rulerCanvas){rulerCanvas.style.width=(timelineZoom*100)+'%';rulerCanvas.style.minWidth='100%';}
  renderTracks();
  const ruler=document.querySelector('.bars-viewport');
- if(ruler)ruler.scrollLeft=Math.max(0,(scroll+anchor)*(timelineZoom/old)-anchor);
+ if(ruler){
+  const newRange=Math.max(0,ruler.scrollWidth-ruler.clientWidth);
+  ruler.scrollLeft=Math.max(0,Math.min(newRange,anchorTime*newRange-anchor));
+  syncTimelineScroll(ruler);
+ }
  updateTimelineTools();
 }
 $('timelineScreen').addEventListener('wheel',e=>{if(!e.ctrlKey&&!e.metaKey)return;e.preventDefault();const r=document.querySelector('.bars-viewport')?.getBoundingClientRect();setTimelineZoom(timelineZoom*(e.deltaY<0?1.1:.9),r?e.clientX-r.left:undefined)},{passive:false});
