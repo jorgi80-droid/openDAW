@@ -272,6 +272,13 @@ try {
     await page.reload({waitUntil:'networkidle'});
 
     await page.locator('.dock button[data-screen="piano"]').click();
+    const browserPanel = page.locator('#browserScreen');
+    await page.locator('.dock button[data-screen="browser"]').click();
+    await page.locator('#browserTabs button[data-cat="Samples"]').click();
+    assert(await page.locator('#samples .sample').count() >= 20, `Browser lists bundled Melvox piano sample assets at ${viewport.width}x${viewport.height}`);
+    assert((await page.locator('#samples .sample-status').filter({hasText:'CC BY 3.0'}).count()) >= 20, `Bundled piano assets display CC BY 3.0 attribution at ${viewport.width}x${viewport.height}`);
+    assert(await page.locator('#samples [data-preview="C4 Grand Piano"]').isEnabled(), `Bundled C4 piano preview is enabled at ${viewport.width}x${viewport.height}`);
+    await page.locator('.dock button[data-screen="timeline"]').click();
     const initialNotes = await page.locator('#pianogrid .note').count();
     const grid = await page.locator('#pianogrid').boundingBox();
     await page.mouse.click(grid.x + grid.width*0.72, grid.y + grid.height*0.36);
