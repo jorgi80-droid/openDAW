@@ -2596,13 +2596,16 @@ function paintTimelineRuler(force=false){
  ctx.setTransform(1,0,0,1,0,0);ctx.clearRect(0,0,pw,ph);ctx.setTransform(dpr,0,0,dpr,-x0*dpr,0);
  ctx.textBaseline='middle';ctx.font='500 11px Inter,Roboto,system-ui,sans-serif';
  const first=Math.max(0,Math.floor(x0/ppb)-1),last=Math.min(MAX_BARS,Math.ceil(x1/ppb)+1);
+ // Keep major bar lines at 4-bar intervals, but progressively thin the ruler labels
+ // as bars get closer together. This avoids unreadable text when zoomed far out.
+ const labelEvery=ppb<7?16:ppb<13?8:4;
  for(let bar=first;bar<=last;bar++){
   const x=Math.round(bar*ppb)+.5;
-  // Bar boundary strokes and bar numerals are tied to the same coordinate.
   ctx.fillStyle=bar%TIMELINE_MAJOR_BARS===0?'#334454':'#273644';
   ctx.fillRect(x,0,1,h);
-  if(bar%TIMELINE_MAJOR_BARS===0&&bar<MAX_BARS){
-   ctx.fillStyle='#9cafc5';ctx.fillText(String(bar+1),bar*ppb+7,h/2);
+  if(bar%labelEvery===0&&bar<MAX_BARS){
+   ctx.fillStyle='#9cafc5';
+   ctx.fillText(String(bar+1),bar*ppb+5,h/2);
   }
  }
  canvas.dataset.ppb=String(ppb);canvas.dataset.x0=String(x0);canvas.dataset.x1=String(x1);canvas.dataset.h=String(h);
@@ -3124,49 +3127,61 @@ function beginTimelinePinch(distance,centerX){
  document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-active');
 }
 function queueTimelinePinch(distance,centerX){
- const start=timelinePinchStart;if(!start||timelinePointers.size<2)return;
- const ratio=Math.max(.05,Math.min(20,Math.max(1,distance)/start.startDistance));
+ const start=timelinePinchStart;
+ if(!start||timelinePointers.size<2)return;
+ const ratio=Math.max(.0625,Math.min(16,Math.max(1,distance)/start.startDistance));
  timelinePinchPending={zoom:Math.max(.25,Math.min(16,start.startZoom*ratio)),centerX,epoch:start.epoch};
  if(timelinePinchFrame)return;
  timelinePinchFrame=requestAnimationFrame(()=>{
-  timelinePinchFrame=0;const pending=timelinePinchPending;timelinePinchPending=null;
-  const base=timelinePinchStart;if(!pending||!base||pending.epoch!==base.epoch||timelinePointers.size<2)return;
+  timelinePinchFrame=0;
+  const pending=timelinePinchPending;timelinePinchPending=null;
+  const base=timelinePinchStart;
+  if(!pending||!base||pending.epoch!==base.epoch||timelinePointers.size<2)return;
   const ruler=timelineRuler();if(!ruler)return;
-  const rect=ruler.getBoundingClientRect(),center=Math.max(0,Math.min(ruler.clientWidth,pending.centerX-rect.left));
-  const zoom=Math.max(.25,Math.min(16,pending.zoom)),scale=zoom/Math.max(.0001,base.startZoom);
+  const rect=ruler.getBoundingClientRect();
+  const center=Math.max(0,Math.min(ruler.clientWidth,pending.centerX-rect.left));
+  const zoom=Math.max(.25,Math.min(16,pending.zoom));
+  const scale=zoom/Math.max(.0001,base.startZoom);
   const origin=base.anchorBar*base.startPpb;
-  // Freeze logical grid while pinching: only transform the ruler and clip canvas surfaces for preview.
-  // Do not re-run applyTimelineGeometry or repaint the ruler on each pointermove.
-  const elements=[ruler.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
   const translate=center-origin*scale;
-  elements.forEach(el=>{
-   if(!el.dataset.pinchTransformBase)el.dataset.pinchTransformBase='1';
+  // Preview only the horizontal content planes. A canvas viewport must not
+  // scale the canvas itself around its own origin; use the same focal transform
+  // for all lanes and the ruler so bar x=0 remains a common coordinate.
+  const elements=[ruler.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+  for(const el of elements){
    el.style.transformOrigin='0 0';
    el.style.transform='translate3d('+translate+'px,0,0) scaleX('+scale+')';
    el.style.willChange='transform';
-  });
+  }
   document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-preview');
-  base.pendingZoom=zoom;base.pendingCenter=center;
+  base.pendingZoom=zoom;
+  base.pendingCenter=center;
  });
 }
 function clearTimelinePinch(){
- const base=timelinePinchStart;timelinePinchStart=null;timelinePinchPending=null;
+ const base=timelinePinchStart;
+ timelinePinchStart=null;
+ timelinePinchPending=null;
  if(timelinePinchFrame){cancelAnimationFrame(timelinePinchFrame);timelinePinchFrame=0}
  const ruler=timelineRuler();
  const elements=[ruler?.querySelector('.bars'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
- elements.forEach(el=>{el.style.transform='';el.style.transformOrigin='';el.style.willChange='';delete el.dataset.pinchTransformBase});
+ // Drop compositor preview before changing canonical geometry, then commit in one frame.
+ for(const el of elements){el.style.transform='';el.style.transformOrigin='';el.style.willChange=''}
  document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active','timeline-pinch-preview');
  if(base&&Number.isFinite(base.pendingZoom)){
   const center=Math.max(0,Math.min(ruler?.clientWidth||0,base.pendingCenter||0));
+  const focusBar=base.anchorBar;
   timelineZoom=base.pendingZoom;
   $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
+  $('timelineScreen').style.setProperty('--timeline-ppb',timelinePixelsPerBar()+'px');
   const width=applyTimelineGeometry();
   if(ruler){
    const maxScroll=Math.max(0,width-ruler.clientWidth);
-   ruler.scrollLeft=Math.max(0,Math.min(maxScroll,base.anchorBar*timelinePixelsPerBar()-center));
+   ruler.scrollLeft=Math.max(0,Math.min(maxScroll,focusBar*timelinePixelsPerBar()-center));
    syncTimelineScroll(ruler);
   }
-  requestPaintTimelineRuler(true);updateTimelineTools();
+  requestPaintTimelineRuler(true);
+  updateTimelineTools();
  }
  timelineLastPinchAt=Date.now();
 }
