@@ -117,6 +117,12 @@ try {
     assert(await page.locator('#devices .device-page-tabs button.active').innerText() === 'TIME', `device effect pages switch at ${viewport.width}x${viewport.height}`);
     // Rack identity is per track: choosing a different track must not reuse the same instrument selection.
     await page.locator('#devTabs button[data-cat="Instrument"]').click();
+    await page.locator('#devices [data-device-select="Playfield Drums"]').click();
+    await page.locator('#devices [data-device-keyboard]').click();
+    assert(await page.locator('#devices .mini-drum-pads [data-drum-pad]').count() === 12, `Drum controller exposes 12 pads at ${viewport.width}x${viewport.height}`);
+    await page.locator('#devices .mini-drum-pads [data-drum-pad="0"]').click();
+    assert((await page.locator('#toast').innerText()).includes('Drum pad Kick'), `Drum pad touch gives immediate feedback at ${viewport.width}x${viewport.height}`);
+    await page.locator('#devices [data-device-keyboard]').click();
     await page.locator('#devices [data-device-select="Nano Sampler"]').click();
     await page.locator('#deviceTrackSelect').selectOption('1');
     await page.locator('#deviceTrackLabel').waitFor({state:'visible'});
