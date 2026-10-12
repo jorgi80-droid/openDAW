@@ -21,14 +21,19 @@ jobs:
         with:
           repository: u4224253-dotcom/derizclone
           ref: cc5fb98aa99c536aaf022d653db9f15dac623257
-          path: /tmp/melvox-source
+          path: melvox-source
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
 
       - name: Prepare offline Melvox suite
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p app-shell/melvox
-          cp -R /tmp/melvox-source/. app-shell/melvox/
+          cp -R melvox-source/. app-shell/melvox/
           sed -i "/import { startLicenseGuard } from '.\/license';/d" app-shell/melvox/src/main.ts
           sed -i "/startLicenseGuard();/d" app-shell/melvox/src/main.ts
           npm --prefix app-shell/melvox ci
@@ -53,6 +58,7 @@ jobs:
           ASSETS=android-wrapper-novadaw/app/src/main/assets/novadaw
           mkdir -p "$ASSETS/assets/opendaw/fonts" "$ASSETS/assets/opendaw/ui" "$ASSETS/assets/melvox/samples/piano"
           cp app-shell/index.html "$ASSETS/index.html"
+          cp app-shell/oboe-bridge.js "$ASSETS/oboe-bridge.js"
           mkdir -p "$ASSETS/melvox"
           cp -R app-shell/melvox/dist/. "$ASSETS/melvox/"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/favicon.svg -o "$ASSETS/assets/opendaw/favicon.svg"
@@ -61,8 +67,8 @@ jobs:
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/empty.svg -o "$ASSETS/assets/opendaw/ui/empty.svg"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/favicon-live.svg -o "$ASSETS/assets/opendaw/ui/favicon-live.svg"
           curl -fsSL https://raw.githubusercontent.com/jorgi80-droid/openDAW/main/packages/app/studio/public/grid16.svg -o "$ASSETS/assets/opendaw/ui/grid16.svg"
-          cp /tmp/melvox-source/public/samples/piano/*.mp3 "$ASSETS/assets/melvox/samples/piano/"
-          cp /tmp/melvox-source/public/samples/piano/LICENSE.txt "$ASSETS/assets/melvox/samples/piano/LICENSE.txt"
+          cp melvox-source/public/samples/piano/*.mp3 "$ASSETS/assets/melvox/samples/piano/"
+          cp melvox-source/public/samples/piano/LICENSE.txt "$ASSETS/assets/melvox/samples/piano/LICENSE.txt"
 
       - name: Build StudioWave APK
         working-directory: android-wrapper-novadaw
