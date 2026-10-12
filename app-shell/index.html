@@ -921,7 +921,7 @@ normalizePianoResolution(project);
 const trackRacks = Object.create(null);
 function getTrackRack(index=selectedTrack){
  const track=project.tracks[index]; if(!track)return null;
- if(!trackRacks[track.id])trackRacks[track.id]={instrument:'Vaporisateur Synth',effect:'Revamp EQ',preset:'Warm Keys',instrumentParams:{},effectParams:{},bypassed:false,steps:Array.from({length:16},(_,i)=>track.name==='Drums'&&i%4===0)};
+ if(!trackRacks[track.id])trackRacks[track.id]={instrument:'Vaporisateur Synth',effect:'Revamp EQ',preset:'Warm Keys',instrumentParams:{},effectParams:{},bypassed:false,steps:(track.steps=Array.isArray(track.steps)&&track.steps.length===16?track.steps:Array.from({length:16},(_,i)=>track.name==='Drums'&&i%4===0))};
  if(!Array.isArray(trackRacks[track.id].steps))trackRacks[track.id].steps=Array(16).fill(false);
  return trackRacks[track.id];
 }
