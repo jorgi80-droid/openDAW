@@ -3157,38 +3157,38 @@ function queueTimelinePinch(distance,centerX){
   const base=timelinePinchStart;
   if(!pending||!base||pending.epoch!==base.epoch||timelinePointers.size<2)return;
   const ruler=timelineRuler();if(!ruler)return;
-  const rect=ruler.getBoundingClientRect();
-  const center=Math.max(0,Math.min(ruler.clientWidth,pending.centerX-rect.left));
   const zoom=Math.max(.25,Math.min(16,pending.zoom));
   const scale=zoom/Math.max(.0001,base.startZoom);
-  const origin=base.anchorBar*base.startPpb;
-  const translate=center-origin*scale;
-  // Preview only the horizontal content planes. A canvas viewport must not
-  // scale the canvas itself around its own origin; use the same focal transform
-  // for all lanes and the ruler so bar x=0 remains a common coordinate.
-  const elements=[ruler.querySelector('.timeline-ruler-grid-canvas'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
-  for(const el of elements){
-   el.style.transformOrigin='0 0';
-   el.style.transform='translate3d('+translate+'px,0,0) scaleX('+scale+')';
-   el.style.willChange='transform';
+  const focusX=base.anchorBar*base.startPpb;
+  const gridElements=[ruler.querySelector('.timeline-ruler-grid-canvas'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+  // Compute screen-space compensation independently for each scroll viewport;
+  // every lane keeps the same timeline point under the moving finger midpoint.
+  for(const canvas of gridElements){
+   const viewport=canvas.classList.contains('timeline-ruler-grid-canvas')?ruler:canvas.closest('.cliparea');
+   if(!viewport)continue;
+   const viewportRect=viewport.getBoundingClientRect();
+   const centerLocal=Math.max(0,Math.min(viewport.clientWidth,pending.centerX-viewportRect.left));
+   const translate=centerLocal+(viewport.scrollLeft||0)-focusX*scale;
+   canvas.style.transformOrigin='0 0';
+   canvas.style.transform='translate3d('+translate+'px,0,0) scaleX('+scale+')';
+   canvas.style.willChange='transform';
   }
   document.querySelector('#timelineScreen')?.classList.add('timeline-pinch-preview');
   base.pendingZoom=zoom;
-  base.pendingCenter=center;
+  base.pendingCenterX=pending.centerX;
  });
 }
 function clearTimelinePinch(){
  const base=timelinePinchStart;
- timelinePinchStart=null;
- timelinePinchPending=null;
+ timelinePinchStart=null;timelinePinchPending=null;
  if(timelinePinchFrame){cancelAnimationFrame(timelinePinchFrame);timelinePinchFrame=0}
  const ruler=timelineRuler();
- const elements=[ruler?.querySelector('.timeline-ruler-grid-canvas'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
- // Drop compositor preview before changing canonical geometry, then commit in one frame.
- for(const el of elements){el.style.transform='';el.style.transformOrigin='';el.style.willChange=''}
+ const gridElements=[ruler?.querySelector('.timeline-ruler-grid-canvas'),...document.querySelectorAll('#timelineScreen .clip-canvas')].filter(Boolean);
+ for(const canvas of gridElements){canvas.style.transform='';canvas.style.transformOrigin='';canvas.style.willChange=''}
  document.querySelector('#timelineScreen')?.classList.remove('timeline-pinch-active','timeline-pinch-preview');
  if(base&&Number.isFinite(base.pendingZoom)){
-  const center=Math.max(0,Math.min(ruler?.clientWidth||0,base.pendingCenter||0));
+  const viewportCenterX=Number.isFinite(base.pendingCenterX)?base.pendingCenterX:(ruler?.getBoundingClientRect().left||0)+(ruler?.clientWidth||0)/2;
+  const center=Math.max(0,Math.min(ruler?.clientWidth||0,viewportCenterX-(ruler?.getBoundingClientRect().left||0)));
   const focusBar=base.anchorBar;
   timelineZoom=base.pendingZoom;
   $('timelineScreen').style.setProperty('--timeline-zoom',String(timelineZoom));
