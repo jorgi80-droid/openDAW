@@ -2597,7 +2597,7 @@ $('tracks').addEventListener('click',e=>{
      sourceTrack.clips=sourceTrack.clips.filter(c=>c.id!==source.id);
     }
     const pasted={...JSON.parse(JSON.stringify(clipboardClip.clip)),id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start,label:(clipboardClip.clip.label||'Clip')+(clipboardClip.mode==='move'?'':' Copy')};
-    if(pasted.start+pasted.duration>32)pasted.start=Math.max(0,32-pasted.duration);
+    if(pasted.start+pasted.duration>MAX_BARS)pasted.start=Math.max(0,MAX_BARS-pasted.duration);
     targetTrack.clips.push(pasted);selectedTrack=ownerIndex;selectedClip=pasted.id;clipboardClip.pendingPaste=false;clipboardClip.mode='copy';
     renderTracks();updateTimelineTools();hideClipContext();notify('Clip ditempel pada track '+targetTrack.name);return;
    }
@@ -2823,7 +2823,7 @@ document.addEventListener('keydown',e=>{
    sourceTrack.clips=sourceTrack.clips.filter(c=>c.id!==source.id);
   }
   const pasted={...JSON.parse(JSON.stringify(clipboardClip.clip)),id:'c'+Date.now()+Math.random().toString(16).slice(2,6),start,label:(clipboardClip.clip.label||'Clip')+(clipboardClip.mode==='move'?'':' Copy')};
-  if(pasted.start+pasted.duration>32)pasted.start=Math.max(0,32-pasted.duration);
+  if(pasted.start+pasted.duration>MAX_BARS)pasted.start=Math.max(0,MAX_BARS-pasted.duration);
   targetClip.t.clips.push(pasted);
   selectedTrack=targetClip.ti;selectedClip=pasted.id;clipboardClip={clip:JSON.parse(JSON.stringify(pasted)),sourceTrack:targetClip.ti,pendingPaste:false,mode:'copy'};
   renderTracks();updateTimelineTools();hideClipContext();notify('Clip ditempel');return
