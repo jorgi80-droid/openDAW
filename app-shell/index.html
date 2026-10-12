@@ -1348,9 +1348,10 @@ function renderRangeSelection(){
  overlay.appendChild(marker);ruler.style.position='relative';ruler.appendChild(overlay);
 }
 function barAtClientX(clientX,viewport){
- const rect=viewport.getBoundingClientRect(),contentWidth=Math.max(1,viewport.scrollWidth);
- const x=Math.max(0,Math.min(contentWidth,viewport.scrollLeft+clientX-rect.left));
- return clampBar(x/contentWidth*MAX_BARS);
+ const rect=viewport.getBoundingClientRect();
+ const zoomWidth=Math.max(1,viewport.querySelector('.bars')?.getBoundingClientRect().width||viewport.scrollWidth);
+ const x=Math.max(0,Math.min(zoomWidth,viewport.scrollLeft+clientX-rect.left));
+ return clampBar(x/zoomWidth*MAX_BARS);
 }
 function beginRangeSelection(event){
  if(timelineTool!=='range'||event.button!==0)return;
@@ -2051,9 +2052,9 @@ function setTimelineZoom(next,anchorX){
  const old=timelineZoom;
  const viewport=document.querySelector('.bars-viewport');
  const scroll=viewport?.scrollLeft||0;
- const oldRange=viewport?Math.max(1,viewport.scrollWidth-viewport.clientWidth):1;
+ const oldWidth=viewport?Math.max(1,viewport.querySelector('.bars')?.getBoundingClientRect().width||viewport.scrollWidth):1;
  const anchor=Number.isFinite(anchorX)?Math.max(0,Math.min(viewport?.clientWidth||0,anchorX)):(viewport?.clientWidth||0)/2;
- const anchorTime=(scroll+anchor)/oldRange;
+ const anchorTime=Math.max(0,Math.min(1,(scroll+anchor)/oldWidth));
  timelineZoom=Math.max(.25,Math.min(16,Number(next)||1));
  if(Math.abs(timelineZoom-old)<.0001)return;
  $('timelineScreen').style.setProperty('--timeline-zoom',timelineZoom);
@@ -2062,8 +2063,9 @@ function setTimelineZoom(next,anchorX){
  renderTracks();
  const ruler=document.querySelector('.bars-viewport');
  if(ruler){
+  const newWidth=Math.max(1,ruler.querySelector('.bars')?.getBoundingClientRect().width||ruler.scrollWidth);
   const newRange=Math.max(0,ruler.scrollWidth-ruler.clientWidth);
-  ruler.scrollLeft=Math.max(0,Math.min(newRange,anchorTime*newRange-anchor));
+  ruler.scrollLeft=Math.max(0,Math.min(newRange,anchorTime*newWidth-anchor));
   syncTimelineScroll(ruler);
  }
  updateTimelineTools();
